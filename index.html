@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tool-Übersicht</title>
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --text:#1d2327; --muted:#5d676e; --line:#dcd9d0;
+  --accent:#0b5c7a; --accent-soft:#e2eff4; --ok:#1c6b3a; --ok-soft:#e1f1e6;
+  --as:#9a4a12; --id:#0b5c7a; --kt:#5b3f8f;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15191c; --surface:#1e2428; --text:#e9ecee; --muted:#9aa5ac; --line:#333c42;
+    --accent:#6cc0de; --accent-soft:#1d3640; --ok:#7fd49c; --ok-soft:#1c3526;
+    --as:#e8a56f; --id:#6cc0de; --kt:#b9a2e6;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px 56px}
+h1{font-size:1.6rem;line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}
+.lead{margin:0 0 20px;color:var(--muted);max-width:62ch}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 8px}
+.bar input[type=search]{flex:1 1 240px;min-width:0;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;border:0;background:transparent;color:var(--text);padding:11px 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--surface);font-weight:600}
+.count{margin:0 0 18px;color:var(--muted);font-size:.9rem}
+h2{font-size:1.05rem;margin:28px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+h2 small{font-weight:400;color:var(--muted);font-size:.9rem}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:6px 14px;align-items:center}
+.sw{font-variant-numeric:tabular-nums;font-weight:700;font-size:.9rem;padding:4px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.main{min-width:0}
+.title{font-weight:600;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:.88rem}
+.tag{font-weight:700}
+.tag.AS{color:var(--as)} .tag.ID{color:var(--id)} .tag.KT{color:var(--kt)}
+.url{grid-column:1 / -1;font:.78rem/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{font:inherit;font-size:.92rem;font-weight:600;text-decoration:none;border-radius:8px;padding:9px 13px;border:1px solid var(--accent);cursor:pointer;white-space:nowrap}
+.btn.copy{background:var(--accent);color:var(--surface)}
+.btn.open{background:transparent;color:var(--accent)}
+.btn.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.empty{color:var(--muted);padding:24px 0}
+footer{margin-top:36px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:620px){
+  li{grid-template-columns:auto 1fr}
+  .acts{grid-column:1 / -1;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tool-Übersicht</h1>
+  <p class="lead">Link-Sammlung für die Unterrichtsplanung. «Link kopieren» legt die Adresse in die Zwischenablage, zum Einfügen in OneNote.</p>
+
+  <div class="bar">
+    <input type="search" id="suche" placeholder="Suchen, z. B. SW08, Erder, ID3" aria-label="Tools durchsuchen">
+    <div class="seg" role="group" aria-label="Sortierung">
+      <button type="button" id="nach-block" aria-pressed="true">Nach Block</button>
+      <button type="button" id="nach-sw" aria-pressed="false">Nach Schulwoche</button>
+    </div>
+  </div>
+  <p class="count" id="anzahl" aria-live="polite"></p>
+
+  <div id="liste"></div>
+
+  <footer>Stand: 6. Oktober 2026 · 30 Tools · Die Schulwoche stammt aus dem Dateinamen und ist ein Richtwert.</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var BASIS = "https://baumiteacher.github.io/Tools/";
+
+var BLOECKE = {
+  AS3:"Umgang mit Elektrizität",
+  AS4:"PSA (Elektro)",
+  ID1:"Lampenschaltung im Kellerraum",
+  ID2:"Verlegen eines Erders",
+  ID3:"Potenzialausgleich",
+  ID4:"EFH Treppenhaus UG EG",
+  ID5:"Einphasige Beleuchtungsinstallationen im Wohnbereich",
+  KT1:"Vom Netzanbieter zum Endgerät"
+};
+var REIHE = ["AS3","AS4","ID1","ID2","ID3","ID4","ID5","KT1"];
+
+/* [Block, Teilauftrag, Schulwoche, Titel, Übungen, Dateiname] */
+var TOOLS = [
+  ["AS3","TA1", 8,"Spannungs- und Strombereiche","Ü1–7","B_AS_3_SW08_Spannungs-und-Strombereiche.html"],
+  ["AS3","TA2", 9,"Körperstrom-Simulator","Ü8–13, 15–19","B_AS_3_SW09_Koerperstrom-Simulator.html"],
+  ["AS3","TA3",11,"Erste Hilfe bei Elektrounfall","Ü20–24","B_AS_3_SW11_Erste-Hilfe-bei-Elektrounfall.html"],
+  ["AS4","TA1",13,"5 + 5 Sicherheitsregeln","Ü1–6, 8–10","B_AS_4_SW13_5-plus-5-Sicherheitsregeln.html"],
+  ["AS4","TA2",14,"Welche Arbeitsmethode?","Ü7, 11–18","B_AS_4_SW14_Welche-Arbeitsmethode.html"],
+  ["AS4","TA3",16,"PSA nach Zwiebelschalenprinzip","Ü19–23","B_AS_4_SW16_PSA-nach-Zwiebelschalenprinzip.html"],
+  ["AS4","TA3",17,"Anlage freischalten","Ü24–25","B_AS_4_SW17_Anlage-freischalten.html"],
+  ["ID1","TA6", 5,"Massvorsätze am Zahlenstrahl","Ü31–36","B_ID_1_SW05_Massvorsaetze-am-Zahlenstrahl.html"],
+  ["ID1","TA6", 5,"Ohmsches Gesetz: U, I und R","Ü27–30, 37–48","B_ID_1_SW05_Ohmsches-Gesetz.html"],
+  ["ID2","TA1", 6,"Flächen und Querschnitte","Ü1–9","B_ID_2_SW06_Flaechen-und-Querschnitte.html"],
+  ["ID2","TA2", 7,"Dichte-Labor: Masse eines Erders","Ü10–18","B_ID_2_SW07_Dichte-Labor.html"],
+  ["ID2","TA3", 7,"Erder verlegen: Kontrolle auf der Baustelle","Ü19–39, 43","B_ID_2_SW07_Erder-verlegen.html"],
+  ["ID3","TA1", 9,"Querschnitt-Finder Erdungsleiter und SPA","Ü4–6","B_ID_3_SW09_Querschnitt-Finder_EL_SPA.html"],
+  ["ID3","TA3",10,"Leiterwiderstand-Labor","Ü10–13","B_ID_3_SW10_Leiterwiderstand-Labor.html"],
+  ["ID3","TA3",10,"Serieschaltung-Baukasten","Ü14–21","B_ID_3_SW10_Serieschaltung-Baukasten.html"],
+  ["ID3","TA3",11,"Potenzialausgleich als Serieschaltung","Ü22–24","B_ID_3_SW11_Potenzialausgleich-als-Serieschaltung.html"],
+  ["ID4","TA2",13,"Rohr-Magazin","Ü4","B_ID_4_SW13_Rohr-Magazin.html"],
+  ["ID4","TA3",14,"Wechselschaltung Schema 3","Ü5–8","B_ID_4_SW14_Wechselschaltung-Schema-3.html"],
+  ["ID4","TA4",15,"Lampen in Serie: Fehlersuche","Ü10–13","B_ID_4_SW15_Lampen-in-Serie-Fehlersuche.html"],
+  ["ID4","TA4",16,"Heisse Klemme: Übergangswiderstand","Ü17","B_ID_4_SW16_Heisse-Klemme.html"],
+  ["ID5","TA1",17,"Drahtzahl im Rohr: Schlafzimmer","Ü1–3","B_ID_5_SW17_Drahtzahl-im-Rohr-Schlafzimmer.html"],
+  ["ID5","TA2",18,"Schema 0, 1 und 2 im Vergleich","Ü4–7, 9, 10","B_ID_5_SW18_Schema-0-1-2-im-Vergleich.html"],
+  ["ID5","TA4",19,"Kochfeld und Backofen: Fehler finden","Ü13–15","B_ID_5_SW19_Kochfeld-und-Backofen-Fehler-finden.html"],
+  ["ID5","TA5",19,"Küche: Was hält der 13-A-LS aus?","Ü29–30","B_ID_5_SW19_Kueche-Was-haelt-der-13-A-LS-aus.html"],
+  ["ID5","TA5",19,"Parallelschaltung-Baukasten","Ü16–27","B_ID_5_SW19_Parallelschaltung-Baukasten.html"],
+  ["KT1","TA1", 8,"Gesetzespyramide Telekommunikation","Ü1","B_TK_1_SW08_Gesetzespyramide-Telekommunikation.html"],
+  ["KT1","TA1", 9,"FTTH-Referenzmodell","Ü2","B_TK_1_SW09_FTTH-Referenzmodell.html"],
+  ["KT1","TA2",10,"Hausanschluss-Berater","Ü3–4","B_TK_1_SW10_Hausanschluss-Berater.html"],
+  ["KT1","TA2",11,"Bit-und-Byte-Rechner","Ü5–6","B_TK_1_SW11_Bit-und-Byte-Rechner.html"],
+  ["KT1","TA4",13,"Router-Rückseite und Dosen","Ü10–13","B_TK_1_SW13_Router-Rueckseite-und-Dosen.html"]
+];
+
+var modus = "block", suche = "";
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function sw2(n){ return "SW" + (n < 10 ? "0" : "") + n; }
+function passt(t){
+  if (!suche) return true;
+  var text = (t[0] + " " + t[1] + " " + sw2(t[2]) + " SW" + t[2] + " " + t[3] + " " + t[4] + " " + BLOECKE[t[0]] + " " + t[5]).toLowerCase();
+  return suche.split(/\s+/).every(function(w){ return text.indexOf(w) >= 0; });
+}
+function eintrag(t){
+  var url = BASIS + t[5], bereich = t[0].slice(0,2);
+  return "<li>" +
+    "<span class=\"sw\">" + sw2(t[2]) + "</span>" +
+    "<div class=\"main\"><div class=\"title\">" + esc(t[3]) + "</div>" +
+    "<div class=\"meta\"><span class=\"tag " + bereich + "\">" + t[0] + "</span> · " + t[1] + " · " + esc(t[4]) + "</div></div>" +
+    "<div class=\"acts\"><button type=\"button\" class=\"btn copy\" data-url=\"" + esc(url) + "\">Link kopieren</button>" +
+    "<a class=\"btn open\" href=\"" + esc(t[5]) + "\" target=\"_blank\" rel=\"noopener\">Öffnen</a></div>" +
+    "<div class=\"url\">" + esc(url) + "</div></li>";
+}
+function render(){
+  var treffer = TOOLS.filter(passt), h = "";
+  if (!treffer.length){
+    h = "<p class=\"empty\">Kein Tool gefunden. Suchbegriff anpassen.</p>";
+  } else if (modus === "block"){
+    REIHE.forEach(function(b){
+      var l = treffer.filter(function(t){ return t[0] === b; });
+      if (!l.length) return;
+      h += "<h2>" + b + " " + esc(BLOECKE[b]) + " <small>" + l.length + (l.length === 1 ? " Tool" : " Tools") + "</small></h2><ul>" + l.map(eintrag).join("") + "</ul>";
+    });
+  } else {
+    var wochen = [];
+    treffer.forEach(function(t){ if (wochen.indexOf(t[2]) < 0) wochen.push(t[2]); });
+    wochen.sort(function(a,b){ return a - b; }).forEach(function(w){
+      var l = treffer.filter(function(t){ return t[2] === w; });
+      h += "<h2>Schulwoche " + w + " <small>" + l.length + (l.length === 1 ? " Tool" : " Tools") + "</small></h2><ul>" + l.map(eintrag).join("") + "</ul>";
+    });
+  }
+  $("liste").innerHTML = h;
+  $("anzahl").textContent = treffer.length + " von " + TOOLS.length + " Tools";
+  $("nach-block").setAttribute("aria-pressed", String(modus === "block"));
+  $("nach-sw").setAttribute("aria-pressed", String(modus === "sw"));
+}
+function kopiereAlt(text){
+  var ta = document.createElement("textarea");
+  ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+  var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta); return ok;
+}
+function rueckmeldung(b, ok){
+  b.textContent = ok ? "Kopiert ✓" : "Bitte Adresse unten markieren";
+  b.classList.toggle("done", ok);
+  setTimeout(function(){ b.textContent = "Link kopieren"; b.classList.remove("done"); }, 2200);
+}
+$("liste").addEventListener("click", function(ev){
+  var b = ev.target.closest("button[data-url]"); if (!b) return;
+  var url = b.getAttribute("data-url");
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(url).then(function(){ rueckmeldung(b, true); }, function(){ rueckmeldung(b, kopiereAlt(url)); });
+  } else {
+    rueckmeldung(b, kopiereAlt(url));
+  }
+});
+$("suche").addEventListener("input", function(){ suche = this.value.trim().toLowerCase(); render(); });
+$("nach-block").addEventListener("click", function(){ modus = "block"; render(); });
+$("nach-sw").addEventListener("click", function(){ modus = "sw"; render(); });
+render();
+})();
+</script>
+</body>
+</html>
