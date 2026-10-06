@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_4 TA4 Lampen in Serie: Fehlersuche BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Schaltzeichen nach Theoriebuch (AAD28, AAD30.1) und Arbeitsblättern (ID4, ID5) */
+:root{ --sym:#2B3E66; --w-l:#7F4F3F; --w-n:#4F86B8; --w-ld:#F26B21; --w-ld2:#9B59C6; --w-k:#F26B21; --w-pe1:#7AC943; --w-pe2:#F7DC3B;
+  --t-l:#993300; --t-ld:#800080; --t-ldb:#FF6600; --t-n:#0000FF; --t-k:#FF00FF; --plan:#4F86B8; --lampe-an:#F6D13A }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD } }
+:root[data-theme="dark"]{ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD }
+.sy{fill:none;stroke:var(--sym);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy.dn{stroke-width:1.3}
+.sy.dk{stroke-width:2.6}
+.sy-s{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy-s.dn{stroke-width:1.2}
+.sy-f{fill:var(--sym);stroke:none}
+.sy-fs{fill:var(--ink);stroke:none}
+.sy-bg{fill:var(--surface)}
+.sy-d{stroke-dasharray:3.5 3}
+.sy-t{fill:var(--sym);font-family:var(--sans);font-size:11px}
+.sy-ts{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.w{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.w.live{stroke-width:5}
+.w-l{stroke:var(--w-l)} .w-n{stroke:var(--w-n)} .w-ld{stroke:var(--w-ld)} .w-ld2{stroke:var(--w-ld2)} .w-k{stroke:var(--w-k)}
+.w-pe1{stroke:var(--w-pe1)} .w-pe2{stroke:var(--w-pe2);stroke-dasharray:6 6;stroke-linecap:butt}
+.t-l{stroke:var(--t-l)} .t-ld{stroke:var(--t-ld)} .t-ldb{stroke:var(--t-ldb)} .t-n{stroke:var(--t-n)} .t-k{stroke:var(--t-k)} .t-s{stroke:var(--ink)}
+.plan{fill:none;stroke:var(--plan);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.plan.an{stroke-width:5.5}
+.plan.fehler{stroke:var(--bad)}
+
+[hidden]{display:none!important}
+:root{ --lampe:#F6D13A }
+.bild{width:100%;height:auto;display:block}
+.c-wire{stroke:var(--ink);stroke-width:2;fill:none}
+.c-wire.weg{stroke:var(--accent);stroke-width:4}
+.c-wire.tot{stroke:var(--muted);stroke-dasharray:4 4}
+.c-r{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.c-r.tot{stroke:var(--muted);stroke-dasharray:4 3}
+.c-t{fill:var(--ink);font-family:var(--sans);font-size:11px;font-weight:700}
+.c-v{fill:var(--ink);font-family:var(--mono);font-size:10.5px;font-weight:600}
+.c-m{fill:var(--muted);font-family:var(--sans);font-size:10px}
+.c-term{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.c-dot{fill:var(--ink)}
+.l-glas{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.l-licht{fill:var(--lampe)}
+.l-x{stroke:var(--ink);stroke-width:2}
+.l-leer{fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:4 4}
+.rechnung{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:10px}
+.zustand{font-weight:700}
+.zustand.ok{color:var(--ok)} .zustand.bad{color:var(--bad)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.l-sockel{fill:var(--sym)}
+.l-glas{stroke-width:1.6}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_4 EFH Treppenhaus UG EG · Teilauftrag 4</p>
+    <h1>Lampen in Serie: Fehlersuche BAP</h1>
+    <p class="lead">Zwei Lampen leuchten nur schwach, und wird eine entfernt, erlischt auch die andere. Finden Sie den Fehler und rechnen Sie nach: mit zwei Lampen, einer Lichterkette und einem Reiseföhn.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Situation</legend>
+          <div class="opts" id="szene">
+            <button class="opt txt" type="button" data-s="lampen" id="sz-lampen" aria-pressed="true">Zwei Lampen</button>
+            <button class="opt txt" type="button" data-s="kette" id="sz-kette" aria-pressed="false">Lichterkette</button>
+            <button class="opt txt" type="button" data-s="foehn" id="sz-foehn" aria-pressed="false">Reiseföhn</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="plain" id="box-lampen">
+        <p class="note">Zwei baugleiche Halogen-Leuchtmittel (rein ohmsche Verbraucher), im Betrieb je 882 Ω, an <i>U</i> = 230 V.</p>
+        <fieldset>
+          <legend>Verdrahtung</legend>
+          <div class="seg" id="verdr">
+            <button class="opt txt" type="button" data-v="par" id="verdr-par" aria-pressed="false">parallel (richtig)</button>
+            <button class="opt txt" type="button" data-v="ser" id="verdr-ser" aria-pressed="true">in Serie (Fehler)</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Leuchtmittel</legend>
+          <div class="seg" id="einsatz">
+            <button class="opt txt" type="button" data-e="0" id="einsatz-0" aria-pressed="true">Lampe 1 eingesetzt</button>
+            <button class="opt txt" type="button" data-e="1" id="einsatz-1" aria-pressed="true">Lampe 2 eingesetzt</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="plain" id="box-kette">
+        <p class="note">Identische kleine Glühlämpchen, alle in Reihe (Serie) geschaltet, direkt an der Netzspannung von 230 V.</p>
+        <fieldset>
+          <legend>Anzahl Lämpchen <i>N</i></legend>
+          <div class="opts" id="n-chips"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Widerstand eines Lämpchens <i>R</i><sub>1</sub></legend>
+          <div class="opts" id="r-chips"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Zustand der Kette</legend>
+          <div class="seg" id="defekt">
+            <button class="opt txt" type="button" data-d="0" id="defekt-0" aria-pressed="true">alle Lämpchen ganz</button>
+            <button class="opt txt" type="button" data-d="1" id="defekt-1" aria-pressed="false">ein Lämpchen defekt</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="plain" id="box-foehn">
+        <p class="note">Zwei identische Heizspiralen, direkt an der Netzspannung von 230 V.</p>
+        <fieldset>
+          <legend>Widerstand einer Heizspirale</legend>
+          <div class="opts" id="f-chips"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Stufe</legend>
+          <div class="seg" id="stufe">
+            <button class="opt txt" type="button" data-st="1" id="stufe-1" aria-pressed="true">Stufe 1: beide Spiralen in Serie</button>
+            <button class="opt txt" type="button" data-st="2" id="stufe-2" aria-pressed="false">Stufe 2: eine Spirale überbrückt</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="bild-title"></h2>
+        <svg class="bild" id="bild" viewBox="0 0 340 134" role="img" aria-label="Ersatzschaltbild der gewählten Situation"></svg>
+        <p class="note">Schaltzeichen wie im Arbeitsblatt (Übungen 10 und 12). Die kleinen Lampenbilder zeigen nur die Helligkeit an.</p>
+        <p class="zustand" id="zustand"></p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>In einer Serieschaltung fliesst überall der gleiche Strom, da der Stromkreis nicht verzweigt ist.</p>
+          <p>In der Serieschaltung ist die Summe der Teilspannungen an den Verbrauchern genauso gross wie die Gesamtspannung.</p>
+          <p>Bei der Serieschaltung ist der Gesamtwiderstand gleich der Summe der Einzelwiderstände.</p>
+          <p>Verbraucher wie Lampen werden nur selten in Serie geschaltet, weil der Stromkreis unterbrochen wird, sobald ein Verbraucher ausfällt.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Woran erkennen Sie bei der Inbetriebnahme, dass die beiden Lampen in Serie statt parallel geschaltet sind?</li>
+          <li>Entfernen Sie bei der Serieschaltung eine Lampe. Was passiert mit der anderen, und warum?</li>
+          <li>Wie ändert sich die Spannung an einem Lämpchen, wenn die Lichterkette doppelt so viele Lämpchen hat?</li>
+          <li>Warum fliesst beim Reiseföhn in Stufe 2 der doppelte Strom?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET4.1 bis ET4.5, Serieschaltung.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Elektrotechnik, Kapitel 4 Grundschaltungen der Elektrotechnik: ET4.1 bis ET4.5 (Serieschaltung)</li><li>Arbeitsblätter ID4 EFH Treppenhaus UG EG, Teilauftrag 4: Übungen 10 bis 13 (ID4.7 bis ID4.9)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Schaltzeichen-Bibliothek: Formen aus Theoriebuch AAD28.2 bis AAD28.5, AAD30.1 und den Arbeitsblättern ID4 und ID5 übernommen */
+var SYM = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function pfad(d, cls, extra){ return "<path class=\"" + cls + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function kreis(x, y, r, cls){ return "<circle class=\"" + cls + "\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>"; }
+function text(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+
+/* ===== Installationsplan und Prinzipschema (AAD30.1, AAD28.2 bis AAD28.5) ===== */
+function fahne(x, y, r, grad, uhr, len, hk){
+  var a = grad * Math.PI / 180, b = a + (uhr ? 1 : -1) * Math.PI / 2;
+  var x1 = x + (r + len) * Math.cos(a), y1 = y + (r + len) * Math.sin(a);
+  return "M" + n(x + r * Math.cos(a)) + " " + n(y + r * Math.sin(a)) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * Math.cos(b)) + " " + n(y1 + hk * Math.sin(b));
+}
+/* Schalter im Plan: typ 0, 1, 2, 3 oder 6 */
+function schalter(x, y, typ, o){
+  o = o || {}; var r = o.r || 9, len = o.len || 15, hk = o.hk || 7, d = "";
+  var f = {0:[[-45, 1]], 1:[[-45, 1], [-135, 0]], 2:[[-45, 1], [-135, 1]], 3:[[-45, 1], [135, 1]], 6:[[-45, 1], [-135, 0], [135, 1], [45, 0]]}[typ];
+  f.forEach(function(e){ d += fahne(x, y, r, e[0], e[1], len, hk) + " "; });
+  return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+}
+/* Steckdose Typ 13 im Plan: Stiel ab (x,y) in Richtung grad, Querstrich, Bogen */
+function steckdose(x, y, grad, o){
+  o = o || {}; var s = o.stiel === undefined ? 10 : o.stiel, b = o.b || 9, ra = o.ra || 7.5;
+  var a = grad * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+  var ex = x + s * dx, ey = y + s * dy, cx = ex + ra * dx, cy = ey + ra * dy;
+  var d = "M" + n(x) + " " + n(y) + " L" + n(ex) + " " + n(ey) + " M" + n(ex + b * px) + " " + n(ey + b * py) + " L" + n(ex - b * px) + " " + n(ey - b * py)
+        + " M" + n(cx + ra * px) + " " + n(cy + ra * py) + " A" + ra + " " + ra + " 0 0 1 " + n(cx - ra * px) + " " + n(cy - ra * py);
+  return pfad(d, "sy dk");
+}
+function leuchte(x, y, o){ o = o || {}; var s = o.s || 10; return pfad("M" + n(x - s) + " " + n(y - s) + " L" + n(x + s) + " " + n(y + s) + " M" + n(x + s) + " " + n(y - s) + " L" + n(x - s) + " " + n(y + s), "sy dk"); }
+function dose(x, y, o){ o = o || {}; var s = o.s || 11; return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + kreis(x, y, o.punkt || 3.6, "sy-f"); }
+/* Zuleitung nach UV: Kasten mit Pfeilspitze, spitze nach rechts (1) oder links (-1); (x,y) ist der Anschlusspunkt der Leitung */
+function uv(x, y, richtung, label){
+  var w = 26, h = 8, k = richtung, x1 = x + k * w, d = "M" + n(x) + " " + n(y - h) + " H" + n(x1) + " V" + n(y + h) + " H" + n(x) + " Z M" + n(x1) + " " + n(y - h) + " L" + n(x1 + k * 9) + " " + n(y) + " L" + n(x1) + " " + n(y + h);
+  return pfad(d, "sy sy-bg") + text(x + k * w / 2, y + 4, label || "UV", "sy-t", "middle");
+}
+function ventilator(x, y, o){
+  o = o || {}; var s = o.s || 12, a = s * 0.62, b = s * 0.36;
+  return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + unendlich(x, y, a, b);
+}
+function unendlich(x, y, a, b){
+  return pfad("M" + n(x) + " " + n(y) + " C" + n(x + a * 0.5) + " " + n(y - b * 1.5) + " " + n(x + a * 1.4) + " " + n(y - b * 1.2) + " " + n(x + a * 1.4) + " " + n(y)
+    + " C" + n(x + a * 1.4) + " " + n(y + b * 1.2) + " " + n(x + a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y)
+    + " C" + n(x - a * 0.5) + " " + n(y - b * 1.5) + " " + n(x - a * 1.4) + " " + n(y - b * 1.2) + " " + n(x - a * 1.4) + " " + n(y)
+    + " C" + n(x - a * 1.4) + " " + n(y + b * 1.2) + " " + n(x - a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y), "sy dk");
+}
+/* Markierung der Drahtzahl: kurzer Querstrich über die Leitung */
+function marke(x, y, senkrechteLeitung, l){ l = l || 7; return pfad(senkrechteLeitung ? "M" + n(x - l) + " " + n(y) + " H" + n(x + l) : "M" + n(x) + " " + n(y - l) + " V" + n(y + l), "sy dn"); }
+
+/* ===== Stromlaufschema nach Theoriebuch (schwarz gezeichnet) ===== */
+function lampeT(x, y, o){
+  o = o || {}; var r = o.r || 11, d = r * 0.707, h = "";
+  h += "<circle class=\"sy-s\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"" + (o.an ? " style=\"fill:var(--lampe-an)\"" : " style=\"fill:var(--surface)\"") + "/>";
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy-s");
+  if (o.name) h += text(x - r - 5, y + 5, o.name, "sy-ts", "end", " style=\"font-size:13px\"");
+  if (o.x12 !== false){ h += text(x - 3, y - r - 2, "X1", "sy-ts", "end", " style=\"font-size:8px\"") + text(x - 3, y + r + 9, "X2", "sy-ts", "end", " style=\"font-size:8px\""); }
+  if (o.buchstabe) h += text(x + r * 0.6, y - r - 1, o.buchstabe, "sy-ts", "start", " style=\"font-size:12px\"");
+  return h;
+}
+/* Neutralleiter-Kennzeichen: Schrägstrich mit Punkt */
+function nMarke(x, y){ return pfad("M" + n(x - 4) + " " + n(y + 5) + " L" + n(x + 3) + " " + n(y - 7), "w t-n", " style=\"stroke-width:2\"") + kreis(x + 3.4, y - 8, 2, "sy-fs"); }
+/* Verbindung Antrieb zu Schaltstück: gestrichelt mit Kerbe (v oder ^) */
+function gestaenge(x0, x1, y, auf){
+  var m = x0 + (x1 - x0) * 0.42, k = auf ? -1 : 1;
+  return pfad("M" + n(x0) + " " + n(y) + " H" + n(m - 6), "sy-s dn sy-d") + pfad("M" + n(m - 6) + " " + n(y) + " H" + n(m - 4) + " L" + n(m) + " " + n(y + k * 7) + " L" + n(m + 4) + " " + n(y) + " H" + n(m + 6), "sy-s dn") + pfad("M" + n(m + 6) + " " + n(y) + " H" + n(x1), "sy-s dn sy-d");
+}
+/* Antrieb: "klammer" [ (Schema 0), "balken" | mit Ansatz (Schema 1 und 3), "dreh" (Schema 2) */
+function antriebT(art, x, y, h){
+  h = h || 9;
+  if (art === "klammer") return pfad("M" + n(x + 5) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 5), "sy-s");
+  if (art === "dreh") return pfad("M" + n(x - 6) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 6), "sy-s");
+  return pfad("M" + n(x) + " " + n(y - h) + " V" + n(y + h) + " M" + n(x) + " " + n(y) + " H" + n(x + 4), "sy-s");
+}
+
+/* ===== Wirkschaltschema nach Arbeitsblatt (dunkelblau gezeichnet) ===== */
+function klemme(x, y, o){
+  o = o || {}; var r = o.r || 5.5, k = r * 0.72, s = o.steigend ? -1 : 1;
+  return kreis(x, y, r, "sy dk sy-bg") + pfad("M" + n(x - k) + " " + n(y - s * k) + " L" + n(x + k) + " " + n(y + s * k), "sy dk");
+}
+/* Anschlussklemme im Ersatzschaltbild: offener Ring */
+function ring(x, y, r){ return "<circle class=\"sy sy-bg\" style=\"stroke-width:3\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + (r || 5) + "\"/>"; }
+/* Leuchte im Wirkschaltschema: strichpunktierter Kasten, Kreuz und Schutzleiteranschluss rechts. (x,y) ist die Mitte des Kreuzes. */
+function leuchteW(x, y, o){
+  o = o || {}; var s = o.s || 36, x0 = x - 0.407 * s, y0 = y - 0.49 * s, x1 = x0 + s, y1 = y0 + s, mx = x0 + s / 2, my = y0 + s / 2, g = 0.09 * s, d = 0.31 * s, h = "";
+  if (o.an) h += "<rect x=\"" + n(x0) + "\" y=\"" + n(y0) + "\" width=\"" + s + "\" height=\"" + s + "\" style=\"fill:var(--lampe-an);opacity:.75\"/>";
+  h += pfad("M" + n(mx - g) + " " + n(y0) + " H" + n(x0) + " V" + n(my - g) + " M" + n(x0) + " " + n(my + g) + " V" + n(y1) + " H" + n(mx - g)
+    + " M" + n(mx + g) + " " + n(y1) + " H" + n(x1) + " V" + n(my + g) + " M" + n(x1) + " " + n(my - g) + " V" + n(y0) + " H" + n(mx + g), "sy dk", " style=\"stroke-linecap:butt\"");
+  [[mx, y0], [mx, y1], [x0, my]].forEach(function(p){ h += kreis(p[0], p[1], 1.2, "sy-f"); });
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy dk");
+  /* Schutzleiteranschluss: Erdungszeichen, Strich, Klemme auf dem rechten Rand */
+  var kx = x1 - 0.035 * s, ky = y, kr = 0.058 * s, ex = kx - 0.17 * s;
+  h += pfad("M" + n(kx - kr) + " " + n(ky) + " H" + n(ex) + " M" + n(ex) + " " + n(ky - 0.067 * s) + " V" + n(ky + 0.067 * s) + " M" + n(ex - 0.035 * s) + " " + n(ky - 0.042 * s) + " V" + n(ky + 0.042 * s) + " M" + n(ex - 0.07 * s) + " " + n(ky - 0.02 * s) + " V" + n(ky + 0.02 * s), "sy dn");
+  h += kreis(kx, ky, kr, "sy dn sy-bg") + pfad("M" + n(kx - kr * 0.7) + " " + n(ky - kr * 0.7) + " L" + n(kx + kr * 0.7) + " " + n(ky + kr * 0.7), "sy dn");
+  return {svg:h, pe:[kx + kr, ky], oben:[x, y0], unten:[x, y1], x0:x0, y0:y0, x1:x1, y1:y1};
+}
+/* Antrieb im Wirkschaltschema: Querbalken oben, gestrichelte Verbindung, bei rastenden Schaltern mit Zickzack */
+function antriebW(x, yBalken, yUnten, rastend, o){
+  o = o || {}; var b = o.b || 8, h = pfad("M" + n(x - b) + " " + n(yBalken) + " H" + n(x + b), "sy dk");
+  if (!rastend) return h + pfad("M" + n(x) + " " + n(yBalken + 3) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+  var m = yBalken + (yUnten - yBalken) * 0.5;
+  return h + pfad("M" + n(x) + " " + n(yBalken + 2) + " V" + n(m - 5), "sy dk sy-d", " style=\"stroke-linecap:butt\"") + pfad("M" + n(x) + " " + n(m - 5) + " L" + n(x - 5) + " " + n(m) + " L" + n(x) + " " + n(m + 5), "sy dk") + pfad("M" + n(x) + " " + n(m + 6) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+}
+/* Widerstand im Ersatzschaltbild: Rechteck mit Bezeichnung */
+function widerstand(x, y, o){
+  o = o || {}; var w = o.w || 46, h = o.h || 17;
+  return "<rect class=\"sy sy-bg" + (o.cls ? " " + o.cls : "") + "\" style=\"stroke-width:3\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - h / 2) + "\" width=\"" + w + "\" height=\"" + h + "\"/>"
+    + (o.name ? "<text class=\"sy-t\" x=\"" + n(x) + "\" y=\"" + n(y + 4.5) + "\" text-anchor=\"middle\" style=\"font-size:12px\">R<tspan dy=\"3\" style=\"font-size:8.5px\">" + o.name + "</tspan></text>" : "");
+}
+return {pfad:pfad, kreis:kreis, text:text, schalter:schalter, steckdose:steckdose, leuchte:leuchte, dose:dose, uv:uv, ventilator:ventilator, unendlich:unendlich, marke:marke,
+        lampeT:lampeT, nMarke:nMarke, gestaenge:gestaenge, antriebT:antriebT, klemme:klemme, ring:ring, leuchteW:leuchteW, antriebW:antriebW, widerstand:widerstand, n:n};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, shuffle = BAP.shuffle, round = BAP.round, F = BAP.frac;
+var NB = "\u00a0", U = 230;
+/* Zahlen wie im Arbeitsblatt: Dezimalkomma, Tausender mit Abstand (1 764 Ω) */
+function num(x, sig){ var p = fmt(round(x, sig || 4)).split(","); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, NB); return p.join(","); }
+function Om(x, sig){ return num(x, sig) + NB + "Ω"; }
+function V(x, sig){ return num(x, sig) + NB + "V"; }
+function A(x, sig){ return num(x, sig) + NB + "A"; }
+function mA(x, sig){ return num(x * 1000, sig) + NB + "mA"; }
+function R_(k){ return "<i>R</i><sub>" + k + "</sub>"; }
+function U_(k){ return "<i>U</i><sub>" + k + "</sub>"; }
+function I_(k){ return "<i>I</i><sub>" + k + "</sub>"; }
+function zeile(h){ return "<span>" + h + "</span>"; }
+function gleich(exakt, sig){ return Math.abs(round(exakt, sig) - exakt) < 1e-9 ? "=" : "≈"; }
+
+var R_LAMPE = 882;
+var N_WERTE = [10, 20, 23, 25, 40, 46, 50], R_WERTE = [10, 20, 50, 100], F_WERTE = [46, 57.5, 115];
+var st = {s:"lampen", verdr:"ser", ein:[true, true], N:20, R1:50, defekt:0, RF:57.5, stufe:1};
+window.__t = {st:st};
+
+/* ---------- Zeichnungen ---------- */
+/* Ersatzschaltbilder mit den Schaltzeichen der Arbeitsblätter (ID4 Übungen 10 und 12):
+   Anschlüsse als Ring, Widerstände als Rechteck, Leiter ab L1 braun, zum N blau */
+var S = SYM;
+function anschluss(x, y, t, links){ return S.ring(x, y, 5) + S.text(links ? x - 9 : x + 9, y + 5, t, "sy-t", links ? "end" : "start", " style=\"font-size:13px\""); }
+function draht(cls, d, zu){ return "<path class=\"w " + cls + "\" d=\"" + d + "\"" + (zu ? "" : " style=\"opacity:.45\"") + "/>"; }
+/* kleines Lampenbild als Anzeige der Helligkeit (kein Schaltzeichen) */
+function birne(x, y, hell, da, grund){
+  if (!da) return "<circle class=\"l-leer\" cx=\"" + x + "\" cy=\"" + y + "\" r=\"8\"/><text class=\"c-m\" x=\"" + x + "\" y=\"" + (y - 12) + "\" text-anchor=\"middle\">" + (grund || "entfernt") + "</text>";
+  return "<rect class=\"l-sockel\" x=\"" + (x - 3.5) + "\" y=\"" + (y - 13) + "\" width=\"7\" height=\"6\" rx=\"1\"/><circle class=\"l-glas\" cx=\"" + x + "\" cy=\"" + y + "\" r=\"8\"/>" + (hell > 0 ? "<circle class=\"l-licht\" cx=\"" + x + "\" cy=\"" + y + "\" r=\"7\" opacity=\"" + hell + "\"/>" : "");
+}
+function wert(x, y, t){ return "<text class=\"c-v\" x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\">" + t + "</text>"; }
+function bildLampen(){
+  var h = "", e = st.ein;
+  if (st.verdr === "ser"){
+    var zu = e[0] && e[1];
+    h += draht("w-l", "M35 78 H97 M143 78 H197", zu) + draht("w-n", "M243 78 H305", zu);
+    h += S.widerstand(120, 78, {name:"1", cls:e[0] ? "" : "sy-d"}) + S.widerstand(220, 78, {name:"2", cls:e[1] ? "" : "sy-d"});
+    h += anschluss(30, 78, "L1", true) + anschluss(310, 78, "N", false);
+    h += birne(120, 44, zu ? 0.35 : 0, e[0]) + birne(220, 44, zu ? 0.35 : 0, e[1]);
+    if (zu) h += wert(120, 106, "115" + NB + "V") + wert(220, 106, "115" + NB + "V");
+    else h += "<text class=\"c-m\" x=\"170\" y=\"118\" text-anchor=\"middle\">Stromkreis unterbrochen</text>";
+  } else {
+    h += draht("w-l", "M35 26 H230 V42 M130 26 V42", true) + draht("w-n", "M35 112 H230 V96 M130 112 V96", true);
+    h += "<circle cx=\"130\" cy=\"26\" r=\"3.2\" style=\"fill:var(--w-l)\"/><circle cx=\"130\" cy=\"112\" r=\"3.2\" style=\"fill:var(--w-n)\"/>";
+    h += S.widerstand(130, 69, {w:18, h:54, cls:e[0] ? "" : "sy-d"}) + S.widerstand(230, 69, {w:18, h:54, cls:e[1] ? "" : "sy-d"});
+    h += "<text class=\"sy-t\" x=\"114\" y=\"73\" text-anchor=\"end\" style=\"font-size:12px\">R<tspan dy=\"3\" style=\"font-size:8.5px\">1</tspan></text><text class=\"sy-t\" x=\"214\" y=\"73\" text-anchor=\"end\" style=\"font-size:12px\">R<tspan dy=\"3\" style=\"font-size:8.5px\">2</tspan></text>";
+    h += anschluss(30, 26, "L1", true) + anschluss(30, 112, "N", true);
+    h += birne(160, 62, e[0] ? 1 : 0, e[0]) + birne(260, 62, e[1] ? 1 : 0, e[1]);
+    if (e[0]) h += wert(162, 92, "230" + NB + "V");
+    if (e[1]) h += wert(262, 92, "230" + NB + "V");
+  }
+  return h;
+}
+function bildKette(){
+  var zu = !st.defekt, h = "";
+  h += draht("w-l", "M35 78 H58 M98 78 H110 M150 78 H168 M206 78 H222", zu) + draht("w-n", "M262 78 H305", zu);
+  h += S.widerstand(78, 78, {w:40, name:"1"}) + S.widerstand(130, 78, {w:40, name:"2", cls:st.defekt ? "sy-d" : ""}) + S.widerstand(242, 78, {w:40, name:"N"});
+  h += "<text class=\"sy-t\" x=\"187\" y=\"82\" text-anchor=\"middle\">· · ·</text>";
+  h += anschluss(30, 78, "L1", true) + anschluss(310, 78, "N", false);
+  h += birne(78, 44, zu ? 0.7 : 0, true) + birne(130, 44, zu ? 0.7 : 0, !st.defekt, "defekt") + birne(242, 44, zu ? 0.7 : 0, true);
+  h += "<text class=\"c-m\" x=\"170\" y=\"122\" text-anchor=\"middle\">" + (zu ? "N = " + st.N + " Lämpchen in Serie" : "Stromkreis unterbrochen") + "</text>";
+  if (zu) h += wert(78, 106, V(U / st.N));
+  return h;
+}
+function bildFoehn(){
+  var s2 = st.stufe === 2, h = "";
+  /* Leiterfarben wie in Übung 12: ab L1 braun, nach Taster 2 und nach R2 blau */
+  h += "<path class=\"w w-l live\" d=\"M27 100 H58 M84 100 H115 M161 100 H196\"/>";
+  h += "<path class=\"w w-l" + (s2 ? "" : " live") + "\" d=\"M196 100 H215\"/>";
+  h += "<path class=\"w w-l" + (s2 ? " live" : "") + "\" d=\"M196 100 V48 H228\"/>";
+  h += "<path class=\"w w-n" + (s2 ? " live" : "") + "\" d=\"M252 48 H286 V100\"/>";
+  h += "<path class=\"w w-n" + (s2 ? "" : " live") + "\" d=\"M261 100 H286\"/>";
+  h += "<path class=\"w w-n live\" d=\"M286 100 H308\"/>";
+  /* Taster 1 (geschlossen, der Föhn läuft) und Taster 2 */
+  h += S.pfad("M58 100 L84 100", "w w-l live") + S.antriebW(71, 70, 97, false);
+  h += S.pfad("M228 48 L" + (s2 ? "252 48" : "250 33"), "w w-l" + (s2 ? " live" : "")) + S.antriebW(240, 18, s2 ? 45 : 37, false);
+  h += S.widerstand(138, 100, {name:"1"}) + S.widerstand(238, 100, {name:"2"});
+  h += wert(138, 126, Om(st.RF)) + wert(238, 126, Om(st.RF));
+  h += S.text(71, 62, "Taster 1", "sy-t", "middle") + S.text(240, 11, "Taster 2", "sy-t", "middle");
+  h += anschluss(22, 100, "L1", false).replace("x=\"31\" y=\"105\"", "x=\"22\" y=\"88\" ") + anschluss(313, 100, "N", false).replace("x=\"322\" y=\"105\"", "x=\"313\" y=\"88\" ");
+  return h;
+}
+function chips(box, werte, akt, attr, prefix, show){
+  $(box).innerHTML = werte.map(function(w){ return "<button class=\"opt\" type=\"button\" id=\"" + prefix + String(w).replace(".", "_") + "\" data-" + attr + "=\"" + w + "\" aria-pressed=\"" + (w === akt) + "\">" + show(w) + "</button>"; }).join("");
+}
+function render(){
+  ["lampen", "kette", "foehn"].forEach(function(s){ $("sz-" + s).setAttribute("aria-pressed", String(st.s === s)); $("box-" + s).hidden = st.s !== s; });
+  var z = $("zustand"), r = "", titel, bild, zt, zc = "";
+  if (st.s === "lampen"){
+    var ser = st.verdr === "ser", e = st.ein, beide = e[0] && e[1];
+    $("verdr-par").setAttribute("aria-pressed", String(!ser)); $("verdr-ser").setAttribute("aria-pressed", String(ser));
+    [0, 1].forEach(function(k){ var b = $("einsatz-" + k); b.setAttribute("aria-pressed", String(e[k])); b.textContent = "Lampe " + (k + 1) + (e[k] ? " eingesetzt" : " entfernt"); });
+    titel = ser ? "Ersatzschaltbild: Lampen in Serie" : "Ersatzschaltbild: Lampen parallel"; bild = bildLampen();
+    if (ser){
+      if (beide){
+        zt = "Beide Lampen leuchten, erreichen aber nicht ihre volle Helligkeit."; zc = "bad";
+        var Rg = 2 * R_LAMPE, I = U / Rg;
+        r += zeile(U_(1) + " = " + U_(2) + " = " + F("<i>U</i>", "2") + " = " + F(V(U), "2") + " = <b>" + V(U / 2) + "</b>");
+        r += zeile("<i>R</i> = " + R_(1) + " + " + R_(2) + " = " + Om(R_LAMPE) + " + " + Om(R_LAMPE) + " = <b>" + Om(Rg) + "</b> ≈ " + num(Rg / 1000, 3) + NB + "kΩ");
+        r += zeile("<i>I</i> = " + F("<i>U</i>", "<i>R</i>") + " = " + F(V(U), Om(Rg)) + " ≈ <b>" + A(I, 2) + "</b> = " + mA(I, 2));
+      } else {
+        zt = e[0] || e[1] ? "Eine Lampe ist entfernt: Auch die andere erlischt." : "Beide Lampen sind entfernt."; zc = "bad";
+        r += zeile("Der Stromkreis ist unterbrochen: <i>I</i> = <b>0" + NB + "A</b>");
+        r += zeile("In der Serieschaltung gibt es nur einen einzigen Stromkreis. Fehlt ein Verbraucher, fliesst kein Strom mehr.");
+      }
+    } else {
+      zt = beide ? "Beide Lampen leuchten mit voller Helligkeit." : (e[0] || e[1] ? "Eine Lampe ist entfernt: Die andere leuchtet unverändert weiter." : "Beide Lampen sind entfernt."); zc = beide ? "ok" : "";
+      var I1 = U / R_LAMPE;
+      r += zeile("Jede eingesetzte Lampe liegt an der vollen Spannung: <i>U</i> = <b>" + V(U) + "</b>");
+      var kk = (!e[0] && e[1]) ? 2 : 1;
+      if (e[0] || e[1]) r += zeile("Strom durch eine Lampe: " + I_(kk) + " = " + F("<i>U</i>", R_(kk)) + " = " + F(V(U), Om(R_LAMPE)) + " ≈ <b>" + A(I1, 2) + "</b>");
+    }
+  } else if (st.s === "kette"){
+    chips("n-chips", N_WERTE, st.N, "n", "n-", function(w){ return String(w); });
+    chips("r-chips", R_WERTE, st.R1, "r", "r-", function(w){ return Om(w); });
+    $("defekt-0").setAttribute("aria-pressed", String(!st.defekt)); $("defekt-1").setAttribute("aria-pressed", String(!!st.defekt));
+    titel = "Ersatzschaltbild: Lichterkette"; bild = bildKette();
+    var R = st.N * st.R1, Ik = U / R, U1 = st.R1 * Ik;
+    r += zeile("<i>R</i> = <i>N</i> · " + R_(1) + " = " + st.N + " · " + Om(st.R1) + " = <b>" + Om(R) + "</b>");
+    if (st.defekt){
+      zt = "Ein Lämpchen ist defekt: Alle Lämpchen erlöschen."; zc = "bad";
+      r += zeile("Der Stromkreis ist unterbrochen: <i>I</i> = <b>0" + NB + "A</b>");
+    } else {
+      zt = "Alle " + st.N + " Lämpchen leuchten.";  zc = "ok";
+      r += zeile("<i>I</i> = " + F("<i>U</i>", "<i>R</i>") + " = " + F(V(U), Om(R)) + " = <b>" + A(Ik) + "</b>" + (Ik < 1 ? " = " + mA(Ik) : ""));
+      r += zeile(U_(1) + " = " + R_(1) + " · <i>I</i> = " + Om(st.R1) + " · " + A(Ik) + " = <b>" + V(U1) + "</b>");
+    }
+  } else {
+    chips("f-chips", F_WERTE, st.RF, "f", "f-", function(w){ return Om(w); });
+    $("stufe-1").setAttribute("aria-pressed", String(st.stufe === 1)); $("stufe-2").setAttribute("aria-pressed", String(st.stufe === 2));
+    titel = "Ersatzschaltbild: Reiseföhn, Stufe " + st.stufe; bild = bildFoehn();
+    if (st.stufe === 1){
+      zt = "Stufe 1: Der Strom fliesst nacheinander durch beide Heizspiralen.";
+      r += zeile(R_("ges1") + " = " + R_(1) + " + " + R_(2) + " = " + Om(st.RF) + " + " + Om(st.RF) + " = <b>" + Om(2 * st.RF) + "</b>");
+      r += zeile(I_(1) + " = " + F("<i>U</i>", R_("ges1")) + " = " + F(V(U), Om(2 * st.RF)) + " = <b>" + A(U / (2 * st.RF)) + "</b>");
+    } else {
+      zt = "Stufe 2: Eine Spirale ist überbrückt. Der Strom fliesst nur noch durch eine einzige Spirale.";
+      r += zeile(R_("ges2") + " = " + R_(1) + " = <b>" + Om(st.RF) + "</b>");
+      r += zeile(I_(2) + " = " + F("<i>U</i>", R_("ges2")) + " = " + F(V(U), Om(st.RF)) + " = <b>" + A(U / st.RF) + "</b>");
+    }
+  }
+  $("bild-title").textContent = titel;
+  $("bild").innerHTML = bild;
+  z.textContent = zt; z.className = "zustand" + (zc ? " " + zc : "");
+  $("rechnung").innerHTML = r;
+}
+function init(){
+  function an(box, attr, fn){ $(box).addEventListener("click", function(e){ var b = e.target.closest("button[data-" + attr + "]"); if (!b) return; fn(b.getAttribute("data-" + attr), b); render(); if (b.id && $(b.id)) $(b.id).focus(); }); }
+  an("szene", "s", function(v){ st.s = v; });
+  an("verdr", "v", function(v){ st.verdr = v; });
+  an("einsatz", "e", function(v){ st.ein[Number(v)] = !st.ein[Number(v)]; });
+  an("n-chips", "n", function(v){ st.N = Number(v); });
+  an("r-chips", "r", function(v){ st.R1 = Number(v); });
+  an("defekt", "d", function(v){ st.defekt = Number(v); });
+  an("f-chips", "f", function(v){ st.RF = Number(v); });
+  an("stufe", "st", function(v){ st.stufe = Number(v); });
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+function qFehler(){
+  var o = ["Die Leuchtmittel wurden in Serie statt parallel geschaltet.", "Die Leuchtmittel wurden parallel statt in Serie geschaltet.", "Der Schutzleiter wurde nicht angeschlossen.", "Der Leitungsschutzschalter hat ausgelöst."];
+  return {
+    text: "Bei der Inbetriebnahme stellen Sie fest: Die beiden Leuchtmittel leuchten nur dann, wenn beide eingesetzt sind. Wird eines entfernt, erlischt auch das andere. Zudem erreichen beide nicht ihre volle Helligkeit. Welcher Verdrahtungsfehler liegt vor?",
+    parts: [{label:"Verdrahtungsfehler", options:shuffle(o), correct:o[0]}],
+    hint: "In welcher Schaltung gibt es nur einen einzigen Stromkreis, in dem alle Verbraucher hintereinander liegen?",
+    solution: "<p><b>" + o[0] + "</b></p><p>In der Serieschaltung teilt sich die Spannung auf die Lampen auf, und der Stromkreis ist unterbrochen, sobald eine Lampe fehlt.</p>"
+  };
+}
+function qTeil(){
+  var n = pick([2, 4, 5, 10, 20, 23, 46]), c = U / n;
+  return {
+    text: (n === 2 ? "Zwei baugleiche Lampen sind versehentlich in Serie geschaltet und liegen an <i>U</i> = 230" + NB + "V. Welche Spannung fällt an jeder Lampe ab?"
+                   : "Eine Lichterkette mit " + n + " identischen Lämpchen in Serie liegt an 230" + NB + "V. Welche Spannung fällt an einem einzelnen Lämpchen ab?"),
+    parts: [{label:"Teilspannung", options:BAP.numOptions(c, [U, c * 2, c / 2, c * 10, c + 115, c * 4], 4), correct:c, mono:true, show:function(x){ return V(x); }}],
+    hint: "Gleiche Verbraucher in Serie teilen die Gesamtspannung gleichmässig auf.",
+    solution: "<p class=\"num\">" + U_(1) + " = " + F("<i>U</i>", String(n)) + " = " + F(V(U), String(n)) + " = <b>" + V(c) + "</b></p>"
+  };
+}
+function qRzwei(){
+  var R = pick([882, 529, 1058, 575, 460, 1150]), c = 2 * R;
+  return {
+    text: "Zwei baugleiche Lampen haben im Betrieb jeweils einen Widerstand von " + Om(R) + " und sind in Serie geschaltet. Wie gross ist der Gesamtwiderstand der Schaltung?",
+    parts: [{label:"Gesamtwiderstand", options:BAP.numOptions(c, [R, R / 2, 4 * R, 3 * R], 4), correct:c, mono:true, show:function(x){ return Om(x); }}],
+    hint: "Bei der Serieschaltung ist der Gesamtwiderstand gleich der Summe der Einzelwiderstände.",
+    solution: "<p class=\"num\"><i>R</i> = " + R_(1) + " + " + R_(2) + " = " + Om(R) + " + " + Om(R) + " = <b>" + Om(c) + "</b></p>"
+  };
+}
+function qIzwei(){
+  var R = pick([882, 575, 460, 1150, 230]), Rg = 2 * R, c = U / Rg, exakt = R !== 882;
+  function show(x){ return A(x, 3); }
+  return {
+    text: "Zwei baugleiche Lampen mit je " + Om(R) + " sind in Serie an 230" + NB + "V angeschlossen. Wie gross ist der Strom <i>I</i>, der durch die Schaltung fliesst?" + (exakt ? "" : " Runden Sie auf zwei Stellen nach dem Komma."),
+    parts: [{label:"Strom", options:BAP.numOptions(c, [c * 2, c / 2, c * 4, c * 10], 4), correct:c, mono:true, show:show}],
+    hint: "Berechnen Sie zuerst den Gesamtwiderstand, dann <i>I</i> = " + F("<i>U</i>", "<i>R</i>") + ".",
+    solution: "<p class=\"num\"><i>R</i> = " + Om(R) + " + " + Om(R) + " = " + Om(Rg) + "</p><p class=\"num\"><i>I</i> = " + F("<i>U</i>", "<i>R</i>") + " = " + F(V(U), Om(Rg)) + (exakt ? " = " : " ≈ ") + "<b>" + A(c, 3) + "</b> = " + mA(c, 3) + "</p>"
+  };
+}
+function qKette(){
+  var N = pick(N_WERTE), R1 = pick(R_WERTE), R = N * R1, I = U / R, U1 = U / N;
+  return {
+    text: "Eine Lichterkette besteht aus " + N + " identischen Glühlämpchen, die alle in Serie geschaltet sind. Sie liegt an 230" + NB + "V. Jedes Lämpchen hat einen Widerstand von " + Om(R1) + ". Berechnen Sie Gesamtwiderstand, Strom und die Spannung an einem Lämpchen.",
+    parts: [
+      {label:"a) Gesamtwiderstand", options:BAP.numOptions(R, [N + R1, R / 2, R * 2, R * 10, R / 10], 4), correct:R, mono:true, show:function(x){ return Om(x); }},
+      {label:"b) Strom", options:BAP.numOptions(I, [I * 2, I / 2, I * 10, I / 10, U / R1 === I ? I * 4 : U / R1], 4), correct:I, mono:true, show:function(x){ return A(x); }},
+      {label:"c) Spannung an einem Lämpchen", options:BAP.numOptions(U1, [U, U1 * 2, U1 / 2, U1 * 10, U1 + 100], 4), correct:U1, mono:true, show:function(x){ return V(x); }}
+    ],
+    hint: "<i>R</i> = <i>N</i> · " + R_(1) + ", dann <i>I</i> = " + F("<i>U</i>", "<i>R</i>") + ", dann " + U_(1) + " = " + R_(1) + " · <i>I</i>.",
+    solution: "<p class=\"num\">a) <i>R</i> = <i>N</i> · " + R_(1) + " = " + N + " · " + Om(R1) + " = <b>" + Om(R) + "</b></p>"
+      + "<p class=\"num\">b) <i>I</i> = " + F("<i>U</i>", "<i>R</i>") + " = " + F(V(U), Om(R)) + " = <b>" + A(I) + "</b>" + (I < 1 ? " = " + mA(I) : "") + "</p>"
+      + "<p class=\"num\">c) " + U_(1) + " = " + R_(1) + " · <i>I</i> = " + Om(R1) + " · " + A(I) + " = <b>" + V(U1) + "</b></p>"
+  };
+}
+function qFoehn(){
+  var R = pick(F_WERTE), s = pick([1, 2]), Rg = s === 1 ? 2 * R : R, I = U / Rg, idx = "ges" + s;
+  return {
+    text: "Ein Reiseföhn hat zwei identische Heizspiralen mit je " + Om(R) + " und wird an 230" + NB + "V betrieben. " + (s === 1 ? "In Stufe 1 sind beide Heizspiralen in Serie geschaltet." : "In Stufe 2 wird eine der beiden Spiralen durch einen Schalter überbrückt.") + " Berechnen Sie den Gesamtwiderstand und die Stromstärke.",
+    parts: [
+      {label:"Gesamtwiderstand", options:BAP.numOptions(Rg, [R, 2 * R, R / 2, 4 * R], 4), correct:Rg, mono:true, show:function(x){ return Om(x); }},
+      {label:"Stromstärke", options:BAP.numOptions(I, [U / R, U / (2 * R), U / (R / 2), U / (4 * R)], 4), correct:I, mono:true, show:function(x){ return A(x); }}
+    ],
+    hint: s === 1 ? "Der Strom fliesst nacheinander durch beide Widerstände." : "Durch die überbrückte Spirale fliesst kein Strom. Es wirkt nur noch eine einzige Spirale.",
+    solution: (s === 1
+      ? "<p class=\"num\">" + R_(idx) + " = " + R_(1) + " + " + R_(2) + " = " + Om(R) + " + " + Om(R) + " = <b>" + Om(Rg) + "</b></p>"
+      : "<p class=\"num\">" + R_(idx) + " = " + R_(1) + " = <b>" + Om(Rg) + "</b></p>")
+      + "<p class=\"num\">" + I_(s) + " = " + F("<i>U</i>", R_(idx)) + " = " + F(V(U), Om(Rg)) + " = <b>" + A(I) + "</b></p>"
+  };
+}
+var FAKTEN = [
+  {t:"In einer Lichterkette sind alle Lämpchen in Serie geschaltet. Ein Lämpchen fällt aus. Was passiert?", o:["Alle Lämpchen erlöschen, weil der Stromkreis unterbrochen ist.", "Nur das defekte Lämpchen bleibt dunkel.", "Die übrigen Lämpchen leuchten heller.", "Der Strom verdoppelt sich."], s:""},
+  {t:"Warum erreichen zwei baugleiche Lampen, die versehentlich in Serie geschaltet sind, nicht ihre volle Helligkeit?", o:["An jeder Lampe liegt nur die halbe Spannung, 115 V statt 230 V.", "An jeder Lampe liegt die doppelte Spannung.", "Der Neutralleiter fehlt.", "Die Lampen erhalten zu viel Strom."], s:""},
+  {t:"Was gilt für den Strom in einer Serieschaltung?", o:["Es fliesst überall der gleiche Strom.", "Der Strom teilt sich auf die Verbraucher auf.", "Der Strom ist beim ersten Verbraucher am grössten.", "Der Strom ist beim letzten Verbraucher am grössten."], s:"Der Stromkreis ist nicht verzweigt."},
+  {t:"Was gilt für die Teilspannungen in einer Serieschaltung?", o:["Ihre Summe ist genauso gross wie die Gesamtspannung.", "Jede Teilspannung ist so gross wie die Gesamtspannung.", "Ihre Summe ist doppelt so gross wie die Gesamtspannung.", "Sie sind immer null."], s:""},
+  {t:"Wie berechnen Sie den Gesamtwiderstand einer Serieschaltung?", o:["Er ist gleich der Summe der Einzelwiderstände.", "Er ist kleiner als der kleinste Einzelwiderstand.", "Er ist gleich dem grössten Einzelwiderstand.", "Er ist gleich dem Produkt der Einzelwiderstände."], s:""},
+  {t:"Warum werden Verbraucher wie Lampen nur selten in Serie geschaltet?", o:["Weil der Stromkreis unterbrochen wird, sobald ein Verbraucher ausfällt.", "Weil dabei zu viel Strom fliesst.", "Weil der Gesamtwiderstand zu klein wird.", "Weil dafür mehr Leiter nötig sind."], s:""},
+  {t:"Der Reiseföhn hat zwei identische Heizspiralen. In Stufe 2 wird eine Spirale überbrückt. Wie ändert sich der Strom gegenüber Stufe 1?", o:["Er verdoppelt sich.", "Er halbiert sich.", "Er bleibt gleich.", "Er wird null."], s:"Der Gesamtwiderstand halbiert sich, bei gleicher Spannung fliesst der doppelte Strom."},
+  {t:"Welche Auswirkungen hat die Serieschaltung, wenn anstelle der ohmschen Halogenlampen zwei 230-V-LED-Spots eingesetzt werden?", o:["Die LEDs flackern, leuchten gar nicht oder die Elektronik kann beschädigt werden.", "Die LEDs leuchten einfach etwas schwächer, sonst passiert nichts.", "Die LEDs leuchten heller als normal.", "Es gibt keinen Unterschied zu Halogenlampen."], s:"230-V-LEDs enthalten ein elektronisches Vorschaltgerät. In Serie steht jeder LED nicht mehr die erforderliche Netzspannung von 230 V zur Verfügung."},
+  {t:"Zwei baugleiche Lampen sind richtig, also parallel, angeschlossen. Eine Lampe wird entfernt. Was passiert mit der anderen?", o:["Sie leuchtet unverändert weiter.", "Sie erlischt ebenfalls.", "Sie leuchtet nur noch halb so hell.", "Sie leuchtet doppelt so hell."], s:"Jede Lampe liegt an der vollen Spannung von 230 V."}
+];
+function qFakt(){
+  var f = pick(FAKTEN);
+  return {
+    text: f.t,
+    parts: [{label:"Antwort", options:shuffle(f.o), correct:f.o[0]}],
+    hint: "Denken Sie an die Gesetze der Serieschaltung (Theoriebuch ET4.1 bis ET4.4).",
+    solution: "<p><b>" + f.o[0] + "</b></p>" + (f.s ? "<p>" + f.s + "</p>" : "")
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.06) return qFehler();
+  if (x < 0.20) return qTeil();
+  if (x < 0.32) return qRzwei();
+  if (x < 0.44) return qIzwei();
+  if (x < 0.62) return qKette();
+  if (x < 0.78) return qFoehn();
+  return qFakt();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){
+  return BAP.examFrom([qFehler, qTeil, qRzwei, qIzwei, qKette, qFoehn, qFakt, qFakt]);
+}});
+})();
+
+</script>
+</body>
+</html>

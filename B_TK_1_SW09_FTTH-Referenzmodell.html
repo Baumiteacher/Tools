@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_TK_1 TA1 FTTH-Referenzmodell BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+:root{ --aussen:#DCE8F8; --aussen-line:#3B6FB5; --innen:#F9E1DC; --innen-line:#B8483A; --geraet:#E6EBF0; --lwl:#D99A1C }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --aussen:#1B2C45; --aussen-line:#7FA8E6; --innen:#43221D; --innen-line:#F09384; --geraet:#232E39; --lwl:#F0B840 }
+}
+:root[data-theme="dark"]{ --aussen:#1B2C45; --aussen-line:#7FA8E6; --innen:#43221D; --innen-line:#F09384; --geraet:#232E39; --lwl:#F0B840 }
+.kette{display:flex;flex-direction:column;gap:0}
+.zone-box{border-radius:var(--r);padding:10px 12px 12px;display:flex;flex-direction:column;gap:0;border-left:5px solid transparent}
+.zone-box.aussen{background:var(--aussen);border-left-color:var(--aussen-line)}
+.zone-box.innen{background:var(--innen);border-left-color:var(--innen-line)}
+.zone-box.geraet{background:var(--geraet);border-left-color:var(--muted)}
+.zone-name{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:8px}
+.knoten,.kabel{font:inherit;color:var(--ink);cursor:pointer;text-align:left}
+.knoten{display:grid;grid-template-columns:5.4em 1fr;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:100%}
+.knoten .k{font-family:var(--mono);font-weight:700}
+.knoten .b{font-size:.85rem;color:var(--muted);line-height:1.25}
+.kabel{display:flex;align-items:center;gap:10px;background:transparent;border:0;padding:3px 0 3px 22px;min-height:38px;width:100%}
+.kabel::before{content:"";width:4px;align-self:stretch;background:var(--lwl);border-radius:2px;flex:none}
+.kabel.cu::before{background:var(--muted)}
+.kabel span{font-size:.85rem;font-weight:600;border-bottom:1px dashed var(--muted)}
+.knoten[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.kabel[aria-pressed="true"] span{color:var(--accent);border-bottom:2px solid var(--accent)}
+.zwischen{padding-left:17px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_TK_1 Vom Netzanbieter zum Endgerät · Teilauftrag 1</p>
+    <h1>FTTH-Referenzmodell BAP</h1>
+    <p class="lead">Der Weg der Glasfaser vom Netzanbieter bis zum Endgerät. Tippen Sie auf einen Punkt oder ein Kabel.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <h2>FTTH-Referenzmodell des BAKOM</h2>
+        <div class="kette" id="kette"></div>
+        <p class="note">Blau: Netzanbieter, ausserhalb des Hauses. Rot: im Haus, Hausinstallation. Der gelbe Strich steht für Glasfaser.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="d-title"></h2>
+        <dl class="kv" id="d-body"></dl>
+      </div>
+
+      <div class="panel">
+        <h2>Gebäudeerschliessung</h2>
+        <ul class="ask">
+          <li>Jede Nutzungseinheit wird in der Regel mit <b>vier Glasfasern</b> angebunden. Eine Faser wird aktiv genutzt, mindestens eine weitere bleibt als Reserve.</li>
+          <li>Es werden <b>Singlemode-Glasfasern</b> eingesetzt.</li>
+          <li>Download im Wellenlängenbereich von 1490–1550 nm, Upload bei 1310 nm. Senden und Empfangen laufen gleichzeitig (duplex) auf derselben Faser.</li>
+          <li>Der Elektroinstallateur verlegt das LWL-Inhouse-Installationskabel vom BEP zur OTO-Dose und schaltet es dort auf.</li>
+        </ul>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Welche Punkte liegen ausserhalb des Hauses, welche im Haus?</li>
+          <li>Wie heisst das Kabel zwischen OTO-Dose und ONT?</li>
+          <li>Wo werden die Fasern des Hauseinführungskabels mit dem Inhouse-Kabel verbunden?</li>
+          <li>Welcher Teil der Strecke läuft nicht mehr über Glasfaser?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Kommunikationstechnik KT24.1 und KT24.2.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Kommunikationstechnik, Kapitel 24 Anwendungen von Lichtwellenleitern: KT24.1 und KT24.2</li><li>Arbeitsblätter KT1 Vom Netzanbieter zum Endgerät, Teilauftrag 1: Übung 2 (KT1.4)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+
+/* Inhalte: Arbeitsblatt KT1 Übung 2 (Referenzmodell, Tabelle) und Theoriebuch KT24.1 bis KT24.2 */
+var TEILE = [
+  {id:"pop", typ:"knoten", zone:"aussen", k:"POP", b:"Verteilerknotenpunkt", en:"Point of Presence",
+   e:"Zentrale oder Verteilknotenpunkt des Netzanbieters."},
+  {id:"feeder", typ:"kabel", zone:"aussen", k:"Hauptkabel (Feeder)", b:"Vom POP zum Schacht oder Strassenschrank", e:"Glasfaserkabel des Netzanbieters."},
+  {id:"schacht", typ:"knoten", zone:"aussen", k:"Schacht", kLang:"Schacht / Strassenschrank", b:"Übergang von Haupt- zu Hauseinführungskabel",
+   e:"Hier erfolgt die Verteilung in die Häuser."},
+  {id:"drop", typ:"kabel", zone:"zwischen", k:"Hauseinführungskabel (Drop)", b:"Vom Schacht oder Strassenschrank zum BEP", e:"Führt die Glasfaser ins Gebäude."},
+  {id:"bep", typ:"knoten", zone:"innen", k:"BEP", b:"Gebäudeeinführungspunkt", en:"Building Entry Point",
+   e:"Spleisspunkt im Haus. Er befindet sich im Keller oder im Fassadenaussenkasten (FAK). Hier werden die Fasern des Hauseinführungskabels mit den Fasern des Inhouse-Kabels nach einem vorgegebenen Farbcode verbunden."},
+  {id:"gv1", typ:"kabel", zone:"innen", k:"Gebäudeverkabelung", b:"Vom BEP zur OTO-Dose", e:"Meist 4 Fasern vom BEP zur OTO-Dose (LWL-Inhouse-Installationskabel)."},
+  {id:"fd", typ:"knoten", zone:"innen", k:"FD", b:"Inhouse-Verteiler", en:"Floor Distributor",
+   e:"Gebäude- oder Etagenverteiler. Wenn nötig, Schlaufdose."},
+  {id:"gv2", typ:"kabel", zone:"innen", k:"Gebäudeverkabelung", b:"Vom BEP zur OTO-Dose", e:"Meist 4 Fasern vom BEP zur OTO-Dose (LWL-Inhouse-Installationskabel)."},
+  {id:"oto", typ:"knoten", zone:"innen", k:"OTO", b:"Optische Telekommunikationssteckdose", en:"Optical Telecommunications Outlet",
+   e:"Im Multimedia-Verteiler oder in der Wohnung. Abschlusspunkt der Glasfaserleitung aus dem öffentlichen Netz innerhalb der Nutzungseinheit."},
+  {id:"schnur", typ:"kabel", zone:"innen", k:"Geräteschnur", b:"Von der OTO-Dose zum ONT", e:"LWL-Patchkabel."},
+  {id:"ont", typ:"knoten", zone:"innen", k:"ONT / CPE", b:"Optischer Netzabschluss", en:"Optical Network Termination",
+   e:"Endpunkt der Glasfaser, meist im Router integriert (z. B. Internetbox). CPE (Customer Premises Equipment) ist das Teilnehmernetzgerät."},
+  {id:"wv", typ:"kabel", zone:"zwischen", cu:true, k:"Wohnungsverkabelung", b:"Vom ONT zum Benutzergerät", e:"LAN oder WLAN."},
+  {id:"bg", typ:"knoten", zone:"geraet", k:"Geräte", kLang:"Benutzergeräte", b:"Endgeräte", e:"PC, Drucker, Handy usw."}
+];
+var ZONEN = {aussen:"Netzanbieter", innen:"Im Haus, Hausinstallation", geraet:"Benutzergeräte"};
+var sel = "bep";
+function btn(t){
+  if (t.typ === "knoten")
+    return "<button type=\"button\" class=\"knoten\" id=\"t-" + t.id + "\" data-t=\"" + t.id + "\" aria-pressed=\"" + (t.id === sel) + "\"><span class=\"k\">" + t.k + "</span><span class=\"b\">" + t.b + "</span></button>";
+  return "<button type=\"button\" class=\"kabel" + (t.cu ? " cu" : "") + "\" id=\"t-" + t.id + "\" data-t=\"" + t.id + "\" aria-pressed=\"" + (t.id === sel) + "\"><span>" + t.k + "</span></button>";
+}
+function render(){
+  var h = "", i = 0;
+  while (i < TEILE.length){
+    var z = TEILE[i].zone;
+    if (z === "zwischen"){ h += "<div class=\"zwischen\">" + btn(TEILE[i]) + "</div>"; i++; continue; }
+    h += "<div class=\"zone-box " + z + "\"><p class=\"zone-name\">" + ZONEN[z] + "</p>";
+    while (i < TEILE.length && TEILE[i].zone === z){ h += btn(TEILE[i]); i++; }
+    h += "</div>";
+  }
+  $("kette").innerHTML = h;
+  var t = TEILE.filter(function(x){ return x.id === sel; })[0];
+  $("d-title").textContent = t.kLang || t.k;
+  $("d-body").innerHTML =
+    "<dt>" + (t.typ === "kabel" ? "Verlauf" : "Bezeichnung") + "</dt><dd>" + t.b + (t.en ? " (" + t.en + ")" : "") + "</dd>" +
+    "<dt>Erklärung</dt><dd style=\"font-weight:400\">" + t.e + "</dd>" +
+    (t.zone === "aussen" ? "<dt>Lage</dt><dd>ausserhalb des Hauses</dd>" : (t.zone === "innen" ? "<dt>Lage</dt><dd>im Haus</dd>" : ""));
+}
+function init(){
+  $("kette").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-t]"); if (!b) return;
+    sel = b.getAttribute("data-t"); render(); var f = $("t-" + sel); if (f) f.focus();
+  });
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+function others(list, x, n){ return shuffle(list.filter(function(y){ return y !== x; })).slice(0, n); }
+function qOrder(){
+  var v = pick([
+    {t:"Bringen Sie die Punkte des FTTH-Referenzmodells in die richtige Reihenfolge, vom Netzanbieter zum Endgerät.", items:["POP", "Schacht / Strassenschrank", "BEP", "FD", "OTO", "ONT", "Benutzergerät"]},
+    {t:"Bringen Sie die Punkte im Haus in die richtige Reihenfolge, von der Gebäudeeinführung zum Endgerät.", items:["BEP", "FD", "OTO", "ONT", "Benutzergerät"]},
+    {t:"Bringen Sie die Kabel in die richtige Reihenfolge, vom Netzanbieter zum Endgerät.", items:["Hauptkabel (Feeder)", "Hauseinführungskabel (Drop)", "Gebäudeverkabelung", "Geräteschnur", "Wohnungsverkabelung"]}
+  ]);
+  return {
+    text: v.t,
+    parts: [{type:"order", label:"Reihenfolge", items:v.items}],
+    hint: "Die Abbildung des Referenzmodells steht im Theoriebuch auf KT24.1.",
+    solution: "<p><b>" + v.items.join(" → ") + "</b></p>"
+  };
+}
+var ABK = [
+  {k:"POP", d:"Verteilerknotenpunkt des Netzanbieters", en:"Point of Presence"},
+  {k:"BEP", d:"Gebäudeeinführungspunkt", en:"Building Entry Point"},
+  {k:"FD", d:"Inhouse-Verteiler (Gebäude- oder Etagenverteiler)", en:"Floor Distributor"},
+  {k:"OTO", d:"Optische Telekommunikationssteckdose", en:"Optical Telecommunications Outlet"},
+  {k:"ONT", d:"Optischer Netzabschluss", en:"Optical Network Termination"},
+  {k:"CPE", d:"Teilnehmernetzgerät, z. B. Internetbox", en:"Customer Premises Equipment"}
+];
+function qAbk(){
+  var a = pick(ABK), opts = shuffle([a.d].concat(others(ABK.map(function(x){ return x.d; }), a.d, 3)));
+  return {
+    text: "Was bezeichnet die Abkürzung <b>" + a.k + "</b>?",
+    parts: [{label:"Bezeichnung", options:opts, correct:a.d}],
+    hint: "Die Abkürzungen sind im Theoriebuch auf KT24.1 erklärt.",
+    solution: "<p><b>" + a.k + "</b> (" + a.en + "): " + a.d + "</p>"
+  };
+}
+function qEnglisch(){
+  var a = pick(ABK), opts = shuffle([a.k].concat(others(ABK.map(function(x){ return x.k; }), a.k, 3)));
+  return {
+    text: "Welche Abkürzung steht für «" + a.en + "»?",
+    parts: [{label:"Abkürzung", options:opts, correct:a.k, mono:true}],
+    hint: "Achten Sie auf die Anfangsbuchstaben.",
+    solution: "<p>" + a.en + " = <b>" + a.k + "</b>: " + a.d + "</p>"
+  };
+}
+var KABEL = ["Hauptkabel (Feeder)", "Hauseinführungskabel (Drop)", "Gebäudeverkabelung", "Geräteschnur", "Wohnungsverkabelung"];
+var STRECKEN = [
+  {von:"POP", nach:"Schacht oder Strassenschrank", txt:"vom <b>POP</b> zum <b>Schacht oder Strassenschrank</b>", c:KABEL[0]},
+  {von:"Schacht oder Strassenschrank", nach:"BEP", txt:"vom <b>Schacht oder Strassenschrank</b> zum <b>BEP</b>", c:KABEL[1]},
+  {von:"BEP", nach:"OTO-Dose", txt:"vom <b>BEP</b> zur <b>OTO-Dose</b>", c:KABEL[2]},
+  {von:"OTO-Dose", nach:"ONT", txt:"von der <b>OTO-Dose</b> zum <b>ONT</b>", c:KABEL[3]},
+  {von:"ONT", nach:"Benutzergerät", txt:"vom <b>ONT</b> zum <b>Benutzergerät</b>", c:KABEL[4]}
+];
+function qKabel(){
+  var s = pick(STRECKEN);
+  return {
+    text: "Wie heisst die Verbindung " + s.txt + "?",
+    parts: [{label:"Kabel", options:KABEL, correct:s.c}],
+    hint: "Die Kabel sind in der Abbildung des Referenzmodells unter den Punkten angeschrieben (KT24.1).",
+    solution: "<p>" + s.von + " → " + s.nach + ": <b>" + s.c + "</b></p>"
+  };
+}
+var LAGE = ["ausserhalb des Hauses (Netzanbieter)", "im Haus (Hausinstallation)"];
+var ORTE = [{k:"POP", l:0}, {k:"Schacht / Strassenschrank", l:0}, {k:"BEP", l:1}, {k:"FD", l:1}, {k:"OTO", l:1}, {k:"ONT", l:1}];
+function qOrt(){
+  var o = pick(ORTE);
+  return {
+    text: "Wo liegt dieser Punkt im FTTH-Referenzmodell?<br><b>" + o.k + "</b>",
+    parts: [{label:"Lage", options:LAGE, correct:LAGE[o.l]}],
+    hint: "Die Grenze liegt beim Gebäudeeinführungspunkt.",
+    solution: "<p>" + o.k + ": <b>" + LAGE[o.l] + "</b></p><p>POP und Schacht / Strassenschrank gehören zum Netzanbieter. BEP, FD, OTO und ONT gehören zur Hausinstallation.</p>"
+  };
+}
+var PUNKTE = ["POP", "Schacht / Strassenschrank", "BEP", "FD", "OTO", "ONT"];
+var BESCHR = [
+  {t:"Zentrale des Netzanbieters", c:"POP"},
+  {t:"Hier erfolgt die Verteilung in die Häuser.", c:"Schacht / Strassenschrank"},
+  {t:"Spleisspunkt im Haus, im Keller oder im Fassadenaussenkasten (FAK)", c:"BEP"},
+  {t:"Inhouse-Verteiler; wenn nötig, Schlaufdose", c:"FD"},
+  {t:"Optische Steckdose im Multimedia-Verteiler oder in der Wohnung", c:"OTO"},
+  {t:"Endpunkt der Glasfaser, meist im Router integriert", c:"ONT"}
+];
+function qBeschreibung(){
+  var b = pick(BESCHR);
+  return {
+    text: "Welcher Punkt des Referenzmodells ist gemeint?<br><b>" + b.t + "</b>",
+    parts: [{label:"Punkt", options:PUNKTE, correct:b.c, mono:true}],
+    hint: "Tippen Sie im Modus Erkunden auf die Punkte und lesen Sie die Erklärungen.",
+    solution: "<p><b>" + b.c + "</b>: " + b.t + "</p>"
+  };
+}
+var FAKTEN = [
+  {t:"Mit wie vielen Glasfasern wird eine Nutzungseinheit in der Regel angebunden?", o:["1", "2", "4", "8"], c:"4", s:"In der Regel vier Glasfasern. Eine wird aktiv genutzt, mindestens eine weitere bleibt als Reserve."},
+  {t:"Welcher Fasertyp wird bei FTTH eingesetzt?", o:["Singlemode-Glasfaser", "Multimode-Glasfaser", "Kunststofffaser"], c:"Singlemode-Glasfaser", s:"Zum Einsatz kommen Singlemode-Glasfasern."},
+  {t:"Womit werden die Internetbox (ONT/CPE) und die OTO-Dose bei der Inbetriebnahme verbunden?", o:["LWL-Patchkabel", "Koaxialkabel", "Netzwerkkabel RJ45", "Telefonkabel"], c:"LWL-Patchkabel", s:"Die Geräteschnur von der OTO-Dose zum ONT ist ein LWL-Patchkabel."},
+  {t:"Welche Strecke verlegt der Elektroinstallateur bei einem FTTH-Anschluss?", o:["Vom BEP zur OTO-Dose", "Vom POP zum Schacht", "Vom Schacht zum BEP", "Vom POP zum BEP"], c:"Vom BEP zur OTO-Dose", s:"Er verlegt das LWL-Inhouse-Installationskabel vom BEP zur optischen Steckdose (OTO) und schaltet es dort auf."},
+  {t:"Bei welcher Wellenlänge erfolgt der Upload?", o:["1310 nm", "1490 nm", "1550 nm", "850 nm"], c:"1310 nm", s:"Upload bei 1310 nm, Download im Bereich von 1490–1550 nm."},
+  {t:"Wie erfolgt die Wohnungsverkabelung vom ONT zum Benutzergerät?", o:["LAN oder WLAN", "Nur über Glasfaser", "Über Koaxialkabel", "Über das Hauptkabel"], c:"LAN oder WLAN", s:"Vom ONT zum Benutzergerät: LAN oder WLAN."}
+];
+function qFakt(){
+  var f = pick(FAKTEN);
+  return {
+    text: f.t,
+    parts: [{label:"Antwort", options:shuffle(f.o), correct:f.c}],
+    hint: "Lesen Sie im Theoriebuch auf KT24.1 und KT24.2 nach.",
+    solution: "<p><b>" + f.c + "</b></p><p>" + f.s + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.14) return qOrder();
+  if (x < 0.30) return qAbk();
+  if (x < 0.42) return qEnglisch();
+  if (x < 0.58) return qKabel();
+  if (x < 0.70) return qOrt();
+  if (x < 0.85) return qBeschreibung();
+  return qFakt();
+}
+function exam(){
+  var makers = [qOrder, qAbk, qEnglisch, qKabel, qKabel, qOrt, qBeschreibung, qFakt];
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 30); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:exam});
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_TK_1 TA4 Router-Rückseite und Dosen BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+.bild{width:100%;height:auto;display:block}
+.w-box{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.w-box.an{stroke:var(--accent);stroke-width:3;fill:var(--accent-soft)}
+.w-t{fill:var(--ink);font-family:var(--sans);font-size:10px;font-weight:700}
+.w-m{fill:var(--muted);font-family:var(--sans);font-size:8.5px}
+.w-lwl{stroke:#2B9443;stroke-width:2.5;fill:none}
+.w-cu{stroke:var(--accent);stroke-width:2.5;fill:none}
+.w-koax{stroke:var(--ink);stroke-width:2.5;fill:none}
+.w-funk{stroke:var(--muted);stroke-width:1.5;fill:none;stroke-dasharray:3 3}
+.r-geh{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.r-port{stroke:var(--ink);stroke-width:1.2}
+.r-ring{fill:none;stroke:var(--accent);stroke-width:3}
+.r-t{fill:var(--ink);font-family:var(--mono);font-size:9px;font-weight:700}
+.r-funk{stroke:var(--muted);stroke-width:1.6;fill:none}
+.r-funk.an{stroke:var(--accent);stroke-width:2.6}
+.liste{display:flex;flex-direction:column;gap:6px}
+.liste .opt{text-align:left}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem;overflow-wrap:normal;word-break:normal}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k td:not(:first-child){font-family:var(--mono);font-size:.85rem}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_TK_1 Vom Netzanbieter zum Endgerät · Teilauftrag 4</p>
+    <h1>Router-Rückseite und Dosen BAP</h1>
+    <p class="lead">Welche Dose ist wofür da, und was gehört in welchen Anschluss des Routers? Tippen Sie Begriffe und Geräte an und verfolgen Sie den Weg vom Gebäudeeinführungspunkt bis zum Endgerät.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Vom Gebäudeeinführungspunkt zum Endgerät</h2>
+        <svg class="bild" id="weg" viewBox="0 0 340 150" role="img" aria-label="Weg des Signals: BEP, OTO-Dose, Router, Netzwerkdose RJ45 und PC, daneben Koaxdose und TV"></svg>
+        <p class="note">Vereinfachte Darstellung. Grün: Lichtwellenleiter (LWL). Blau: Kupfer (Ethernet). Schwarz: Koaxialkabel.</p>
+      </div>
+
+      <div class="plain">
+        <fieldset>
+          <legend>Begriff wählen</legend>
+          <div class="opts" id="begriffe"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="begriff-title"></h2>
+        <div class="plain" id="begriff-body"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Rückseite eines Routers</h2>
+        <svg class="bild" id="router" viewBox="0 0 340 112" role="img" aria-label="Schematische Rückseite eines Routers mit den Anschlüssen Fiber, Phone, WAN, LAN, USB und Power sowie den Funkverbindungen DECT und WLAN"></svg>
+        <p class="note">Neutraler Router, schematisch gezeichnet. Die Bezeichnungen auf Ihrem Gerät können abweichen (siehe Tabelle unten).</p>
+      </div>
+
+      <div class="plain">
+        <fieldset>
+          <legend>Was möchten Sie anschliessen?</legend>
+          <div class="liste" id="geraete"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="port-title"></h2>
+        <dl class="kv" id="port-body"></dl>
+      </div>
+
+      <div class="panel">
+        <h2>Bezeichnungen auf den Geräten aus Übung 13</h2>
+        <div class="scroll">
+          <table class="tab-k">
+            <thead><tr><th>Aufgabe</th><th>Fritzbox 5590</th><th>Internetbox 5</th></tr></thead>
+            <tbody id="namen"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Der Router verbindet das lokale Netzwerk mit dem Internet. Er dient oft auch als Wandler zwischen den Übertragungsmedien (Cu ↔ LWL, WLAN ↔ LAN).</p>
+          <p>Die OTO-Dose bildet den Abschlusspunkt der Glasfaserleitung aus dem öffentlichen Netz innerhalb der Nutzungseinheit.</p>
+          <p>Ohne Multimediaverteiler wird der Router neben der OTO-Dose platziert und mit einem LWL-Patchkabel verbunden.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Über welches Kabel ist der Router mit der OTO-Dose verbunden?</li>
+          <li>Welche Geräte verbinden sich ohne Kabel mit dem Router?</li>
+          <li>Worin unterscheiden sich OTO-Dose, Netzwerkdose RJ45 und Koaxdose?</li>
+          <li>Welchen Anschluss brauchen Sie, wenn das Internet über ein vorgeschaltetes Modem kommt?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Kommunikationstechnik KT24.2 (BEP und OTO-Dose) und KT26.1 (Strukturen im Home-Bereich).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Kommunikationstechnik, Kapitel 24 Anwendungen von Lichtwellenleitern: KT24.2 (BEP und OTO-Dose)</li><li>Theoriebuch Kommunikationstechnik, Kapitel 26 Strukturen der Gebäudekommunikation: KT26.1 (Strukturen im Home-Bereich)</li><li>Arbeitsblätter KT1 Vom Netzanbieter zum Endgerät, Teilauftrag 4: Übungen 10 bis 13 (KT1.10 bis KT1.12)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = "\u00a0";
+
+/* Inhalte: Arbeitsblatt KT1 Übungen 10 bis 13, Theoriebuch KT24.2 und KT26.1 */
+var BEGRIFFE = [
+  {id:"bep", k:"BEP", d:"Gebäudeeinführungspunkt (Building Entry Point) für Glasfaseranschluss",
+   z:"Der Verbindungspunkt zwischen Hauseinführung und Hausinstallation dient als Übergabestelle der Glasfaserverkabelung. (KT24.2)"},
+  {id:"oto", k:"OTO-Dose", d:"Optische Telekommunikations-Anschlussdose",
+   z:"OTO: Optical Telecommunications Outlet. Die OTO-Dose bildet den Abschlusspunkt der Glasfaserleitung aus dem öffentlichen Netz innerhalb der Nutzungseinheit. Von hier führt ein LWL-Patchkabel zum Router. (KT24.2)"},
+  {id:"router", k:"Router", d:"Der Router stellt die Verbindung zwischen dem Internetzugang des Netzanbieters und dem Hausnetzwerk her.",
+   z:"Internetbox und Fritzbox gehören beide zu den Routern."},
+  {id:"rj45", k:"Netzwerkdose RJ45", d:"Anschluss-Dose für lokales Computernetzwerk (LAN)", z:""},
+  {id:"koax", k:"Koaxdose", d:"TV-Anschlussdose (Koaxialkabel)", z:""}
+];
+var ANSCHL = [
+  {id:"fiber", g:"LWL-Patchkabel von der OTO-Dose", a:"Fiber", f:"LWL (Anschlusskabel von OTO-Dose)", funk:false},
+  {id:"phone", g:"Analoges Telefon oder Fax", a:"Phone", f:"Für analoge Telefone (oder Fax)", funk:false},
+  {id:"wan", g:"Vorgeschaltetes Modem", a:"WAN", f:"Internet über ein vorgeschaltetes Modem", funk:false},
+  {id:"lan", g:"PC, Drucker usw. mit Netzwerkkabel", a:"LAN", f:"LAN-Anschlüsse für PC, Drucker usw.", funk:false},
+  {id:"usb", g:"USB-Gerät", a:"USB", f:"USB für verschiedene Zwecke", funk:false},
+  {id:"dect", g:"Schnurlostelefon", a:"DECT", f:"Schnurlostelefon (drahtlos)", funk:true},
+  {id:"wlan", g:"Smartphone, Laptop oder Tablet ohne Kabel", a:"WLAN", f:"Endgeräte drahtlos mit dem Router verbinden", funk:true},
+  {id:"power", g:"Energieversorgung", a:"Power", f:"Der Router wird über eine 230-V-Steckdose mit Energie versorgt.", funk:false}
+];
+var AN = {}; ANSCHL.forEach(function(a){ AN[a.id] = a; });
+var GBS = F("GBit", "s");
+var NAMEN = [
+  ["LWL von der OTO-Dose", "Fiber", "fibre (Patchkabel), module (mit externem Adapter)"],
+  ["Analoge Telefone (oder Fax)", "2x Phone", "phone"],
+  ["Internet über ein vorgeschaltetes Modem", "WAN oder LAN", "–"],
+  ["LAN für PC, Drucker usw.", "4x gigabit LAN", "1.0" + NB + GBS + " ethernet"],
+  ["Schneller Ethernet-Anschluss für PC, Drucker usw.", "–", "10" + NB + GBS],
+  ["Schnurlostelefon (drahtlos)", "DECT", "–"],
+  ["USB für verschiedene Zwecke", "2x USB 3.0", "USB 3.0"]
+];
+var st = {b:"oto", a:"fiber"};
+
+function box(id, x, y, w, h, t, sel){
+  return "<rect class=\"w-box" + (sel === id ? " an" : "") + "\" x=\"" + x + "\" y=\"" + y + "\" width=\"" + w + "\" height=\"" + h + "\" rx=\"4\"/><text class=\"w-t\" x=\"" + (x + w / 2) + "\" y=\"" + (y + h / 2 + 3.5) + "\" text-anchor=\"middle\">" + t + "</text>";
+}
+function zeichneWeg(){
+  var s = st.b, h = "";
+  h += "<path class=\"w-lwl\" d=\"M58 33 H100\"/><path class=\"w-lwl\" d=\"M166 33 H214\"/>";
+  h += "<path class=\"w-cu\" d=\"M246 48 V100\"/><path class=\"w-cu\" d=\"M298 115 H308\"/>";
+  h += "<path class=\"w-koax\" d=\"M0 115 H22\"/><path class=\"w-koax\" d=\"M88 115 H106\"/>";
+  h += "<path class=\"w-funk\" d=\"M278 33 H294\"/>";
+  h += "<text class=\"w-m\" x=\"79\" y=\"27\" text-anchor=\"middle\">LWL</text>";
+  h += "<text class=\"w-m\" x=\"190\" y=\"62\" text-anchor=\"middle\">LWL-Patchkabel</text>";
+  h += "<text class=\"w-m\" x=\"252\" y=\"80\">Ethernet</text>";
+  h += "<text class=\"w-m\" x=\"286\" y=\"12\" text-anchor=\"middle\">WLAN</text>";
+  h += "<text class=\"w-m\" x=\"2\" y=\"94\">Koaxialkabel</text>";
+  h += box("bep", 6, 18, 52, 30, "BEP", s) + box("oto", 100, 18, 66, 30, "OTO-Dose", s) + box("router", 214, 18, 64, 30, "Router", s);
+  h += box("x1", 294, 18, 42, 30, "Laptop", s);
+  h += box("rj45", 194, 100, 104, 30, "Netzwerkdose RJ45", s) + box("x2", 308, 100, 28, 30, "PC", s);
+  h += box("koax", 22, 100, 66, 30, "Koaxdose", s) + box("x3", 106, 100, 30, 30, "TV", s);
+  $("weg").innerHTML = h;
+}
+function funk(x, t, an){
+  var c = "r-funk" + (an ? " an" : "");
+  return "<path class=\"" + c + "\" d=\"M" + (x - 5) + " 20 a7 7 0 0 1 10 0\"/><path class=\"" + c + "\" d=\"M" + (x - 10) + " 15 a14 14 0 0 1 20 0\"/><path class=\"" + c + "\" d=\"M" + (x - 15) + " 10 a21 21 0 0 1 30 0\"/><circle cx=\"" + x + "\" cy=\"24\" r=\"2\" class=\"" + c + "\" style=\"fill:currentColor\"/>"
+    + "<text class=\"r-t\" x=\"" + (x + 22) + "\" y=\"20\">" + t + "</text>";
+}
+function zeichneRouter(){
+  var s = st.a, h = "";
+  h += funk(40, "DECT", s === "dect") + funk(250, "WLAN", s === "wlan");
+  h += "<rect class=\"r-geh\" x=\"6\" y=\"32\" width=\"328\" height=\"50\" rx=\"6\"/>";
+  function port(x, w, farbe){ return "<rect class=\"r-port\" x=\"" + x + "\" y=\"46\" width=\"" + w + "\" height=\"20\" rx=\"2\" fill=\"" + farbe + "\"/>"; }
+  h += port(18, 18, "#2B9443") + port(52, 14, "#9AA6B2") + port(70, 14, "#9AA6B2") + port(104, 20, "#2F7FD0");
+  [144, 168, 192, 216].forEach(function(x){ h += port(x, 20, "#E0B020"); });
+  h += "<rect class=\"r-port\" x=\"256\" y=\"50\" width=\"22\" height=\"11\" rx=\"1\" fill=\"#5B8DEF\"/>";
+  h += "<circle class=\"r-port\" cx=\"306\" cy=\"56\" r=\"7\" fill=\"var(--line)\"/><circle cx=\"306\" cy=\"56\" r=\"2\" fill=\"var(--ink)\"/>";
+  var ring = {fiber:[13, 28], phone:[47, 42], wan:[99, 30], lan:[139, 102], usb:[251, 32], power:[294, 24]};
+  if (ring[s]) h += "<rect class=\"r-ring\" x=\"" + ring[s][0] + "\" y=\"40\" width=\"" + ring[s][1] + "\" height=\"32\" rx=\"5\"/>";
+  [["Fiber", 27], ["Phone", 68], ["WAN", 114], ["LAN", 190], ["USB", 267], ["Power", 306]].forEach(function(l){
+    h += "<text class=\"r-t\" x=\"" + l[1] + "\" y=\"98\" text-anchor=\"middle\">" + l[0] + "</text>";
+  });
+  $("router").innerHTML = h;
+}
+function render(){
+  zeichneWeg(); zeichneRouter();
+  $("begriffe").innerHTML = BEGRIFFE.map(function(b){ return "<button class=\"opt txt\" type=\"button\" id=\"begriff-" + b.id + "\" data-b=\"" + b.id + "\" aria-pressed=\"" + (b.id === st.b) + "\">" + b.k + "</button>"; }).join("");
+  var b = BEGRIFFE.filter(function(x){ return x.id === st.b; })[0];
+  $("begriff-title").textContent = b.k;
+  $("begriff-body").innerHTML = "<p><b>" + b.d + "</b></p>" + (b.z ? "<p>" + b.z + "</p>" : "");
+  $("geraete").innerHTML = ANSCHL.map(function(a){ return "<button class=\"opt txt\" type=\"button\" id=\"geraet-" + a.id + "\" data-a=\"" + a.id + "\" aria-pressed=\"" + (a.id === st.a) + "\">" + a.g + "</button>"; }).join("");
+  var a = AN[st.a];
+  $("port-title").textContent = (a.funk ? "Funkverbindung " : "Anschluss ") + a.a;
+  $("port-body").innerHTML = "<dt>Aufgabe</dt><dd>" + a.f + "</dd><dt>Verbindung</dt><dd>" + (a.funk ? "drahtlos, ohne Kabel" : "mit Kabel") + "</dd>";
+}
+function init(){
+  $("namen").innerHTML = NAMEN.map(function(n){ return "<tr><td>" + n[0] + "</td><td>" + n[1] + "</td><td>" + n[2] + "</td></tr>"; }).join("")
+    + "<tr><td colspan=\"3\" style=\"font-family:var(--sans);color:var(--muted);border-bottom:0\">– : im Arbeitsblatt nicht aufgeführt. Auf der Fritzbox ist der Anschluss für das vorgeschaltete Modem mit WAN und LAN beschriftet.</td></tr>";
+  $("begriffe").addEventListener("click", function(e){ var b = e.target.closest("button[data-b]"); if (!b) return; st.b = b.getAttribute("data-b"); render(); var f = $("begriff-" + st.b); if (f) f.focus(); });
+  $("geraete").addEventListener("click", function(e){ var b = e.target.closest("button[data-a]"); if (!b) return; st.a = b.getAttribute("data-a"); render(); var f = $("geraet-" + st.a); if (f) f.focus(); });
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+function ohne(arr, weg){ return arr.filter(function(x){ return weg.indexOf(x) < 0; }); }
+var DEF = [
+  ["BEP", "Gebäudeeinführungspunkt (Building Entry Point) für Glasfaseranschluss"],
+  ["OTO-Dose", "Optische Telekommunikations-Anschlussdose"],
+  ["Netzwerkdose RJ45", "Anschluss-Dose für lokales Computernetzwerk (LAN)"],
+  ["Koaxdose", "TV-Anschlussdose (Koaxialkabel)"],
+  ["Router", "Gerät, das die Verbindung zwischen dem Internetzugang des Netzanbieters und dem Hausnetzwerk herstellt"]
+];
+function qBegriff(){
+  var d = pick(DEF);
+  return {
+    text: "Was bedeutet der Fachbegriff <b>" + d[0] + "</b>?",
+    parts: [{label:"Erklärung", options:shuffle(DEF.map(function(x){ return x[1]; })), correct:d[1]}],
+    hint: "Die Begriffe stehen im Arbeitsblatt bei Übung 10.",
+    solution: "<p><b>" + d[0] + "</b>: " + d[1] + "</p>"
+  };
+}
+function qBegriffRev(){
+  var d = pick(DEF);
+  return {
+    text: "Welcher Fachbegriff passt zu dieser Erklärung? <b>«" + d[1] + "»</b>",
+    parts: [{label:"Fachbegriff", options:shuffle(DEF.map(function(x){ return x[0]; })), correct:d[0]}],
+    hint: "Achten Sie auf das Übertragungsmedium: Glasfaser, Koaxialkabel oder Computernetzwerk.",
+    solution: "<p><b>" + d[0] + "</b>: " + d[1] + "</p>"
+  };
+}
+var A_ALLE = ["Fiber", "Phone", "WAN", "LAN", "USB", "DECT", "WLAN"];
+var PORT_Q = [
+  {id:"fiber", t:"In welchen Anschluss des Routers stecken Sie das LWL-Patchkabel von der OTO-Dose?", weg:[]},
+  {id:"phone", t:"An welchem Anschluss des Routers schliessen Sie ein analoges Telefon oder ein Faxgerät an?", weg:["DECT"]},
+  {id:"wan", t:"Das Internet kommt über ein vorgeschaltetes Modem. An welchen Anschluss des Routers gehört das Kabel vom Modem?", weg:[]},
+  {id:"lan", t:"Sie schliessen einen PC oder einen Drucker mit einem Netzwerkkabel am Router an. Welchen Anschluss verwenden Sie?", weg:["WLAN"]},
+  {id:"dect", t:"Über welche Verbindung des Routers arbeitet ein Schnurlostelefon?", weg:["WLAN", "Phone"]},
+  {id:"wlan", t:"Über welche Verbindung erreichen Smartphone, Laptop oder Tablet den Router ohne Kabel?", weg:[]}
+];
+function qPort(){
+  var q = pick(PORT_Q), a = AN[q.id], falsch = shuffle(ohne(A_ALLE, [a.a].concat(q.weg))).slice(0, 3);
+  return {
+    text: q.t,
+    parts: [{label:a.funk ? "Verbindung" : "Anschluss", options:shuffle([a.a].concat(falsch)), correct:a.a, mono:true}],
+    hint: "Überlegen Sie zuerst: mit Kabel oder drahtlos? Und welches Kabel?",
+    solution: "<p><b>" + a.a + "</b>: " + a.f + "</p>"
+  };
+}
+var FN = ["fiber", "phone", "wan", "lan", "usb", "dect"];
+function qPortFn(){
+  var a = AN[pick(FN)], falsch = shuffle(FN.map(function(i){ return AN[i].f; }).filter(function(f){ return f !== a.f; })).slice(0, 3);
+  return {
+    text: "Welche Aufgabe hat " + (a.funk ? "die Funkverbindung" : "der Anschluss") + " <b>" + a.a + "</b> am Router?",
+    parts: [{label:"Aufgabe", options:shuffle([a.f].concat(falsch)), correct:a.f}],
+    hint: "Die Aufgaben der Anschlüsse stehen im Arbeitsblatt bei Übung 13.",
+    solution: "<p><b>" + a.a + "</b>: " + a.f + "</p>"
+  };
+}
+var F_LWL1 = "LWL (Patchkabel von OTO-Dose)", F_LWL2 = "LWL (Anschlusskabel von OTO-Dose) mit externem Adapter", F_FAST = "Schneller Ethernet-Anschluss (Kabel) für PC, Drucker usw.",
+    F_LAN = "LAN-Anschlüsse für PC, Drucker usw.", F_DECT = "Schnurlostelefon (drahtlos)", F_PHONE = "Für analoge Telefone (oder Fax)", F_USB = "USB für verschiedene Zwecke", F_WAN = "Internet über ein vorgeschaltetes Modem";
+var GERAET = [
+  {g:"Internetbox 5", l:"fibre", f:F_LWL1, weg:[F_LWL2]},
+  {g:"Internetbox 5", l:"module", f:F_LWL2, weg:[F_LWL1]},
+  {g:"Internetbox 5", l:"10" + NB + GBS, f:F_FAST, weg:[F_LAN]},
+  {g:"Internetbox 5", l:"1.0" + NB + GBS + " ethernet", f:F_LAN, weg:[F_FAST]},
+  {g:"Fritzbox 5590", l:"4x gigabit LAN", f:F_LAN, weg:[F_FAST]},
+  {g:"Fritzbox 5590", l:"DECT", f:F_DECT, weg:[]},
+  {g:"Fritzbox 5590", l:"2x Phone", f:F_PHONE, weg:[]},
+  {g:"Fritzbox 5590", l:"Fiber", f:"LWL (Anschlusskabel von OTO-Dose)", weg:[F_LWL1, F_LWL2]}
+];
+var F_ALLE = [F_LWL1, F_LWL2, F_FAST, F_LAN, F_DECT, F_PHONE, F_USB, F_WAN];
+function qGeraet(){
+  var g = pick(GERAET), falsch = shuffle(ohne(F_ALLE, [g.f].concat(g.weg))).slice(0, 3);
+  return {
+    text: "Auf der Rückseite der <b>" + g.g + "</b> ist ein Anschluss mit <b>«" + g.l + "»</b> bezeichnet. Wozu dient er?",
+    parts: [{label:"Aufgabe", options:shuffle([g.f].concat(falsch)), correct:g.f}],
+    hint: "Fibre und Fiber bedeuten Glasfaser. Ethernet und LAN gehören zum lokalen Netzwerk.",
+    solution: "<p><b>" + g.l + "</b>: " + g.f + "</p>"
+  };
+}
+var DOSE = [
+  ["Ein PC soll per Kabel an das lokale Computernetzwerk (LAN) angeschlossen werden. Welche Dose brauchen Sie?", "Netzwerkdose RJ45"],
+  ["Ein Fernseher soll über ein Koaxialkabel angeschlossen werden. Welche Dose brauchen Sie?", "Koaxdose"],
+  ["An welcher Dose endet die Glasfaserleitung aus dem öffentlichen Netz innerhalb der Wohnung?", "OTO-Dose"]
+];
+function qDose(){
+  var d = pick(DOSE);
+  return {
+    text: d[0],
+    parts: [{label:"Dose", options:shuffle(["OTO-Dose", "Netzwerkdose RJ45", "Koaxdose"]), correct:d[1]}],
+    hint: "OTO: optisch. RJ45: lokales Computernetzwerk. Koax: TV.",
+    solution: "<p><b>" + d[1] + "</b></p>"
+  };
+}
+var WEG = ["BEP", "OTO-Dose", "LWL-Patchkabel", "Router", "Netzwerkkabel (Ethernet)", "PC"];
+function qWeg(){
+  return {
+    text: "Bringen Sie den Weg des Signals vom Gebäudeeinführungspunkt bis zum PC in die richtige Reihenfolge.",
+    parts: [{type:"order", label:"Weg des Signals", items:WEG}],
+    hint: "Die Glasfaser endet an der OTO-Dose. Von dort führt ein Patchkabel zum Router.",
+    solution: "<p><b>" + WEG.join(" → ") + "</b></p>"
+  };
+}
+function qFunk(){
+  var richtig = ["DECT", "WLAN"], falsch = shuffle(["Fiber", "Phone", "WAN", "LAN", "USB"]).slice(0, 3);
+  return {
+    text: "Welche Verbindungen des Routers kommen ohne Kabel aus?",
+    parts: [{type:"multi", label:"Verbindungen", options:shuffle(richtig.concat(falsch)), correct:richtig}],
+    hint: "Denken Sie an das Schnurlostelefon und an das Smartphone.",
+    solution: "<p><b>DECT · WLAN</b></p><p>DECT: Schnurlostelefon (drahtlos). WLAN: Endgeräte drahtlos mit dem Router verbinden.</p>"
+  };
+}
+var FAKTEN = [
+  {t:"Was ist die Aufgabe eines Routers?", o:["Er verbindet das lokale Netzwerk mit dem Internet.", "Er versorgt die Endgeräte mit 230 V.", "Er speichert alle Dateien des Hausnetzwerks.", "Er schützt die Leitungen vor Überstrom."], s:"Er dient oft auch als Wandler zwischen den Übertragungsmedien (Cu ↔ LWL, WLAN ↔ LAN).", q:"Arbeitsblatt Übung 11"},
+  {t:"Zwischen welchen Übertragungsmedien dient der Router oft als Wandler?", o:["Cu ↔ LWL und WLAN ↔ LAN", "AC ↔ DC", "USB ↔ 230 V", "Bit ↔ Byte"], s:"", q:"Arbeitsblatt Übung 11"},
+  {t:"Zu welcher Geräteart gehören die Internetbox und die Fritzbox?", o:["Zu den Routern", "Zu den OTO-Dosen", "Zu den Koaxdosen", "Zu den Multimediaverteilern"], s:"", q:"Arbeitsblatt Übung 10"},
+  {t:"Womit wird die OTO-Dose mit dem Router verbunden?", o:["Mit einem LWL-Patchkabel", "Mit einem Koaxialkabel", "Mit einem USB-Kabel", "Über DECT"], s:"", q:"Theoriebuch KT24.2"},
+  {t:"Was bildet die OTO-Dose?", o:["Den Abschlusspunkt der Glasfaserleitung aus dem öffentlichen Netz innerhalb der Nutzungseinheit", "Den Verbindungspunkt zwischen Hauseinführung und Hausinstallation", "Den Anschluss für das lokale Computernetzwerk (LAN)", "Den TV-Anschluss für das Koaxialkabel"], s:"Der Verbindungspunkt zwischen Hauseinführung und Hausinstallation ist der BEP.", q:"Theoriebuch KT24.2"},
+  {t:"Was ist der BEP?", o:["Der Verbindungspunkt zwischen Hauseinführung und Hausinstallation, die Übergabestelle der Glasfaserverkabelung", "Der Abschlusspunkt der Glasfaserleitung innerhalb der Nutzungseinheit", "Die TV-Anschlussdose", "Der Router des Netzanbieters"], s:"BEP: Building Entry Point, Gebäudeeinführungspunkt.", q:"Theoriebuch KT24.2"},
+  {t:"Installation ohne Multimediaverteiler: Wo wird der Router platziert?", o:["Neben der OTO-Dose", "Neben dem BEP", "Im Freien an der Fassade", "In der Koaxdose"], s:"Die OTO-Dose wird in einem zentralen Raum montiert, der Router daneben platziert und mit einem LWL-Patchkabel verbunden.", q:"Theoriebuch KT26.1"},
+  {t:"Wie werden die Endgeräte mit dem Router verbunden?", o:["Via Ethernet oder WLAN", "Nur über Koaxialkabel", "Nur über LWL-Patchkabel", "Über die 230-V-Steckdose"], s:"", q:"Theoriebuch KT26.1"},
+  {t:"Installation mit Multimediaverteiler: Wo wird die OTO-Dose montiert?", o:["Im Multimediaverteiler", "Im Wohnzimmer neben dem Fernseher", "Aussen beim Hausanschluss", "Im Router"], s:"", q:"Theoriebuch KT26.1"},
+  {t:"Welche Kategorie wird gemäss RIT im Wohnungsbau für die strukturierte Gebäudeverkabelung mindestens empfohlen?", o:["Kategorie 5", "Kategorie 6a", "Kategorie 3", "Kategorie 1"], s:"Heute werden üblicherweise Kabel und Stecker der Kategorie 6a verwendet.", q:"Theoriebuch KT26.1"},
+  {t:"Welche Kategorie von Kabeln und Steckern wird heute im Wohnungsbau üblicherweise verwendet?", o:["Kategorie 6a", "Kategorie 5", "Kategorie 3", "Kategorie 1"], s:"Empfohlen wird gemäss RIT mindestens Kategorie 5.", q:"Theoriebuch KT26.1"},
+  {t:"Womit wird der Router mit Energie versorgt?", o:["Über eine 230-V-Steckdose", "Über das LWL-Patchkabel", "Über die Koaxdose", "Über DECT"], s:"", q:"Theoriebuch KT26.1"}
+];
+function qFakt(){
+  var f = pick(FAKTEN);
+  return {
+    text: f.t,
+    parts: [{label:"Antwort", options:shuffle(f.o), correct:f.o[0]}],
+    hint: "Nachlesen: " + f.q + ".",
+    solution: "<p><b>" + f.o[0] + "</b></p>" + (f.s ? "<p>" + f.s + "</p>" : "")
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.12) return qBegriff();
+  if (x < 0.22) return qBegriffRev();
+  if (x < 0.38) return qPort();
+  if (x < 0.50) return qPortFn();
+  if (x < 0.64) return qGeraet();
+  if (x < 0.71) return qDose();
+  if (x < 0.76) return qWeg();
+  if (x < 0.80) return qFunk();
+  return qFakt();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){
+  return BAP.examFrom([qBegriff, qBegriffRev, qPort, qPortFn, qGeraet, qWeg, qFakt, qFakt]);
+}});
+})();
+
+</script>
+</body>
+</html>

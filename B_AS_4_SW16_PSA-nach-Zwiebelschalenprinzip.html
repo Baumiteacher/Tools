@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_AS_4 TA3 PSA nach Zwiebelschalenprinzip BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+:root{ --sg:#6BBF4B; --s1:#F2D43B; --s2:#F28C28; --s3:#D93025 }
+.bild{width:100%;height:auto;display:block}
+.sch{fill:none;stroke-width:9}
+.sch.aus{stroke:var(--line);stroke-width:3;stroke-dasharray:5 5}
+.fig{fill:var(--ink)}
+.s-t{fill:var(--ink);font-family:var(--sans);font-size:11px;font-weight:700}
+.s-m{fill:var(--muted);font-family:var(--sans);font-size:10px}
+.s-stop{fill:var(--bad-soft);stroke:var(--bad);stroke-width:2}
+.stufe{display:flex;align-items:center;gap:12px}
+.stufe .marke{font-family:var(--mono);font-weight:700;font-size:1.5rem;min-width:2.2em;height:2.2em;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#111;border:2px solid var(--ink)}
+.stufe .txt{font-weight:700;font-size:1.1rem}
+.punkte{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem;overflow-wrap:normal;word-break:normal}
+.tab-k th,.tab-k td{text-align:left;padding:7px 8px 7px 0;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+.tab-k th{font-size:.78rem;color:var(--muted);font-weight:600;white-space:normal}
+.tab-k td:first-child{font-family:var(--mono);font-weight:700}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.tab-k .pkt{display:inline-block;width:.8em;height:.8em;border-radius:50%;margin-right:6px;border:1px solid var(--ink);vertical-align:-1px}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_AS_4 PSA (Elektro) · Teilauftrag 3</p>
+    <h1>PSA nach Zwiebelschalenprinzip BAP</h1>
+    <p class="lead">Je höher der mögliche Kurzschlussstrom, desto mehr Schutz braucht es. Stellen Sie den Kurzschlussstrom oder die vorgeschaltete Überstrom-Schutzeinrichtung ein und sehen Sie, welche Stufe und welche persönliche Schutzausrüstung gilt.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Was ist bekannt?</legend>
+          <div class="seg" id="art">
+            <button class="opt txt" type="button" data-a="ik" id="art-ik" aria-pressed="true">Kurzschlussstrom <i>I</i><sub>K</sub></button>
+            <button class="opt txt" type="button" data-a="in" id="art-in" aria-pressed="false">Vorgeschaltete Überstrom-Schutzeinrichtung</button>
+          </div>
+        </fieldset>
+        <fieldset id="box-ik">
+          <legend>Gemessener oder berechneter Kurzschlussstrom</legend>
+          <div class="slider-head"><span class="num big" id="ik-val"></span></div>
+          <input type="range" id="ik-slider" min="0.2" max="25" step="0.1" value="6.5" aria-label="Kurzschlussstrom einstellen">
+        </fieldset>
+        <fieldset id="box-in">
+          <legend>Bemessungsstrom der vorgeschalteten Überstrom-Schutzeinrichtung</legend>
+          <div class="opts" id="in-chips"></div>
+          <p class="note">16 A fehlt in der Auswahl: Die Tabelle nennt 16 A als Grenzwert sowohl bei Stufe G (0 A – 16 A) als auch bei Stufe 1 (16 A – 80 A).</p>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <div class="stufe"><span class="marke" id="marke"></span><span class="txt" id="stufe-txt"></span></div>
+        <svg class="bild" id="schalen" viewBox="0 0 340 170" role="img" aria-label="Zwiebelschalenprinzip: Schutzschalen G, 1, 2 und 3 um eine Person"></svg>
+        <p class="note">Zwiebelschalenprinzip: Jede höhere Stufe legt eine weitere Schutzschale um die Person. Eigene, vereinfachte Darstellung.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="psa-title"></h2>
+        <ul class="punkte" id="psa-body"></ul>
+        <p class="note" id="psa-note"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Tabelle der Stufen (AS1.9)</h2>
+        <div class="scroll">
+          <table class="tab-k">
+            <thead><tr><th>Stufe</th><th>Kurzschlussstrom <i>I</i><sub>K</sub></th><th>Vorgeschaltete Überstrom-Schutzeinrichtung</th></tr></thead>
+            <tbody id="tabelle"></tbody>
+          </table>
+        </div>
+        <p class="note">Schutzkleidung gemäss Europäischer Norm (EN 61482-1-2).</p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Je höher ein Stromkreis abgesichert ist, desto höher ist der mögliche Kurzschlussstrom und desto besser muss einen die PSA schützen.</p>
+          <p>Schutzziel der persönlichen Schutzausrüstung: Schutz vor Elektrisierung (Strom durch Körper), Schutz vor Lichtbogen (Hitze und Blendung bei einem Kurzschluss) und Schutz vor nicht elektrischen Gefahren (Sturz, Brand usw.).</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Ab welchem Kurzschlussstrom braucht es Schutzkleidung der Stufe 1?</li>
+          <li>Wovon hängt die Schutzstufe ab, wenn der Kurzschlussstrom nicht bekannt ist?</li>
+          <li>Wie lässt sich Schutzkleidung der Stufe 2 zusammenstellen, wie Stufe 3?</li>
+          <li>Was gilt, wenn der Kurzschlussstrom grösser als 20 kA ist?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Arbeitssicherheit AS1.9, Persönliche Schutzausrüstung (PSA).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Arbeitssicherheit, Kapitel 1: AS1.9 (Persönliche Schutzausrüstung, Tabelle der Stufen)</li><li>Arbeitsblätter AS4 PSA (Elektro), Teilauftrag 3: Übungen 19 bis 23 (AS4.6 und AS4.7)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = "\u00a0";
+var IK = "<i>I</i><sub>K</sub>";
+
+/* Inhalte: Theoriebuch AS1.9 (Tabelle der Stufen), Arbeitsblatt AS4 Übungen 19 bis 23 */
+var HELM = "Schutzhelm mit Visier", HITZE = "Hitzehandschuhe", ISO = "Zusätzlich je nach Gefahr mit Isolierhandschuhen";
+var STUFEN = {
+  G:{k:"G", name:"Stufe G", farbe:"var(--sg)", ik:IK + " ≤ 1" + NB + "kA", inn:"0" + NB + "A – 16" + NB + "A",
+     titel:"Empfehlung bei Stufe G",
+     psa:["Der Lichtbogen bei einem Kurzschluss bis 1" + NB + "kA wird als ungefährlich eingestuft.", "Empfehlung: Schutzkleidung aus 100" + NB + "% Baumwolle"], note:""},
+  "1":{k:"1", name:"Stufe 1", farbe:"var(--s1)", ik:IK + " = 1" + NB + "kA – 7" + NB + "kA", inn:"16" + NB + "A – 80" + NB + "A",
+     titel:"Benötigte PSA bei Stufe 1",
+     psa:["Schutzkleidung Stufe 1", HELM, HITZE, ISO], note:"Arbeitsblatt Übung 22: Bei Stufe 1 wird ein Schutzhelm mit Visier Klasse 1 verlangt."},
+  "2":{k:"2", name:"Stufe 2", farbe:"var(--s2)", ik:IK + " > 7" + NB + "kA – 15" + NB + "kA", inn:"> 80" + NB + "A – 200" + NB + "A",
+     titel:"Benötigte PSA bei Stufe 2",
+     psa:["Schutzkleidung Stufe 2: 1 × Schutzkleidung Stufe 2 oder 2 × Schutzkleidung Stufe 1", HELM, HITZE, ISO], note:"Arbeitsblatt Übung 21: Bei Stufe 2 wird ein Schutzhelm mit Visier Klasse 2 verlangt."},
+  "3":{k:"3", name:"Stufe 3", farbe:"var(--s3)", ik:IK + " > 15" + NB + "kA – 20" + NB + "kA", inn:"> 200" + NB + "A – 315" + NB + "A",
+     titel:"Benötigte PSA bei Stufe 3",
+     psa:["Schutzkleidung Stufe 3: 1 × Schutzkleidung Stufe 1 und 1 × Schutzkleidung Stufe 2", HELM, HITZE, ISO], note:""},
+  X:{k:"–", name:"Keine Stufe", farbe:"var(--bad-soft)", ik:IK + " > 20" + NB + "kA", inn:"> 315" + NB + "A",
+     titel:"Über Stufe 3",
+     psa:["Freischalten oder Risikobeurteilung"], note:""}
+};
+var REIHE = ["G", "1", "2", "3", "X"];
+function stufeIK(kA){ return kA <= 1 ? "G" : kA <= 7 ? "1" : kA <= 15 ? "2" : kA <= 20 ? "3" : "X"; }
+/* 16 A ist in der Tabelle Grenzwert zweier Stufen und wird im Tool nicht verwendet */
+function stufeIn(a){ return a < 16 ? "G" : a <= 80 ? "1" : a <= 200 ? "2" : a <= 315 ? "3" : "X"; }
+window.__t = {stufeIK:stufeIK, stufeIn:stufeIn};
+var IN_WERTE = [10, 13, 20, 25, 32, 40, 63, 80, 100, 125, 160, 200, 250, 315, 400];
+var st = {art:"ik", ik:6.5, inn:125};
+function kA(x){ return fmt(Math.round(x * 10) / 10) + NB + "kA"; }
+
+function schalen(id){
+  var stufe = REIHE.indexOf(id), h = "";
+  [["3", 64, 76, "var(--s3)"], ["2", 52, 64, "var(--s2)"], ["1", 40, 52, "var(--s1)"], ["G", 28, 40, "var(--sg)"]].forEach(function(s){
+    var an = id !== "X" && REIHE.indexOf(s[0]) <= stufe;
+    h += "<ellipse class=\"sch" + (an ? "" : " aus") + "\" cx=\"84\" cy=\"86\" rx=\"" + s[1] + "\" ry=\"" + s[2] + "\"" + (an ? " stroke=\"" + s[3] + "\"" : "") + "/>";
+  });
+  h += "<circle class=\"fig\" cx=\"84\" cy=\"66\" r=\"8\"/><path class=\"fig\" d=\"M72 80 h24 a4 4 0 0 1 4 4 v16 h-6 v16 h-20 v-16 h-6 v-16 a4 4 0 0 1 4 -4 z\"/>";
+  [["G", "var(--sg)"], ["1", "var(--s1)"], ["2", "var(--s2)"], ["3", "var(--s3)"]].forEach(function(s, k){
+    var y = 34 + k * 30, akt = s[0] === id;
+    h += "<circle cx=\"176\" cy=\"" + (y - 4) + "\" r=\"7\" fill=\"" + s[1] + "\" stroke=\"var(--ink)\" stroke-width=\"" + (akt ? 2.5 : 1) + "\"/>";
+    h += "<text class=\"" + (akt ? "s-t" : "s-m") + "\" x=\"190\" y=\"" + y + "\">" + STUFEN[s[0]].name + "</text>";
+  });
+  if (id === "X") h += "<rect class=\"s-stop\" x=\"164\" y=\"136\" width=\"172\" height=\"26\" rx=\"5\"/><text class=\"s-t\" x=\"250\" y=\"147\" text-anchor=\"middle\">Freischalten oder</text><text class=\"s-t\" x=\"250\" y=\"158\" text-anchor=\"middle\">Risikobeurteilung</text>";
+  return h;
+}
+function render(){
+  var ik = st.art === "ik";
+  $("art-ik").setAttribute("aria-pressed", String(ik)); $("art-in").setAttribute("aria-pressed", String(!ik));
+  $("box-ik").hidden = !ik; $("box-in").hidden = ik;
+  $("ik-val").innerHTML = IK + " = " + kA(st.ik);
+  $("in-chips").innerHTML = IN_WERTE.map(function(a){ return "<button class=\"opt\" type=\"button\" id=\"in-" + a + "\" data-in=\"" + a + "\" aria-pressed=\"" + (a === st.inn) + "\">" + a + NB + "A</button>"; }).join("");
+  var id = ik ? stufeIK(st.ik) : stufeIn(st.inn), s = STUFEN[id];
+  var m = $("marke"); m.textContent = s.k; m.style.background = s.farbe;
+  $("stufe-txt").innerHTML = (id === "X" ? "Über Stufe 3" : s.name) + ": " + (ik ? s.ik : s.inn);
+  $("schalen").innerHTML = schalen(id);
+  $("psa-title").textContent = s.titel;
+  $("psa-body").innerHTML = s.psa.map(function(p){ return "<li>" + p + "</li>"; }).join("");
+  $("psa-note").textContent = s.note; $("psa-note").hidden = !s.note;
+  $("tabelle").innerHTML = REIHE.map(function(i){ var x = STUFEN[i]; return "<tr" + (i === id ? " class=\"akt\"" : "") + "><td><span class=\"pkt\" style=\"background:" + x.farbe + "\"></span>" + x.k + "</td><td>" + x.ik + "</td><td>" + x.inn + "</td></tr>"; }).join("");
+}
+function init(){
+  $("art").addEventListener("click", function(e){ var b = e.target.closest("button[data-a]"); if (!b) return; st.art = b.getAttribute("data-a"); render(); });
+  $("ik-slider").addEventListener("input", function(){ st.ik = Math.round(Number(this.value) * 10) / 10; render(); });
+  $("in-chips").addEventListener("click", function(e){ var b = e.target.closest("button[data-in]"); if (!b) return; st.inn = Number(b.getAttribute("data-in")); render(); var f = $("in-" + st.inn); if (f) f.focus(); });
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+var O_STUFE = {G:"Stufe G", "1":"Stufe 1", "2":"Stufe 2", "3":"Stufe 3", X:"Keine Stufe: Freischalten oder Risikobeurteilung"};
+var O_KLEID = {G:"Empfehlung: Schutzkleidung aus 100" + NB + "% Baumwolle", "1":"Schutzkleidung Stufe 1", "2":"Schutzkleidung Stufe 2", "3":"Schutzkleidung Stufe 3", X:"Keine Schutzkleidung genügt: Freischalten oder Risikobeurteilung"};
+var IK_FALL = [0.4, 0.6, 0.8, 1.5, 2.5, 4, 6.5, 8, 10, 12, 14, 16, 18, 19, 22, 25, 30];
+var IN_FALL = [10, 13, 20, 25, 32, 40, 63, 100, 125, 160, 250, 400, 630];
+function fall(){
+  if (Math.random() < 0.5){
+    var k = pick(IK_FALL), inA = k < 1 && Math.random() < 0.5;
+    return {id:stufeIK(k), t:"In einer Verteilung beträgt der Kurzschlussstrom " + IK + " = " + (inA ? Math.round(k * 1000) + NB + "A" : kA(k)) + ".",
+            s:(inA ? Math.round(k * 1000) + NB + "A = " + kA(k) + ". " : "") + "Bereich in der Tabelle: " + STUFEN[stufeIK(k)].ik};
+  }
+  var a = pick(IN_FALL);
+  return {id:stufeIn(a), t:"Der Kurzschlussstrom ist nicht bekannt. Die Verteilung ist mit einer Überstrom-Schutzeinrichtung von " + a + NB + "A abgesichert.",
+          s:"Bereich in der Tabelle: " + STUFEN[stufeIn(a)].inn};
+}
+function qStufe(){
+  var f = fall();
+  return {
+    text: f.t + " Welche Stufe gilt für die persönliche Schutzausrüstung?",
+    parts: [{label:"Stufe", options:REIHE.map(function(i){ return O_STUFE[i]; }), correct:O_STUFE[f.id]}],
+    hint: "Grenzen beim Kurzschlussstrom: 1 kA, 7 kA, 15 kA und 20 kA. Grenzen bei der Überstrom-Schutzeinrichtung: 16 A, 80 A, 200 A und 315 A.",
+    solution: "<p><b>" + O_STUFE[f.id] + "</b></p><p>" + f.s + "</p>"
+  };
+}
+function qKleidung(){
+  var f = fall();
+  return {
+    text: f.t + " Welche Schutzkleidung nennt die Tabelle?",
+    parts: [{label:"Schutzkleidung", options:REIHE.map(function(i){ return O_KLEID[i]; }), correct:O_KLEID[f.id]}],
+    hint: "Bestimmen Sie zuerst die Stufe. Bis 1 kA gilt der Lichtbogen als ungefährlich.",
+    solution: "<p><b>" + O_KLEID[f.id] + "</b></p><p>" + f.s + "</p>"
+  };
+}
+/* Übungen 21 bis 23 mit den Auswahlmöglichkeiten des Arbeitsblatts */
+var W = {v1:"Schutzhelm mit Visier Klasse 1", hi:"Hitzehandschuhe, Isolierhandschuhe", k1:"Schutzkleidung Stufe 1", v2:"Schutzhelm mit Visier Klasse 2", bw:"Schutzkleider aus Baumwolle", k2:"Schutzkleidung Stufe 2"};
+var W_ALLE = [W.v1, W.hi, W.k1, W.v2, W.bw, W.k2];
+function qArbeitsblatt(){
+  var x = Math.random(), t, r, s;
+  if (x < 0.38){
+    var a = pick([100, 125, 160, 200]);
+    t = "Die Betriebsmittel in der Unterverteilung eines Industriegebäudes werden während des Betriebes mit einer speziellen Flüssigkeit gereinigt. Die Unterverteilung ist mit NHS-Sicherungen von " + a + NB + "A abgesichert. Welche Schutzkleidung muss die Person mindestens tragen?";
+    r = [W.hi, W.v2, W.k2]; s = a + NB + "A liegt im Bereich > 80" + NB + "A – 200" + NB + "A: Stufe 2.";
+  } else if (x < 0.76){
+    var k = pick([2.5, 4, 5, 6.5]);
+    t = "Ein Monteur muss in einem Zwischenverteiler eines Industriegebäudes eine NHS-Sicherung auswechseln. Der Kurzschlussstrom in diesem Verteiler beträgt " + kA(k) + ". Welche Schutzkleidung muss der Monteur mindestens tragen?";
+    r = [W.v1, W.hi, W.k1]; s = kA(k) + " liegt im Bereich 1" + NB + "kA – 7" + NB + "kA: Stufe 1.";
+  } else {
+    t = "Ein Monteur soll in einer Wohnung im Rahmen der Erstprüfung den Kurzschlussstrom in der Unterverteilung messen. Der Kurzschlussstrom in der Hauptverteilung beträgt 800" + NB + "A. Welche persönliche Schutzausrüstung muss der Monteur mindestens tragen?";
+    r = [W.hi, W.bw]; s = "800" + NB + "A = 0,8" + NB + "kA liegt im Bereich bis 1" + NB + "kA: Stufe G.";
+  }
+  return {
+    text: t,
+    parts: [{type:"multi", label:"Schutzausrüstung", options:W_ALLE.slice(), correct:r}],
+    hint: "Bestimmen Sie zuerst die Stufe aus dem Kurzschlussstrom oder aus der vorgeschalteten Überstrom-Schutzeinrichtung.",
+    solution: "<p><b>" + r.join(" · ") + "</b></p><p>" + s + "</p>"
+  };
+}
+function qZiele(){
+  var richtig = ["Schutz vor Elektrisierung (Strom durch Körper)", "Schutz vor Lichtbogen (Hitze und Blendung bei einem Kurzschluss)", "Schutz vor nicht elektrischen Gefahren (Sturz, Brand usw.)"];
+  var falsch = ["Schutz der Anlage vor Überlast", "Schutz der Leitungen vor Korrosion"];
+  return {
+    text: "Welche Schutzziele hat die persönliche Schutzausrüstung?",
+    parts: [{type:"multi", label:"Schutzziele", options:shuffle(richtig.concat(falsch)), correct:richtig}],
+    hint: "Die PSA schützt die Person, nicht die Anlage.",
+    solution: "<p><b>" + richtig.join(" · ") + "</b></p>"
+  };
+}
+var FAKTEN = [
+  {t:"Wovon hängt die Schutzstufe der PSA gemäss Zwiebelschalenprinzip ab?", o:["Vom möglichen Kurzschlussstrom oder der vorgeschalteten Überstrom-Schutzeinrichtung", "Von der Raumtemperatur", "Von der Länge der Leitung", "Vom Alter der Anlage"], s:""},
+  {t:"Wie heisst das Prinzip, nach dem die persönliche Schutzausrüstung in Stufen aufgebaut wird?", o:["Zwiebelschalenprinzip", "Pyramidenprinzip", "Ampelprinzip", "Sandwichprinzip"], s:""},
+  {t:"Ergänzen Sie den Merksatz: Je höher ein Stromkreis abgesichert ist, …", o:["desto höher ist der mögliche Kurzschlussstrom und desto besser muss die PSA schützen.", "desto kleiner ist der mögliche Kurzschlussstrom.", "desto weniger PSA braucht es.", "desto tiefer ist die Spannung."], s:""},
+  {t:"Bis zu welchem Kurzschlussstrom wird der Lichtbogen bei einem Kurzschluss als ungefährlich eingestuft?", o:["Bis 1" + NB + "kA", "Bis 7" + NB + "kA", "Bis 15" + NB + "kA", "Bis 20" + NB + "kA"], s:"Das ist die Stufe G. Empfehlung: Schutzkleidung aus 100" + NB + "% Baumwolle."},
+  {t:"Was gilt, wenn der Kurzschlussstrom grösser als 20" + NB + "kA ist?", o:["Freischalten oder Risikobeurteilung", "Schutzkleidung Stufe 3 genügt", "Schutzkleidung aus Baumwolle genügt", "Es braucht keine Massnahmen"], s:""},
+  {t:"Wie lässt sich die Schutzkleidung der Stufe 2 zusammenstellen?", o:["1 × Schutzkleidung Stufe 2 oder 2 × Schutzkleidung Stufe 1", "1 × Schutzkleidung Stufe 1", "3 × Schutzkleidung aus Baumwolle", "1 × Schutzkleidung Stufe 1 und 1 × Schutzkleidung Stufe 2"], s:""},
+  {t:"Wie lässt sich die Schutzkleidung der Stufe 3 zusammenstellen?", o:["1 × Schutzkleidung Stufe 1 und 1 × Schutzkleidung Stufe 2", "2 × Schutzkleidung Stufe 1", "1 × Schutzkleidung Stufe 2", "2 × Schutzkleidung aus Baumwolle"], s:""},
+  {t:"Welche Handschuhe kommen bei den Stufen 1 bis 3 je nach Gefahr zusätzlich zu den Hitzehandschuhen dazu?", o:["Isolierhandschuhe", "Gartenhandschuhe", "Einweghandschuhe", "Keine"], s:""},
+  {t:"Wovor schützt die PSA bei einem Lichtbogen?", o:["Vor Hitze und Blendung", "Vor Lärm", "Vor Kälte", "Vor Staub"], s:""},
+  {t:"Ab welcher vorgeschalteten Überstrom-Schutzeinrichtung gilt «Freischalten oder Risikobeurteilung»?", o:["Über 315" + NB + "A", "Über 80" + NB + "A", "Über 200" + NB + "A", "Über 13" + NB + "A"], s:""}
+];
+function qFakt(){
+  var f = pick(FAKTEN);
+  return {
+    text: f.t,
+    parts: [{label:"Antwort", options:shuffle(f.o), correct:f.o[0]}],
+    hint: "Lesen Sie im Theoriebuch auf AS1.9 nach.",
+    solution: "<p><b>" + f.o[0] + "</b></p>" + (f.s ? "<p>" + f.s + "</p>" : "")
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.32) return qStufe();
+  if (x < 0.50) return qKleidung();
+  if (x < 0.68) return qArbeitsblatt();
+  if (x < 0.74) return qZiele();
+  return qFakt();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){
+  return BAP.examFrom([qStufe, qStufe, qStufe, qKleidung, qArbeitsblatt, qArbeitsblatt, qFakt, qFakt]);
+}});
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_2 TA2 Dichte-Labor: Masse eines Erders BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+:root{--m-cu:#C9783A;--m-st:#8794A1;--m-al:#C3CCD6;--dim:#2B3E66}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--m-cu:#DB8C4E;--m-st:#8E9BA8;--m-al:#D5DCE3;--dim:#C9D4EA} }
+:root[data-theme="dark"]{--m-cu:#DB8C4E;--m-st:#8E9BA8;--m-al:#D5DCE3;--dim:#C9D4EA}
+.bild{width:100%;height:auto;display:block}
+.k-cu{fill:var(--m-cu)} .k-st{fill:var(--m-st)} .k-al{fill:var(--m-al)}
+.k-kante{stroke:var(--ink);stroke-width:1.3;stroke-linejoin:round}
+.f-dim{stroke:var(--dim);stroke-width:1.2;fill:none}
+.f-dimf{fill:var(--dim);stroke:none}
+.f-t{fill:var(--dim);font-family:var(--sans);font-size:11.5px}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.nw{white-space:nowrap}
+.r-slider{display:grid;grid-template-columns:8.6em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.balken{display:flex;flex-direction:column;gap:8px}
+.bz{display:grid;grid-template-columns:6.2em 1fr 5.4em;gap:8px;align-items:center;font-size:.9rem}
+.bz .spur{height:16px;border-radius:4px;background:var(--line);overflow:hidden}
+.bz .spur > span{display:block;height:100%;border-radius:4px}
+.bz .num{text-align:right;font-weight:700}
+.bz.akt{font-weight:700}
+.b-cu{background:var(--m-cu)} .b-st{background:var(--m-st)} .b-al{background:var(--m-al)}
+.skala{position:relative;height:92px;margin-top:6px}
+.skala .achse{position:absolute;left:0;right:0;top:40px;height:10px;border-radius:5px;background:linear-gradient(to right,var(--z1) 0,var(--z1) 25%,var(--z3) 25%,var(--z3) 100%)}
+.skala .mk{position:absolute;top:60px;font-size:.68rem;color:var(--muted);white-space:nowrap;text-align:center;line-height:1.2}
+.skala .strich{position:absolute;top:51px;width:1px;height:7px;background:var(--muted)}
+.skala .zeiger{position:absolute;top:22px;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:14px solid var(--ink)}
+.skala .grenze{position:absolute;top:0;font-size:.68rem;color:var(--muted);white-space:nowrap}
+.tab-k{width:100%;border-collapse:collapse;font-size:.92rem;overflow-wrap:normal;word-break:normal}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:middle}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:8px}
+.urteil{border-radius:8px;padding:10px 12px;font-weight:600;border:2px solid var(--line)}
+.urteil.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.urteil.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_2 Verlegen eines Erders · Teilauftrag 2</p>
+    <h1>Dichte-Labor: Masse eines Erders BAP</h1>
+    <p class="lead">Wählen Sie Werkstoff, Form und Länge eines Erders und verfolgen Sie Volumen und Masse. Bestimmen Sie danach aus Masse und Volumen, aus welchem Werkstoff ein Werkstück besteht.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Werkstoff</legend>
+          <div class="opts" id="stoff"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Form des Erders</legend>
+          <div class="opts" id="form"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Abmessungen</legend>
+          <div class="plain" id="regler"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="bild-titel"></h2>
+        <svg class="bild" id="bild" viewBox="0 0 340 120" role="img" aria-label="Erder mit Querschnitt und Länge"></svg>
+        <dl class="kv" id="werte"></dl>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Gleiches Volumen, anderer Werkstoff</h2>
+        <div class="balken" id="vergleich"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Aus welchem Werkstoff besteht das Werkstück?</h2>
+        <p class="note">Ein Werkstück wird gewogen und in ein Überlaufgefäss getaucht. Das verdrängte Wasser entspricht seinem Volumen (Übung 12).</p>
+        <fieldset>
+          <legend>Beispiele</legend>
+          <div class="opts" id="ws-vor"></div>
+        </fieldset>
+        <label class="r-slider" for="ws-m"><span class="num" id="ws-mv"></span><input type="range" id="ws-m" min="0.05" max="5" step="0.01" value="1.25" aria-label="Masse einstellen"></label>
+        <label class="r-slider" for="ws-v"><span class="num" id="ws-vv"></span><input type="range" id="ws-v" min="10" max="600" step="1" value="158" aria-label="Verdrängtes Volumen einstellen"></label>
+        <div class="rechnung" id="ws-rechnung"></div>
+        <div id="skala"></div>
+        <p class="urteil" id="ws-urteil"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Dichte verschiedener Materialien bei 20&nbsp;°C (Theoriebuch PH42.1)</h2>
+        <div class="scroll">
+          <table class="tab-k">
+            <thead><tr><th>Material</th><th id="th-dichte">Dichte</th></tr></thead>
+            <tbody id="tabelle"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch PH42.1)</h2>
+        <div class="merke" id="merke"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Stellen Sie das Beispiel aus dem Theoriebuch ein: Bandstahlerder 25&nbsp;mm × 3&nbsp;mm, Länge 30&nbsp;m. Wie gross ist die Masse?</li>
+          <li>Wechseln Sie bei gleichem Volumen von Stahl auf Kupfer und auf Aluminium. Wie verändert sich die Masse?</li>
+          <li>Verdoppeln Sie die Länge. Was passiert mit Volumen und Masse?</li>
+          <li>Verdoppeln Sie den Durchmesser eines Runddrahtes. Um welchen Faktor wächst die Masse?</li>
+          <li>Ein Werkstück wiegt 1,25&nbsp;kg und verdrängt 158&nbsp;ml Wasser. Aus welchem Werkstoff besteht es?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Mathematik MA39.5 und MA39.6 (Quader, Zylinder), Physik PH42.1 (Dichte).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Mathematik, Kapitel 39 Längen, Flächen und Volumen: MA39.5 und MA39.6 (Quader, Zylinder, Beispiele 4 und 5)</li><li>Theoriebuch Physik, Kapitel 42 Dichte: PH42.1 (Definition, Dichtetabelle, Beispiel Bandstahlerder)</li><li>Arbeitsblätter ID2 Verlegen eines Erders, Teilauftrag 2: Übungen 10 bis 18 (ID2.6 bis ID2.8)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = "\u00a0", PI = Math.PI;
+function z(x, sig){ return fmt(round(x, sig || 4)); }
+function gl(x, sig){ return Math.abs(round(x, sig || 4) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+function E(x, e, sig){ return z(x, sig) + NB + e; }
+function i(s){ return "<i>" + s + "</i>"; }
+function ix(s, n){ return "<i>" + s + "</i><sub>" + n + "</sub>"; }
+var KGDM = F("kg", "dm³");
+function RHO(x){ return fmt(x) + NB + KGDM; }
+function wz(inner){ return "<span class=\"wz\">√<span class=\"rad\">" + inner + "</span></span>"; }
+
+/* Dichte in kg je dm³ bei 20 °C, Theoriebuch PH42.1 */
+var STOFF = {cu:{name:"Kupfer", rho:8.9}, st:{name:"Stahl", rho:7.85}, al:{name:"Aluminium", rho:2.7}};
+var TABELLE = [["Kupfer", 8.9], ["Stahl", 7.85], ["Aluminium", 2.7], ["Gold", 19.3], ["Wolfram", 19.3], ["Blei", 11.3], ["Transformatoren-Öl", 0.87], ["Wasser", 1], ["Luft", 0.0013]];
+/* Querschnitt in mm², Länge in m: Volumen in dm³ und Masse in kg */
+function volumen(Amm2, lm){ return Amm2 * 1e-4 * lm * 10; }
+function masse(rho, Amm2, lm){ return rho * volumen(Amm2, lm); }
+function flaeche(form, w){ return form === "band" ? w.b * w.d : form === "draht" ? w.dd * w.dd * PI / 4 : w.A; }
+/* Werkstoff aus der Dichte: höchstens 3 Prozent Abweichung von einem Tabellenwert */
+function werkstoff(rho){
+  var t = TABELLE.filter(function(x){ return Math.abs(x[1] - rho) / x[1] <= 0.03; }).map(function(x){ return x[0]; });
+  return t;
+}
+window.__t = {volumen:volumen, masse:masse, werkstoff:werkstoff};
+
+/* ================= ZEICHNUNG ================= */
+function spitze(x, y, dx, dy){ var n = Math.sqrt(dx * dx + dy * dy), ux = dx / n, uy = dy / n, l = 7, b = 2.6; return "<path class=\"f-dimf\" d=\"M" + x + " " + y + " L" + (x - ux * l - uy * b) + " " + (y - uy * l + ux * b) + " L" + (x - ux * l + uy * b) + " " + (y - uy * l - ux * b) + " Z\"/>"; }
+function mass(x1, y1, x2, y2, text, tx, ty, anker){
+  return "<path class=\"f-dim\" d=\"M" + x1 + " " + y1 + " L" + x2 + " " + y2 + "\"/>" + spitze(x1, y1, x1 - x2, y1 - y2) + spitze(x2, y2, x2 - x1, y2 - y1)
+    + "<text class=\"f-t\" x=\"" + tx + "\" y=\"" + ty + "\" text-anchor=\"" + (anker || "middle") + "\">" + text + "</text>";
+}
+function r1(x){ return Math.round(x * 10) / 10; }
+/* Stab in Schrägansicht: vorne der Querschnitt, nach hinten die Länge (nicht massstäblich) */
+function zeichne(form, w, stoff, lm){
+  var k = "k-" + stoff, h = "", x0 = 72, y0 = 78, dx = 168, dy = -32, bw, bh;
+  if (form === "band"){
+    var s = Math.min(46 / w.b, 30 / w.d); bw = r1(Math.max(8, w.b * s)); bh = r1(Math.max(4, w.d * s));
+    h += "<path class=\"" + k + " k-kante\" d=\"M" + x0 + " " + (y0 - bh) + " L" + (x0 + dx) + " " + (y0 - bh + dy) + " H" + (x0 + dx + bw) + " V" + (y0 + dy) + " L" + (x0 + bw) + " " + y0 + " V" + (y0 - bh) + " Z\"/>";
+    h += "<path class=\"k-kante\" style=\"fill:none\" d=\"M" + (x0 + bw) + " " + (y0 - bh) + " L" + (x0 + dx + bw) + " " + (y0 - bh + dy) + "\"/>";
+    h += "<rect class=\"" + k + " k-kante\" x=\"" + x0 + "\" y=\"" + (y0 - bh) + "\" width=\"" + bw + "\" height=\"" + bh + "\"/>";
+    h += mass(x0, y0 + 12, x0 + bw, y0 + 12, "b = " + E(w.b, "mm"), x0 + bw / 2, y0 + 27);
+    h += mass(x0 - 10, y0 - bh, x0 - 10, y0, "d = " + E(w.d, "mm"), x0 - 16, y0 - bh / 2 + 4, "end");
+  } else {
+    var r = form === "draht" ? Math.max(5, Math.min(17, w.dd * 1.5)) : Math.max(5, Math.min(17, Math.sqrt(w.A) * 1.9)); bw = 2 * r; bh = 2 * r;
+    var cx = x0 + r, cy = y0 - r;
+    h += "<path class=\"" + k + " k-kante\" d=\"M" + cx + " " + (cy - r) + " L" + (cx + dx) + " " + (cy - r + dy) + " A" + r + " " + r + " 0 0 1 " + (cx + dx) + " " + (cy + r + dy) + " L" + cx + " " + (cy + r) + " Z\"/>";
+    h += "<circle class=\"" + k + " k-kante\" cx=\"" + cx + "\" cy=\"" + cy + "\" r=\"" + r + "\"/>";
+    h += form === "draht" ? mass(x0, y0 + 12, x0 + bw, y0 + 12, "d = " + E(w.dd, "mm"), x0 + r, y0 + 27) : "<text class=\"f-t\" x=\"" + (x0 + r) + "\" y=\"" + (y0 + 22) + "\" text-anchor=\"middle\">A = " + E(w.A, "mm²") + "</text>";
+  }
+  h += mass(x0 + bw + 10, y0 + 6, x0 + bw + 10 + dx, y0 + 6 + dy, "ℓ = " + E(lm, "m"), x0 + bw + dx / 2 + 26, y0 + dy / 2 + 22, "start");
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var FORMEN = [["band", "Band"], ["draht", "Runddraht"], ["seil", "Seil"]];
+var st = {stoff:"st", form:"band", w:{b:25, d:3, dd:8, A:50}, l:30, wm:1.25, wv:158};
+var SEIL = [16, 25, 35, 50, 70, 95];
+function reglerHTML(){
+  function sl(id, k, min, max, step, val, lab){ return "<label class=\"r-slider\" for=\"" + id + "\"><span class=\"num\" id=\"" + id + "-v\"></span><input type=\"range\" id=\"" + id + "\" data-k=\"" + k + "\" min=\"" + min + "\" max=\"" + max + "\" step=\"" + step + "\" value=\"" + val + "\" aria-label=\"" + lab + "\"></label>"; }
+  var h = "";
+  if (st.form === "band") h += sl("rg-b", "b", 10, 50, 1, st.w.b, "Breite") + sl("rg-d", "d", 1, 5, 0.5, st.w.d, "Dicke");
+  else if (st.form === "draht") h += sl("rg-dd", "dd", 1, 16, 0.5, st.w.dd, "Durchmesser");
+  else h += "<div class=\"opts\" id=\"seil\">" + SEIL.map(function(a){ return "<button class=\"opt\" type=\"button\" id=\"seil-" + a + "\" data-a=\"" + a + "\" aria-pressed=\"" + (a === st.w.A) + "\">" + a + NB + "mm²</button>"; }).join("") + "</div>";
+  return h + sl("rg-l", "l", 1, 200, 1, st.l, "Länge");
+}
+function render(neu){
+  var s = STOFF[st.stoff], f = st.form, w = st.w;
+  $("stoff").innerHTML = ["cu", "st", "al"].map(function(k){ return "<button class=\"opt txt\" type=\"button\" id=\"s-" + k + "\" data-s=\"" + k + "\" aria-pressed=\"" + (k === st.stoff) + "\">" + STOFF[k].name + "</button>"; }).join("");
+  $("form").innerHTML = FORMEN.map(function(x){ return "<button class=\"opt txt\" type=\"button\" id=\"f-" + x[0] + "\" data-f=\"" + x[0] + "\" aria-pressed=\"" + (x[0] === f) + "\">" + x[1] + "</button>"; }).join("");
+  var box = $("regler");
+  if (neu || box.getAttribute("data-form") !== f){ box.setAttribute("data-form", f); box.innerHTML = reglerHTML(); }
+  if (f === "band"){ $("rg-b-v").innerHTML = i("b") + " = " + E(w.b, "mm"); $("rg-d-v").innerHTML = i("d") + " = " + E(w.d, "mm"); }
+  if (f === "draht") $("rg-dd-v").innerHTML = i("d") + " = " + E(w.dd, "mm");
+  if (f === "seil") SEIL.forEach(function(a){ $("seil-" + a).setAttribute("aria-pressed", String(a === w.A)); });
+  $("rg-l-v").innerHTML = i("ℓ") + " = " + E(st.l, "m");
+
+  var A = flaeche(f, w), V = volumen(A, st.l), m = s.rho * V;
+  $("bild-titel").textContent = s.name + ", " + FORMEN.filter(function(x){ return x[0] === f; })[0][1];
+  $("bild").innerHTML = zeichne(f, w, st.stoff, st.l);
+  $("werte").innerHTML = "<dt>Querschnitt " + i("A") + "</dt><dd>" + E(A, "mm²") + "</dd><dt>Volumen " + i("V") + "</dt><dd>" + E(V, "dm³") + "</dd><dt>Masse " + i("m") + "</dt><dd>" + E(m, "kg") + "</dd>";
+
+  var h = "";
+  if (f === "band") h += "<span>" + i("A") + " = " + i("b") + " · " + i("d") + " = " + E(w.b, "mm") + " · " + E(w.d, "mm") + " = <b>" + E(A, "mm²") + "</b></span>";
+  else if (f === "draht") h += "<span>" + i("A") + " = " + F(i("d") + "² · π", "4") + " = " + F("(" + E(w.dd, "mm") + ")² · π", "4") + " " + gl(A) + " <b>" + E(A, "mm²") + "</b></span>";
+  else h += "<span>" + i("A") + " = <b>" + E(A, "mm²") + "</b> (gegeben)</span>";
+  h += "<span>Umrechnen in dm: " + i("A") + " = " + z(A) + " · 10<sup>−4</sup>" + NB + "dm² = " + E(A * 1e-4, "dm²") + "; " + i("ℓ") + " = " + E(st.l, "m") + " = " + E(st.l * 10, "dm") + "</span>";
+  h += "<span>" + i("V") + " = " + i("A") + " · " + i("ℓ") + " = " + E(A * 1e-4, "dm²") + " · " + E(st.l * 10, "dm") + " " + gl(V) + " <b>" + E(V, "dm³") + "</b></span>";
+  h += "<span>" + i("m") + " = " + i("ρ") + " · " + i("V") + " = " + RHO(s.rho) + " · " + E(V, "dm³") + " <span class=\"nw\">" + gl(m) + " <b>" + E(m, "kg") + "</b></span></span>";
+  $("rechnung").innerHTML = h;
+
+  var mmax = STOFF.cu.rho * V;
+  $("vergleich").innerHTML = ["cu", "st", "al"].map(function(k){
+    var mk = STOFF[k].rho * V;
+    return "<div class=\"bz" + (k === st.stoff ? " akt" : "") + "\"><span>" + STOFF[k].name + "</span><span class=\"spur\"><span class=\"b-" + k + "\" style=\"width:" + (mk / mmax * 100).toFixed(1) + "%\"></span></span><span class=\"num\">" + E(mk, "kg", 4) + "</span></div>";
+  }).join("");
+  renderWS();
+}
+var WS_VOR = [[1.25, 158], [1.22, 452], [2, 225], [1.13, 100]];
+function renderWS(){
+  var V = st.wv / 1000, rho = st.wm / V, t = werkstoff(rho);
+  $("ws-vor").innerHTML = WS_VOR.map(function(p, n){ return "<button class=\"opt txt\" type=\"button\" id=\"wsv-" + n + "\" data-n=\"" + n + "\" aria-pressed=\"" + (p[0] === st.wm && p[1] === st.wv) + "\">" + fmt(p[0]) + NB + "kg, " + p[1] + NB + "ml</button>"; }).join("");
+  $("ws-mv").innerHTML = i("m") + " = " + fmt(st.wm, 2) + NB + "kg";
+  $("ws-vv").innerHTML = i("V") + " = " + st.wv + NB + "ml";
+  $("ws-rechnung").innerHTML = "<span>" + i("V") + " = " + st.wv + NB + "ml = " + fmt(V) + NB + "dm³</span><span>" + i("ρ") + " = " + F(i("m"), i("V")) + " = " + F(fmt(st.wm, 2) + NB + "kg", fmt(V) + NB + "dm³") + " <span class=\"nw\">" + gl(rho, 3) + " <b>" + z(rho, 3) + NB + KGDM + "</b></span></span>";
+  var pos = Math.max(0, Math.min(100, rho / 20 * 100));
+  $("skala").innerHTML = "<div class=\"skala\"><span class=\"grenze\" style=\"left:0\">Leichtmetalle</span><span class=\"grenze\" style=\"left:26%\">Schwermetalle ab 5</span><div class=\"achse\"></div><span class=\"zeiger\" style=\"left:" + pos.toFixed(1) + "%\"></span>"
+    + [["Al 2,7", 13.5, -50], ["Stahl 7,85", 39.25, -92], ["Cu 8,9", 44.5, -8], ["Blei 11,3", 56.5, -30], ["Gold 19,3", 96.5, -85]].map(function(mk){ return "<span class=\"strich\" style=\"left:" + mk[1] + "%\"></span><span class=\"mk\" style=\"left:" + mk[1] + "%;transform:translateX(" + mk[2] + "%)\">" + mk[0].replace(" ", "<br>") + "</span>"; }).join("") + "</div>";
+  var u = $("ws-urteil");
+  if (t.length){ u.className = "urteil ok"; u.innerHTML = "→ " + t.join(" oder ") + " (Tabellenwert " + RHO(TABELLE.filter(function(x){ return x[0] === t[0]; })[0][1]) + ")"; }
+  else { u.className = "urteil bad"; u.innerHTML = "Die Dichte passt zu keinem Material der Tabelle."; }
+}
+function init(){
+  $("th-dichte").innerHTML = "Dichte in " + KGDM;
+  $("tabelle").innerHTML = TABELLE.map(function(x){ return "<tr><td>" + x[0] + "</td><td class=\"num\">" + fmt(x[1]) + "</td></tr>"; }).join("");
+  $("merke").innerHTML = "<p>" + i("ρ") + " = " + F(i("m"), i("V")) + " mit " + i("ρ") + ": Dichte, " + i("m") + ": Masse, " + i("V") + ": Volumen</p><p>Eselsbrücke: «Dichte ist Masse pro Raum.» Je mehr Masse in einem bestimmten Volumen steckt, desto dichter ist der Stoff.</p>"
+    + "<p>Der Zahlenwert bleibt gleich: 8,9" + NB + F("g", "cm³") + " = 8,9" + NB + KGDM + ".</p><p>Metalle mit einer Dichte ab 5" + NB + KGDM + " werden als Schwermetalle bezeichnet (z. B. Kupfer), Metalle darunter als Leichtmetalle (z. B. Aluminium).</p>"
+    + "<p>Volumen eines Erders: " + i("V") + " = " + i("A") + " · " + i("ℓ") + " (Querschnitt mal Länge).</p>";
+  $("stoff").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-s]"); if (!b) return; st.stoff = b.getAttribute("data-s"); render(); var x = $("s-" + st.stoff); if (x) x.focus(); });
+  $("form").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-f]"); if (!b) return; st.form = b.getAttribute("data-f"); render(true); var x = $("f-" + st.form); if (x) x.focus(); });
+  $("regler").addEventListener("input", function(ev){ var k = ev.target.getAttribute("data-k"); if (k === null) return; if (k === "l") st.l = Number(ev.target.value); else st.w[k] = Number(ev.target.value); render(); });
+  $("regler").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-a]"); if (!b) return; st.w.A = Number(b.getAttribute("data-a")); render(); });
+  $("ws-m").addEventListener("input", function(){ st.wm = Number(this.value); renderWS(); });
+  $("ws-v").addEventListener("input", function(){ st.wv = Number(this.value); renderWS(); });
+  $("ws-vor").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-n]"); if (!b) return; var p = WS_VOR[Number(b.getAttribute("data-n"))]; st.wm = p[0]; st.wv = p[1]; $("ws-m").value = p[0]; $("ws-v").value = p[1]; renderWS(); });
+  render(true);
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID2 Übungen 10 bis 18, Theoriebuch PH42.1) ================= */
+function optionen(c, cands, show){
+  var out = [c], seen = {}; seen[show(c)] = 1;
+  shuffle(cands).concat([c * 2, c / 2, c * 3, c * 1.5, c / 4, c * 10]).forEach(function(x){
+    if (out.length < 4 && x > 0 && isFinite(x)){ var t = show(x); if (!seen[t]){ seen[t] = 1; out.push(x); } }
+  });
+  return out.sort(function(a, b){ return a - b; });
+}
+function kg(x){ return E(x, "kg", 4); }
+function dm3(x){ return E(x, "dm³", 4); }
+function m3(x){ var r = round(x, 4); return (r >= 10000 ? String(r).replace(/\B(?=(\d{3})+(?!\d))/g, NB) : fmt(r)) + NB + "m³"; }
+function rh(x){ return z(x, 3) + NB + KGDM; }
+
+function qZylV(){
+  var p = pick([[4.3, 650], [2, 100], [3, 250], [1.5, 400], [0.8, 150], [2.5, 80]]), d = p[0], l = p[1], A = d * d * PI / 4, c = A * l;
+  return {
+    text: "Welches Volumen hat ein " + l + NB + "m langer Druckstollen eines Kraftwerkes, der einen Durchmesser von " + fmt(d) + NB + "m aufweist?",
+    parts: [{label:"Volumen", options:optionen(c, [d * PI * l, d * d * l, d * l, c * 4], m3), correct:c, mono:true, show:m3}],
+    hint: "Zylinder: " + i("V") + " = " + i("A") + " · " + i("ℓ") + " mit " + i("A") + " = " + F(i("d") + "² · π", "4") + ".",
+    solution: "<p class=\"num\">" + i("A") + " = " + F(i("d") + "² · π", "4") + " = " + F("(" + fmt(d) + NB + "m)² · π", "4") + " ≈ " + E(A, "m²") + "</p><p class=\"num\">" + i("V") + " = " + i("A") + " · " + i("ℓ") + " = " + E(A, "m²") + " · " + l + NB + "m ≈ <b>" + m3(c) + "</b></p>"
+  };
+}
+function qZylL(){
+  var p = pick([[325, 480], [100, 400], [50, 300], [200, 500], [150, 400]]), V = p[0], d = p[1] / 100, A = d * d * PI / 4, c = V / A;
+  function dm(x){ return E(x, "dm", 4); }
+  return {
+    text: "Das Expansionsgefäss eines Transformators soll " + V + " Liter fassen und " + p[1] + NB + "mm Innendurchmesser aufweisen. Wie lang wird das zylinderförmige Gefäss?",
+    parts: [{label:"Länge", options:optionen(c, [V / d, V / (d * PI), V / (d * d), c * 10], dm), correct:c, mono:true, show:dm}],
+    hint: "1 Liter = 1" + NB + "dm³. Rechnen Sie den Durchmesser in dm um. Aus " + i("V") + " = " + i("A") + " · " + i("ℓ") + " folgt " + i("ℓ") + " = " + F(i("V"), i("A")) + ".",
+    solution: "<p class=\"num\">" + i("A") + " = " + F(i("d") + "² · π", "4") + " = " + F("(" + fmt(d) + NB + "dm)² · π", "4") + " ≈ " + E(A, "dm²", 5) + "</p><p class=\"num\">" + i("ℓ") + " = " + F(i("V"), i("A")) + " = " + F(V + NB + "dm³", E(A, "dm²", 5)) + " ≈ <b>" + dm(c) + "</b> ≈ " + E(c / 10, "m", 3) + "</p>"
+  };
+}
+var WSTK = [[1.25, 158, "Stahl"], [0.81, 300, "Aluminium"], [2.67, 300, "Kupfer"], [1.13, 100, "Blei"], [3.14, 400, "Stahl"], [0.54, 200, "Aluminium"], [1.78, 200, "Kupfer"], [2.26, 200, "Blei"]];
+function qStoff(){
+  var p = pick(WSTK), m = p[0], V = p[1] / 1000, c = m / V;
+  return {
+    text: "Aus welchem Material besteht ein Werkstück, wenn es bei einer Masse von " + fmt(m) + NB + "kg im Überlaufgefäss " + p[1] + NB + "ml Wasser verdrängt?",
+    parts: [
+      {label:"Dichte", options:optionen(c, [m * V * 100, V / m * 100, c / 10, c * 1.25, c * 0.7], rh), correct:c, mono:true, show:rh},
+      {label:"Material", options:["Aluminium", "Stahl", "Kupfer", "Blei"], correct:p[2]}
+    ],
+    hint: "1 ml = 1" + NB + "cm³ = 0,001" + NB + "dm³. Berechnen Sie " + i("ρ") + " = " + F(i("m"), i("V")) + " und vergleichen Sie mit der Dichtetabelle (PH42.1).",
+    solution: "<p class=\"num\">" + i("ρ") + " = " + F(i("m"), i("V")) + " = " + F(fmt(m) + NB + "kg", fmt(V) + NB + "dm³") + " ≈ <b>" + rh(c) + "</b> → <b>" + p[2] + "</b></p><p>Tabelle: Aluminium 2,7; Stahl 7,85; Kupfer 8,9; Blei 11,3 (in " + KGDM + ").</p>"
+  };
+}
+function qSeil(){
+  var p = pick([[50, 45], [6, 100], [16, 50], [25, 80], [35, 30], [10, 100], [95, 20], [50, 150]]), A = p[0], l = p[1], V = volumen(A, l), c = 8.9 * V, seil = A >= 16;
+  return {
+    text: seil ? "Wie gross ist die Masse eines Erders aus " + A + NB + "mm² Cu-Seil mit einer Gesamtlänge von " + l + NB + "m?" : "Welche Masse hat eine " + l + NB + "m Rolle blanker Kupferdraht mit einem Querschnitt von " + A + NB + "mm²?",
+    parts: [{label:"Masse", options:optionen(c, [c * 10, c / 10, 7.85 * V, 2.7 * V, V], kg), correct:c, mono:true, show:kg}],
+    hint: "Rechnen Sie in dm: " + A + NB + "mm² = " + A + " · 10<sup>−4</sup>" + NB + "dm², " + l + NB + "m = " + l * 10 + NB + "dm. Dann " + i("V") + " = " + i("A") + " · " + i("ℓ") + " und " + i("m") + " = " + i("ρ") + " · " + i("V") + " mit " + ix("ρ", "Cu") + " = " + RHO(8.9) + ".",
+    solution: "<p class=\"num\">" + i("V") + " = " + i("A") + " · " + i("ℓ") + " = " + A + " · 10<sup>−4</sup>" + NB + "dm² · " + l * 10 + NB + "dm = " + dm3(V) + "</p><p class=\"num\">" + i("m") + " = " + i("ρ") + " · " + i("V") + " = " + RHO(8.9) + " · " + dm3(V) + " " + gl(c) + " <b>" + kg(c) + "</b></p>"
+  };
+}
+function qBand(){
+  var p = pick([[25, 3, 30, "st"], [30, 3, 40, "st"], [25, 3, 50, "st"], [40, 3, 25, "st"], [25, 2, 60, "cu"], [30, 3, 20, "cu"]]), b = p[0], d = p[1], l = p[2], s = STOFF[p[3]], V = volumen(b * d, l), c = s.rho * V;
+  return {
+    text: "Ein rechteckiger " + (p[3] === "st" ? "Bandstahlerder" : "Banderder aus Kupfer") + " besitzt eine Dicke von " + d + NB + "mm, eine Kantenlänge von " + b + NB + "mm und eine Länge von " + l + NB + "m. Berechnen Sie seine Masse (" + i("ρ") + " = " + RHO(s.rho) + ").",
+    parts: [{label:"Masse", options:optionen(c, [c * 10, c / 10, V, (p[3] === "st" ? 8.9 : 7.85) * V, c * 2], kg), correct:c, mono:true, show:kg}],
+    hint: "Rechnen Sie alle Abmessungen in dm um: " + i("V") + " = " + i("ℓ") + " · " + i("b") + " · " + i("d") + ". Dann " + i("m") + " = " + i("ρ") + " · " + i("V") + ".",
+    solution: "<p class=\"num\">" + i("V") + " = " + i("ℓ") + " · " + i("b") + " · " + i("d") + " = " + l * 10 + NB + "dm · " + fmt(b / 100) + NB + "dm · " + fmt(d / 100) + NB + "dm = " + dm3(V) + "</p><p class=\"num\">" + i("m") + " = " + i("ρ") + " · " + i("V") + " = " + RHO(s.rho) + " · " + dm3(V) + " " + gl(c) + " <b>" + kg(c) + "</b></p>"
+  };
+}
+function qLaenge(){
+  var p = pick([[27.5, 70, "st"], [17.66, 75, "st"], [5.34, 6, "cu"], [8.9, 10, "cu"], [22.25, 50, "cu"], [35.33, 90, "st"]]), m = p[0], A = p[1], s = STOFF[p[2]], V = m / s.rho, c = V / (A * 1e-4) / 10;
+  function mm_(x){ return E(x, "m", 3); }
+  return {
+    text: "Ein " + (p[2] === "st" ? "rechteckiger Stahlerder" : "Kupferleiter") + " hat einen Querschnitt von " + A + NB + "mm² und eine Masse von " + fmt(m) + NB + "kg. Welche Länge besitzt dieser Leiter? " + i("ρ") + " = " + RHO(s.rho),
+    parts: [{label:"Länge", options:optionen(c, [c * 10, c / 10, m / A * 10, m * s.rho, c * 1.5], mm_), correct:c, mono:true, show:mm_}],
+    hint: "Zuerst " + i("V") + " = " + F(i("m"), i("ρ")) + ", dann " + i("ℓ") + " = " + F(i("V"), i("A")) + " mit " + i("A") + " in dm².",
+    solution: "<p class=\"num\">" + i("V") + " = " + F(i("m"), i("ρ")) + " = " + F(fmt(m) + NB + "kg", RHO(s.rho)) + " " + gl(V) + " " + dm3(V) + "</p><p class=\"num\">" + i("ℓ") + " = " + F(i("V"), i("A")) + " = " + F(dm3(V), A + " · 10<sup>−4</sup>" + NB + "dm²") + " " + gl(c * 10) + " " + E(c * 10, "dm", 4) + " ≈ <b>" + mm_(c) + "</b></p>"
+  };
+}
+function qWerkstueck(){
+  var p = pick([[40, 36, 1.22, "Aluminium"], [20, 50, 1.4, "Kupfer"], [30, 20, 1.11, "Stahl"], [50, 10, 2.22, "Blei"], [25, 40, 0.53, "Aluminium"], [40, 25, 2.47, "Stahl"]]), d = p[0] / 100, l = p[1] / 10, m = p[2], A = d * d * PI / 4, V = A * l, c = m / V;
+  return {
+    text: "Ein Werkstück hat einen Durchmesser von " + p[0] + NB + "mm, eine Länge von " + p[1] + NB + "cm und eine Masse von " + fmt(m) + NB + "kg. Aus welchem Material besteht das Werkstück?",
+    parts: [
+      {label:"Dichte", options:optionen(c, [c * 10, c / 4 * PI, c * 4 / PI, c / 2], rh), correct:c, mono:true, show:rh},
+      {label:"Material", options:["Aluminium", "Stahl", "Kupfer", "Blei"], correct:p[3]}
+    ],
+    hint: "Rechnen Sie in dm: " + i("A") + " = " + F(i("d") + "² · π", "4") + ", " + i("V") + " = " + i("A") + " · " + i("ℓ") + ", " + i("ρ") + " = " + F(i("m"), i("V")) + ".",
+    solution: "<p class=\"num\">" + i("A") + " = " + F("(" + fmt(d) + NB + "dm)² · π", "4") + " ≈ " + E(A, "dm²") + "</p><p class=\"num\">" + i("V") + " = " + i("A") + " · " + i("ℓ") + " = " + E(A, "dm²") + " · " + fmt(l) + NB + "dm ≈ " + dm3(V) + "</p><p class=\"num\">" + i("ρ") + " = " + F(i("m"), i("V")) + " = " + F(fmt(m) + NB + "kg", dm3(V)) + " ≈ <b>" + rh(c) + "</b> → <b>" + p[3] + "</b></p>"
+  };
+}
+function qDrahtV(){
+  var p = pick([[8, 150], [10, 100], [6, 200], [8, 58], [10, 60]]), d = p[0], l = p[1], c = (d / 100) * (d / 100) * PI / 4 * l * 10;
+  return {
+    text: "Für einen Erder werden " + l + NB + "m Kupferdraht mit einem Durchmesser von " + d + NB + "mm verlegt. Welches Betonvolumen wird dadurch ersetzt? Verbinder und weitere Bauteile werden vernachlässigt.",
+    parts: [{label:"Volumen", options:optionen(c, [c * 10, c / 10, c * 4, c * 4 / PI, c / 100], dm3), correct:c, mono:true, show:dm3}],
+    hint: "Zylinder: " + i("V") + " = " + F(i("d") + "² · π", "4") + " · " + i("h") + ". Rechnen Sie " + d + NB + "mm und " + l + NB + "m in dm um.",
+    solution: "<p class=\"num\">" + ix("V", "Cu") + " = " + F(i("d") + "² · π", "4") + " · " + i("h") + " = " + F("(" + fmt(d / 100) + NB + "dm)² · π", "4") + " · " + l * 10 + NB + "dm ≈ <b>" + dm3(c) + "</b> = " + E(c / 1000, "m³", 3) + "</p>"
+  };
+}
+function qRing(){
+  var p = pick([[16, 10], [20, 12], [12, 8], [25, 15], [18, 9]]), l = p[0], b = p[1], lt = 2 * l + 2 * b + 2 * PI, V = volumen(75, lt), m = 8.9 * V;
+  function mm_(x){ return E(x, "m", 4); }
+  return {
+    text: "Ein Banderder aus Kupfer (25" + NB + "mm × 3" + NB + "mm) wird ringförmig im Abstand von 1" + NB + "m um ein Gebäude von " + l + NB + "m × " + b + NB + "m verlegt. An den vier Gebäudeecken folgt der Erder je einem Viertelkreis mit Radius 1" + NB + "m. Berechnen Sie die Gesamtlänge und die Masse des Erders.",
+    parts: [
+      {label:"Gesamtlänge", options:optionen(lt, [2 * l + 2 * b, 2 * l + 2 * b + 8, 2 * l + 2 * b + PI, 2 * (l + 2) + 2 * (b + 2)], mm_), correct:lt, mono:true, show:mm_},
+      {label:"Masse", options:optionen(m, [m * 10, m / 10, 7.85 * V, V], kg), correct:m, mono:true, show:kg}
+    ],
+    hint: "Die vier Viertelkreise ergeben zusammen einen ganzen Kreis: " + ix("ℓ", "tot") + " = 2 · " + i("ℓ") + " + 2 · " + i("b") + " + 2 · " + i("r") + " · π. Danach " + i("V") + " = " + i("A") + " · " + ix("ℓ", "tot") + " und " + i("m") + " = " + i("ρ") + " · " + i("V") + ".",
+    solution: "<p class=\"num\">" + ix("ℓ", "tot") + " = 2 · " + l + NB + "m + 2 · " + b + NB + "m + 2 · 1" + NB + "m · π ≈ <b>" + mm_(lt) + "</b></p><p class=\"num\">" + i("A") + " = 0,25" + NB + "dm · 0,03" + NB + "dm = 0,0075" + NB + "dm²</p><p class=\"num\">" + i("V") + " = " + i("A") + " · " + ix("ℓ", "tot") + " = 0,0075" + NB + "dm² · " + E(lt * 10, "dm") + " ≈ " + dm3(V) + "</p><p class=\"num\">" + i("m") + " = " + i("ρ") + " · " + i("V") + " = " + RHO(8.9) + " · " + dm3(V) + " ≈ <b>" + kg(m) + "</b></p>"
+  };
+}
+var UMR = [
+  ["50" + NB + "mm²", "dm²", 0.005, [0.5, 0.05, 0.0005]], ["75" + NB + "mm²", "dm²", 0.0075, [0.75, 0.075, 0.00075]], ["158" + NB + "ml", "dm³", 0.158, [1.58, 15.8, 0.0158]],
+  ["325" + NB + "Liter", "dm³", 325, [32.5, 3.25, 0.325]], ["45" + NB + "m", "dm", 450, [4.5, 4500, 0.45]], ["25" + NB + "mm", "dm", 0.25, [2.5, 0.025, 0.0025]],
+  ["2,25" + NB + "dm³", "cm³", 2250, [225, 22.5, 22500]], ["3" + NB + "mm", "dm", 0.03, [0.3, 0.003, 30]]
+];
+function qUmrechnen(){
+  var u = pick(UMR), c = u[2];
+  function sh(x){ return fmt(x) + NB + u[1]; }
+  return {
+    text: "Rechnen Sie um: " + u[0] + " = ? " + u[1],
+    parts: [{label:"Ergebnis", options:[c].concat(u[3]).sort(function(a, b){ return a - b; }), correct:c, mono:true, show:sh}],
+    hint: "1" + NB + "dm = 10" + NB + "cm = 100" + NB + "mm; 1" + NB + "dm² = 10 000" + NB + "mm²; 1 Liter = 1" + NB + "dm³ = 1000" + NB + "ml.",
+    solution: "<p class=\"num\">" + u[0] + " = <b>" + sh(c) + "</b></p>"
+  };
+}
+var KONZEPT = [
+  {t:"Wie lautet die Formel für die Dichte?", o:[i("ρ") + " = " + F(i("m"), i("V")), i("ρ") + " = " + i("m") + " · " + i("V"), i("ρ") + " = " + F(i("V"), i("m")), i("ρ") + " = " + F(i("m"), i("A"))], k:0, s:"Eselsbrücke: «Dichte ist Masse pro Raum.»"},
+  {t:"Wie berechnen Sie die Masse eines Erders, wenn Dichte und Volumen bekannt sind?", o:[i("m") + " = " + i("ρ") + " · " + i("V"), i("m") + " = " + F(i("ρ"), i("V")), i("m") + " = " + F(i("V"), i("ρ")), i("m") + " = " + i("ρ") + " + " + i("V")], k:0, s:"Aus " + i("ρ") + " = " + F(i("m"), i("V")) + " folgt " + i("m") + " = " + i("ρ") + " · " + i("V") + "."},
+  {t:"Welche Dichte hat Kupfer?", o:[RHO(8.9), RHO(7.85), RHO(2.7), RHO(11.3)], k:0, s:"Stahl 7,85; Aluminium 2,7; Blei 11,3 (in " + KGDM + ")."},
+  {t:"Welche Dichte hat Stahl?", o:[RHO(7.85), RHO(8.9), RHO(2.7), RHO(19.3)], k:0, s:"Kupfer 8,9; Aluminium 2,7; Gold 19,3 (in " + KGDM + ")."},
+  {t:"Welche Dichte hat Aluminium?", o:[RHO(2.7), RHO(7.85), RHO(8.9), RHO(1)], k:0, s:"Aluminium ist ein Leichtmetall: Die Dichte liegt unter 5" + NB + KGDM + "."},
+  {t:"Ab welcher Dichte spricht man bei Metallen von Schwermetallen?", o:["ab 5" + NB + KGDM, "ab 1" + NB + KGDM, "ab 2,7" + NB + KGDM, "ab 10" + NB + KGDM], k:0, s:"Kupfer (8,9) ist ein Schwermetall, Aluminium (2,7) ein Leichtmetall."},
+  {t:"Was passiert mit dem Zahlenwert der Dichte, wenn man von g je cm³ in kg je dm³ umrechnet?", o:["Er bleibt gleich.", "Er wird 1000-mal grösser.", "Er wird 1000-mal kleiner.", "Er wird 10-mal grösser."], k:0, s:"Zwischen g und kg wie auch zwischen cm³ und dm³ liegt der gleiche Faktor 1000. Die Umrechnungsfaktoren heben sich auf."},
+  {t:"Warum wird Aluminium häufig für Freileitungen verwendet?", o:["Es ist bei gleicher Leitfähigkeit deutlich leichter als Kupfer.", "Es leitet bei gleichem Querschnitt besser als Kupfer.", "Es hat eine höhere Dichte als Kupfer.", "Es ist ein Schwermetall."], k:0, s:"Für die gleiche elektrische Leitfähigkeit braucht Aluminium einen grösseren Querschnitt, ist aber deutlich leichter."},
+  {t:"Wie berechnen Sie das Volumen eines Zylinders?", o:[i("V") + " = " + F(i("d") + "² · π", "4") + " · " + i("h"), i("V") + " = " + i("d") + " · π · " + i("h"), i("V") + " = " + i("d") + "² · " + i("h"), i("V") + " = " + F(i("d") + " · π", "4") + " · " + i("h")], k:0, s:"Grundfläche mal Höhe: " + i("V") + " = " + i("A") + " · " + i("h") + "."},
+  {t:"Wie berechnen Sie das Volumen eines Quaders?", o:[i("V") + " = " + i("a") + " · " + i("b") + " · " + i("c"), i("V") + " = " + i("a") + " + " + i("b") + " + " + i("c"), i("V") + " = 2 · (" + i("a") + " + " + i("b") + ") · " + i("c"), i("V") + " = " + i("a") + "³"], k:0, s:"Das Volumen wird berechnet, indem man die Grundfläche mit der Höhe multipliziert."}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return {
+    text: k.t,
+    parts: [{label:"Antwort", options:shuffle(k.o), correct:k.o[k.k]}],
+    hint: "Schlagen Sie im Theoriebuch auf PH42.1 und MA39.5 bis MA39.6 nach.",
+    solution: "<p><b>" + k.o[k.k] + "</b></p><p>" + k.s + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.08) return qZylV();
+  if (x < 0.15) return qZylL();
+  if (x < 0.27) return qStoff();
+  if (x < 0.41) return qSeil();
+  if (x < 0.52) return qBand();
+  if (x < 0.61) return qLaenge();
+  if (x < 0.69) return qWerkstueck();
+  if (x < 0.75) return qDrahtV();
+  if (x < 0.82) return qRing();
+  if (x < 0.90) return qUmrechnen();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([pick([qZylV, qZylL]), qStoff, qSeil, qBand, pick([qLaenge, qDrahtV]), pick([qWerkstueck, qRing]), qUmrechnen, qKonzept]); }});
+})();
+
+</script>
+</body>
+</html>

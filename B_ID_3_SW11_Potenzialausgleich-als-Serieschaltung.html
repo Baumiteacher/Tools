@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_3 TA3 Potenzialausgleich als Serieschaltung BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+:root{ --rohr:#B5523B; --metall:#9AA6B2 }
+.bild{width:100%;height:auto;display:block}
+.b-rohr{fill:var(--rohr)}
+.b-metall{fill:var(--metall);stroke:var(--ink);stroke-width:1}
+.b-lack{fill:var(--bad)}
+.gy-g{stroke:var(--pe-green);fill:none;stroke-width:4}
+.gy-y{stroke:var(--pe-yellow);fill:none;stroke-width:4;stroke-dasharray:7 7}
+.b-nr{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.b-nt{fill:var(--ink);font-family:var(--mono);font-size:11px;font-weight:700}
+.b-t{fill:var(--muted);font-family:var(--sans);font-size:10.5px;font-weight:600}
+.b-erde{stroke:var(--ink);stroke-width:2;fill:none}
+.c-wire{stroke:var(--ink);stroke-width:2;fill:none}
+.c-r{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.c-r.grau{stroke:var(--ink)}
+.c-r.hoch{stroke:var(--bad);stroke-width:3}
+.c-t{fill:var(--ink);font-family:var(--sans);font-size:11px;font-weight:700}
+.c-v{fill:var(--ink);font-family:var(--mono);font-size:10px;font-weight:600}
+.c-m{fill:var(--muted);font-family:var(--sans);font-size:9.5px}
+.c-term{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.c-dot{fill:var(--ink)}
+.rechnung{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:10px}
+.r-slider{display:grid;grid-template-columns:1fr;gap:2px}
+.r-slider .kopf{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.r-slider .was{font-size:.85rem;color:var(--muted)}
+.r-slider .num{font-weight:700;white-space:nowrap}
+.warn{color:var(--bad);font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_3 Potenzialausgleich · Teilauftrag 3</p>
+    <h1>Potenzialausgleich als Serieschaltung BAP</h1>
+    <p class="lead">Jede Leitung und jeder Übergang einer Erdverbindung ist ein Widerstand. Verändern Sie die Werte und sehen Sie, wie sich der Gesamtwiderstand zusammensetzt.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Der Potenzialausgleich auf der Baustelle</h2>
+        <svg class="bild" id="bild" viewBox="0 0 340 196" role="img" aria-label="Heizleitung, Potenzialausgleichsschiene, Erdanschlussgarnitur und Kabeltrasse mit den Stellen 1 bis 8"></svg>
+        <p class="note">Vereinfachtes Bild nach Übung 22. Jede Zahl steht für einen Leitungs- oder Übergangswiderstand.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Erdverbindung von der Heizleitung (1) bis zur Erdanschlussgarnitur (5)</h2>
+        <fieldset>
+          <legend>Zustand der Rohrschelle an der Heizleitung</legend>
+          <div class="seg" id="lack">
+            <button class="opt txt" type="button" data-lack="0" id="lack-nein" aria-pressed="true">Lack entfernt</button>
+            <button class="opt txt" type="button" data-lack="1" id="lack-ja" aria-pressed="false">Lack nicht entfernt</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Gemessene Teilwiderstände</legend>
+          <div class="plain" id="r-sliders"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Ersatzschaltbild und Rechenweg</h2>
+        <svg class="bild" id="ersatz" viewBox="0 0 340 128" role="img" aria-label="Ersatzschaltbild mit den Widerständen R1 bis R8"></svg>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Schutz-Potenzialausgleichsleiter zum Trasse (7) und Übergang (8)</h2>
+        <fieldset>
+          <legend>Länge des Schutz-Potenzialausgleichsleiters ℓ</legend>
+          <div class="slider-head"><span class="num big" id="l-val"></span></div>
+          <input type="range" id="l-slider" min="1" max="50" step="1" value="15" aria-label="Leiterlänge einstellen">
+        </fieldset>
+        <fieldset>
+          <legend>Querschnitt <i>A</i> (Kupfer)</legend>
+          <div class="opts" id="a-chips"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Gemessen von der Potenzialausgleichsschiene zum Trasse</legend>
+          <div class="slider-head"><span class="num big" id="m-val"></span></div>
+          <input type="range" id="m-slider" min="10" max="300" step="1" value="100" aria-label="Messwert einstellen">
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg Übergangswiderstand</h2>
+        <div class="rechnung" id="rechnung2"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Leitungs- und Übergangswiderstände einer Erdverbindung liegen in Serie.</p>
+          <p>Bei der Serieschaltung ist der Gesamtwiderstand gleich der Summe der Einzelwiderstände.</p>
+          <p>Lack wirkt elektrisch isolierend. Wird er unter der Rohrschelle nicht entfernt, entsteht ein hoher Übergangswiderstand.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Welcher der fünf Teilwiderstände trägt am meisten zum Gesamtwiderstand bei?</li>
+          <li>Wählen Sie «Lack nicht entfernt». Wie gross wird der Gesamtwiderstand, und was zeigt das Messgerät in Übung 24?</li>
+          <li>Verdoppeln Sie die Länge des Schutz-Potenzialausgleichsleiters. Wie ändert sich <i>R</i><sub>7</sub>?</li>
+          <li>Warum müssen alle Werte vor dem Addieren in der gleichen Einheit stehen?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET4.1 bis ET4.4 (Serieschaltung) und ET2.12 (Leiterwiderstand).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Elektrotechnik, Kapitel 4 Grundschaltungen der Elektrotechnik: ET4.1 bis ET4.4 (Serieschaltung)</li><li>Theoriebuch Elektrotechnik, Kapitel 2 Grundbegriffe der Elektrotechnik: ET2.12 (Widerstand eines Leiters)</li><li>Arbeitsblätter ID3 Potenzialausgleich, Teilauftrag 3: Übungen 22 bis 24 (ID3.9 und ID3.10)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, shuffle = BAP.shuffle, round = BAP.round, F = BAP.frac;
+var NB = " ";
+var RHO_CU = 0.0175; /* Ω mm²/m, Theoriebuch ET2.12 */
+function R_(k){ return "<i>R</i><sub>" + k + "</sub>"; }
+/* ab fünf Stellen mit Tausender-Apostroph */
+function tsd(x){ var t = fmt(x), p = t.split(","); if (p[0].length > 4) p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, "’"); return p.join(","); }
+function mO(x){ return tsd(round(x, 5)) + NB + "mΩ"; }
+function Om(x){ return fmt(round(x, 4)) + NB + "Ω"; }
+function auto(mOhm){ return mOhm >= 1000 ? fmt(round(mOhm / 1000, 5)) + NB + "Ω" : mO(mOhm); }
+function nw(h){ return "<span style=\"white-space:nowrap\">" + h + "</span>"; }
+function sum(a){ return a.reduce(function(x, y){ return x + y; }, 0); }
+/* Leiterwiderstand in mΩ, wie im Arbeitsblatt auf ganze mΩ gerundet */
+function leiter_mOhm(l, A){ return RHO_CU * l / A * 1000; }
+/* kaufmännisch auf ganze mΩ runden (17,5 → 18), unabhängig von Gleitkomma-Resten */
+function ganz(r){ return Math.round(r + 1e-9); }
+window.__t = {sum:sum, leiter_mOhm:leiter_mOhm, ganz:ganz};
+
+/* Bedeutung der Stellen: aus der Abbildung zu Übung 22 abgelesen */
+var STELLEN = [
+  "Übergang an der Heizleitung (Rohrschelle)",
+  "Leiter von der Heizleitung zur Potenzialausgleichsschiene",
+  "Übergang an der Potenzialausgleichsschiene",
+  "Leiter zur Erdanschlussgarnitur",
+  "Übergang an der Erdanschlussgarnitur"
+];
+/* Werte aus Übung 22 in mΩ (R4 wie in der Lösung: 8 mΩ) */
+var START = [10, 25, 10, 8, 10];
+var MESS_LACK = 42000; /* Übung 24: Das Messgerät zeigt 42 Ω */
+var st = {R:START.slice(), lack:false, l:15, A:10, m:100};
+function werte(){
+  var R = st.R.slice();
+  if (st.lack) R[0] = MESS_LACK - sum(R.slice(1));
+  return R;
+}
+function nr(x, y, n){ return "<circle class=\"b-nr\" cx=\"" + x + "\" cy=\"" + y + "\" r=\"9\"/><text class=\"b-nt\" x=\"" + x + "\" y=\"" + (y + 4) + "\" text-anchor=\"middle\">" + n + "</text>"; }
+function gy(d){ return "<path class=\"gy-g\" d=\"" + d + "\"/><path class=\"gy-y\" d=\"" + d + "\"/>"; }
+function zeichneBild(){
+  var h = "";
+  h += "<rect class=\"b-rohr\" x=\"8\" y=\"18\" width=\"324\" height=\"12\" rx=\"6\"/>";
+  h += "<text class=\"b-t\" x=\"12\" y=\"12\">Heizleitung</text>";
+  h += gy("M176 30 V62 H96 V92");
+  h += gy("M150 100 H250");
+  h += gy("M76 108 V180 H34 V158");
+  h += "<rect class=\"" + (st.lack ? "b-lack" : "b-metall") + "\" x=\"168\" y=\"14\" width=\"16\" height=\"20\" rx=\"2\"/>";
+  h += "<rect class=\"b-metall\" x=\"56\" y=\"92\" width=\"96\" height=\"16\" rx=\"2\"/>";
+  h += "<text class=\"b-t\" x=\"104\" y=\"124\" text-anchor=\"middle\">Schiene</text>";
+  h += "<rect class=\"b-metall\" x=\"250\" y=\"82\" width=\"36\" height=\"36\" rx=\"3\"/><circle class=\"b-nr\" cx=\"268\" cy=\"100\" r=\"8\"/>";
+  h += "<path class=\"b-erde\" d=\"M268 118 V146 M254 146 H282 M259 152 H277 M264 158 H272\"/>";
+  h += "<rect class=\"b-metall\" x=\"16\" y=\"142\" width=\"200\" height=\"16\" rx=\"2\"/>";
+  h += "<text class=\"b-t\" x=\"212\" y=\"172\" text-anchor=\"end\">Kabeltrasse</text>";
+  h += nr(198, 10, 1) + nr(150, 62, 2) + nr(166, 88, 3) + nr(204, 86, 4) + nr(302, 96, 5) + nr(296, 150, 6) + nr(62, 132, 7) + nr(16, 174, 8);
+  if (st.lack) h += "<text class=\"b-t\" x=\"214\" y=\"14\" style=\"fill:var(--bad)\">Lack nicht entfernt</text>";
+  $("bild").innerHTML = h;
+}
+function zeichneErsatz(R){
+  var xs = [50, 98, 146, 194, 242, 290], h = "";
+  h += "<path class=\"c-wire\" d=\"M14 34 H326\"/><path class=\"c-wire\" d=\"M122 34 V96 H14\"/>";
+  h += "<circle class=\"c-dot\" cx=\"122\" cy=\"34\" r=\"3\"/>";
+  h += "<circle class=\"c-term\" cx=\"14\" cy=\"34\" r=\"5\"/><circle class=\"c-term\" cx=\"326\" cy=\"34\" r=\"5\"/><circle class=\"c-term\" cx=\"14\" cy=\"96\" r=\"5\"/>";
+  xs.forEach(function(x, k){
+    var grau = k === 5, hoch = k === 0 && st.lack;
+    h += "<rect class=\"c-r" + (grau ? " grau" : "") + (hoch ? " hoch" : "") + "\" x=\"" + (x - 18) + "\" y=\"25\" width=\"36\" height=\"18\" rx=\"2\"/>";
+    h += "<text class=\"c-t\" x=\"" + x + "\" y=\"18\" text-anchor=\"middle\">R" + (k + 1) + "</text>";
+    h += "<text class=\"" + (grau ? "c-m" : "c-v") + "\" x=\"" + x + "\" y=\"56\" text-anchor=\"middle\">" + (grau ? "Erde" : hoch ? "≈ " + Om(round(R[k] / 1000, 2)) : auto(R[k])) + "</text>";
+  });
+  [[98, 7], [50, 8]].forEach(function(p){
+    h += "<rect class=\"c-r\" x=\"" + (p[0] - 18) + "\" y=\"87\" width=\"36\" height=\"18\" rx=\"2\"/>";
+    h += "<text class=\"c-t\" x=\"" + p[0] + "\" y=\"120\" text-anchor=\"middle\">R" + p[1] + "</text>";
+  });
+  h += "<text class=\"c-m\" x=\"132\" y=\"100\">zum Trasse</text>";
+  $("ersatz").innerHTML = h;
+}
+function render(){
+  var R = werte();
+  $("lack-nein").setAttribute("aria-pressed", String(!st.lack));
+  $("lack-ja").setAttribute("aria-pressed", String(st.lack));
+  var box = $("r-sliders");
+  if (!box.childElementCount){
+    box.innerHTML = STELLEN.map(function(s, k){
+      return "<label class=\"r-slider\" for=\"r-" + k + "\"><span class=\"kopf\"><span class=\"was\">" + (k + 1) + ": " + s + "</span><span class=\"num\" id=\"rv-" + k + "\"></span></span><input type=\"range\" id=\"r-" + k + "\" data-k=\"" + k + "\" min=\"1\" max=\"100\" step=\"1\" value=\"" + st.R[k] + "\"></label>";
+    }).join("");
+  }
+  R.forEach(function(r, k){ $("rv-" + k).innerHTML = R_(k + 1) + " = " + auto(r); });
+  $("r-0").disabled = st.lack;
+  zeichneBild(); zeichneErsatz(R);
+  var tot = sum(R), idx = [1, 2, 3, 4, 5];
+  var h = "<span>" + R_("1–5") + " = " + idx.map(R_).join(" + ") + "</span>";
+  h += "<span>" + R_("1–5") + " = " + R.map(function(r){ return mO(r); }).join(" + ") + "</span>";
+  h += "<span>" + R_("1–5") + " = <b class=\"big\">" + mO(tot) + "</b>" + (tot >= 100 ? " = " + Om(tot / 1000) : "") + "</span>";
+  if (st.lack) h += "<span class=\"warn\">Der Lack unter der Rohrschelle isoliert. Der Übergangswiderstand " + R_(1) + " ist sehr gross, das Messgerät zeigt 42 Ω.</span>";
+  $("rechnung").innerHTML = h;
+
+  $("l-val").innerHTML = "ℓ = " + st.l + NB + "m";
+  $("m-val").innerHTML = R_("7–8") + " = " + mO(st.m);
+  $("a-chips").innerHTML = [6, 10, 16].map(function(a){ return "<button class=\"opt\" type=\"button\" id=\"a-" + a + "\" data-a=\"" + a + "\" aria-pressed=\"" + (a === st.A) + "\">" + a + NB + "mm²</button>"; }).join("");
+  var r7 = leiter_mOhm(st.l, st.A), r7g = ganz(r7), r8 = st.m - r7g;
+  var g = "<span>" + R_(7) + " = " + F("ρ · ℓ", "<i>A</i>") + " = " + F("0,0175" + NB + F("Ω" + NB + "mm²", "m") + " · " + st.l + NB + "m", st.A + NB + "mm²") + "</span>";
+  g += "<span>" + R_(7) + " = " + Om(r7 / 1000) + " ≈ <b>" + mO(r7g) + "</b></span>";
+  if (r8 >= 0) g += "<span>" + R_(8) + " = " + R_("7–8") + " − " + R_(7) + " = " + mO(st.m) + " − " + mO(r7g) + " = <b class=\"big\">" + mO(r8) + "</b></span>";
+  else g += "<span class=\"warn\">Der Messwert ist kleiner als der Leiterwiderstand. Prüfen Sie Länge, Querschnitt und Messwert.</span>";
+  $("rechnung2").innerHTML = g;
+}
+function init(){
+  $("lack").addEventListener("click", function(e){ var b = e.target.closest("button[data-lack]"); if (!b) return; st.lack = b.getAttribute("data-lack") === "1"; render(); });
+  $("r-sliders").addEventListener("input", function(e){ var k = e.target.getAttribute("data-k"); if (k === null) return; st.R[Number(k)] = Number(e.target.value); render(); });
+  $("l-slider").addEventListener("input", function(){ st.l = Number(this.value); render(); });
+  $("m-slider").addEventListener("input", function(){ st.m = Number(this.value); render(); });
+  $("a-chips").addEventListener("click", function(e){ var b = e.target.closest("button[data-a]"); if (!b) return; st.A = Number(b.getAttribute("data-a")); render(); var f = $("a-" + st.A); if (f) f.focus(); });
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+function teil(){
+  var R = [pick([5, 8, 10, 12, 15]), pick([15, 20, 25, 30, 35, 40]), pick([5, 8, 10, 12]), pick([6, 8, 10, 14, 18]), pick([5, 8, 10, 15, 20])];
+  return R;
+}
+function liste(R, inOhm){
+  return R.map(function(r, k){ return nw(R_(k + 1) + " = " + (k === inOhm ? Om(r / 1000) : mO(r))); }).join(", ");
+}
+function qSumme(){
+  var R = teil(), c = sum(R), k = pick([1, 3]);
+  return {
+    text: "Bei einer Erdverbindung wurden folgende Teilwiderstände gemessen: " + liste(R, k) + ". Berechnen Sie den Widerstand " + R_("1–5") + ".",
+    parts: [{label:"Gesamtwiderstand", options:BAP.numOptions(c, [c - R[k], c + R[k] * 9, c + 10, c - 5, c * 2], 4), correct:c, mono:true, show:mO}],
+    hint: "Rechnen Sie zuerst alle Werte in mΩ um: 1 Ω = 1000 mΩ. Danach addieren.",
+    solution: "<p class=\"num\">" + R_(k + 1) + " = " + Om(R[k] / 1000) + " = " + mO(R[k]) + "</p><p class=\"num\">" + R_("1–5") + " = " + R.map(function(r){ return mO(r); }).join(" + ") + " = <b>" + mO(c) + "</b></p>"
+  };
+}
+function qFehlend(){
+  var R = teil(), tot = sum(R), k = pick([0, 2, 4]), bekannt = [0, 1, 2, 3, 4].filter(function(i){ return i !== k; });
+  return {
+    text: "Der Widerstand einer Erdverbindung beträgt " + nw(R_("1–5") + " = " + mO(tot)) + ". Bekannt sind " + bekannt.map(function(i){ return nw(R_(i + 1) + " = " + mO(R[i])); }).join(", ") + ". Wie gross ist der Übergangswiderstand " + R_(k + 1) + "?",
+    parts: [{label:"Übergangswiderstand", options:BAP.numOptions(R[k], [R[k] + 5, R[k] + 10, tot - R[bekannt[0]], R[k] * 2, R[k] + 3], 4), correct:R[k], mono:true, show:mO}],
+    hint: "Ziehen Sie die bekannten Teilwiderstände vom Gesamtwiderstand ab.",
+    solution: "<p class=\"num\">" + R_(k + 1) + " = " + mO(tot) + " − " + bekannt.map(function(i){ return mO(R[i]); }).join(" − ") + " = <b>" + mO(R[k]) + "</b></p>"
+  };
+}
+function leiterFall(){
+  var l, A, r, n = 0;
+  do { l = pick([4, 5, 8, 10, 12, 15, 16, 20, 24, 30, 32, 40]); A = pick([6, 10, 16]); r = leiter_mOhm(l, A); n++; }
+  while (Math.abs(Math.abs(r - Math.round(r)) - 0.5) < 0.02 && n < 200); /* keine Fälle genau auf ,5 mΩ */
+  return {l:l, A:A, r:r, rg:ganz(r)};
+}
+function wegR7(f){
+  return "<p class=\"num\">" + R_(7) + " = " + F("ρ · ℓ", "<i>A</i>") + " = " + F("0,0175" + NB + F("Ω" + NB + "mm²", "m") + " · " + f.l + NB + "m", f.A + NB + "mm²") + " = " + Om(f.r / 1000) + " ≈ <b>" + mO(f.rg) + "</b></p>";
+}
+function qR7(){
+  var f = leiterFall();
+  return {
+    text: "Ein Schutz-Potenzialausgleichsleiter aus Kupfer ist " + f.l + NB + "m lang und hat einen Querschnitt von " + f.A + NB + "mm². Wie gross ist sein Widerstand? Runden Sie auf ganze mΩ.",
+    parts: [{label:"Leiterwiderstand", options:BAP.numOptions(f.rg, [f.rg * 2, Math.round(f.rg / 2), f.rg * 10, f.rg + 9, Math.round(RHO_CU * f.A / f.l * 1000) + 1], 4), correct:f.rg, mono:true, show:mO}],
+    hint: "<i>R</i> = " + F("ρ · ℓ", "<i>A</i>") + " mit ρ<sub>Cu</sub> = 0,0175" + NB + F("Ω" + NB + "mm²", "m") + ". Das Resultat in Ω mit 1000 multiplizieren ergibt mΩ.",
+    solution: wegR7(f)
+  };
+}
+function qR8(){
+  var f = leiterFall(), r8 = pick([20, 34, 46, 58, 74, 90, 110]), m = f.rg + r8;
+  return {
+    text: "Von der Potenzialausgleichsschiene zum Trasse messen Sie " + nw(R_("7–8") + " = " + mO(m)) + ". Der Schutz-Potenzialausgleichsleiter (" + R_(7) + ") aus Kupfer ist " + f.l + NB + "m lang und hat " + f.A + NB + "mm². Wie gross ist der Übergangswiderstand " + R_(8) + "?",
+    parts: [{label:"Übergangswiderstand", options:BAP.numOptions(r8, [m, f.rg, m + f.rg, r8 + 10, Math.max(1, r8 - 8)], 4), correct:r8, mono:true, show:mO}],
+    hint: "Berechnen Sie zuerst den Leiterwiderstand " + R_(7) + " und runden Sie auf ganze mΩ. Dann gilt " + R_(8) + " = " + R_("7–8") + " − " + R_(7) + ".",
+    solution: wegR7(f) + "<p class=\"num\">" + R_(8) + " = " + R_("7–8") + " − " + R_(7) + " = " + mO(m) + " − " + mO(f.rg) + " = <b>" + mO(r8) + "</b></p>"
+  };
+}
+function qEinheit(){
+  if (Math.random() < 0.5){
+    var o = pick([0.008, 0.01, 0.025, 0.063, 0.1, 0.26]);
+    return {
+      text: "Rechnen Sie um: " + Om(o) + " sind wie viele mΩ?",
+      parts: [{label:"Wert in mΩ", options:BAP.numOptions(round(o * 1000, 4), [round(o * 100, 4), round(o * 10000, 4), round(o * 10, 4)], 4), correct:round(o * 1000, 4), mono:true, show:mO}],
+      hint: "1 Ω = 1000 mΩ.",
+      solution: "<p class=\"num\">1" + NB + "Ω = 1000" + NB + "mΩ</p><p class=\"num\">" + Om(o) + " = " + fmt(o) + " · 1000" + NB + "mΩ = <b>" + mO(round(o * 1000, 4)) + "</b></p>"
+    };
+  }
+  var m = pick([8, 10, 25, 63, 74, 100, 260]);
+  return {
+    text: "Rechnen Sie um: " + mO(m) + " sind wie viele Ω?",
+    parts: [{label:"Wert in Ω", options:BAP.numOptions(round(m / 1000, 4), [round(m / 100, 4), round(m / 10000, 4), round(m / 10, 4)], 4), correct:round(m / 1000, 4), mono:true, show:Om}],
+    hint: "1 mΩ = 0,001 Ω.",
+    solution: "<p class=\"num\">1" + NB + "mΩ = 0,001" + NB + "Ω</p><p class=\"num\">" + mO(m) + " = " + F(String(m), "1000") + NB + "Ω = <b>" + Om(round(m / 1000, 4)) + "</b></p>"
+  };
+}
+var KONZEPT = [
+  {t:"Bei einer Niederohmmessung am Schutz-Potenzialausgleichsleiter zeigt das Messgerät 42 Ω. Unter der Rohrschelle ist das Heizungsrohr lackiert. Was ist die Ursache für den hohen Wert?", o:["Die Lackierung wurde nicht entfernt. Lack isoliert, es entsteht ein hoher Übergangswiderstand.", "Der Leiter ist zu kurz.", "Der Querschnitt des Leiters ist zu gross.", "Die Potenzialausgleichsschiene leitet zu gut."]},
+  {t:"Wie sind die Leitungs- und Übergangswiderstände einer Erdverbindung geschaltet?", o:["In Serie", "Parallel", "Gar nicht, sie beeinflussen sich nicht", "Abwechselnd in Serie und parallel"]},
+  {t:"Ein Übergangswiderstand der Erdverbindung wird um 20 mΩ grösser. Wie ändert sich der Gesamtwiderstand?", o:["Er wird um 20 mΩ grösser.", "Er wird um 20 mΩ kleiner.", "Er bleibt gleich.", "Er verdoppelt sich."]},
+  {t:"Sie montieren eine Rohrschelle an einem lackierten Heizungsrohr. Was müssen Sie an der Kontaktstelle tun?", o:["Die Lackierung entfernen", "Eine zweite Lackschicht auftragen", "Die Schelle nur locker anziehen", "Nichts, Lack leitet gut"]},
+  {t:"Welche Formel gilt für den Widerstand des Schutz-Potenzialausgleichsleiters?", o:["<i>R</i> = " + F("ρ · ℓ", "<i>A</i>"), "<i>R</i> = " + F("<i>A</i>", "ρ · ℓ"), "<i>R</i> = ρ · ℓ · <i>A</i>", "<i>R</i> = " + F("ρ · <i>A</i>", "ℓ")]},
+  {t:"Der Schutz-Potenzialausgleichsleiter wird doppelt so lang. Wie ändert sich sein Widerstand?", o:["Er wird doppelt so gross.", "Er wird halb so gross.", "Er bleibt gleich.", "Er wird viermal so gross."]}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return {
+    text: k.t,
+    parts: [{label:"Antwort", options:shuffle(k.o), correct:k.o[0]}],
+    hint: "Denken Sie an die Gesetze der Serieschaltung und an die Formel für den Leiterwiderstand.",
+    solution: "<p><b>" + k.o[0] + "</b></p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.22) return qSumme();
+  if (x < 0.36) return qFehlend();
+  if (x < 0.52) return qR7();
+  if (x < 0.68) return qR8();
+  if (x < 0.82) return qEinheit();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qSumme, qSumme, qFehlend, qR7, qR8, qEinheit, qKonzept, qKonzept]); }});
+})();
+
+</script>
+</body>
+</html>

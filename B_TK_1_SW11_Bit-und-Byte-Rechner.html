@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_TK_1 TA2 Bit-und-Byte-Rechner BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.rechnung{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:10px}
+.rechnung .txt{font-family:var(--sans);color:var(--muted);font-size:.85rem}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:8px}
+.vergleich td.num{text-align:right;white-space:nowrap}
+.vergleich th:last-child{text-align:right}
+.balken{height:8px;border-radius:4px;background:var(--accent);min-width:2px}
+.vergleich th{white-space:nowrap;overflow-wrap:normal}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_TK_1 Vom Netzanbieter zum Endgerät · Teilauftrag 2</p>
+    <h1>Bit-und-Byte-Rechner BAP</h1>
+    <p class="lead">Wie lange dauert eine Übertragung, und wie gross darf eine Datei sein? Stellen Sie Datenmenge und Übertragungsgeschwindigkeit ein.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Was wird berechnet?</legend>
+          <div class="seg" id="modus">
+            <button class="opt txt" type="button" data-modus="dauer" id="modus-dauer" aria-pressed="true">Übertragungsdauer</button>
+            <button class="opt txt" type="button" data-modus="groesse" id="modus-groesse" aria-pressed="false">Dateigrösse</button>
+          </div>
+        </fieldset>
+        <fieldset id="g-box">
+          <legend>Datenmenge (Dateigrösse)</legend>
+          <div class="slider-head"><span class="num big" id="g-val"></span></div>
+          <input type="range" id="g-slider" min="0" max="500" step="1" value="300" aria-label="Datenmenge einstellen">
+          <div class="opts" id="g-presets"></div>
+        </fieldset>
+        <fieldset id="t-box" hidden>
+          <legend>Dauer der Übertragung</legend>
+          <div class="slider-head"><span class="num big" id="t-val"></span></div>
+          <input type="range" id="t-slider" min="1" max="600" step="1" value="10" aria-label="Dauer einstellen">
+        </fieldset>
+        <fieldset>
+          <legend>Übertragungsgeschwindigkeit</legend>
+          <div class="slider-head"><span class="num big" id="v-val"></span></div>
+          <input type="range" id="v-slider" min="0" max="400" step="1" value="270" aria-label="Übertragungsgeschwindigkeit einstellen">
+          <div class="opts" id="v-presets"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="res-title">Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" id="vgl-box">
+        <h2>Die gleiche Datei bei anderen Geschwindigkeiten</h2>
+        <div class="scroll">
+          <table class="vergleich">
+            <thead><tr><th>Geschwindigkeit</th><th></th><th>Dauer</th></tr></thead>
+            <tbody id="vergleich"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Das Wichtigste</h2>
+        <div class="merke" data-units>
+          <p>Die Datenmenge (Grösse einer Datei) wird in <b>Byte</b> angegeben: kByte, MByte, GByte.</p>
+          <p>Die Übertragungsgeschwindigkeit wird in <b>Bit pro Sekunde</b> angegeben: bit/s, kbit/s, Mbit/s, Gbit/s.</p>
+          <p>1 Byte = 8 Bit. Vor dem Rechnen müssen beide Angaben in Bit oder beide in Byte stehen.</p>
+        </div>
+        <p class="note">Dieses Tool rechnet wie das Arbeitsblatt mit dem Faktor 1000 (1 GByte = 1’000 MByte). Für Speichergrössen nennt das Theoriebuch auf KT20.4 auch den Faktor 1’024.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask" data-units>
+          <li>Stellen Sie Übung 5 c ein: Videodatei mit 1 GByte bei 500 Mbit/s. Wie lange dauert die Übertragung?</li>
+          <li>Wie ändert sich die Dauer, wenn die Geschwindigkeit zehnmal grösser wird?</li>
+          <li>Wechseln Sie auf «Dateigrösse» und stellen Sie Übung 5 d ein: 10 Sekunden bei 100 Mbit/s.</li>
+          <li>Warum ist eine Datei mit 100 MByte bei 100 Mbit/s nicht in einer Sekunde übertragen?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Achten Sie auf die Umrechnung zwischen Bit und Byte: 1 Byte = 8 Bit. Theoriebuch: Kommunikationstechnik KT20.1, KT20.4 und KT20.6.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Kommunikationstechnik, Kapitel 20 Daten: KT20.1 (Bit und Byte), KT20.4 (Datenvolumen), KT20.6 (Übertragungsgeschwindigkeit)</li><li>Arbeitsblätter KT1 Vom Netzanbieter zum Endgerät, Teilauftrag 2: Übungen 5 und 6 (KT1.6 und KT1.7)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, round = BAP.round, F = BAP.frac;
+var NB = " ";
+
+/* Rechnet wie das Arbeitsblatt KT1 Übung 5: 1 Byte = 8 Bit, Vorsätze mit Faktor 1000 */
+function dauer(MByte, Mbit_s){ return MByte * 8 / Mbit_s; }
+function groesse(Mbit_s, s){ return Mbit_s * s / 8; }
+window.__t = {dauer:dauer, groesse:groesse};
+
+/* Zahl mit Tausender-Apostroph und Dezimalkomma */
+function num(x, sig){
+  var r = round(x, sig || 4), p = String(r).split(".");
+  p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, "’");
+  return p.join(",");
+}
+function fMB(MB){ return MB >= 1000 ? num(MB / 1000) + NB + "GByte" : (MB < 1 ? num(MB * 1000) + NB + "kByte" : num(MB) + NB + "MByte"); }
+function fV(v){ return v >= 1000 ? num(v / 1000) + NB + F("Gbit", "s") : num(v) + NB + F("Mbit", "s"); }
+function fVtxt(v){ return v >= 1000 ? num(v / 1000) + NB + "Gbit/s" : num(v) + NB + "Mbit/s"; }
+function fS(t){ return num(t, 3) + NB + "s"; }
+function fZeit(t){
+  var s = fS(t);
+  if (t >= 3600){ var h = Math.floor(t / 3600), m = Math.round((t - h * 3600) / 60); return s + " = " + h + NB + "h " + m + NB + "min"; }
+  if (t >= 60){ var mi = Math.floor(t / 60), se = Math.round(t - mi * 60); return s + " = " + mi + NB + "min " + se + NB + "s"; }
+  return s;
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {modus:"dauer", MB:1000, v:500, t:10};
+var G_PRE = [10, 125, 1000, 4700], V_PRE = [10, 100, 500, 1000, 10000];
+var VGL = [10, 80, 500, 1000, 10000];
+function render(){
+  var d = st.modus === "dauer";
+  $("modus-dauer").setAttribute("aria-pressed", String(d));
+  $("modus-groesse").setAttribute("aria-pressed", String(!d));
+  $("g-box").hidden = !d; $("t-box").hidden = d; $("vgl-box").hidden = !d;
+  $("g-val").innerHTML = fMB(st.MB);
+  $("v-val").innerHTML = fV(st.v);
+  $("t-val").innerHTML = "<i>t</i> = " + fS(st.t);
+  $("g-presets").innerHTML = G_PRE.map(function(x, k){ return "<button class=\"opt\" type=\"button\" id=\"gp-" + k + "\" data-g=\"" + x + "\" aria-pressed=\"" + (x === st.MB) + "\">" + fMB(x) + "</button>"; }).join("");
+  $("v-presets").innerHTML = V_PRE.map(function(x, k){ return "<button class=\"opt\" type=\"button\" id=\"vp-" + k + "\" data-v=\"" + x + "\" aria-pressed=\"" + (x === st.v) + "\">" + fV(x) + "</button>"; }).join("");
+  var h = "";
+  if (d){
+    var mbit = st.MB * 8, t = dauer(st.MB, st.v);
+    $("res-title").textContent = "Rechenweg: Übertragungsdauer";
+    if (st.MB >= 1000) h += "<span><span class=\"txt\">In MByte umrechnen: </span>" + fMB(st.MB) + " = " + num(st.MB) + NB + "MByte</span>";
+    else if (st.MB < 1) h += "<span><span class=\"txt\">In MByte umrechnen: </span>" + fMB(st.MB) + " = " + num(st.MB) + NB + "MByte</span>";
+    h += "<span><span class=\"txt\">In Bit umrechnen (1 Byte = 8 Bit): </span>" + num(st.MB) + NB + "MByte · 8 = " + num(mbit) + NB + "Mbit</span>";
+    if (st.v >= 1000) h += "<span><span class=\"txt\">Geschwindigkeit umrechnen: </span>" + fV(st.v) + " = " + num(st.v) + NB + F("Mbit", "s") + "</span>";
+    h += "<span><i>t</i> = " + F("Datenmenge", "Übertragungsgeschwindigkeit") + "</span>";
+    h += "<span><i>t</i> = " + F(num(mbit) + NB + "Mbit", num(st.v) + NB + F("Mbit", "s")) + " = <b class=\"big\">" + fZeit(t) + "</b></span>";
+    var tmax = dauer(st.MB, VGL[0]);
+    $("vergleich").innerHTML = VGL.map(function(v){
+      var tv = dauer(st.MB, v);
+      return "<tr><td class=\"num\" style=\"text-align:left\">" + fV(v) + "</td><td style=\"width:30%\"><div class=\"balken\" style=\"width:" + Math.max(1, tv / tmax * 100).toFixed(1) + "%\"></div></td><td class=\"num\">" + fZeit(tv).split(" = ").pop() + "</td></tr>";
+    }).join("");
+  } else {
+    var mb = st.v * st.t, MB = groesse(st.v, st.t);
+    $("res-title").textContent = "Rechenweg: Dateigrösse";
+    if (st.v >= 1000) h += "<span><span class=\"txt\">Geschwindigkeit umrechnen: </span>" + fV(st.v) + " = " + num(st.v) + NB + F("Mbit", "s") + "</span>";
+    h += "<span>Datenmenge = Übertragungsgeschwindigkeit · <i>t</i> = " + num(st.v) + NB + F("Mbit", "s") + " · " + fS(st.t) + " = " + num(mb) + NB + "Mbit</span>";
+    h += "<span><span class=\"txt\">In Byte umrechnen (1 Byte = 8 Bit): </span>" + F(num(mb) + NB + "Mbit", "8") + " = <b class=\"big\">" + num(MB) + NB + "MByte</b>" + (MB >= 1000 ? " = " + fMB(MB) : "") + "</span>";
+  }
+  $("rechnung").innerHTML = h;
+}
+function init(){
+  $("modus").addEventListener("click", function(e){ var b = e.target.closest("button[data-modus]"); if (!b) return; st.modus = b.getAttribute("data-modus"); render(); });
+  $("g-slider").addEventListener("input", function(){ st.MB = round(Math.pow(10, Number(this.value) / 100), 2); render(); });
+  $("v-slider").addEventListener("input", function(){ st.v = round(Math.pow(10, Number(this.value) / 100), 2); render(); });
+  $("t-slider").addEventListener("input", function(){ st.t = Number(this.value); render(); });
+  $("g-presets").addEventListener("click", function(e){ var b = e.target.closest("button[data-g]"); if (!b) return; st.MB = Number(b.getAttribute("data-g")); $("g-slider").value = Math.round(Math.log10(st.MB) * 100); render(); var f = $("gp-" + G_PRE.indexOf(st.MB)); if (f) f.focus(); });
+  $("v-presets").addEventListener("click", function(e){ var b = e.target.closest("button[data-v]"); if (!b) return; st.v = Number(b.getAttribute("data-v")); $("v-slider").value = Math.round(Math.log10(st.v) * 100); render(); var f = $("vp-" + V_PRE.indexOf(st.v)); if (f) f.focus(); });
+  $("g-slider").value = Math.round(Math.log10(st.MB) * 100); $("v-slider").value = Math.round(Math.log10(st.v) * 100);
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+var GROESSEN = [10, 25, 50, 100, 125, 250, 500, 1000, 2000, 5000];
+var GESCHW = [10, 20, 40, 50, 80, 100, 200, 400, 500, 1000];
+function glatt(x){ return Math.abs(x * 10 - Math.round(x * 10)) < 1e-9; }
+function rr(x){ return round(x, 5); }
+function wegDauer(MB, v){
+  var mbit = MB * 8;
+  return (MB >= 1000 ? "<p class=\"num\">" + fMB(MB) + " = " + num(MB) + NB + "MByte</p>" : "") +
+    "<p class=\"num\">" + num(MB) + NB + "MByte · 8 = " + num(mbit) + NB + "Mbit</p>" +
+    "<p class=\"num\"><i>t</i> = " + F(num(mbit) + NB + "Mbit", num(v) + NB + F("Mbit", "s")) + " = <b>" + fZeit(dauer(MB, v)) + "</b></p>";
+}
+function qZeit(){
+  var MB, v, t, n = 0;
+  do { MB = pick(GROESSEN); v = pick(GESCHW); t = dauer(MB, v); n++; } while ((!glatt(t) || t < 0.5 || t > 4000) && n < 200);
+  return {
+    text: "Wie lange dauert die Übertragung einer Datei mit " + fMB(MB) + " bei einer Übertragungsgeschwindigkeit von " + fVtxt(v) + "?",
+    parts: [{label:"Übertragungsdauer", options:BAP.numOptions(rr(t), [rr(MB / v), rr(t * 8), rr(t / 2), rr(t * 10), rr(t * 2)], 4), correct:rr(t), mono:true, show:fS}],
+    hint: "Rechnen Sie die Datenmenge zuerst in Bit um: 1 Byte = 8 Bit. Dann gilt <i>t</i> = " + F("Datenmenge", "Übertragungsgeschwindigkeit") + ".",
+    solution: wegDauer(MB, v)
+  };
+}
+function qMail(){
+  var u = pick([1, 2, 4, 5, 8, 10, 20, 40, 80, 100]), t = dauer(10, u);
+  return {
+    text: "Sie senden eine Maildatei von 10" + NB + "MByte. Die Upload-Geschwindigkeit beträgt " + fVtxt(u) + ". Wie lange dauert das Senden?",
+    parts: [{label:"Dauer", options:BAP.numOptions(rr(t), [rr(10 / u), rr(t * 8), rr(t / 2), rr(t * 10), rr(t * 2)], 4), correct:rr(t), mono:true, show:fS}],
+    hint: "10 MByte sind 80 Mbit.",
+    solution: wegDauer(10, u)
+  };
+}
+function qGroesse(){
+  var v, t, MB, n = 0;
+  do { v = pick(GESCHW); t = pick([2, 4, 5, 8, 10, 20, 30, 40, 60]); MB = groesse(v, t); n++; } while (!glatt(MB) && n < 200);
+  return {
+    text: "Eine Datenübertragung dauert " + t + " Sekunden. Wie gross ist die Datei bei einer Übertragungsgeschwindigkeit von " + fVtxt(v) + "?",
+    parts: [{label:"Dateigrösse", options:BAP.numOptions(rr(MB), [rr(v * t), rr(v * t * 8), rr(MB / 10), rr(MB * 2), rr(MB / 2)], 4), correct:rr(MB), mono:true, show:fMB}],
+    hint: "Datenmenge = Übertragungsgeschwindigkeit · Zeit. Das Resultat steht in Bit: Für Byte durch 8 teilen.",
+    solution: "<p class=\"num\">" + num(v) + NB + F("Mbit", "s") + " · " + fS(t) + " = " + num(v * t) + NB + "Mbit</p><p class=\"num\">" + F(num(v * t) + NB + "Mbit", "8") + " = <b>" + num(MB) + NB + "MByte</b>" + (MB >= 1000 ? " = <b>" + fMB(MB) + "</b>" : "") + "</p>"
+  };
+}
+function fMbit(x){ return num(x) + NB + "Mbit"; }
+function qUmrechnen(){
+  var x = Math.random();
+  if (x < 0.4){
+    var MB = pick([5, 10, 25, 125, 250, 1000]);
+    return {
+      text: "Wie viele Mbit sind " + fMB(MB) + "?",
+      parts: [{label:"Datenmenge in Bit", options:BAP.numOptions(MB * 8, [MB / 8, MB * 10, MB * 80, MB * 4], 4), correct:MB * 8, mono:true, show:fMbit}],
+      hint: "1 Byte = 8 Bit.",
+      solution: "<p class=\"num\">" + num(MB) + NB + "MByte · 8 = <b>" + fMbit(MB * 8) + "</b></p>"
+    };
+  }
+  var mb = pick([80, 200, 400, 800, 1000, 8000]);
+  return {
+    text: "Wie viele MByte sind " + fMbit(mb) + "?",
+    parts: [{label:"Datenmenge in Byte", options:BAP.numOptions(mb / 8, [mb * 8, mb / 10, mb / 4, mb / 80], 4), correct:mb / 8, mono:true, show:fMB}],
+    hint: "1 Byte = 8 Bit.",
+    solution: "<p class=\"num\">" + F(fMbit(mb), "8") + " = <b>" + num(mb / 8) + NB + "MByte</b>" + (mb / 8 >= 1000 ? " = <b>" + fMB(mb / 8) + "</b>" : "") + "</p>"
+  };
+}
+var BEGRIFFE = [
+  {t:"In welcher Masseinheit wird die Datengrösse einer Datei angegeben?", o:["Byte", "bit/s", "Hertz", "Meter"], c:"Byte", s:"Byte, kByte, MByte, GByte."},
+  {t:"In welcher Masseinheit wird die Übertragungsgeschwindigkeit angegeben?", o:["bit/s", "Byte", "Hertz", "Volt"], c:"bit/s", s:"bit/s, kbit/s, Mbit/s, Gbit/s."},
+  {t:"Wie viele Bit hat ein Byte?", o:["2", "4", "8", "1’024"], c:"8", s:"Ein Byte besteht aus 8 Bit."},
+  {t:"Wie viele Zustände kann ein Bit annehmen?", o:["2", "8", "10", "256"], c:"2", s:"Ein Bit besitzt genau zwei Zustände: 0 oder 1."},
+  {t:"Wie viele unterschiedliche Zustände lassen sich mit einem Byte darstellen?", o:["8", "16", "256", "1’024"], c:"256", s:"Ein Byte besteht aus 8 Bit und kann 2⁸ = 256 Zustände darstellen."},
+  {t:"Was bedeutet Upload?", o:["Übertragung vom Haus zum Netzanbieter", "Übertragung vom Netzanbieter zum Haus", "Speichern einer Datei auf dem PC", "Löschen einer Datei"], c:"Übertragung vom Haus zum Netzanbieter", s:"Upload: vom Haus zum Netzanbieter. Download: vom Netzanbieter zum Haus."},
+  {t:"Was bedeutet Download?", o:["Übertragung vom Netzanbieter zum Haus", "Übertragung vom Haus zum Netzanbieter", "Speichern einer Datei auf dem PC", "Löschen einer Datei"], c:"Übertragung vom Netzanbieter zum Haus", s:"Download: vom Netzanbieter zum Haus. Upload: vom Haus zum Netzanbieter."},
+  {t:"Was gibt die Übertragungsgeschwindigkeit an?", o:["Wie viele Bits pro Sekunde übertragen werden können", "Wie gross eine Datei ist", "Wie lang das Kabel ist", "Wie viele Geräte angeschlossen sind"], c:"Wie viele Bits pro Sekunde übertragen werden können", s:"Die Übertragungsgeschwindigkeit wird in Bit pro Sekunde (bit/s) angegeben."}
+];
+function qBegriff(){
+  var b = pick(BEGRIFFE);
+  return {
+    text: b.t,
+    parts: [{label:"Antwort", options:shuffle(b.o), correct:b.c}],
+    hint: "Lesen Sie im Theoriebuch auf KT20.1 und KT20.6 nach.",
+    solution: "<p><b>" + b.c + "</b></p><p>" + b.s + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.28) return qZeit();
+  if (x < 0.40) return qMail();
+  if (x < 0.58) return qGroesse();
+  if (x < 0.74) return qUmrechnen();
+  return qBegriff();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qZeit, qZeit, qMail, qGroesse, qUmrechnen, qUmrechnen, qBegriff, qBegriff]); }});
+})();
+
+</script>
+</body>
+</html>

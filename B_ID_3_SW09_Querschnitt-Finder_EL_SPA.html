@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_3 TA1 Querschnitt-Finder Erdungsleiter und SPA BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Leiterbild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+
+/* Modi */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px}
+.plain{display:flex;flex-direction:column;gap:14px}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+
+.aus{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media (min-width:560px){.aus{grid-template-columns:repeat(9,1fr)}}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 4px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#blitz .opt{font-family:var(--sans)}
+
+/* Ergebnis: vier Leiter im gleichen Massstab */
+.leiter{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.leiter-cell{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-width:0}
+.leiter-cell svg{width:100%;max-width:104px;height:auto;display:block}
+.leiter-name{font-size:.78rem;font-weight:600;color:var(--muted);line-height:1.2}
+.leiter-val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1.05rem;font-weight:700;line-height:1.2}
+.leiter-cell.gesucht .leiter-name{color:var(--ink)}
+.leiter-cell.gesucht .leiter-val{font-size:1.3rem;color:var(--accent)}
+.note{font-size:.85rem;color:var(--muted)}
+.cu{fill:var(--cu)}
+.ring-l{fill:none;stroke:var(--l-brown)}
+.ring-g{fill:none;stroke:var(--pe-green)}
+.ring-y{fill:none;stroke:var(--pe-yellow)}
+
+/* Schema */
+.schema{width:100%;height:auto;display:block}
+.s-earth{fill:var(--earth)}
+.s-box{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.s-pipe{fill:var(--bg);stroke:var(--muted);stroke-width:2}
+.s-cu{stroke:var(--cu);fill:none;stroke-linecap:round}
+.s-l{stroke:var(--l-brown);fill:none}
+.gy-g{stroke:var(--pe-green);fill:none}
+.gy-y{stroke:var(--pe-yellow);fill:none;stroke-dasharray:7 7}
+.s-dot{fill:var(--ink)}
+.s-t{fill:var(--ink);font-family:var(--sans);font-size:11.5px;font-weight:600}
+.s-m{fill:var(--muted);font-family:var(--sans);font-size:10.5px;font-weight:500}
+.s-v{fill:var(--ink);font-family:var(--mono);font-size:11.5px;font-weight:700}
+.s-va{fill:var(--accent);font-family:var(--mono);font-size:12px;font-weight:700}
+
+/* Rechenweg */
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+/* Tabelle */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.8rem}
+th,td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:.7rem;vertical-align:bottom;white-space:normal}
+@media (min-width:560px){table{font-size:.9rem} th,td{padding:7px 8px} th{font-size:.75rem}}
+td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:76px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_3 Potenzialausgleich · Teilauftrag 1</p>
+    <h1>Querschnitt-Finder Erdungsleiter und SPA BAP</h1>
+    <p class="lead">Von der Anschluss-Überstrom-Schutzeinrichtung zum richtigen Querschnitt für den Erdungsleiter (EL) und den Schutzpotenzialausgleichsleiter (SPA).</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+
+  <main>
+    <!-- ERKUNDEN -->
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Anschluss-Überstrom-Schutzeinrichtung (AÜS) im HAK</legend>
+          <div class="aus" id="aus"></div>
+        </fieldset>
+        <div class="row2">
+          <fieldset>
+            <legend>Verlegeart (VA)</legend>
+            <div class="seg" id="va">
+              <button class="opt" type="button" data-va="B1" id="va-b1" aria-pressed="false">B1</button>
+              <button class="opt" type="button" data-va="B2" id="va-b2" aria-pressed="true">B2</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Blitzschutzanlage</legend>
+            <div class="seg" id="blitz">
+              <button class="opt" type="button" data-blitz="0" id="blitz-nein" aria-pressed="true">ohne</button>
+              <button class="opt" type="button" data-blitz="1" id="blitz-ja" aria-pressed="false">mit</button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="res-title">Querschnitte</h2>
+        <div class="leiter" id="leiter"></div>
+        <p class="note">Die Kupferflächen sind im gleichen Massstab gezeichnet. Alle Werte in mm² Cu.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Wo sitzen die Leiter?</h2>
+        <svg class="schema" id="schema" viewBox="0 0 360 236" role="img" aria-label="Vereinfachtes Schema mit HAK, Verteilung, Fundamenterder und Rohrleitung"></svg>
+        <p class="note">Vereinfachtes Schema. Die Strichdicke folgt dem Querschnitt.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Rechenweg SPA</h2>
+        <ol class="steps" id="steps"></ol>
+        <p class="resultline" id="spa-result"></p>
+        <p class="note" id="el-note"></p>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Ab welcher AÜS reicht ein Erdungsleiter von 16 mm² nicht mehr?</li>
+          <li>Bei welchen AÜS ändert eine Blitzschutzanlage den SPA-Querschnitt?</li>
+          <li>Welche Leiter ändern sich, wenn Sie von B2 auf B1 wechseln?</li>
+          <li>Warum wird der SPA nie grösser als 16 mm²?</li>
+        </ul>
+      </div>
+
+      <div class="plain">
+        <h2>Übersicht Bemessung (Theoriebuch NIN32.9)</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr><th>AÜS</th><th>L1–L3<br>B1</th><th>L1–L3<br>B2</th><th>PE<br>B1</th><th>PE<br>B2</th><th>EL<br>B1</th><th>EL<br>B2</th><th>SPA</th><th>SPA mit<br>Blitz&shy;schutz</th></tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ÜBEN -->
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta">
+        <h2>Üben mit Lösungsweg</h2>
+        <p class="count" id="u-count">Noch keine Aufgabe gelöst</p>
+      </div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Tabelle Erdungsleiter (NIN32.4), Regeln zum SPA (NIN32.8), Übersicht (NIN32.9).</p>
+    </section>
+
+    <!-- PRÜFEN -->
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta">
+        <h2>Prüfen: 8 Aufgaben ohne Hilfe</h2>
+        <p class="count" id="p-count"></p>
+      </div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul>
+      <li>Theoriebuch Regeln der Technik NIN, Kapitel 32: NIN32.4 (Querschnitt Erdungsleiter), NIN32.8 (Schutzpotenzialausgleich SPA), NIN32.9 (Übersicht Bemessung)</li>
+      <li>Arbeitsblätter ID3 Potenzialausgleich, Teilauftrag 1: Übungen 4 bis 6 (ID3.4 und ID3.5)</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Daten: Theoriebuch NIN32.9, Übersicht Bemessung (25 A bis 200 A) ---------- */
+/* [AÜS, L B1, L B2, PE B1, PE B2, EL B1, EL B2, SPA, SPA mit Blitzschutz] in mm² */
+var ROWS = [
+  [25,   4,   6,  4,  6, 16, 16,  6, 10],
+  [32,   6,   6,  6,  6, 16, 16,  6, 10],
+  [40,  10,  10, 10, 10, 16, 16,  6, 10],
+  [63,  16,  16, 16, 16, 16, 16, 10, 10],
+  [80,  25,  25, 16, 16, 16, 16, 10, 10],
+  [100, 35,  35, 16, 16, 16, 16, 10, 10],
+  [125, 50,  70, 25, 35, 35, 35, 16, 16],
+  [160, 70,  95, 35, 50, 50, 50, 16, 16],
+  [200, 95, 120, 50, 50, 50, 50, 16, 16]
+].map(function(r){
+  return {a:r[0], L:{B1:r[1],B2:r[2]}, PE:{B1:r[3],B2:r[4]}, EL:{B1:r[5],B2:r[6]}, SPA:r[7], SPAB:r[8]};
+});
+var NORM = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120];
+
+/* ---------- Regel SPA: Theoriebuch NIN32.8 ---------- */
+function nextNorm(x){
+  for (var i=0;i<NORM.length;i++){ if (NORM[i] >= x - 1e-9) return NORM[i]; }
+  return NORM[NORM.length-1];
+}
+function spaCalc(pe, blitz){
+  var half = pe/2, n = nextNorm(half), min = blitz ? 10 : 6, max = 16;
+  var r = Math.min(max, Math.max(min, n));
+  return {pe:pe, half:half, n:n, min:min, max:max, r:r};
+}
+function rowFor(a){ for (var i=0;i<ROWS.length;i++){ if (ROWS[i].a===a) return ROWS[i]; } return ROWS[0]; }
+function fmt(x){ return String(x).replace(".", ","); }
+function mm(x){ return fmt(x) + " mm²"; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function $(id){ return document.getElementById(id); }
+
+/* Für die Kontrolle von aussen */
+window.__qf = {ROWS:ROWS, spaCalc:spaCalc};
+
+function spaStepsHTML(c, blitz, peSource){
+  var s = [];
+  s.push("<li>Hauptschutzleiter PE ab AÜS" + (peSource||"") + ": <span class=\"num\">" + mm(c.pe) + "</span></li>");
+  s.push("<li>Mindestens der halbe Querschnitt: <span class=\"num\"><span class=\"frac\"><span class=\"fz\">" + mm(c.pe) + "</span><span class=\"fn\">2</span></span> = " + mm(c.half) + "</span></li>");
+  if (c.n !== c.half) {
+    s.push("<li>Nächster Normquerschnitt ab " + mm(c.half) + ": <span class=\"num\">" + mm(c.n) + "</span></li>");
+  } else {
+    s.push("<li>" + mm(c.half) + " ist ein Normquerschnitt: <span class=\"num\">" + mm(c.n) + "</span></li>");
+  }
+  var g = "Grenzen: mindestens " + mm(c.min) + " Cu" + (blitz ? " (mit Blitzschutzanlage)" : "") + ", maximal " + mm(c.max) + " Cu. ";
+  if (c.n < c.min) g += mm(c.n) + " ist zu klein, also <span class=\"num\">" + mm(c.r) + "</span>.";
+  else if (c.n > c.max) g += mm(c.n) + " ist mehr als nötig, also <span class=\"num\">" + mm(c.r) + "</span>.";
+  else g += mm(c.n) + " liegt dazwischen, es bleibt bei <span class=\"num\">" + mm(c.r) + "</span>.";
+  s.push("<li>" + g + "</li>");
+  return s.join("");
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {a:63, va:"B2", blitz:false};
+
+function crossSVG(area, kind){
+  var r = 3.65 * Math.sqrt(area), rr = r + 3.2, circ = 2*Math.PI*rr, d = (circ/8).toFixed(2);
+  var ring = kind === "L"
+    ? "<circle class=\"ring-l\" cx=\"50\" cy=\"50\" r=\"" + rr.toFixed(2) + "\" stroke-width=\"5\"/>"
+    : "<circle class=\"ring-g\" cx=\"50\" cy=\"50\" r=\"" + rr.toFixed(2) + "\" stroke-width=\"5\"/>" +
+      "<circle class=\"ring-y\" cx=\"50\" cy=\"50\" r=\"" + rr.toFixed(2) + "\" stroke-width=\"5\" stroke-dasharray=\"" + d + " " + d + "\"/>";
+  return "<svg viewBox=\"0 0 100 100\" aria-hidden=\"true\">" + ring +
+         "<circle class=\"cu\" cx=\"50\" cy=\"50\" r=\"" + r.toFixed(2) + "\"/></svg>";
+}
+function leiterCell(name, area, kind, gesucht){
+  return "<div class=\"leiter-cell" + (gesucht ? " gesucht" : "") + "\">" + crossSVG(area, kind) +
+         "<span class=\"leiter-name\">" + name + "</span><span class=\"leiter-val\">" + fmt(area) + "</span></div>";
+}
+function sw(area){ return (2.5 + Math.sqrt(area)*0.45).toFixed(1); }
+function gy(d, w){ return "<path d=\"" + d + "\" class=\"gy-g\" stroke-width=\"" + w + "\"/><path d=\"" + d + "\" class=\"gy-y\" stroke-width=\"" + w + "\"/>"; }
+
+function renderSchema(row, spa){
+  var L = row.L[st.va], PE = row.PE[st.va], EL = row.EL[st.va];
+  var h = "";
+  h += "<rect class=\"s-earth\" x=\"0\" y=\"186\" width=\"360\" height=\"50\"/>";
+  h += "<path class=\"s-cu\" d=\"M20 212 H340\" stroke-width=\"5\"/>";
+  h += "<text class=\"s-m\" x=\"190\" y=\"230\" text-anchor=\"middle\">Fundamenterder</text>";
+  /* Leiter */
+  h += gy("M36 134 V212", sw(EL));
+  h += "<path class=\"s-l\" d=\"M116 80 H240\" stroke-width=\"" + sw(L) + "\"/>";
+  h += gy("M116 98 H240", sw(PE));
+  h += gy("M102 134 V156 H276", sw(spa));
+  if (st.blitz) {
+    h += gy("M292 156 H344", sw(spa));
+    h += "<path class=\"s-cu\" d=\"M344 12 V212\" stroke-width=\"3\"/>";
+    h += "<circle class=\"s-dot\" cx=\"344\" cy=\"156\" r=\"3.5\"/>";
+    h += "<text class=\"s-m\" x=\"336\" y=\"34\" text-anchor=\"end\">Blitzschutzanlage</text>";
+  }
+  /* Kästen */
+  h += "<rect class=\"s-box\" x=\"20\" y=\"64\" width=\"96\" height=\"74\" rx=\"6\"/>";
+  h += "<text class=\"s-t\" x=\"68\" y=\"84\" text-anchor=\"middle\">HAK</text>";
+  h += "<text class=\"s-m\" x=\"68\" y=\"100\" text-anchor=\"middle\">AÜS</text>";
+  h += "<text class=\"s-v\" x=\"68\" y=\"117\" text-anchor=\"middle\" style=\"font-size:14px\">" + row.a + " A</text>";
+  h += "<rect class=\"s-box\" x=\"240\" y=\"62\" width=\"84\" height=\"52\" rx=\"6\"/>";
+  h += "<text class=\"s-t\" x=\"282\" y=\"92\" text-anchor=\"middle\">Verteilung</text>";
+  h += "<rect class=\"s-pipe\" x=\"276\" y=\"132\" width=\"16\" height=\"64\" rx=\"3\"/>";
+  h += "<text class=\"s-m\" x=\"268\" y=\"146\" text-anchor=\"end\">Wasser, Heizung</text>";
+  /* Beschriftung */
+  h += "<text x=\"178\" y=\"72\" text-anchor=\"middle\"><tspan class=\"s-t\">L1 | L2 | L3 </tspan><tspan class=\"s-v\" dx=\"4\">" + mm(L) + "</tspan></text>";
+  h += "<text x=\"178\" y=\"117\" text-anchor=\"middle\"><tspan class=\"s-t\">PE </tspan><tspan class=\"s-v\" dx=\"4\">" + mm(PE) + "</tspan></text>";
+  h += "<text x=\"46\" y=\"176\"><tspan class=\"s-t\">EL </tspan><tspan class=\"s-va\" dx=\"4\">" + mm(EL) + "</tspan></text>";
+  h += "<text x=\"190\" y=\"176\" text-anchor=\"middle\"><tspan class=\"s-t\">SPA </tspan><tspan class=\"s-va\" dx=\"4\">" + mm(spa) + "</tspan></text>";
+  $("schema").innerHTML = h;
+}
+
+function renderErkunden(){
+  var row = rowFor(st.a), L = row.L[st.va], PE = row.PE[st.va], EL = row.EL[st.va];
+  var c = spaCalc(PE, st.blitz), spa = c.r;
+
+  $("aus").innerHTML = ROWS.map(function(r){
+    return "<button class=\"opt\" type=\"button\" id=\"aus-" + r.a + "\" data-a=\"" + r.a + "\" aria-pressed=\"" + (r.a===st.a) + "\">" + r.a + " A</button>";
+  }).join("");
+  ["B1","B2"].forEach(function(v){ $("va-" + v.toLowerCase()).setAttribute("aria-pressed", String(st.va===v)); });
+  $("blitz-nein").setAttribute("aria-pressed", String(!st.blitz));
+  $("blitz-ja").setAttribute("aria-pressed", String(st.blitz));
+
+  $("res-title").textContent = "Querschnitte bei " + row.a + " A, Verlegeart " + st.va + (st.blitz ? ", mit Blitzschutzanlage" : "");
+  $("leiter").innerHTML =
+    leiterCell("Aussenleiter L1 | L2 | L3", L, "L", false) +
+    leiterCell("Schutzleiter PE", PE, "PE", false) +
+    leiterCell("Erdungsleiter EL", EL, "PE", true) +
+    leiterCell("SPA", spa, "PE", true);
+
+  renderSchema(row, spa);
+
+  $("steps").innerHTML = spaStepsHTML(c, st.blitz, " (Tabelle, VA " + st.va + ")");
+  $("spa-result").innerHTML = "SPA = <span class=\"num\">" + mm(spa) + " Cu</span>";
+  $("el-note").innerHTML = "Den Erdungsleiter lesen Sie aus der Tabelle ab (NIN32.4): " + row.a + " A, Aussenleiter " + mm(L) + " ergibt EL = <span class=\"num\">" + mm(EL) + "</span>.";
+
+  $("tbody").innerHTML = ROWS.map(function(r){
+    return "<tr" + (r.a===st.a ? " class=\"is-current\"" : "") + "><td>" + r.a + " A</td><td>" + fmt(r.L.B1) + "</td><td>" + fmt(r.L.B2) +
+      "</td><td>" + fmt(r.PE.B1) + "</td><td>" + fmt(r.PE.B2) + "</td><td>" + fmt(r.EL.B1) + "</td><td>" + fmt(r.EL.B2) +
+      "</td><td>" + fmt(r.SPA) + "</td><td>" + fmt(r.SPAB) + "</td></tr>";
+  }).join("");
+}
+
+$("aus").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-a]"); if (!b) return;
+  st.a = Number(b.getAttribute("data-a")); renderErkunden();
+  var nb = $("aus-" + st.a); if (nb) nb.focus();
+});
+$("va").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-va]"); if (!b) return;
+  st.va = b.getAttribute("data-va"); renderErkunden();
+});
+$("blitz").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-blitz]"); if (!b) return;
+  st.blitz = b.getAttribute("data-blitz") === "1"; renderErkunden();
+});
+
+/* ================= AUFGABEN ================= */
+var OPT_EL = [6, 10, 16, 25, 35, 50];
+var OPT_SPA = [4, 6, 10, 16, 25, 35];
+
+function qEL(){
+  var r = pick(ROWS);
+  return {
+    text: "Der Hausanschluss ist mit " + r.a + " A abgesichert. Der Aussenleiter hat " + mm(r.L.B2) + " (Verlegeart B2). Welchen Querschnitt braucht der Erdungsleiter (EL)?",
+    parts: [{label:"Querschnitt Erdungsleiter", options:OPT_EL, correct:r.EL.B2, unit:true}],
+    hint: "Der Erdungsleiter wird aus der Tabelle abgelesen (NIN32.4). Der kleinste Wert in dieser Tabelle ist 16 mm².",
+    solution: "<p>Tabelle Erdungsleiter (NIN32.4): " + r.a + " A, Aussenleiter " + mm(r.L.B2) + " ergibt EL = <span class=\"num\"><b>" + mm(r.EL.B2) + "</b></span>.</p>"
+  };
+}
+function blitzText(b){ return b ? "Das Gebäude hat eine Blitzschutzanlage." : "Das Gebäude hat keine Blitzschutzanlage."; }
+var HINT_SPA = "Mindestens der halbe Querschnitt des Hauptschutzleiters, mindestens 6 mm² Cu, mit Blitzschutzanlage mindestens 10 mm² Cu, maximal 16 mm² Cu (NIN32.8).";
+
+function qSPA(blitz){
+  var r = pick(ROWS), c = spaCalc(r.PE.B2, blitz);
+  return {
+    text: "Der Hausanschluss ist mit " + r.a + " A abgesichert (Verlegeart B2). " + blitzText(blitz) + " Welchen Querschnitt braucht der Schutzpotenzialausgleichsleiter (SPA)?",
+    parts: [{label:"Querschnitt SPA", options:OPT_SPA, correct:c.r, unit:true}],
+    hint: HINT_SPA + " Den Hauptschutzleiter finden Sie in der Übersicht (NIN32.9).",
+    solution: "<ol class=\"steps\">" + spaStepsHTML(c, blitz, " bei " + r.a + " A (Tabelle, VA B2)") + "</ol><p><b>SPA = <span class=\"num\">" + mm(c.r) + " Cu</span></b></p>"
+  };
+}
+function qSPAfromPE(){
+  var pe = pick([6, 10, 16, 25, 35, 50]), blitz = Math.random() < 0.5, c = spaCalc(pe, blitz);
+  return {
+    text: "Der Hauptschutzleiter (PE ab Anschluss-Überstrom-Schutzeinrichtung) hat " + mm(pe) + ". " + blitzText(blitz) + " Welchen Querschnitt braucht der SPA?",
+    parts: [{label:"Querschnitt SPA", options:OPT_SPA, correct:c.r, unit:true}],
+    hint: HINT_SPA,
+    solution: "<ol class=\"steps\">" + spaStepsHTML(c, blitz, "") + "</ol><p><b>SPA = <span class=\"num\">" + mm(c.r) + " Cu</span></b></p>"
+  };
+}
+function qRed(kind){
+  var blitz = kind === "SPA" ? Math.random() < 0.35 : false;
+  function val(r){ return kind === "EL" ? r.EL.B2 : (blitz ? r.SPAB : r.SPA); }
+  var changed = [], same = [];
+  for (var i=0;i<ROWS.length;i++){ for (var j=0;j<i;j++){
+    (val(ROWS[j]) < val(ROWS[i]) ? changed : same).push([ROWS[i], ROWS[j]]);
+  }}
+  var pool = (Math.random() < 0.55 && changed.length) ? changed : same;
+  var p = pick(pool), r1 = p[0], r2 = p[1], v1 = val(r1), v2 = val(r2), ja = v2 < v1;
+  var name = kind === "EL" ? "Erdungsleiters (EL)" : "Schutzpotenzialausgleichsleiters (SPA)";
+  var kurz = kind === "EL" ? "EL" : "SPA";
+  var zusatz = kind === "SPA" ? (blitz ? ", mit Blitzschutzanlage" : ", ohne Blitzschutzanlage") : "";
+  return {
+    text: "Der Hausanschluss wird neu mit " + r2.a + " A statt mit " + r1.a + " A abgesichert (Verlegeart B2" + zusatz + "). Darf der Querschnitt des " + name + " reduziert werden?",
+    parts: [
+      {label:"Reduktion zulässig?", options:["Ja","Nein"], correct: ja ? "Ja" : "Nein", unit:false},
+      {label:"Minimal zulässiger Querschnitt " + kurz + " nach der Änderung", options: kind === "EL" ? OPT_EL : OPT_SPA, correct:v2, unit:true}
+    ],
+    hint: "Bestimmen Sie den Querschnitt zuerst für " + r1.a + " A, dann für " + r2.a + " A, und vergleichen Sie (Übersicht NIN32.9).",
+    solution: "<p>Bisher bei " + r1.a + " A: " + kurz + " = <span class=\"num\">" + mm(v1) + "</span>.<br>Neu bei " + r2.a + " A: " + kurz + " = <span class=\"num\">" + mm(v2) + "</span>.</p><p><b>" +
+      (ja ? "Ja, auf " + mm(v2) + " Cu." : "Nein, es bleibt bei " + mm(v2) + " Cu.") + "</b></p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.25) return qEL();
+  if (x < 0.50) return qSPA(Math.random() < 0.4);
+  if (x < 0.70) return qSPAfromPE();
+  if (x < 0.88) return qRed("SPA");
+  return qRed("EL");
+}
+function optLabel(p, o){ return p.unit ? mm(o) : o; }
+function isRight(q, ans){
+  for (var i=0;i<q.parts.length;i++){ if (ans[i] !== q.parts[i].correct) return false; }
+  return true;
+}
+function allAnswered(q, ans){
+  for (var i=0;i<q.parts.length;i++){ if (ans[i] === undefined) return false; }
+  return true;
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + q.text + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + "</p><div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = ans[pi] === o, cls = "chip", mark = "";
+      if (reveal){
+        if (o === p.correct){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optLabel(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+
+/* ================= ÜBEN ================= */
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+function newUeben(){ ub.q = randomQuestion(); ub.ans = []; ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked) h += "<p class=\"hint\"><b>Tipp:</b> " + q.hint + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + q.solution + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button></div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+$("u-card").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if (!b) return;
+  if (b.hasAttribute("data-part")){
+    var pi = Number(b.getAttribute("data-part")), oi = Number(b.getAttribute("data-oi"));
+    ub.ans[pi] = ub.q.parts[pi].options[oi]; renderUeben();
+    var f = $("u-" + pi + "-" + oi); if (f) f.focus();
+    return;
+  }
+  var act = b.getAttribute("data-act");
+  if (act === "hint"){ ub.hint = true; renderUeben(); }
+  else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+  else if (act === "next"){ newUeben(); }
+});
+
+/* ================= PRÜFEN ================= */
+var N = 8;
+var pr = {qs:[], ans:[], i:0, done:false};
+function newPruefung(){
+  var makers = [qEL, qEL, function(){return qSPA(false);}, function(){return qSPA(true);}, qSPAfromPE, qSPAfromPE, function(){return qRed("SPA");}, function(){return qRed("EL");}];
+  var qs = [], seen = {};
+  makers.forEach(function(mk){
+    var q, tries = 0;
+    do { q = mk(); tries++; } while (seen[q.text] && tries < 20);
+    seen[q.text] = true; qs.push(q);
+  });
+  pr.qs = shuffle(qs); pr.ans = pr.qs.map(function(){ return []; }); pr.i = 0; pr.done = false;
+  renderPruefen();
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){ return ans[pi] === undefined ? "keine Antwort" : optLabel(p, ans[pi]); }).join(" · ");
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + q.text + "</p><small>Ihre Antwort: <span class=\"num\">" + answerText(q, pr.ans[i]) + "</span></small><div>" + q.solution + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit dem Lösungsweg. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+$("p-card").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if (!b) return;
+  if (b.hasAttribute("data-part")){
+    var pi = Number(b.getAttribute("data-part")), oi = Number(b.getAttribute("data-oi"));
+    pr.ans[pr.i][pi] = pr.qs[pr.i].parts[pi].options[oi]; renderPruefen();
+    var f = $("p-" + pi + "-" + oi); if (f) f.focus();
+    return;
+  }
+  var act = b.getAttribute("data-act");
+  if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+  else if (act === "back"){ pr.i--; renderPruefen(); }
+  else if (act === "new"){ newPruefung(); }
+});
+
+/* ================= MODI ================= */
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+document.querySelector(".tabs").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-mode]"); if (!b) return;
+  setMode(b.getAttribute("data-mode"), false);
+});
+window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+
+renderErkunden();
+newUeben();
+newPruefung();
+setMode((location.hash || "").replace("#", "") || "erkunden", true);
+})();
+</script>
+
+</body>
+</html>

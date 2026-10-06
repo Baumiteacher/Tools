@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_2 TA1 Flächen und Querschnitte BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+:root{--fig:#E2362B;--fig-fill:#FDE9E6;--dim:#2B3E66}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--fig:#FF8076;--fig-fill:#3A1F1C;--dim:#C9D4EA} }
+:root[data-theme="dark"]{--fig:#FF8076;--fig-fill:#3A1F1C;--dim:#C9D4EA}
+.bild{width:100%;height:auto;display:block}
+.f-form{fill:var(--fig-fill);stroke:var(--fig);stroke-width:2.4;stroke-linejoin:round}
+.f-loch{fill:var(--surface);stroke:var(--fig);stroke-width:2.4}
+.f-dim{stroke:var(--dim);stroke-width:1.2;fill:none}
+.f-dimf{fill:var(--dim);stroke:none}
+.f-hilf{stroke:var(--dim);stroke-width:1;stroke-dasharray:4 3;fill:none}
+.f-t{fill:var(--dim);font-family:var(--sans);font-size:11.5px}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung .txt{font-family:var(--sans)}
+.nw{white-space:nowrap}
+.wz{white-space:nowrap}
+.rad{border-top:1.5px solid currentColor;padding:1px .2em 0 .15em;margin-left:-.05em}
+.r-slider{display:grid;grid-template-columns:8.6em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:10px}
+.merke div{display:flex;flex-direction:column;gap:6px}
+.merke .ft{font-weight:700}
+.urteil{border-radius:8px;padding:10px 12px;font-weight:600;border:2px solid var(--line)}
+.urteil.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.urteil.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.q-schema{display:block;width:100%;max-width:280px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.wz.gross{display:inline-flex;align-items:center;vertical-align:middle}
+.wz.gross > .rz{font-size:2em;line-height:1;font-weight:300;margin-right:-.08em}
+.wz.gross > .rad{display:inline-block;padding-top:3px}
+.rechnung > span{line-height:1.9}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_2 Verlegen eines Erders · Teilauftrag 1</p>
+    <h1>Flächen und Querschnitte BAP</h1>
+    <p class="lead">Verändern Sie Rechteck, Quadrat, Kreis, Dreieck und Kreisring und verfolgen Sie Umfang, Fläche und Diagonale. Prüfen Sie danach, welche Leiter aus dem Katalog sich als Fundamenterder eignen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Form</legend>
+          <div class="opts" id="form"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Einheit</legend>
+          <div class="opts" id="einheit"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Abmessungen</legend>
+          <div class="plain" id="regler"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="bild-titel"></h2>
+        <svg class="bild" id="bild" viewBox="0 0 340 190" role="img" aria-label="Massstäbliche Zeichnung der gewählten Form mit den Massen"></svg>
+        <dl class="kv" id="werte"></dl>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Katalog: Welcher Leiter eignet sich als Fundamenterder?</h2>
+        <fieldset>
+          <legend>Produkt aus dem Katalog (Übung 9)</legend>
+          <div class="opts" id="produkte"></div>
+        </fieldset>
+        <div class="rechnung" id="prod-rechnung"></div>
+        <p class="urteil" id="prod-urteil"></p>
+        <p class="note">Mindestabmessungen gemäss Theoriebuch NIN31.3. Fundamenterder aus blankem Stahlband: Querschnitt 75&nbsp;mm², Mindestdicke 3&nbsp;mm. Fundamenterder aus rundem Kupfer: Querschnitt 50&nbsp;mm², Durchmesser 8&nbsp;mm.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Formeln (Theoriebuch MA39.2 und MA39.4)</h2>
+        <div class="merke" id="formeln"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Stellen Sie beim Rechteck den Querschnitt eines Stahlbandes ein: <i>a</i> = 25&nbsp;mm, <i>b</i> = 3&nbsp;mm. Wie gross ist der Querschnitt?</li>
+          <li>Verdoppeln Sie den Durchmesser eines Kreises. Wie verändern sich Umfang und Fläche?</li>
+          <li>Stellen Sie beim Rechteck beide Seiten gleich ein. Vergleichen Sie die Diagonale mit jener des Quadrats.</li>
+          <li>Welche Kupferdrähte aus dem Katalog sind als Fundamenterder zu dünn?</li>
+          <li>Ein Kreis und ein Quadrat haben je 8&nbsp;mm «Breite». Welche Fläche ist grösser, und um wie viel?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Mathematik MA39.2 bis MA39.4 (Kreis, Pythagoras, Rechteck, Quadrat, Kreisring).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Mathematik, Kapitel 39 Längen, Flächen und Volumen: MA39.2 (Kreis), MA39.3 (Pythagoras), MA39.4 (Rechteck, Quadrat, Kreisring), MA39.6 (Beispiel Kreisringfläche)</li><li>Theoriebuch Regeln der Technik, Kapitel 31 Erdung: NIN31.3 (Erderarten und Mindestabmessungen)</li><li>Arbeitsblätter ID2 Verlegen eines Erders, Teilauftrag 1: Übungen 1 bis 9 (ID2.2 bis ID2.5)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = "\u00a0", PI = Math.PI;
+function z(x, sig){ return fmt(round(x, sig || 4)); }
+function gl(x, sig){ return Math.abs(round(x, sig || 4) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+function L(x, e, sig){ return z(x, sig) + NB + e; }
+function Q(x, e, sig){ return z(x, sig) + NB + e + "²"; }
+function wz(inner){ return "<span class=\"wz\">√<span class=\"rad\">" + inner + "</span></span>"; }
+/* Wurzel über einem Bruch: grösseres Wurzelzeichen */
+function wzG(inner){ return "<span class=\"wz gross\"><span class=\"rz\">√</span><span class=\"rad\">" + inner + "</span></span>"; }
+function i(s){ return "<i>" + s + "</i>"; }
+function ix(s, n){ return "<i>" + s + "</i><sub>" + n + "</sub>"; }
+
+/* Formeln aus Theoriebuch MA39.2 (Kreis), MA39.3 (Pythagoras), MA39.4 (Rechteck, Quadrat, Kreisring); Dreieck wie Arbeitsblatt Übungen 6 und 8 */
+function rechteck(a, b){ return {U:2 * (a + b), A:a * b, e:Math.sqrt(a * a + b * b)}; }
+function quadrat(a){ return {U:4 * a, A:a * a, e:Math.SQRT2 * a}; }
+function kreis(d){ return {r:d / 2, U:d * PI, A:d * d * PI / 4}; }
+function dreieck(g, h){ var s = Math.sqrt(g * g / 4 + h * h); return {s:s, U:g + 2 * s, A:g * h / 2}; }
+function ring(D, d){ return {dm:(D + d) / 2, b:(D - d) / 2, Um:(D + d) / 2 * PI, A:PI / 4 * (D * D - d * d)}; }
+window.__t = {rechteck:rechteck, quadrat:quadrat, kreis:kreis, dreieck:dreieck, ring:ring};
+
+/* ================= ZEICHNUNG ================= */
+function spitze(x, y, dx, dy){ var n = Math.sqrt(dx * dx + dy * dy), ux = dx / n, uy = dy / n, l = 7, b = 2.6; return "<path class=\"f-dimf\" d=\"M" + x + " " + y + " L" + (x - ux * l - uy * b) + " " + (y - uy * l + ux * b) + " L" + (x - ux * l + uy * b) + " " + (y - uy * l - ux * b) + " Z\"/>"; }
+function mass(x1, y1, x2, y2, text, tx, ty, anker){
+  var h = "<path class=\"f-dim\" d=\"M" + x1 + " " + y1 + " L" + x2 + " " + y2 + "\"/>" + spitze(x1, y1, x1 - x2, y1 - y2) + spitze(x2, y2, x2 - x1, y2 - y1);
+  return h + "<text class=\"f-t\" x=\"" + tx + "\" y=\"" + ty + "\" text-anchor=\"" + (anker || "middle") + "\">" + text + "</text>";
+}
+function r1(x){ return Math.round(x * 10) / 10; }
+function zeichne(form, w, e){
+  var cx = 148, cy = 92, h = "", k;
+  if (form === "rechteck" || form === "quadrat"){
+    var a = w.a, b = form === "quadrat" ? w.a : w.b; k = Math.min(184 / a, 116 / b);
+    var bw = r1(a * k), bh = r1(b * k), x0 = r1(cx - bw / 2), y0 = r1(cy - bh / 2);
+    h += "<rect class=\"f-form\" x=\"" + x0 + "\" y=\"" + y0 + "\" width=\"" + bw + "\" height=\"" + bh + "\"/>";
+    h += mass(x0, y0 + bh, x0 + bw, y0, "e", cx - 8, cy - 5);
+    h += mass(x0, y0 + bh + 14, x0 + bw, y0 + bh + 14, "a = " + L(a, e), cx, y0 + bh + 29);
+    h += mass(x0 + bw + 14, y0, x0 + bw + 14, y0 + bh, (form === "quadrat" ? "a" : "b") + " = " + L(b, e), x0 + bw + 20, cy + 4, "start");
+  } else if (form === "kreis"){
+    var R = 58;
+    h += "<circle class=\"f-form\" cx=\"" + cx + "\" cy=\"" + cy + "\" r=\"" + R + "\"/>";
+    h += "<path class=\"f-hilf\" d=\"M" + (cx - R - 12) + " " + cy + " H" + (cx + R + 12) + " M" + cx + " " + (cy - R - 12) + " V" + (cy + R + 12) + "\"/>";
+    h += mass(cx, cy, r1(cx + R * 0.707), r1(cy - R * 0.707), "r", cx + 12, cy - 26);
+    h += mass(cx + R + 26, cy - R, cx + R + 26, cy + R, "d = " + L(w.d, e), cx + R + 32, cy + 4, "start");
+    h += "<path class=\"f-dim\" d=\"M" + cx + " " + (cy - R) + " H" + (cx + R + 30) + " M" + cx + " " + (cy + R) + " H" + (cx + R + 30) + "\"/>";
+  } else if (form === "dreieck"){
+    k = Math.min(176 / w.g, 112 / w.h);
+    var gw = r1(w.g * k), hh = r1(w.h * k), xa = r1(cx - gw / 2), yb = r1(cy + hh / 2);
+    h += "<path class=\"f-form\" d=\"M" + xa + " " + yb + " H" + (xa + gw) + " L" + cx + " " + (yb - hh) + " Z\"/>";
+    h += "<path class=\"f-hilf\" d=\"M" + cx + " " + yb + " V" + (yb - hh) + " H" + (xa + gw + 18) + "\"/>";
+    h += mass(xa + gw + 14, yb - hh, xa + gw + 14, yb, "h = " + L(w.h, e), xa + gw + 20, yb - hh / 2 + 4, "start");
+    h += mass(xa, yb + 14, xa + gw, yb + 14, "g = " + L(w.g, e), cx, yb + 29);
+    h += "<text class=\"f-t\" x=\"" + r1(xa + gw / 4 - 8) + "\" y=\"" + r1(yb - hh / 2 - 4) + "\" text-anchor=\"end\">s</text><text class=\"f-t\" x=\"" + r1(xa + gw * 0.75 + 8) + "\" y=\"" + r1(yb - hh / 2 - 4) + "\">s</text>";
+  } else {
+    var Ra = 58, Ri = r1(Ra * w.d / w.D);
+    h += "<circle class=\"f-form\" cx=\"" + cx + "\" cy=\"" + cy + "\" r=\"" + Ra + "\"/><circle class=\"f-loch\" cx=\"" + cx + "\" cy=\"" + cy + "\" r=\"" + Ri + "\"/>";
+    h += "<path class=\"f-dim\" d=\"M" + cx + " " + (cy - Ra) + " H" + (cx + Ra + 62) + " M" + cx + " " + (cy + Ra) + " H" + (cx + Ra + 62) + " M" + cx + " " + (cy - Ri) + " H" + (cx + Ra + 18) + " M" + cx + " " + (cy + Ri) + " H" + (cx + Ra + 18) + "\"/>";
+    h += mass(cx + Ra + 14, cy - Ri, cx + Ra + 14, cy + Ri, "d", cx + Ra + 20, cy + 4, "start");
+    h += mass(cx + Ra + 58, cy - Ra, cx + Ra + 58, cy + Ra, "D", cx + Ra + 64, cy + 4, "start");
+    var wm = (Ra + Ri) / 2 * 0.707;
+    h += "<path class=\"f-dim\" d=\"M" + (cx - Ra - 14) + " " + (cy - Ra + 2) + " L" + r1(cx - wm) + " " + r1(cy - wm) + "\"/><text class=\"f-t\" x=\"" + (cx - Ra - 18) + "\" y=\"" + (cy - Ra + 4) + "\" text-anchor=\"end\">b</text>";
+  }
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var FORMEN = [["rechteck", "Rechteck"], ["quadrat", "Quadrat"], ["kreis", "Kreis"], ["dreieck", "Dreieck"], ["ring", "Kreisring"]];
+var REGLER = {rechteck:[["a", "Länge"], ["b", "Breite"]], quadrat:[["a", "Seitenlänge"]], kreis:[["d", "Durchmesser"]], dreieck:[["g", "Grundlinie"], ["h", "Höhe"]], ring:[["D", "Aussendurchmesser"], ["d", "Innendurchmesser"]]};
+var st = {form:"rechteck", e:"mm", w:{rechteck:{a:25, b:3}, quadrat:{a:8}, kreis:{d:8}, dreieck:{g:14.5, h:4.5}, ring:{D:32, d:29}}, prod:"cu8"};
+function rechenweg(form, w, e){
+  var h = "", r;
+  if (form === "rechteck"){
+    r = rechteck(w.a, w.b);
+    h += "<span>" + i("U") + " = 2 · (" + i("a") + " + " + i("b") + ") = 2 · (" + L(w.a, e) + " + " + L(w.b, e) + ") = <b>" + L(r.U, e) + "</b></span>";
+    h += "<span>" + i("A") + " = " + i("a") + " · " + i("b") + " = " + L(w.a, e) + " · " + L(w.b, e) + " " + gl(r.A) + " <b>" + Q(r.A, e) + "</b></span>";
+    h += "<span>" + i("e") + " = " + wz(i("a") + "² + " + i("b") + "²") + " = " + wz("(" + L(w.a, e) + ")² + (" + L(w.b, e) + ")²") + " <span class=\"nw\">" + gl(r.e) + " <b>" + L(r.e, e) + "</b></span></span>";
+  } else if (form === "quadrat"){
+    r = quadrat(w.a);
+    h += "<span>" + i("U") + " = 4 · " + i("a") + " = 4 · " + L(w.a, e) + " = <b>" + L(r.U, e) + "</b></span>";
+    h += "<span>" + i("A") + " = " + i("a") + "² = (" + L(w.a, e) + ")² " + gl(r.A) + " <b>" + Q(r.A, e) + "</b></span>";
+    h += "<span>" + i("e") + " = " + wz("2") + " · " + i("a") + " = " + wz("2") + " · " + L(w.a, e) + " ≈ <b>" + L(r.e, e) + "</b></span>";
+  } else if (form === "kreis"){
+    r = kreis(w.d);
+    h += "<span>" + i("r") + " = " + F(i("d"), "2") + " = " + F(L(w.d, e), "2") + " = <b>" + L(r.r, e) + "</b></span>";
+    h += "<span>" + i("U") + " = " + i("d") + " · π = " + L(w.d, e) + " · π ≈ <b>" + L(r.U, e) + "</b></span>";
+    h += "<span>" + i("A") + " = " + F(i("d") + "² · π", "4") + " = " + F("(" + L(w.d, e) + ")² · π", "4") + " ≈ <b>" + Q(r.A, e) + "</b></span>";
+  } else if (form === "dreieck"){
+    r = dreieck(w.g, w.h);
+    h += "<span>" + i("A") + " = " + F(i("g") + " · " + i("h"), "2") + " = " + F(L(w.g, e) + " · " + L(w.h, e), "2") + " " + gl(r.A) + " <b>" + Q(r.A, e) + "</b></span>";
+    h += "<span class=\"txt\">Seite " + i("s") + " mit dem Satz des Pythagoras (gleichschenkliges Dreieck):</span>";
+    h += "<span>" + i("s") + " = " + wz("(0,5 · " + i("g") + ")² + " + i("h") + "²") + " = " + wz("(" + L(w.g / 2, e) + ")² + (" + L(w.h, e) + ")²") + " <span class=\"nw\">" + gl(r.s) + " <b>" + L(r.s, e) + "</b></span></span>";
+    h += "<span>" + i("U") + " = " + i("g") + " + 2 · " + i("s") + " = " + L(w.g, e) + " + 2 · " + L(r.s, e) + " " + gl(r.U) + " <b>" + L(r.U, e) + "</b></span>";
+  } else {
+    r = ring(w.D, w.d);
+    h += "<span>" + i("b") + " = " + F(i("D") + " − " + i("d"), "2") + " = " + F(L(w.D, e) + " − " + L(w.d, e), "2") + " = <b>" + L(r.b, e) + "</b></span>";
+    h += "<span>" + ix("d", "m") + " = " + F(i("D") + " + " + i("d"), "2") + " = " + F(L(w.D, e) + " + " + L(w.d, e), "2") + " = <b>" + L(r.dm, e) + "</b></span>";
+    h += "<span>" + ix("U", "m") + " = " + ix("d", "m") + " · π = " + L(r.dm, e) + " · π ≈ <b>" + L(r.Um, e) + "</b></span>";
+    h += "<span>" + i("A") + " = " + F("π", "4") + " · (" + i("D") + "² − " + i("d") + "²) = " + F("π", "4") + " · ((" + L(w.D, e) + ")² − (" + L(w.d, e) + ")²) <span class=\"nw\">≈ <b>" + Q(r.A, e) + "</b></span></span>";
+  }
+  return h;
+}
+/* Katalog aus Übung 9 und Mindestabmessungen aus NIN31.3 */
+var PROD = [
+  {k:"cu2", art:"cu", d:2}, {k:"cu3", art:"cu", d:3}, {k:"cu4", art:"cu", d:4}, {k:"cu6", art:"cu", d:6}, {k:"cu8", art:"cu", d:8},
+  {k:"st25", art:"st", a:3, b:25}, {k:"st30", art:"st", a:3, b:30}, {k:"st40", art:"st", a:3, b:40}
+];
+function pName(p){ return p.art === "cu" ? "Kupferdraht rund " + p.d + NB + "mm" : "Stahlband " + p.a + " × " + p.b + NB + "mm"; }
+function pFlaeche(p){ return p.art === "cu" ? p.d * p.d * PI / 4 : p.a * p.b; }
+function pOk(p){ return p.art === "cu" ? (pFlaeche(p) >= 50 && p.d >= 8) : (pFlaeche(p) >= 75 && p.a >= 3); }
+function pRechnung(p){
+  var A = pFlaeche(p);
+  return p.art === "cu" ? i("A") + " = " + F(i("d") + "² · π", "4") + " = " + F("(" + p.d + NB + "mm)² · π", "4") + " ≈ <b>" + z(A, 3) + NB + "mm²</b>"
+                        : i("A") + " = " + i("a") + " · " + i("b") + " = " + p.a + NB + "mm · " + p.b + NB + "mm = <b>" + z(A, 3) + NB + "mm²</b>";
+}
+function pGrund(p){
+  var A = pFlaeche(p);
+  if (p.art === "cu") return pOk(p) ? "Der Querschnitt " + z(A, 3) + NB + "mm² erreicht die geforderten 50" + NB + "mm², der Durchmesser die geforderten 8" + NB + "mm." : "Der Querschnitt " + z(A, 3) + NB + "mm² ist kleiner als die geforderten 50" + NB + "mm².";
+  return "Der Querschnitt " + z(A, 3) + NB + "mm² erreicht die geforderten 75" + NB + "mm², die Dicke die geforderten 3" + NB + "mm.";
+}
+function render(){
+  var f = st.form, w = st.w[f], e = st.e;
+  $("form").innerHTML = FORMEN.map(function(x){ return "<button class=\"opt txt\" type=\"button\" id=\"f-" + x[0] + "\" data-f=\"" + x[0] + "\" aria-pressed=\"" + (x[0] === f) + "\">" + x[1] + "</button>"; }).join("");
+  $("einheit").innerHTML = ["mm", "cm", "m"].map(function(x){ return "<button class=\"opt\" type=\"button\" id=\"e-" + x + "\" data-e=\"" + x + "\" aria-pressed=\"" + (x === e) + "\">" + x + "</button>"; }).join("");
+  var box = $("regler");
+  if (box.getAttribute("data-form") !== f){
+    box.setAttribute("data-form", f);
+    box.innerHTML = REGLER[f].map(function(r){ return "<label class=\"r-slider\" for=\"rg-" + r[0] + "\"><span class=\"num\" id=\"rv-" + r[0] + "\"></span><input type=\"range\" id=\"rg-" + r[0] + "\" data-k=\"" + r[0] + "\" min=\"0.5\" max=\"40\" step=\"0.5\" value=\"" + w[r[0]] + "\" aria-label=\"" + r[1] + "\"></label>"; }).join("");
+  }
+  REGLER[f].forEach(function(r){ $("rv-" + r[0]).innerHTML = i(r[0]) + " = " + L(w[r[0]], e); });
+  $("bild-titel").textContent = FORMEN.filter(function(x){ return x[0] === f; })[0][1];
+  $("bild").innerHTML = zeichne(f, w, e);
+  var r = f === "rechteck" ? rechteck(w.a, w.b) : f === "quadrat" ? quadrat(w.a) : f === "kreis" ? kreis(w.d) : f === "dreieck" ? dreieck(w.g, w.h) : ring(w.D, w.d);
+  var kv = "";
+  if (f === "ring") kv = "<dt>Kreisringfläche " + i("A") + "</dt><dd>" + Q(r.A, e) + "</dd><dt>Wandstärke " + i("b") + "</dt><dd>" + L(r.b, e) + "</dd><dt>mittlerer Umfang " + ix("U", "m") + "</dt><dd>" + L(r.Um, e) + "</dd>";
+  else kv = "<dt>Fläche " + i("A") + "</dt><dd>" + Q(r.A, e) + "</dd><dt>Umfang " + i("U") + "</dt><dd>" + L(r.U, e) + "</dd>" + (r.e ? "<dt>Diagonale " + i("e") + "</dt><dd>" + L(r.e, e) + "</dd>" : "");
+  $("werte").innerHTML = kv;
+  $("rechnung").innerHTML = rechenweg(f, w, e);
+
+  $("produkte").innerHTML = PROD.map(function(p){ return "<button class=\"opt txt\" type=\"button\" id=\"p-" + p.k + "\" data-p=\"" + p.k + "\" aria-pressed=\"" + (p.k === st.prod) + "\">" + pName(p) + "</button>"; }).join("");
+  var p = PROD.filter(function(x){ return x.k === st.prod; })[0], ok = pOk(p), u = $("prod-urteil");
+  $("prod-rechnung").innerHTML = "<span>" + pRechnung(p) + "</span>";
+  u.className = "urteil " + (ok ? "ok" : "bad");
+  u.innerHTML = (ok ? "✓ Als Fundamenterder geeignet. " : "✗ Als Fundamenterder nicht geeignet. ") + pGrund(p);
+}
+function init(){
+  function fz(titel, liste){ return "<div><p class=\"ft\">" + titel + "</p>" + liste.map(function(x){ return "<p>" + x + "</p>"; }).join("") + "</div>"; }
+  $("formeln").innerHTML =
+    fz("Rechteck", [i("U") + " = 2 · (" + i("a") + " + " + i("b") + ")", i("A") + " = " + i("a") + " · " + i("b"), i("e") + " = " + wz(i("a") + "² + " + i("b") + "²")]) +
+    fz("Quadrat", [i("U") + " = 4 · " + i("a"), i("A") + " = " + i("a") + "²", i("e") + " = " + wz("2") + " · " + i("a")]) +
+    fz("Kreis", [i("d") + " = 2 · " + i("r"), i("U") + " = " + i("d") + " · π", i("A") + " = " + F(i("d") + "² · π", "4")]) +
+    fz("Kreisring", [i("b") + " = " + F(i("D") + " − " + i("d"), "2"), i("A") + " = " + F("π", "4") + " · (" + i("D") + "² − " + i("d") + "²)"]) +
+    fz("Dreieck (Arbeitsblatt)", [i("A") + " = " + F(i("g") + " · " + i("h"), "2")]);
+  $("form").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-f]"); if (!b) return; st.form = b.getAttribute("data-f"); render(); var x = $("f-" + st.form); if (x) x.focus(); });
+  $("einheit").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-e]"); if (!b) return; st.e = b.getAttribute("data-e"); render(); var x = $("e-" + st.e); if (x) x.focus(); });
+  $("regler").addEventListener("input", function(ev){
+    var k = ev.target.getAttribute("data-k"); if (k === null) return; var w = st.w[st.form]; w[k] = Number(ev.target.value);
+    /* Kreisring: der Innendurchmesser bleibt kleiner als der Aussendurchmesser */
+    if (st.form === "ring"){ if (k === "D" && w.d >= w.D){ w.d = Math.max(0.5, w.D - 0.5); $("rg-d").value = w.d; } if (k === "d" && w.d >= w.D){ w.D = Math.min(40, w.d + 0.5); if (w.d >= w.D) w.d = w.D - 0.5; $("rg-D").value = w.D; $("rg-d").value = w.d; } }
+    render();
+  });
+  $("produkte").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-p]"); if (!b) return; st.prod = b.getAttribute("data-p"); render(); var x = $("p-" + st.prod); if (x) x.focus(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID2 Übungen 1 bis 9) ================= */
+function optionen(c, cands, show){
+  var out = [c], seen = {}; seen[show(c)] = 1;
+  shuffle(cands).concat([c * 2, c / 2, c * 3, c * 1.5, c / 4, c * 10]).forEach(function(x){
+    if (out.length < 4 && x > 0 && isFinite(x)){ var t = show(x); if (!seen[t]){ seen[t] = 1; out.push(x); } }
+  });
+  return out.sort(function(a, b){ return a - b; });
+}
+function mm(x){ return L(x, "mm", 3); }
+function mm2(x){ return z(x, 3) + NB + "mm²"; }
+function m_(x){ return L(x, "m", 4); }
+function m2(x){ return z(x, 4) + NB + "m²"; }
+
+var BAND = [[70, 23.3], [75, 25], [90, 30], [120, 40], [50, 25], [100, 50], [100, 40], [60, 20]];
+function qBand(){
+  var p = pick(BAND), A = p[0], b = p[1], c = A / b, stahl = A >= 60;
+  return {
+    text: "Ein rechteckiger " + (stahl ? "Stahlerder" : "Kupfererder") + " weist einen Querschnitt von " + A + NB + "mm² auf. Bestimmen Sie die Dicke dieses Erders, wenn die Breite " + fmt(b) + NB + "mm beträgt.",
+    parts: [{label:"Dicke", options:optionen(c, [c + 1, c * 2, c / 2, b / A * 10, c + 0.5], mm), correct:c, mono:true, show:mm}],
+    hint: "Beim Rechteck gilt " + i("A") + " = " + i("b") + " · " + i("d") + ". Lösen Sie nach der Dicke " + i("d") + " auf.",
+    solution: "<p class=\"num\">" + i("d") + " = " + F(i("A"), i("b")) + " = " + F(A + NB + "mm²", fmt(b) + NB + "mm") + " " + gl(c, 3) + " <b>" + mm(c) + "</b></p>"
+  };
+}
+function qDrahtA(){
+  var d = pick([1.382, 1.784, 2, 2.257, 2.764, 3, 4, 6, 8]), c = d * d * PI / 4;
+  return {
+    text: "Wie gross ist der Querschnitt eines Kupferdrahtes mit einem Durchmesser von " + fmt(d) + NB + "mm?",
+    parts: [{label:"Querschnitt", options:optionen(c, [d * PI, d * d, d * d * PI, d * d / 4, c * 4 / PI * 2], mm2), correct:c, mono:true, show:mm2}],
+    hint: "Kreisfläche: " + i("A") + " = " + F(i("d") + "² · π", "4") + ".",
+    solution: "<p class=\"num\">" + i("A") + " = " + F(i("d") + "² · π", "4") + " = (" + fmt(d) + NB + "mm)² · " + F("π", "4") + " ≈ <b>" + mm2(c) + "</b></p>"
+  };
+}
+function qDrahtD(){
+  var A = pick([1.5, 2.5, 4, 6, 10, 16, 25, 35, 50]), c = Math.sqrt(4 * A / PI), seil = A >= 16;
+  return {
+    text: (seil ? "Ein Kupferseil für den Erderanschluss" : "Ein Kupferdraht") + " hat einen Querschnitt von " + fmt(A) + NB + "mm². Bestimmen Sie den Durchmesser.",
+    parts: [{label:"Durchmesser", options:optionen(c, [Math.sqrt(A), Math.sqrt(A / PI), A / PI, 4 * A / PI, c * 2], mm), correct:c, mono:true, show:mm}],
+    hint: "Stellen Sie " + i("A") + " = " + F(i("d") + "² · π", "4") + " nach " + i("d") + " um: " + i("d") + " = " + wzG(F("4 · " + i("A"), "π")) + ".",
+    solution: "<p class=\"num\">" + i("d") + " = " + wzG(F("4 · " + i("A"), "π")) + " = " + wzG(F("4 · " + fmt(A) + NB + "mm²", "π")) + " ≈ <b>" + mm(c) + "</b></p>"
+  };
+}
+function qQuadrat(){
+  var A = pick([4, 9, 16, 25, 36, 6.25, 2.25, 49]), a = Math.sqrt(A), r = quadrat(a);
+  return {
+    text: "Ein Quadrat hat die Fläche " + fmt(A) + NB + "m². Berechnen Sie die Kantenlänge " + i("a") + ", die Diagonale " + i("e") + " und den Umfang " + i("U") + ".",
+    parts: [
+      {label:"Kantenlänge a", options:optionen(a, [A / 2, A / 4, a * 2, a + 1], m_), correct:a, mono:true, show:m_},
+      {label:"Diagonale e", options:optionen(r.e, [2 * a, a * 1.5, a, A / 2 + 0.3], m_), correct:r.e, mono:true, show:m_},
+      {label:"Umfang U", options:optionen(r.U, [2 * a, A, 4 * A, 3 * a], m_), correct:r.U, mono:true, show:m_}
+    ],
+    hint: "Aus " + i("A") + " = " + i("a") + "² folgt " + i("a") + " = " + wz(i("A")) + ". Danach: " + i("e") + " = " + wz("2") + " · " + i("a") + " und " + i("U") + " = 4 · " + i("a") + ".",
+    solution: "<p class=\"num\">" + i("a") + " = " + wz(i("A")) + " = " + wz(fmt(A) + NB + "m²") + " = <b>" + m_(a) + "</b></p><p class=\"num\">" + i("e") + " = " + wz("2") + " · " + i("a") + " = " + wz("2") + " · " + m_(a) + " ≈ <b>" + m_(r.e) + "</b></p><p class=\"num\">" + i("U") + " = 4 · " + i("a") + " = 4 · " + m_(a) + " = <b>" + m_(r.U) + "</b></p>"
+  };
+}
+function qKreis(){
+  var r = pick([0.5, 1, 1.25, 1.5, 2, 2.5, 0.75]), d = 2 * r, k = kreis(d);
+  return {
+    text: "Ein Kreis hat den Radius " + fmt(r) + NB + "m. Berechnen Sie den Durchmesser " + i("d") + ", die Fläche " + i("A") + " und den Umfang " + i("U") + ".",
+    parts: [
+      {label:"Durchmesser d", options:optionen(d, [r, r * r, r * 4, r + 2], m_), correct:d, mono:true, show:m_},
+      {label:"Fläche A", options:optionen(k.A, [d * d * PI, d * PI, r * PI, d * d / 4], m2), correct:k.A, mono:true, show:m2},
+      {label:"Umfang U", options:optionen(k.U, [r * PI, k.A, d * d, 2 * d], m_), correct:k.U, mono:true, show:m_}
+    ],
+    hint: i("d") + " = 2 · " + i("r") + "; " + i("A") + " = " + F(i("d") + "² · π", "4") + "; " + i("U") + " = " + i("d") + " · π.",
+    solution: "<p class=\"num\">" + i("d") + " = 2 · " + i("r") + " = 2 · " + fmt(r) + NB + "m = <b>" + m_(d) + "</b></p><p class=\"num\">" + i("A") + " = " + F(i("d") + "² · π", "4") + " = " + F("(" + m_(d) + ")² · π", "4") + " ≈ <b>" + m2(k.A) + "</b></p><p class=\"num\">" + i("U") + " = " + i("d") + " · π = " + m_(d) + " · π ≈ <b>" + m_(k.U) + "</b></p>"
+  };
+}
+var RECHT = [[2.5, 5], [3, 4], [6, 8], [5, 12], [2, 4.5], [4, 7.5], [1.5, 2], [2.5, 6]];
+function qRechteck(){
+  var p = pick(RECHT), a = p[0], b = p[1], r = rechteck(a, b);
+  return {
+    text: "Ein Rechteck hat den Umfang " + fmt(r.U) + NB + "m und die Kantenlänge " + i("a") + " = " + fmt(a) + NB + "m. Berechnen Sie die Kantenlänge " + i("b") + ", die Fläche " + i("A") + " und die Diagonale " + i("e") + ".",
+    parts: [
+      {label:"Kantenlänge b", options:optionen(b, [r.U - a, r.U - 2 * a, r.U / 2, b + a], m_), correct:b, mono:true, show:m_},
+      {label:"Fläche A", options:optionen(r.A, [a + b, r.U * a, 2 * r.A, r.A / 2], m2), correct:r.A, mono:true, show:m2},
+      {label:"Diagonale e", options:optionen(r.e, [a + b, a * a + b * b, b, (a + b) / 2], m_), correct:r.e, mono:true, show:m_}
+    ],
+    hint: "Aus " + i("U") + " = 2 · (" + i("a") + " + " + i("b") + ") folgt " + i("b") + " = " + F(i("U") + " − 2 · " + i("a"), "2") + ". Die Diagonale berechnen Sie mit dem Satz des Pythagoras.",
+    solution: "<p class=\"num\">" + i("b") + " = " + F(i("U") + " − 2 · " + i("a"), "2") + " = " + F(m_(r.U) + " − 2 · " + m_(a), "2") + " = <b>" + m_(b) + "</b></p><p class=\"num\">" + i("A") + " = " + i("a") + " · " + i("b") + " = " + m_(a) + " · " + m_(b) + " = <b>" + m2(r.A) + "</b></p><p class=\"num\">" + i("e") + " = " + wz(i("a") + "² + " + i("b") + "²") + " = " + wz("(" + m_(a) + ")² + (" + m_(b) + ")²") + " " + gl(r.e) + " <b>" + m_(r.e) + "</b></p>"
+  };
+}
+function qDreieck(){
+  var p = pick([[4, 1.75], [14.4, 4.4], [6, 2.5], [8, 3], [5, 2.4], [10, 3.6]]), g = p[0], h = p[1], c = g * h / 2;
+  return {
+    text: "Ein Dreieck hat die Grundlinie " + i("g") + " = " + fmt(g) + NB + "m und die Höhe " + i("h") + " = " + fmt(h) + NB + "m. Berechnen Sie die Fläche.",
+    parts: [{label:"Fläche", options:optionen(c, [g * h, g + h, (g + h) / 2, c / 2], m2), correct:c, mono:true, show:m2}],
+    hint: "Dreiecksfläche: " + i("A") + " = " + F(i("g") + " · " + i("h"), "2") + ".",
+    solution: "<p class=\"num\">" + i("A") + " = " + F(i("g") + " · " + i("h"), "2") + " = " + F(m_(g) + " · " + m_(h), "2") + " = <b>" + m2(c) + "</b></p>"
+  };
+}
+function qSeite(){
+  var p = pick([[9.489, 4, 3.473], [12, 5, 4], [31.28, 14.4, 8.44], [15.5, 6, 5.2], [20, 8, 7.5]]), U = p[0], g = p[1], b = p[2], c = round(U - g - b, 6);
+  return {
+    text: "Ein Dreieck hat den Umfang " + fmt(U) + NB + "m. Zwei Seiten messen " + fmt(g) + NB + "m und " + fmt(b) + NB + "m. Wie lang ist die dritte Seite?",
+    parts: [{label:"Dritte Seite", options:optionen(c, [U - g, U - b, g + b, U / 3], m_), correct:c, mono:true, show:m_}],
+    hint: "Der Umfang ist die Summe aller drei Seiten.",
+    solution: "<p class=\"num\">" + m_(U) + " − " + m_(g) + " − " + m_(b) + " = <b>" + m_(c) + "</b></p>"
+  };
+}
+function qPool(){
+  var d = pick([4, 6, 8, 10, 12]), A = round(d * d * PI / 4, 4), U = d * PI;
+  return {
+    text: "Ein kreisrunder Pool hat eine Fläche von " + fmt(A) + NB + "m². Berechnen Sie den Durchmesser und den Umfang.",
+    parts: [
+      {label:"Durchmesser d", options:optionen(d, [Math.sqrt(A), A / PI, d / 2, d * 2], m_), correct:d, mono:true, show:m_},
+      {label:"Umfang U", options:optionen(U, [d * 2, A / 2, d * d, U / 2], m_), correct:U, mono:true, show:m_}
+    ],
+    hint: i("d") + " = " + wzG(F("4 · " + i("A"), "π")) + ", danach " + i("U") + " = " + i("d") + " · π.",
+    solution: "<p class=\"num\">" + i("d") + " = " + wzG(F("4 · " + i("A"), "π")) + " = " + wzG(F("4 · " + fmt(A) + NB + "m²", "π")) + " ≈ <b>" + m_(d) + "</b></p><p class=\"num\">" + i("U") + " = " + i("d") + " · π = " + m_(d) + " · π ≈ <b>" + m_(U) + "</b></p>"
+  };
+}
+function grundriss(a, b, c){
+  var k = Math.min(200 / b, 120 / (a + c)), w = r1(b * k), h1 = r1(a * k), h2 = r1(c * k), x0 = 70, y0 = 22;
+  var h = "<path class=\"f-form\" d=\"M" + x0 + " " + y0 + " H" + (x0 + w) + " V" + (y0 + h1) + " H" + (x0 + h2) + " V" + (y0 + h1 + h2) + " H" + x0 + " Z\"/>";
+  h += mass(x0, y0 - 9, x0 + w, y0 - 9, L(b, "m"), x0 + w / 2, y0 - 12);
+  h += mass(x0 - 10, y0, x0 - 10, y0 + h1, L(a, "m"), x0 - 15, y0 + h1 / 2 + 4, "end");
+  h += mass(x0 - 10, y0 + h1, x0 - 10, y0 + h1 + h2, L(c, "m"), x0 - 15, y0 + h1 + h2 / 2 + 4, "end");
+  h += "<text class=\"f-t\" x=\"" + (x0 + w / 2) + "\" y=\"" + (y0 + h1 / 2 + 4) + "\" text-anchor=\"middle\">Haus</text><text class=\"f-t\" x=\"" + (x0 + h2 + 6) + "\" y=\"" + (y0 + h1 + h2 / 2 + 4) + "\">Garage</text>";
+  return "<svg class=\"q-schema\" viewBox=\"0 0 300 " + Math.ceil(y0 + h1 + h2 + 12) + "\" role=\"img\" aria-label=\"Grundriss: Haus als Rechteck, Garage als Quadrat unten links angebaut\">" + h + "</svg>";
+}
+function qGrundriss(){
+  var p = pick([[14.4, 28, 8], [10, 16, 6], [12, 20, 5], [8, 15, 4], [9, 18, 6]]), a = p[0], b = p[1], c = p[2], A = a * b + c * c, U = 2 * (a + b) + 4 * c - 2 * c;
+  return {
+    text: "Der Grundriss besteht aus einem Rechteck (Haus) und einem angebauten Quadrat (Garage). Berechnen Sie die Gesamtfläche und den Gebäudeumfang, damit das Erdungsmaterial bestellt werden kann." + grundriss(a, b, c),
+    parts: [
+      {label:"Gesamtfläche", options:optionen(A, [a * b, a * b + c, a * b + 4 * c, (a + c) * b], m2), correct:A, mono:true, show:m2},
+      {label:"Gebäudeumfang", options:optionen(U, [2 * (a + b) + 4 * c, 2 * (a + b), 2 * (a + b) + c, 2 * (a + b) + 3 * c], m_), correct:U, mono:true, show:m_}
+    ],
+    hint: "Fläche: Rechteck plus Quadrat. Umfang: Die gemeinsame Seite von Haus und Garage gehört nicht zum Gebäudeumfang, sie fällt bei beiden Figuren weg.",
+    solution: "<p class=\"num\">" + ix("A", "tot") + " = " + ix("A", "R") + " + " + ix("A", "Q") + " = " + m_(a) + " · " + m_(b) + " + (" + m_(c) + ")² = " + m2(a * b) + " + " + m2(c * c) + " = <b>" + m2(A) + "</b></p><p class=\"num\">" + ix("U", "tot") + " = (" + ix("U", "R") + " − " + m_(c) + ") + (" + ix("U", "Q") + " − " + m_(c) + ") = (" + m_(2 * (a + b)) + " − " + m_(c) + ") + (" + m_(4 * c) + " − " + m_(c) + ") = <b>" + m_(U) + "</b></p>"
+  };
+}
+function qEignung(){
+  var p = pick(PROD), A = pFlaeche(p), ok = pOk(p);
+  return {
+    text: "Aus dem Katalog: " + pName(p) + ". Berechnen Sie den Querschnitt und beurteilen Sie, ob der Leiter als Fundamenterder geeignet ist. Mindestabmessungen: Stahlband blank 75" + NB + "mm² und 3" + NB + "mm Dicke; Kupfer rund 50" + NB + "mm² und 8" + NB + "mm Durchmesser.",
+    parts: [
+      {label:"Querschnitt", options:optionen(A, PROD.map(pFlaeche).concat([A * 4 / PI, A * 2]), mm2), correct:A, mono:true, show:mm2},
+      {label:"Als Fundamenterder", options:["geeignet", "nicht geeignet"], correct:ok ? "geeignet" : "nicht geeignet"}
+    ],
+    hint: p.art === "cu" ? "Kreisfläche: " + i("A") + " = " + F(i("d") + "² · π", "4") + ". Vergleichen Sie mit 50" + NB + "mm²." : "Rechteckfläche: " + i("A") + " = " + i("a") + " · " + i("b") + ". Vergleichen Sie mit 75" + NB + "mm².",
+    solution: "<p class=\"num\">" + pRechnung(p) + "</p><p><b>" + (ok ? "Geeignet." : "Nicht geeignet.") + "</b> " + pGrund(p) + "</p>"
+  };
+}
+function qRing(){
+  var p = pick([[32, 29], [25, 22], [20, 17], [40, 37], [16, 13.5], [50, 46.4]]), D = p[0], d = p[1], r = ring(D, d);
+  return {
+    text: "Ein KRH-Rohr hat den Aussendurchmesser " + fmt(D) + NB + "mm und den Innendurchmesser " + fmt(d) + NB + "mm. Berechnen Sie die Wandstärke und die Querschnittsfläche des Kunststoffes.",
+    parts: [
+      {label:"Wandstärke b", options:optionen(r.b, [D - d, (D + d) / 2, r.b * 2 + 1, r.b / 2], mm), correct:r.b, mono:true, show:mm},
+      {label:"Kreisringfläche A", options:optionen(r.A, [D * D * PI / 4, d * d * PI / 4, PI / 4 * (D - d) * (D - d), PI * (D * D - d * d)], mm2), correct:r.A, mono:true, show:mm2}
+    ],
+    hint: i("b") + " = " + F(i("D") + " − " + i("d"), "2") + "; " + i("A") + " = " + F("π", "4") + " · (" + i("D") + "² − " + i("d") + "²).",
+    solution: "<p class=\"num\">" + i("b") + " = " + F(i("D") + " − " + i("d"), "2") + " = " + F(fmt(D) + NB + "mm − " + fmt(d) + NB + "mm", "2") + " = <b>" + mm(r.b) + "</b></p><p class=\"num\">" + i("A") + " = " + F("π", "4") + " · ((" + fmt(D) + NB + "mm)² − (" + fmt(d) + NB + "mm)²) ≈ <b>" + mm2(r.A) + "</b></p>"
+  };
+}
+var KONZEPT = [
+  {t:"Mit welcher Formel berechnen Sie den Querschnitt eines runden Drahtes aus dem Durchmesser?", o:[i("A") + " = " + F(i("d") + "² · π", "4"), i("A") + " = " + i("d") + " · π", i("A") + " = " + i("d") + "²", i("A") + " = " + F(i("d") + " · π", "4")], k:0},
+  {t:"Mit welcher Formel berechnen Sie den Umfang eines Kreises?", o:[i("U") + " = " + i("d") + " · π", i("U") + " = " + i("r") + " · π", i("U") + " = " + F(i("d") + "² · π", "4"), i("U") + " = 4 · " + i("d")], k:0},
+  {t:"Mit welcher Formel berechnen Sie die Diagonale (das Eckmass) eines Rechtecks?", o:[i("e") + " = " + wz(i("a") + "² + " + i("b") + "²"), i("e") + " = " + i("a") + " + " + i("b"), i("e") + " = " + i("a") + " · " + i("b"), i("e") + " = 2 · (" + i("a") + " + " + i("b") + ")"], k:0},
+  {t:"Mit welcher Formel berechnen Sie die Diagonale (das Eckmass) eines Quadrats?", o:[i("e") + " = " + wz("2") + " · " + i("a"), i("e") + " = 2 · " + i("a"), i("e") + " = 4 · " + i("a"), i("e") + " = " + i("a") + "²"], k:0},
+  {t:"Wie berechnen Sie den Durchmesser eines Drahtes, wenn der Querschnitt bekannt ist?", o:[i("d") + " = " + wzG(F("4 · " + i("A"), "π")), i("d") + " = " + F("4 · " + i("A"), "π"), i("d") + " = " + wz(i("A")), i("d") + " = " + F(i("A"), "π")], k:0},
+  {t:"Wie heissen die beiden kürzeren Seiten eines rechtwinkligen Dreiecks?", o:["Katheten", "Hypotenusen", "Diagonalen", "Radien"], k:0},
+  {t:"Was gilt in einem rechtwinkligen Dreieck mit den Katheten " + i("a") + ", " + i("b") + " und der Hypotenuse " + i("c") + "?", o:[i("a") + "² + " + i("b") + "² = " + i("c") + "²", i("a") + " + " + i("b") + " = " + i("c"), i("a") + " · " + i("b") + " = " + i("c") + "²", i("a") + "² − " + i("b") + "² = " + i("c") + "²"], k:0}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return {
+    text: k.t,
+    parts: [{label:"Antwort", options:shuffle(k.o), correct:k.o[k.k]}],
+    hint: "Schlagen Sie im Theoriebuch auf MA39.2 bis MA39.4 nach.",
+    solution: "<p><b>" + k.o[k.k] + "</b></p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.10) return qBand();
+  if (x < 0.20) return qDrahtA();
+  if (x < 0.30) return qDrahtD();
+  if (x < 0.39) return qQuadrat();
+  if (x < 0.48) return qKreis();
+  if (x < 0.57) return qRechteck();
+  if (x < 0.63) return qDreieck();
+  if (x < 0.67) return qSeite();
+  if (x < 0.73) return qPool();
+  if (x < 0.80) return qGrundriss();
+  if (x < 0.89) return qEignung();
+  if (x < 0.94) return qRing();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qBand, qDrahtA, qDrahtD, pick([qQuadrat, qKreis]), qRechteck, pick([qDreieck, qPool, qRing]), pick([qGrundriss, qEignung]), qKonzept]); }});
+})();
+
+</script>
+</body>
+</html>

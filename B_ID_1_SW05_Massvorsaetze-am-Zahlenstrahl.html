@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_1 TA6 Massvorsätze am Zahlenstrahl BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+:root{--v-rot:#D8261C;--v-blau:#1A32D6;--v-mal:#D99A00;--v-div:#0B9A4A}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--v-rot:#FF7F75;--v-blau:#93A4FF;--v-mal:#F2BF3D;--v-div:#5FD990} }
+:root[data-theme="dark"]{--v-rot:#FF7F75;--v-blau:#93A4FF;--v-mal:#F2BF3D;--v-div:#5FD990}
+.bild{width:100%;height:auto;display:block}
+.feld{display:flex;flex-direction:column;gap:6px}
+.eingabe{font:inherit;font-family:var(--mono);font-size:1.15rem;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%;max-width:16em}
+.eingabe.falsch{border-color:var(--bad)}
+.fehler{color:var(--bad)}
+.opts.vs .opt{min-width:2.6em;text-align:center;font-family:var(--sans)}
+.z-achse{stroke:var(--ink);stroke-width:2;fill:none}
+.z-pf{fill:var(--ink)}
+.z-v{fill:var(--v-rot);font-family:var(--sans);font-size:13px}
+.z-p{fill:var(--v-blau);font-family:var(--sans);font-size:10px}
+.z-kreis{fill:none;stroke:var(--ink);stroke-width:1.4}
+.z-mal{stroke:var(--v-mal);stroke-width:1.6;fill:none} .z-malf{fill:var(--v-mal)} .z-malt{fill:var(--v-mal);font-family:var(--sans);font-size:9.5px}
+.z-div{stroke:var(--v-div);stroke-width:1.6;fill:none} .z-divf{fill:var(--v-div)} .z-divt{fill:var(--v-div);font-family:var(--sans);font-size:9.5px}
+.z-t{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.ergebnis{font-size:1.2rem;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ergebnis b{color:var(--accent)}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:6px}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem;overflow-wrap:normal;word-break:normal}
+.tab-k th,.tab-k td{text-align:left;padding:5px 8px 5px 0;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k td.v{color:var(--v-rot);font-weight:600} .tab-k td.p{color:var(--v-blau)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.kv dd{font-variant-numeric:tabular-nums}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_1 Lampenschaltung im Kellerraum · Teilauftrag 6</p>
+    <h1>Massvorsätze am Zahlenstrahl BAP</h1>
+    <p class="lead">Wandeln Sie Messwerte in andere Massvorsätze um und verfolgen Sie am Zahlenstrahl, wie sich der Zahlenwert verändert. Schreiben Sie Werte mit Zehnerpotenz und mit sinnvollem Massvorsatz.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Beispiele aus dem Theoriebuch (MA36.3 und MA36.4)</legend>
+          <div class="opts" id="beispiele"></div>
+        </fieldset>
+        <div class="feld">
+          <label class="label" for="zahl">Zahlenwert</label>
+          <input class="eingabe" type="text" inputmode="decimal" id="zahl" value="0,02" autocomplete="off" aria-describedby="zahl-fehler">
+          <p class="note fehler" id="zahl-fehler" hidden>Bitte eine positive Zahl eingeben, zum Beispiel 0,02 oder 7210.</p>
+        </div>
+        <fieldset>
+          <legend>Gegeben: Massvorsatz</legend>
+          <div class="opts vs" id="von"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Einheit</legend>
+          <div class="opts" id="einheit"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Gesucht: Massvorsatz</legend>
+          <div class="opts vs" id="nach"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Zahlenstrahl</h2>
+        <svg class="bild" id="strahl" viewBox="0 0 340 132" role="img" aria-label="Zahlenstrahl mit den Massvorsätzen von Piko bis Peta"></svg>
+        <p class="ergebnis" id="ergebnis"></p>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Der gleiche Wert in vier Schreibweisen</h2>
+        <dl class="kv" id="schreib"></dl>
+      </div>
+
+      <div class="panel">
+        <h2>Vielfache und Teile von Einheiten (Theoriebuch MA36.3)</h2>
+        <div class="scroll">
+          <table class="tab-k">
+            <thead><tr><th>Vorsatz</th><th>Zehnerpotenz</th><th>Grundwert</th></tr></thead>
+            <tbody id="tabelle"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch MA36.1 bis MA36.3)</h2>
+        <div class="merke">
+          <p>In der Technik ist es üblich, Resultate auf drei signifikante Stellen zu runden. Nur das Schlussresultat wird gerundet, Zwischenresultate sind zu belassen.</p>
+          <p>Bei Zehnerpotenzen gibt der positive Exponent die Anzahl der Nullen der Zahl an, der negative Exponent die Anzahl der Nachkommastellen.</p>
+          <p>Massvorsätze können nie allein, sondern nur zusammen mit Einheiten verwendet werden.</p>
+          <p>Massvorsätze werden nicht mit den Zeiteinheiten Minute, Stunde und Tag verwendet.</p>
+          <p>Am Zahlenstrahl: Wandert man zu einem kleineren Massvorsatz, wird der Zahlenwert multipliziert. Wandert man zu einem grösseren Massvorsatz, wird der Zahlenwert dividiert.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Stellen Sie das Beispiel aus dem Theoriebuch ein: 0,02 GW in kW. Um wie viele Positionen wandern Sie am Zahlenstrahl?</li>
+          <li>Wandeln Sie 1,34 kA in mA um. Wird der Zahlenwert grösser oder kleiner, und warum?</li>
+          <li>Geben Sie 0,000287 ohne Massvorsatz in A ein. Welcher Massvorsatz ist sinnvoll?</li>
+          <li>Wie oft müssen Sie mit 1000 multiplizieren, wenn Sie von Mega zu Milli umrechnen?</li>
+          <li>Schreiben Sie 4’680’000 Ω mit einer Zehnerpotenz, deren Exponent durch 3 teilbar ist.</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Mathematik MA36.1 bis MA36.4 (Runden und Massvorsätze).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Mathematik, Kapitel 36 Runden und Massvorsätze: MA36.1 (Runden), MA36.2 (Zehnerpotenzen), MA36.3 (Massvorsätze, Zahlenstrahl), MA36.4 (wissenschaftliche Schreibweise)</li><li>Arbeitsblätter ID1 Lampenschaltung im Kellerraum, Teilauftrag 6: Übungen 31 bis 36 (ID1.13 und ID1.14)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = "\u00a0", AP = "\u2019", MAL = " · ", MINUS = "−";
+
+/* ===== Rechnen mit Dezimalzahlen als Zeichenketten (ohne Rundungsfehler) ===== */
+function nullen(n){ var s = ""; while (s.length < n) s += "0"; return s; }
+/* Komma um k Stellen nach rechts (k > 0) oder links (k < 0) schieben; s mit Punkt als Dezimalzeichen */
+function schiebe(s, k){
+  var p = s.indexOf("."), ganz = p < 0 ? s : s.slice(0, p), dez = p < 0 ? "" : s.slice(p + 1), z = ganz + dez, pos = ganz.length + k;
+  if (pos <= 0){ z = nullen(1 - pos) + z; pos = 1; }
+  if (pos > z.length) z += nullen(pos - z.length);
+  ganz = z.slice(0, pos).replace(/^0+(?=\d)/, ""); dez = z.slice(pos).replace(/0+$/, "");
+  return ganz + (dez ? "." + dez : "");
+}
+/* Zehnerexponent der ersten Ziffer, die nicht 0 ist (wissenschaftliche Schreibweise) */
+function ordnung(s){
+  var p = s.indexOf("."), ganz = p < 0 ? s : s.slice(0, p), dez = p < 0 ? "" : s.slice(p + 1);
+  if (/[1-9]/.test(ganz)) return ganz.replace(/^0+/, "").length - 1;
+  var m = dez.match(/^0*/)[0].length; return -(m + 1);
+}
+/* Anzeige: Dezimalkomma, Dreiergruppen mit Apostroph wie im Theoriebuch (4'680'000 und 0,000'287) */
+function zeige(s){
+  var p = s.indexOf("."), ganz = p < 0 ? s : s.slice(0, p), dez = p < 0 ? "" : s.slice(p + 1);
+  ganz = ganz.replace(/\B(?=(\d{3})+(?!\d))/g, AP);
+  if (dez.length > 4) dez = dez.replace(/(\d{3})(?=\d)/g, "$1" + AP);
+  return ganz + (dez ? "," + dez : "");
+}
+var MALWORT = ["", "einmal", "zweimal", "dreimal", "viermal", "fünfmal", "sechsmal", "siebenmal", "achtmal", "neunmal"];
+function hoch(n){ return "10<sup>" + (n < 0 ? MINUS + (-n) : n) + "</sup>"; }
+/* Massvorsätze des Zahlenstrahls, Theoriebuch MA36.3 */
+var VS = [["p", "Piko", -12], ["n", "Nano", -9], ["µ", "Mikro", -6], ["m", "Milli", -3], ["", "", 0], ["k", "Kilo", 3], ["M", "Mega", 6], ["G", "Giga", 9], ["T", "Tera", 12], ["P", "Peta", 15]];
+function vsExp(sym){ return VS.filter(function(v){ return v[0] === sym; })[0][2]; }
+function vsSym(exp){ return VS.filter(function(v){ return v[2] === exp; })[0][0]; }
+function mitEinheit(s, sym, e){ return zeige(s) + NB + sym + e; }
+function umwandeln(s, von, nach){ return schiebe(s, vsExp(von) - vsExp(nach)); }
+/* sinnvoller Massvorsatz: Zahlenwert zwischen 1 und 999 */
+function sinnvoll(basis){ var e3 = Math.max(-12, Math.min(15, Math.floor(ordnung(basis) / 3) * 3)); return {exp:e3, zahl:schiebe(basis, -e3)}; }
+window.__t = {schiebe:schiebe, ordnung:ordnung, zeige:zeige, umwandeln:umwandeln, sinnvoll:sinnvoll};
+
+/* ================= ZAHLENSTRAHL wie im Theoriebuch MA36.3 ================= */
+function xPos(i){ return 22 + i * 33; }
+function strahl(von, nach){
+  var h = "", iv = -1, inn = -1, i;
+  VS.forEach(function(v, k){ if (v[0] === von) iv = k; if (v[0] === nach) inn = k; });
+  h += "<path class=\"z-mal\" d=\"M200 14 H96\"/><path class=\"z-malf\" d=\"M88 14 l10 -4 v8 z\"/><text class=\"z-malt\" x=\"206\" y=\"17.5\" style=\"font-size:10.5px\">Zahlenwert multiplizieren</text>";
+  h += "<path class=\"z-div\" d=\"M140 122 H244\"/><path class=\"z-divf\" d=\"M252 122 l-10 -4 v8 z\"/><text class=\"z-divt\" x=\"134\" y=\"125.5\" text-anchor=\"end\" style=\"font-size:10.5px\">Zahlenwert dividieren</text>";
+  h += "<path class=\"z-achse\" d=\"M6 98 H326\"/><path class=\"z-pf\" d=\"M336 98 l-12 -5 v10 z\"/>";
+  VS.forEach(function(v, k){
+    var x = xPos(k);
+    h += "<path class=\"z-achse\" style=\"stroke-width:1.4\" d=\"M" + x + " 92 V104\"/>";
+    h += "<text class=\"z-p\" x=\"" + x + "\" y=\"86\" text-anchor=\"middle\">10<tspan dy=\"-4\" style=\"font-size:7.5px\">" + (v[2] < 0 ? MINUS + (-v[2]) : v[2]) + "</tspan></text>";
+    h += "<text class=\"z-v\" x=\"" + x + "\" y=\"67\" text-anchor=\"middle\"" + (v[0] ? "" : " style=\"fill:var(--muted)\"") + ">" + (v[0] || "1") + "</text>";
+    if (k === iv || k === inn) h += "<circle class=\"z-kreis\" cx=\"" + x + "\" cy=\"62.5\" r=\"9.5\"/>";
+  });
+  if (iv !== inn){
+    var mal = inn < iv, a = Math.min(iv, inn), b = Math.max(iv, inn), c = mal ? "z-mal" : "z-div";
+    for (i = a; i < b; i++){
+      var x0 = xPos(i) + 11, x1 = xPos(i + 1) - 11;
+      h += "<path class=\"" + c + "\" d=\"M" + (mal ? x1 : x0) + " 62.5 H" + (mal ? x0 + 6 : x1 - 6) + "\"/><path class=\"" + c + "f\" d=\"M" + (mal ? x0 : x1) + " 62.5 l" + (mal ? "7 -3.2 v6.4" : "-7 -3.2 v6.4") + " z\"/>";
+      h += "<text class=\"" + c + "t\" x=\"" + (x0 + x1) / 2 + "\" y=\"47\" text-anchor=\"middle\">" + (mal ? "· 1000" : ": 1000") + "</text>";
+    }
+  }
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var EINH = ["V", "A", "Ω", "W", "m", "s"];
+var BSP = [["0.02", "G", "W", "k"], ["1.34", "k", "A", "m"], ["333", "µ", "V", "m"], ["9830000", "", "Ω", "M"], ["0.000287", "", "A", "µ"], ["7210", "", "V", "k"]];
+var st = {zahl:"0.02", von:"G", e:"W", nach:"k"};
+function lies(t){
+  t = t.replace(/[\s'\u2019\u2018\u00a0]/g, "").replace(",", ".");
+  if (!/^\d{1,15}(\.\d{1,15})?$/.test(t)) return null;
+  t = schiebe(t, 0); return /[1-9]/.test(t) ? t : null;
+}
+function knopfReihe(id, akt, pre){
+  $(id).innerHTML = VS.map(function(v){ return "<button class=\"opt\" type=\"button\" id=\"" + pre + "-" + (v[0] || "ohne") + "\" data-v=\"" + v[0] + "\" aria-pressed=\"" + (v[0] === akt) + "\" aria-label=\"" + (v[1] || "ohne Massvorsatz") + "\">" + (v[0] || "–") + "</button>"; }).join("");
+}
+function render(){
+  knopfReihe("von", st.von, "von"); knopfReihe("nach", st.nach, "nach");
+  $("einheit").innerHTML = EINH.map(function(e){ return "<button class=\"opt\" type=\"button\" id=\"eh-" + e + "\" data-e=\"" + e + "\" aria-pressed=\"" + (e === st.e) + "\">" + e + "</button>"; }).join("");
+  $("beispiele").innerHTML = BSP.map(function(b, n){ return "<button class=\"opt txt\" type=\"button\" id=\"bsp-" + n + "\" data-n=\"" + n + "\" aria-pressed=\"" + (b[0] === st.zahl && b[1] === st.von && b[2] === st.e && b[3] === st.nach) + "\">" + mitEinheit(b[0], b[1], b[2]) + " in " + b[3] + b[2] + "</button>"; }).join("");
+  $("strahl").innerHTML = strahl(st.von, st.nach);
+  var erg = umwandeln(st.zahl, st.von, st.nach), schritte = (vsExp(st.von) - vsExp(st.nach)) / 3, r = "", i;
+  $("ergebnis").innerHTML = mitEinheit(st.zahl, st.von, st.e) + " = <b>" + mitEinheit(erg, st.nach, st.e) + "</b>";
+  if (schritte === 0) r = "<span>Gleicher Massvorsatz: Der Zahlenwert bleibt gleich.</span>";
+  else {
+    var n = Math.abs(schritte), op = schritte > 0 ? MAL : " : ", kette = zeige(st.zahl);
+    for (i = 0; i < n; i++) kette += op + "1000";
+    r = "<span>Sie wandern am Zahlenstrahl um " + n + (n === 1 ? " Position" : " Positionen") + " zum " + (schritte > 0 ? "kleineren" : "grösseren") + " Massvorsatz: Der Zahlenwert wird " + MALWORT[n] + " " + (schritte > 0 ? "mit 1000 multipliziert." : "durch 1000 dividiert.") + "</span>";
+    r += "<span>" + kette + " = <b>" + zeige(erg) + "</b></span>";
+  }
+  $("rechnung").innerHTML = r;
+  var basis = schiebe(st.zahl, vsExp(st.von)), sv = sinnvoll(basis), o = ordnung(basis);
+  $("schreib").innerHTML = "<dt>Mit sinnvollem Massvorsatz</dt><dd>" + mitEinheit(sv.zahl, vsSym(sv.exp), st.e) + "</dd>"
+    + "<dt>Mit Zehnerpotenz (Exponent durch 3 teilbar)</dt><dd>" + zeige(sv.zahl) + MAL + hoch(sv.exp) + NB + st.e + "</dd>"
+    + "<dt>Zahlenwert mit Grundeinheit</dt><dd>" + zeige(basis) + NB + st.e + "</dd>"
+    + "<dt>Wissenschaftliche Schreibweise</dt><dd>" + zeige(schiebe(basis, -o)) + MAL + hoch(o) + NB + st.e + "</dd>";
+}
+function init(){
+  var T = [["P", "Peta", 15], ["T", "Tera", 12], ["G", "Giga", 9], ["M", "Mega", 6], ["k", "Kilo", 3], ["h", "Hekto", 2], ["da", "Deka", 1], ["d", "Dezi", -1], ["c", "Zenti", -2], ["m", "Milli", -3], ["µ", "Mikro", -6], ["n", "Nano", -9], ["p", "Piko", -12], ["f", "Femto", -15]];
+  $("tabelle").innerHTML = T.map(function(v){ return "<tr><td class=\"v\">" + v[0] + " " + v[1] + "</td><td class=\"p\">" + hoch(v[2]) + "</td><td class=\"num\">" + zeige(schiebe("1", v[2])).replace(/\u2019/g, NB) + "</td></tr>"; }).join("");
+  $("zahl").addEventListener("input", function(){
+    var z = lies(this.value), ok = z !== null;
+    this.classList.toggle("falsch", !ok); $("zahl-fehler").hidden = ok; this.setAttribute("aria-invalid", String(!ok));
+    if (ok){ st.zahl = z; render(); }
+  });
+  $("von").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-v]"); if (!b) return; st.von = b.getAttribute("data-v"); render(); var f = $("von-" + (st.von || "ohne")); if (f) f.focus(); });
+  $("nach").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-v]"); if (!b) return; st.nach = b.getAttribute("data-v"); render(); var f = $("nach-" + (st.nach || "ohne")); if (f) f.focus(); });
+  $("einheit").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-e]"); if (!b) return; st.e = b.getAttribute("data-e"); render(); var f = $("eh-" + st.e); if (f) f.focus(); });
+  $("beispiele").addEventListener("click", function(ev){
+    var b = ev.target.closest("button[data-n]"); if (!b) return; var x = BSP[Number(b.getAttribute("data-n"))];
+    st.zahl = x[0]; st.von = x[1]; st.e = x[2]; st.nach = x[3]; $("zahl").value = zeige(x[0]); $("zahl").classList.remove("falsch"); $("zahl-fehler").hidden = true; render();
+  });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID1 Übungen 31 bis 36, Theoriebuch MA36.1 bis MA36.4) ================= */
+function vier(richtig, andere){
+  var out = [richtig], seen = {}; seen[richtig] = 1;
+  andere.forEach(function(x){ if (out.length < 4 && !seen[x]){ seen[x] = 1; out.push(x); } });
+  return shuffle(out);
+}
+/* Umwandeln: [Zahl, von, Einheit, nach] aus Übung 32 und weitere */
+var UMW = [["0.03", "", "A", "m"], ["7210", "", "V", "k"], ["37800", "", "W", "k"], ["9830000", "", "Ω", "M"], ["0.000234", "", "A", "µ"], ["1.34", "k", "A", "m"], ["333", "µ", "V", "m"], ["4810", "k", "W", ""], ["0.0001", "M", "Ω", "m"], ["178", "m", "A", "µ"],
+  ["0.02", "G", "W", "k"], ["2.5", "M", "Ω", "k"], ["470", "n", "F", "µ"], ["0.16", "", "Ω", "m"], ["16000", "", "V", "k"], ["120", "k", "Ω", "M"], ["0.8", "m", "A", "µ"], ["15", "M", "Ω", "k"], ["247", "µ", "A", "m"], ["0.55", "k", "V", ""]];
+function qUmwandeln(){
+  var u = pick(UMW), c = umwandeln(u[0], u[1], u[3]);
+  function o(s){ return mitEinheit(s, u[3], u[2]); }
+  var schritte = (vsExp(u[1]) - vsExp(u[3])) / 3;
+  return {
+    text: "Wandeln Sie um: " + mitEinheit(u[0], u[1], u[2]) + " = ? " + u[3] + u[2],
+    parts: [{label:"Ergebnis", options:vier(o(c), [o(schiebe(c, 3)), o(schiebe(c, -3)), o(schiebe(c, -6)), o(schiebe(c, 6)), o(u[0])]), correct:o(c), mono:true}],
+    hint: "Zählen Sie am Zahlenstrahl die Positionen zwischen den beiden Massvorsätzen. Zum kleineren Massvorsatz wird multipliziert, zum grösseren dividiert.",
+    solution: "<p class=\"num\">" + mitEinheit(u[0], u[1], u[2]) + " = <b>" + o(c) + "</b></p><p>" + Math.abs(schritte) + (Math.abs(schritte) === 1 ? " Position" : " Positionen") + " am Zahlenstrahl: Der Zahlenwert wird " + MALWORT[Math.abs(schritte)] + " " + (schritte > 0 ? "mit 1000 multipliziert." : "durch 1000 dividiert.") + "</p>"
+  };
+}
+/* sinnvoller Massvorsatz: [Zahlenwert, Exponent, Einheit] */
+var SINN = [["2", -3, "s"], ["12", 3, "g"], ["16", 3, "V"], ["6", -6, "m"], ["7", 6, "t"], ["4.7", 3, "Ω"], ["33", -9, "F"], ["250", -3, "A"], ["1.5", 6, "W"], ["86.5", 9, "J"], ["26.1", 6, "Hz"], ["52", -6, "m"], ["3.74", -3, "s"], ["230", 3, "V"]];
+function qSinnvoll(){
+  var s = pick(SINN), basis = schiebe(s[0], s[1]), c = mitEinheit(s[0], vsSym(s[1]), s[2]);
+  var and = [mitEinheit(s[0], vsSym(s[1] + 3 > 15 ? s[1] - 6 : s[1] + 3), s[2]), mitEinheit(s[0], vsSym(s[1] - 3 < -12 ? s[1] + 6 : s[1] - 3), s[2]), mitEinheit(schiebe(s[0], 1), vsSym(s[1]), s[2]), mitEinheit(schiebe(s[0], -1), vsSym(s[1]), s[2])];
+  return {
+    text: "Schreiben Sie mit sinnvollem Massvorsatz: " + zeige(basis) + NB + s[2],
+    parts: [{label:"Mit Massvorsatz", options:vier(c, shuffle(and)), correct:c, mono:true}],
+    hint: "Schreiben Sie die Zahl zuerst mit einer Zehnerpotenz, deren Exponent durch 3 teilbar ist. Ersetzen Sie die Zehnerpotenz dann durch den Massvorsatz.",
+    solution: "<p class=\"num\">" + zeige(basis) + NB + s[2] + " = " + zeige(s[0]) + MAL + hoch(s[1]) + NB + s[2] + " = <b>" + c + "</b></p>"
+  };
+}
+function qPotenz(){
+  var s = pick([["4.68", 6, "Ω"], ["287", -6, "A"], ["12.4", 9, "W"], ["380", 3, "V"], ["16.3", 3, "W"], ["6.6", -3, "A"], ["5.81", 3, "m"], ["70", -3, "bar"], ["3.6", 6, "W"], ["33", -9, "F"], ["43", 3, "t"]]), basis = schiebe(s[0], s[1]);
+  function o(z, e){ return zeige(z) + MAL + hoch(e) + NB + s[2]; }
+  var c = o(s[0], s[1]);
+  return {
+    text: "Geben Sie den Messwert mit einer Zehnerpotenz an, deren Exponent durch 3 teilbar ist: " + zeige(basis) + NB + s[2],
+    parts: [{label:"Mit Zehnerpotenz", options:vier(c, shuffle([o(s[0], s[1] + 3), o(s[0], s[1] - 3), o(schiebe(s[0], 1), s[1]), o(schiebe(s[0], -1), s[1]), o(s[0], -s[1])])), correct:c, mono:true}],
+    hint: "Verschieben Sie das Komma in Dreierschritten, bis der Zahlenwert zwischen 1 und 999 liegt. Jede Dreiergruppe ändert den Exponenten um 3.",
+    solution: "<p class=\"num\">" + zeige(basis) + NB + s[2] + " = <b>" + c + "</b> = " + mitEinheit(s[0], vsSym(s[1]), s[2]) + "</p>"
+  };
+}
+/* Zahl und Zehnerpotenz: [Faktor, Exponent] */
+var ZP = [["1", 3], ["1", 5], ["5", 2], ["1", -1], ["3", -2], ["1", 4], ["5", 1], ["7", 3], ["1", -3], ["2", -2], ["4", -4], ["6", 6], ["9", -1], ["8", 2]];
+function pot(f, e){ return (f === "1" ? "" : f + MAL) + hoch(e); }
+function qAlsPotenz(){
+  var z = pick(ZP), c = pot(z[0], z[1]), zahl = schiebe(z[0], z[1]);
+  return {
+    text: "Schreiben Sie als Zehnerpotenz: " + zeige(zahl),
+    parts: [{label:"Zehnerpotenz", options:vier(c, shuffle([pot(z[0], z[1] + 1), pot(z[0], z[1] - 1), pot(z[0], -z[1]), pot(z[0], z[1] + 2)])), correct:c, mono:true}],
+    hint: "Der positive Exponent gibt die Anzahl der Nullen an, der negative Exponent die Anzahl der Nachkommastellen.",
+    solution: "<p class=\"num\">" + zeige(zahl) + " = <b>" + c + "</b></p>"
+  };
+}
+function qAlsZahl(){
+  var z = pick(ZP), c = zeige(schiebe(z[0], z[1]));
+  return {
+    text: "Schreiben Sie als Zahlenwert: " + pot(z[0], z[1]),
+    parts: [{label:"Zahlenwert", options:vier(c, shuffle([zeige(schiebe(z[0], z[1] + 1)), zeige(schiebe(z[0], z[1] - 1)), zeige(schiebe(z[0], -z[1])), zeige(schiebe(z[0], z[1] + 2))])), correct:c, mono:true}],
+    hint: "Verschieben Sie das Komma: bei positivem Exponenten nach rechts, bei negativem Exponenten nach links.",
+    solution: "<p class=\"num\">" + pot(z[0], z[1]) + " = <b>" + c + "</b></p>"
+  };
+}
+var VN = [["P", "Peta", 15], ["T", "Tera", 12], ["G", "Giga", 9], ["M", "Mega", 6], ["k", "Kilo", 3], ["m", "Milli", -3], ["µ", "Mikro", -6], ["n", "Nano", -9], ["p", "Piko", -12], ["h", "Hekto", 2], ["d", "Dezi", -1], ["c", "Zenti", -2]];
+function qVorsatz(){
+  var v = pick(VN), rest = shuffle(VN.filter(function(x){ return x !== v; }));
+  if (Math.random() < 0.5) return {
+    text: "Welche Zehnerpotenz gehört zum Massvorsatz " + v[1] + " (" + v[0] + ")?",
+    parts: [{label:"Zehnerpotenz", options:vier(hoch(v[2]), [hoch(-v[2]), hoch(rest[0][2]), hoch(rest[1][2]), hoch(rest[2][2])]), correct:hoch(v[2]), mono:true}],
+    hint: "Schlagen Sie in der Tabelle «Vielfache und Teile von Einheiten» nach (MA36.3).",
+    solution: "<p class=\"num\">" + v[0] + " " + v[1] + " = <b>" + hoch(v[2]) + "</b> = " + zeige(schiebe("1", v[2])) + "</p>"
+  };
+  var c = v[0] + " (" + v[1] + ")";
+  return {
+    text: "Welcher Massvorsatz gehört zur Zehnerpotenz " + hoch(v[2]) + "?",
+    parts: [{label:"Massvorsatz", options:vier(c, rest.slice(0, 3).map(function(x){ return x[0] + " (" + x[1] + ")"; })), correct:c}],
+    hint: "Schlagen Sie in der Tabelle «Vielfache und Teile von Einheiten» nach (MA36.3).",
+    solution: "<p class=\"num\">" + hoch(v[2]) + " = <b>" + c + "</b></p>"
+  };
+}
+/* Runden auf drei signifikante Stellen: [Wert, Einheit, richtig, falsch 1 bis 3] */
+var RUND = [["230.123", "V", "230", "230.1", "231", "200"], ["3.1415926", "", "3.14", "3.15", "3.142", "3.1"], ["299792", "km", "300000", "299000", "299800", "299792"], ["0.00000901456", "m", "0.00000901", "0.00000902", "0.000009", "0.0000090146"],
+  ["17.6923", "Ω", "17.7", "17.6", "17.69", "18"], ["8.7335", "A", "8.73", "8.74", "8.7", "8.734"], ["1437.5", "A", "1440", "1430", "1438", "1400"], ["83333", "Ω", "83300", "83400", "83000", "83330"],
+  ["0.0001136", "A", "0.000114", "0.000113", "0.00011", "0.0001"], ["2024291", "Ω", "2020000", "2030000", "2024000", "2000000"], ["4.5136", "mm", "4.51", "4.52", "4.5", "4.514"], ["57.48", "Ω", "57.5", "57.4", "57", "58"], ["0.82549", "V", "0.825", "0.826", "0.83", "0.8255"], ["12.449", "kW", "12.4", "12.5", "12", "12.45"]];
+function qRunden(){
+  var r = pick(RUND);
+  function o(s){ return zeige(s) + (r[1] ? NB + r[1] : ""); }
+  var vierte = r[0].replace(".", "").replace(/^0+/, "").charAt(3);
+  return {
+    text: "Runden Sie auf drei signifikante Stellen: " + o(r[0]),
+    parts: [{label:"Gerundet", options:vier(o(r[2]), [o(r[3]), o(r[4]), o(r[5])]), correct:o(r[2]), mono:true}],
+    hint: "Ist die vierte signifikante Stelle eine 0, 1, 2, 3 oder 4, bleibt die dritte Stelle. Ist sie eine 5, 6, 7, 8 oder 9, wird die dritte Stelle um 1 erhöht.",
+    solution: "<p class=\"num\">" + o(r[0]) + " ≈ <b>" + o(r[2]) + "</b></p><p>Die vierte signifikante Stelle ist eine " + vierte + ": Die dritte Stelle " + (Number(vierte) >= 5 ? "wird um 1 erhöht." : "bleibt unverändert.") + "</p>"
+  };
+}
+function qWissenschaft(){
+  var s = pick([["3.58", 7, "m"], ["7.5", -5, "m"], ["1.25", 4, "V"], ["4.68", 6, "Ω"], ["2.87", -4, "A"], ["9.01", -6, "m"], ["6.2", 5, "W"], ["1.6", -2, "s"]]), basis = schiebe(s[0], s[1]);
+  function o(z, e){ return zeige(z) + MAL + hoch(e) + NB + s[2]; }
+  var c = o(s[0], s[1]);
+  return {
+    text: "Schreiben Sie in wissenschaftlicher Schreibweise (genau eine Ziffer vor dem Komma): " + zeige(basis) + NB + s[2],
+    parts: [{label:"Wissenschaftliche Schreibweise", options:vier(c, shuffle([o(s[0], s[1] + 1), o(s[0], s[1] - 1), o(s[0], -s[1]), o(schiebe(s[0], 1), s[1] - 1), o(schiebe(s[0], 1), s[1])])), correct:c, mono:true}],
+    hint: "Verschieben Sie das Komma so, dass genau eine Ziffer von 1 bis 9 davor steht. Jede Stelle nach links erhöht den Exponenten um 1, jede Stelle nach rechts verkleinert ihn um 1.",
+    solution: "<p class=\"num\">" + zeige(basis) + NB + s[2] + " = <b>" + c + "</b></p><p>Das Komma wird um " + Math.abs(s[1]) + " Stellen nach " + (s[1] > 0 ? "links" : "rechts") + " verschoben.</p>"
+  };
+}
+var KONZEPT = [
+  {t:"Auf wie viele signifikante Stellen werden Resultate in der Technik üblicherweise gerundet?", o:["Auf drei signifikante Stellen", "Auf eine signifikante Stelle", "Auf zwei Nachkommastellen", "Gar nicht"], s:"In der Technik ist es üblich, Resultate auf drei signifikante Stellen zu runden."},
+  {t:"Eine Aufgabe braucht mehrere Rechenschritte. Was wird gerundet?", o:["Nur das Schlussresultat", "Jedes Zwischenresultat", "Nur das erste Zwischenresultat", "Die gegebenen Werte"], s:"Zwischenresultate sind zu belassen bzw. im Taschenrechner zu speichern."},
+  {t:"Mit welchen Einheiten werden Massvorsätze nicht verwendet?", o:["Mit den Zeiteinheiten Minute, Stunde und Tag", "Mit Volt und Ampère", "Mit Meter und Gramm", "Mit Watt und Ohm"], s:"Massvorsätze werden nicht mit den Zeiteinheiten Minute, Stunde und Tag verwendet."},
+  {t:"Können Massvorsätze allein, ohne Einheit, verwendet werden?", o:["Nein, nur zusammen mit Einheiten", "Ja, immer", "Ja, aber nur Kilo und Milli", "Nur in Tabellen"], s:"Massvorsätze können nie allein, sondern nur zusammen mit Einheiten verwendet werden."},
+  {t:"Was bewirkt der Engineering-Modus (ENG) des Taschenrechners?", o:["Die Resultate erscheinen mit Zehnerpotenzen, deren Exponenten durch 3 teilbar sind.", "Alle Resultate werden auf ganze Zahlen gerundet.", "Der Rechner rechnet in Grad statt in Bogenmass.", "Die Resultate erscheinen als Brüche."], s:"So lassen sich die Zehnerpotenzen direkt durch Massvorsätze ersetzen."},
+  {t:"Sie rechnen von einem grösseren zu einem kleineren Massvorsatz um, zum Beispiel von kA in mA. Was passiert mit dem Zahlenwert?", o:["Er wird grösser (multiplizieren).", "Er wird kleiner (dividieren).", "Er bleibt gleich.", "Er wird negativ."], s:"Am Zahlenstrahl wandert man nach links: Der Zahlenwert wird pro Position mit 1000 multipliziert."},
+  {t:"Was gibt der Exponent einer Zehnerpotenz an?", o:["Wie oft der Faktor 10 mit sich selbst multipliziert wird", "Wie oft 10 addiert wird", "Die Anzahl der signifikanten Stellen", "Den Massvorsatz der Einheit"], s:"10 · 10 · 10 · 10 · 10 · 10 = 10<sup>6</sup>, gesprochen «Zehn hoch sechs»."},
+  {t:"Was gibt ein negativer Exponent einer Zehnerpotenz an?", o:["Die Anzahl der Nachkommastellen", "Die Anzahl der Nullen vor dem Komma", "Dass die Zahl negativ ist", "Die Anzahl der Ziffern"], s:"10<sup>" + MINUS + "3</sup> = 0,001: Eins an der 3. Nachkommastelle."}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return {
+    text: k.t,
+    parts: [{label:"Antwort", options:shuffle(k.o), correct:k.o[0]}],
+    hint: "Lesen Sie die Merksätze im Theoriebuch auf MA36.1 bis MA36.3.",
+    solution: "<p><b>" + k.o[0] + "</b></p><p>" + k.s + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.24) return qUmwandeln();
+  if (x < 0.38) return qSinnvoll();
+  if (x < 0.50) return qPotenz();
+  if (x < 0.58) return qAlsPotenz();
+  if (x < 0.66) return qAlsZahl();
+  if (x < 0.76) return qVorsatz();
+  if (x < 0.86) return qRunden();
+  if (x < 0.93) return qWissenschaft();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qUmwandeln, qUmwandeln, qSinnvoll, qPotenz, pick([qAlsPotenz, qAlsZahl]), qVorsatz, qRunden, pick([qWissenschaft, qKonzept])]); }});
+})();
+
+</script>
+</body>
+</html>

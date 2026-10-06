@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_2 TA3 Erder verlegen: Kontrolle auf der Baustelle BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+:root{--beton:#C9CED3;--erde:#D9C7AB;--erde2:#B99E76;--haus:#DDE9EF;--stahl:#5F6B76;--kupfer:#C9783A;--inox:#9FB1C2;--erder:#E2362B;--klemme:#7AC943;--dim:#2B3E66;--schal:#A67B4B}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--beton:#59626B;--erde:#5A4A35;--erde2:#8C7653;--haus:#2B3A44;--stahl:#AEB9C4;--kupfer:#DB8C4E;--inox:#C3D1DE;--erder:#FF8076;--klemme:#8FDC5A;--dim:#C9D4EA;--schal:#C69A68} }
+:root[data-theme="dark"]{--beton:#59626B;--erde:#5A4A35;--erde2:#8C7653;--haus:#2B3A44;--stahl:#AEB9C4;--kupfer:#DB8C4E;--inox:#C3D1DE;--erder:#FF8076;--klemme:#8FDC5A;--dim:#C9D4EA;--schal:#C69A68}
+.bild{width:100%;height:auto;display:block}
+.e-beton{fill:var(--beton)} .e-erde{fill:var(--erde)} .e-haus{fill:var(--haus);stroke:var(--dim);stroke-width:1.4}
+.e-schal{stroke:var(--schal);stroke-width:5;fill:none}
+.e-arm{stroke:var(--stahl);stroke-width:2.4;fill:none} .e-armp{fill:var(--stahl)}
+.e-band{fill:var(--stahl);stroke:var(--ink);stroke-width:1}
+.e-cu{fill:var(--kupfer);stroke:var(--ink);stroke-width:1}
+.e-inox{fill:var(--inox);stroke:var(--ink);stroke-width:1}
+.e-ring{stroke:var(--erder);stroke-width:2.6;stroke-dasharray:8 5;fill:none}
+.e-kl{fill:var(--klemme);stroke:var(--ink);stroke-width:.8}
+.e-linie{stroke:var(--ink);stroke-width:1.4;fill:none}
+.e-gitter{stroke:var(--dim);stroke-width:.6;opacity:.45;fill:none}
+.f-dim{stroke:var(--dim);stroke-width:1.2;fill:none}
+.f-dimf{fill:var(--dim);stroke:none}
+.f-t{fill:var(--dim);font-family:var(--sans);font-size:11px}
+.f-tf{fill:var(--bad);font-family:var(--sans);font-size:11px;font-weight:700}
+.r-slider{display:grid;grid-template-columns:1fr;gap:4px}
+.r-slider .num{font-weight:700;font-family:var(--sans)}
+.pruef{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.pruef li{display:grid;grid-template-columns:1.6em 1fr;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.pruef li.ja{border-color:var(--ok);background:var(--ok-soft)}
+.pruef li.nein{border-color:var(--bad);background:var(--bad-soft)}
+.pruef li.info{border-style:dashed}
+.pruef small{display:block;color:var(--muted);font-size:.85rem;margin-top:2px}
+.urteil{border-radius:8px;padding:10px 12px;font-weight:600;border:2px solid var(--line)}
+.urteil.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.urteil.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.f-halo{paint-order:stroke;stroke:var(--erde);stroke-width:4px;stroke-linejoin:round}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_2 Verlegen eines Erders · Teilauftrag 3</p>
+    <h1>Erder verlegen: Kontrolle auf der Baustelle BAP</h1>
+    <p class="lead">Bauleiter Graf möchte wissen, wie der Erder genau verlegt wird. Stellen Sie Fundamenterder, Ringerder und Tiefenerder ein und prüfen Sie, ob die Verlegung den Regeln entspricht.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Erderart</legend>
+          <div class="opts" id="art"></div>
+        </fieldset>
+        <p class="note" id="art-note"></p>
+        <div class="plain" id="regler"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="bild-titel"></h2>
+        <svg class="bild" id="bild" viewBox="0 0 340 210" role="img" aria-label="Schnitt durch die Verlegung des gewählten Erders"></svg>
+        <p class="note" id="bild-note"></p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Kontrolle</h2>
+        <ul class="pruef" id="pruef"></ul>
+        <p class="urteil" id="urteil"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Typische Erder (Theoriebuch NIN31.5)</h2>
+        <dl class="kv">
+          <dt>Fundamenterder, komplett in Beton</dt><dd>Stahlband blank, 75&nbsp;mm², mind. 3&nbsp;mm (25 × 3&nbsp;mm), mind. alle 5&nbsp;m zuverlässig mit Armierung verbunden</dd>
+          <dt>Banderder, horizontal im Erdreich</dt><dd>Kupfer-Runddraht, 50&nbsp;mm², Ø&nbsp;8&nbsp;mm</dd>
+          <dt>Tiefenerder, vertikal im Erdreich</dt><dd>nicht rostender Stahlstab, Ø&nbsp;16&nbsp;mm</dd>
+        </dl>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch NIN31.3 bis NIN31.6)</h2>
+        <div class="merke">
+          <p>Es werden drei Arten von Erdern unterschieden: Fundamenterder, Banderder und Staberder (Tiefenerder). Welche Art anzuwenden ist, entscheidet die Netzbetreiberin.</p>
+          <p>Jeder Erder muss in einer Mindesttiefe von 70&nbsp;cm eingebracht werden, da dort Temperatur und Feuchtigkeit weitgehend stabil sind.</p>
+          <p>Der Fundamenterder muss das gesamte Gebäude ringförmig und geschlossen umschliessen.</p>
+          <p>Bandstahlerder sind stets hochkant zu verlegen und auf jeder Seite von mindestens 5&nbsp;cm Beton zu umschliessen.</p>
+          <p>Blanker oder verzinkter Stahl darf nicht aus dem Beton herausgeführt werden. Anschlussstellen müssen aus korrosionsfestem Material bestehen.</p>
+          <p>Rohrleitungen aus Metall für Wasser, brennbare Flüssigkeiten oder Gase sind als Erder unzulässig.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Verlegen Sie den Fundamenterder so, dass alle Punkte der Kontrolle erfüllt sind. Welche Einstellungen mussten Sie ändern?</li>
+          <li>Warum wird ein Stahlband hochkant und nicht flach verlegt?</li>
+          <li>Das Gebäude erhält ein isoliertes Fundament. Welcher Erder kommt dazu, und welche Abmessungen muss der Gärtner beim Graben einhalten?</li>
+          <li>Zwei Tiefenerder mit je 3&nbsp;m Elektrodenlänge werden parallel geschaltet. Wie gross muss ihr Abstand mindestens sein?</li>
+          <li>Welches Material eignet sich für die Anschlussstelle, die aus dem Beton herausgeführt wird?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Regeln der Technik NIN31.3 bis NIN31.6.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Regeln der Technik, Kapitel 31 Erdung der elektrischen Installationen: NIN31.3 (Erderarten), NIN31.4 (Anforderungen, Fundamenterder), NIN31.5 (Verlegehinweise, Banderder), NIN31.6 (Ringerder, Tiefenerder)</li><li>Arbeitsblätter ID2 Verlegen eines Erders, Teilauftrag 3: Übungen 19 bis 39 und 43 (ID2.9 bis ID2.13)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = "\u00a0";
+function r1(x){ return Math.round(x * 10) / 10; }
+
+/* Regeln aus Theoriebuch NIN31.4 bis NIN31.6 und Arbeitsblatt ID2 Übungen 23, 27, 29, 31, 37, 38, 43 */
+function pruefe(art, w){
+  if (art === "fund") return [
+    {ok:w.lage === "hochkant", t:"Stahlband hochkant verlegt", g:"Bandstahlerder sind stets hochkant zu verlegen, damit keine Lufteinschlüsse entstehen.", f:"Das Stahlband muss hochkant verlegt werden."},
+    {ok:w.dist >= 5, t:"Mindestens 5" + NB + "cm Beton auf jeder Seite", g:"Der Bandstahl muss auf jeder Seite von mindestens 5" + NB + "cm Beton umschlossen sein (Korrosionsschutz).", f:"Das Stahlband muss auf jeder Seite von mindestens 5" + NB + "cm Beton umschlossen sein."},
+    {ok:w.verb <= 5, t:"Mindestens alle 5" + NB + "m mit der Armierung verbunden", g:"Der Fundamenterder muss mindestens alle 5" + NB + "m zuverlässig mit den Armierungseisen verbunden werden, zum Beispiel mit Kreuzklemmen.", f:"Der Erder muss mindestens alle 5" + NB + "m mit der Armierung verbunden werden."},
+    {ok:w.ring === "zu", t:"Als geschlossener Ring verlegt", g:"Der Fundamenterder muss das gesamte Gebäude ringförmig und geschlossen umschliessen.", f:"Der Fundamenterder muss als geschlossener Ring verlegt werden."},
+    {ok:w.anschl !== "blank", t:"Anschlussstelle aus korrosionsfestem Material", g:"Blanker oder verzinkter Stahl darf nicht aus dem Beton herausgeführt werden. Übergänge müssen aus nichtrostendem Stahl (Inox) oder Kupfer bestehen.", f:"Blanker Stahl darf nicht aus dem Beton herausgeführt werden."}
+  ];
+  if (art === "ring") return [
+    {ok:w.abst >= 1, t:"Abstand zum Gebäude mindestens 1" + NB + "m", g:"Ringerder: Abstand zum Gebäude mindestens 1" + NB + "m.", f:"Der Ringerder muss mindestens 1" + NB + "m Abstand zum Gebäude haben."},
+    {ok:w.tief >= 70, t:"Mindestens 70" + NB + "cm tief im Erdreich", g:"Ab dieser Tiefe sind Temperatur und Feuchtigkeit des Erdreichs relativ konstant (Verlegung unterhalb der Gefriergrenze).", f:"Der Erder muss mindestens 70" + NB + "cm tief im Erdreich verlegt werden."},
+    {ok:w.anteil >= 80, t:"Mindestens 80" + NB + "% des Rings im Erdreich", g:"Verlegung zu einem geschlossenen Ring, mindestens 80" + NB + "% des Ringerders müssen im Erdreich sein.", f:"Mindestens 80" + NB + "% des Ringerders müssen im Erdreich liegen."},
+    {ok:w.verb >= 2, t:"An mindestens zwei Stellen mit dem Fundamenterder verbunden", g:"Der zusätzliche Banderder muss mindestens an zwei unabhängigen Stellen mit dem Fundamenterder verbunden werden.", f:"Der Banderder muss an mindestens zwei unabhängigen Stellen mit dem Fundamenterder verbunden werden."}
+  ];
+  var l = [{ok:w.L >= 2.5, t:"Elektrodenlänge mindestens 2,5" + NB + "m", g:"Tiefenerder: Elektrodenlänge mindestens 2,5" + NB + "m, Verlegung vertikal direkt im Erdreich.", f:"Die Elektrodenlänge muss mindestens 2,5" + NB + "m betragen."}];
+  if (w.n === 2) l.push({ok:w.abst >= 1.5 * w.L, t:"Abstand mindestens 1,5 × Elektrodenlänge = " + fmt(1.5 * w.L) + NB + "m", g:"Parallelschaltung: Mindestabstand = 1,5 × Elektrodenlänge. Die Tiefenerder müssen untereinander gut leitend verbunden werden.", f:"Der Abstand muss mindestens das 1,5-fache der Elektrodenlänge betragen."});
+  return l;
+}
+window.__t = {pruefe:pruefe};
+
+/* ================= ZEICHNUNGEN ================= */
+function spitze(x, y, dx, dy){ var n = Math.sqrt(dx * dx + dy * dy), ux = dx / n, uy = dy / n, l = 6.5, b = 2.5; return "<path class=\"f-dimf\" d=\"M" + r1(x) + " " + r1(y) + " L" + r1(x - ux * l - uy * b) + " " + r1(y - uy * l + ux * b) + " L" + r1(x - ux * l + uy * b) + " " + r1(y - uy * l - ux * b) + " Z\"/>"; }
+function mass(x1, y1, x2, y2, text, tx, ty, anker, cls){
+  return "<path class=\"f-dim\" d=\"M" + r1(x1) + " " + r1(y1) + " L" + r1(x2) + " " + r1(y2) + "\"/>" + spitze(x1, y1, x1 - x2, y1 - y2) + spitze(x2, y2, x2 - x1, y2 - y1)
+    + "<text class=\"" + (cls || "f-t") + "\" x=\"" + r1(tx) + "\" y=\"" + r1(ty) + "\" text-anchor=\"" + (anker || "middle") + "\">" + text + "</text>";
+}
+function txt(x, y, t, anker, cls, extra){ return "<text class=\"" + (cls || "f-t") + "\" x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"" + (anker || "start") + "\"" + (extra || "") + ">" + t + "</text>"; }
+function bildFund(w){
+  var h = "", k = 9, bx = 24 + w.dist * k, hoch = w.lage === "hochkant", bw = hoch ? 5 : 40, bh = hoch ? 40 : 5, yb = 146;
+  /* Schnitt */
+  h += txt(24, 22, "Schnitt") + "<rect class=\"e-beton\" x=\"24\" y=\"34\" width=\"140\" height=\"136\"/>";
+  h += "<path class=\"e-schal\" d=\"M21.5 30 V172.5 H166\"/>" + txt(12, 104, "Schalung", "middle", "f-t", " transform=\"rotate(-90 12 104)\"");
+  h += "<path class=\"e-arm\" d=\"M30 150 H160 M30 56 H160\"/>";
+  [40, 70, 100, 130, 156].forEach(function(x){ h += "<circle class=\"e-armp\" cx=\"" + x + "\" cy=\"154.5\" r=\"3\"/><circle class=\"e-armp\" cx=\"" + x + "\" cy=\"60.5\" r=\"3\"/>"; });
+  h += txt(160, 49, "Armierung", "end");
+  h += "<rect class=\"e-band\" x=\"" + r1(bx) + "\" y=\"" + (yb - bh) + "\" width=\"" + bw + "\" height=\"" + bh + "\"/>";
+  if (!hoch) h += "<circle cx=\"" + r1(bx + 9) + "\" cy=\"" + (yb + 9) + "\" r=\"3\" style=\"fill:var(--surface);stroke:var(--bad);stroke-width:1.2\"/><circle cx=\"" + r1(bx + 22) + "\" cy=\"" + (yb + 10) + "\" r=\"2.4\" style=\"fill:var(--surface);stroke:var(--bad);stroke-width:1.2\"/><circle cx=\"" + r1(bx + 32) + "\" cy=\"" + (yb + 8) + "\" r=\"2\" style=\"fill:var(--surface);stroke:var(--bad);stroke-width:1.2\"/>" + txt(r1(bx + 20), yb - 10, "Lufteinschlüsse", "middle", "f-tf");
+  h += mass(24, 96, bx, 96, fmt(w.dist) + NB + "cm", Math.max(46, 24 + (bx - 24) / 2), 90, "middle", w.dist >= 5 ? "f-t" : "f-tf");
+  h += txt(94, 190, "Stahlband 25 × 3" + NB + "mm, " + w.lage, "middle");
+  /* Grundriss mit Ring und Verbindungen */
+  var gx = 192, gy = 40, gw = 132, gh = 104, o = 12, rx = gx + o, ry = gy + o, rw = gw - 2 * o, rh = gh - 2 * o, P = 2 * (rw + rh), i, d;
+  h += txt(gx, 22, "Grundriss") + "<rect class=\"e-haus\" x=\"" + gx + "\" y=\"" + gy + "\" width=\"" + gw + "\" height=\"" + gh + "\"/>";
+  d = ""; for (i = 1; i < 8; i++) d += "M" + r1(gx + i * gw / 8) + " " + gy + " V" + (gy + gh) + " "; for (i = 1; i < 6; i++) d += "M" + gx + " " + r1(gy + i * gh / 6) + " H" + (gx + gw) + " ";
+  h += "<path class=\"e-gitter\" d=\"" + d + "\"/>";
+  var offen = w.ring !== "zu";
+  h += "<path class=\"e-ring\" d=\"M" + rx + " " + (ry + rh) + " V" + ry + " H" + (rx + rw) + " V" + (ry + rh) + " H" + (offen ? rx + 34 : rx) + "\"/>";
+  if (offen) h += txt(rx + 17, ry + rh - 6, "offen", "middle", "f-tf");
+  /* Verbindungen: Beispiel mit 48 m Ringlänge */
+  var n = Math.max(1, Math.ceil(48 / w.verb));
+  function punkt(s){ s = ((s % P) + P) % P; if (s < rh) return [rx, ry + rh - s]; s -= rh; if (s < rw) return [rx + s, ry]; s -= rw; if (s < rh) return [rx + rw, ry + s]; s -= rh; return [rx + rw - s, ry + rh]; }
+  for (i = 0; i < n; i++){ var p = punkt((i + 0.5) * P / n); h += "<circle class=\"e-kl\" cx=\"" + r1(p[0]) + "\" cy=\"" + r1(p[1]) + "\" r=\"3.4\"/>"; }
+  h += "<rect class=\"" + (w.anschl === "cu" ? "e-cu" : w.anschl === "inox" ? "e-inox" : "e-band") + "\" x=\"" + (gx - 5) + "\" y=\"" + (gy + gh - 16) + "\" width=\"10\" height=\"10\"/>";
+  h += txt(gx + gw, gy + gh + 16, "Anschlussstelle: " + {blank:"blanker Stahl", inox:"Inox", cu:"Kupfer"}[w.anschl], "end", w.anschl === "blank" ? "f-tf" : "f-t");
+  h += txt(gx + gw, 190, "alle " + fmt(w.verb) + NB + "m verbunden", "end", w.verb <= 5 ? "f-t" : "f-tf");
+  return h;
+}
+function bildRing(w){
+  var h = "", y0 = 62, kx = 100, ky = 1.05, x = 72 + w.abst * kx, y = y0 + w.tief * ky;
+  h += "<rect class=\"e-erde\" x=\"0\" y=\"" + y0 + "\" width=\"340\" height=\"148\"/>";
+  h += "<rect class=\"e-haus\" x=\"14\" y=\"10\" width=\"58\" height=\"160\"/>" + txt(43, 34, "Gebäude", "middle") + "<rect class=\"e-beton\" x=\"8\" y=\"170\" width=\"70\" height=\"16\"/>" + txt(43, 182, "Fundament", "middle", "f-t", " style=\"font-size:9.5px\"");
+  h += "<path class=\"e-linie\" d=\"M72 " + y0 + " H340\"/>";
+  /* Mindestabmessungen als Hilfslinien */
+  h += "<path class=\"f-dim\" style=\"stroke-dasharray:4 3;opacity:.7\" d=\"M172 " + y0 + " V206 M72 " + r1(y0 + 70 * ky) + " H340\"/>" + txt(336, r1(y0 + 70 * ky) - 4, "70" + NB + "cm", "end") + txt(176, 204, "1" + NB + "m");
+  /* Graben und Erder */
+  h += "<rect x=\"" + r1(x - 9) + "\" y=\"" + y0 + "\" width=\"18\" height=\"" + r1(y - y0 + 7) + "\" style=\"fill:var(--erde2);opacity:.55\"/><circle class=\"e-cu\" cx=\"" + r1(x) + "\" cy=\"" + r1(y) + "\" r=\"4.5\"/>";
+  h += mass(72, 48, x, 48, fmt(w.abst) + NB + "m", Math.max(92, 72 + (x - 72) / 2), 42, "middle", w.abst >= 1 ? "f-t" : "f-tf");
+  h += mass(x + 18, y0, x + 18, y, w.tief + NB + "cm", x + 23, y0 + (y - y0) / 2 + 4, "start", (w.tief >= 70 ? "f-t" : "f-tf") + " f-halo");
+  h += txt(336, 20, "Kupfer-Runddraht 50" + NB + "mm², Ø" + NB + "8" + NB + "mm", "end");
+  return h;
+}
+function bildTief(w){
+  var h = "", y0 = 52, ky = 28, kx = 22, x1 = 70, yl = y0 + w.L * ky;
+  h += "<rect class=\"e-erde\" x=\"0\" y=\"" + y0 + "\" width=\"340\" height=\"158\"/><path class=\"e-linie\" d=\"M0 " + y0 + " H340\"/>";
+  h += "<path class=\"f-dim\" style=\"stroke-dasharray:4 3;opacity:.7\" d=\"M0 " + (y0 + 2.5 * ky) + " H340\"/>" + txt(336, y0 + 2.5 * ky - 4, "2,5" + NB + "m", "end");
+  h += "<rect class=\"e-inox\" x=\"" + (x1 - 2.5) + "\" y=\"" + (y0 - 6) + "\" width=\"5\" height=\"" + r1(yl - y0 + 6) + "\"/>";
+  h += mass(x1 - 16, y0, x1 - 16, yl, fmt(w.L) + NB + "m", x1 - 21, y0 + (yl - y0) / 2 + 4, "end", w.L >= 2.5 ? "f-t" : "f-tf");
+  if (w.n === 2){
+    var x2 = x1 + w.abst * kx, ok = w.abst >= 1.5 * w.L;
+    h += "<rect class=\"e-inox\" x=\"" + r1(x2 - 2.5) + "\" y=\"" + (y0 - 6) + "\" width=\"5\" height=\"" + r1(yl - y0 + 6) + "\"/>";
+    h += "<path d=\"M" + x1 + " " + (y0 - 6) + " V" + (y0 - 14) + " H" + r1(x2) + " V" + (y0 - 6) + "\" style=\"fill:none;stroke:var(--kupfer);stroke-width:2.2\"/>";
+    h += mass(x1, 26, x2, 26, fmt(w.abst) + NB + "m", (x1 + x2) / 2, 20, "middle", ok ? "f-t" : "f-tf");
+  }
+  h += txt(336, 204, "nicht rostender Stahlstab, Ø" + NB + "16" + NB + "mm", "end");
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var ARTEN = [["fund", "Fundamenterder"], ["ring", "Ringerder"], ["tief", "Tiefenerder"]];
+var NOTE = {
+  fund:"Stahlband blank 25 × 3" + NB + "mm, komplett in Beton. Der Fundamenterder ist anderen Erdungssystemen grundsätzlich vorzuziehen.",
+  ring:"Banderder als Ring im Erdreich, zum Beispiel zusätzlich bei einem isolierten Fundament (Übung 43) oder bei Altbauten ohne Erder.",
+  tief:"Staberder, vertikal im Erdreich: als Einzelerder oder als Ergänzung, typisch bei Masten, Kaminen oder Antennen."
+};
+var st = {art:"fund", fund:{lage:"flach", dist:3, verb:8, ring:"zu", anschl:"blank"}, ring:{abst:0.5, tief:50, anteil:100, verb:1}, tief:{L:2, n:1, abst:2}};
+function seg(id, key, werte, akt){ return "<div class=\"opts\" id=\"" + id + "\">" + werte.map(function(w){ return "<button class=\"opt txt\" type=\"button\" id=\"" + id + "-" + w[0] + "\" data-key=\"" + key + "\" data-w=\"" + w[0] + "\" aria-pressed=\"" + (String(w[0]) === String(akt)) + "\">" + w[1] + "</button>"; }).join("") + "</div>"; }
+function sl(id, key, min, max, step, val, lab){ return "<label class=\"r-slider\" for=\"" + id + "\"><span class=\"num\" id=\"" + id + "-v\"></span><input type=\"range\" id=\"" + id + "\" data-key=\"" + key + "\" min=\"" + min + "\" max=\"" + max + "\" step=\"" + step + "\" value=\"" + val + "\" aria-label=\"" + lab + "\"></label>"; }
+function fs(legende, inhalt){ return "<fieldset><legend>" + legende + "</legend>" + inhalt + "</fieldset>"; }
+function reglerHTML(){
+  var w = st[st.art];
+  if (st.art === "fund") return fs("Lage des Stahlbandes", seg("lage", "lage", [["hochkant", "hochkant"], ["flach", "flach"]], w.lage)) + sl("rg-dist", "dist", 1, 10, 0.5, w.dist, "Abstand zur Schalung")
+    + sl("rg-verb", "verb", 1, 10, 0.5, w.verb, "Abstand der Verbindungen") + fs("Verlauf", seg("ring", "ring", [["zu", "geschlossener Ring"], ["offen", "nicht geschlossen"]], w.ring))
+    + fs("Material der Anschlussstelle (aus dem Beton herausgeführt)", seg("anschl", "anschl", [["blank", "blanker Stahl"], ["inox", "nichtrostender Stahl (Inox)"], ["cu", "Kupfer"]], w.anschl));
+  if (st.art === "ring") return sl("rg-abst", "abst", 0.2, 2, 0.1, w.abst, "Abstand zum Gebäude") + sl("rg-tief", "tief", 30, 120, 5, w.tief, "Verlegetiefe") + sl("rg-anteil", "anteil", 50, 100, 5, w.anteil, "Anteil im Erdreich")
+    + fs("Verbindung mit dem Fundamenterder", seg("verb", "verb", [[1, "an 1 Stelle"], [2, "an 2 Stellen"]], w.verb));
+  return sl("rg-L", "L", 1, 5, 0.5, w.L, "Elektrodenlänge") + fs("Anzahl Tiefenerder", seg("n", "n", [[1, "1"], [2, "2 parallel"]], w.n)) + (w.n === 2 ? sl("rg-abst", "abst", 1, 10, 0.5, w.abst, "Abstand der Tiefenerder") : "");
+}
+function render(neu){
+  var a = st.art, w = st[a];
+  $("art").innerHTML = ARTEN.map(function(x){ return "<button class=\"opt txt\" type=\"button\" id=\"art-" + x[0] + "\" data-a=\"" + x[0] + "\" aria-pressed=\"" + (x[0] === a) + "\">" + x[1] + "</button>"; }).join("");
+  $("art-note").innerHTML = NOTE[a];
+  if (neu) $("regler").innerHTML = reglerHTML();
+  Array.prototype.forEach.call($("regler").querySelectorAll("button[data-key]"), function(b){ b.setAttribute("aria-pressed", String(String(w[b.getAttribute("data-key")]) === b.getAttribute("data-w"))); });
+  if (a === "fund"){ $("rg-dist-v").innerHTML = "Abstand zur Schalung: " + fmt(w.dist) + NB + "cm"; $("rg-verb-v").innerHTML = "Verbindung mit der Armierung alle " + fmt(w.verb) + NB + "m"; }
+  if (a === "ring"){ $("rg-abst-v").innerHTML = "Abstand zum Gebäude: " + fmt(w.abst) + NB + "m"; $("rg-tief-v").innerHTML = "Verlegetiefe: " + w.tief + NB + "cm"; $("rg-anteil-v").innerHTML = "Anteil des Rings im Erdreich: " + w.anteil + NB + "%"; }
+  if (a === "tief"){ $("rg-L-v").innerHTML = "Elektrodenlänge: " + fmt(w.L) + NB + "m"; if (w.n === 2) $("rg-abst-v").innerHTML = "Abstand der Tiefenerder: " + fmt(w.abst) + NB + "m"; }
+  $("bild-titel").textContent = a === "fund" ? "Fundamenterder im Beton" : a === "ring" ? "Ringerder im Erdreich (Schnitt)" : "Tiefenerder im Erdreich (Schnitt)";
+  $("bild").innerHTML = a === "fund" ? bildFund(w) : a === "ring" ? bildRing(w) : bildTief(w);
+  $("bild-note").innerHTML = a === "fund" ? "Eigene, vereinfachte Darstellung. Grundriss mit 48" + NB + "m Ringlänge als Beispiel, grüne Punkte: Verbindungen mit der Armierung." : "Eigene, vereinfachte Darstellung. Gestrichelt: die Mindestabmessungen.";
+  var p = pruefe(a, w), alle = p.every(function(x){ return x.ok; });
+  var h = p.map(function(x){ return "<li class=\"" + (x.ok ? "ja" : "nein") + "\"><span>" + (x.ok ? "✓" : "✗") + "</span><span>" + x.t + "<small>" + x.g + "</small></span></li>"; }).join("");
+  if (a === "tief") h += "<li class=\"info\"><span>i</span><span>Zielwert für den Erdübergangswiderstand: ≤" + NB + "10" + NB + "Ω<small>Abhängig von der Erdungslänge und der Bodenbeschaffenheit. Reicht ein Tiefenerder nicht, können mehrere parallelgeschaltet werden.</small></span></li>";
+  $("pruef").innerHTML = h;
+  var u = $("urteil"); u.className = "urteil " + (alle ? "ok" : "bad");
+  u.textContent = alle ? "Die Verlegung entspricht den Regeln." : "Die Verlegung ist zu beanstanden: " + p.filter(function(x){ return !x.ok; }).length + " von " + p.length + " Punkten sind nicht erfüllt.";
+}
+function init(){
+  $("art").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-a]"); if (!b) return; st.art = b.getAttribute("data-a"); render(true); var x = $("art-" + st.art); if (x) x.focus(); });
+  $("regler").addEventListener("click", function(ev){
+    var b = ev.target.closest("button[data-key]"); if (!b) return; var k = b.getAttribute("data-key"), v = b.getAttribute("data-w"), w = st[st.art], id = b.id;
+    w[k] = (k === "verb" || k === "n") ? Number(v) : v; render(k === "n"); var x = $(id); if (x) x.focus();
+  });
+  $("regler").addEventListener("input", function(ev){ var k = ev.target.getAttribute("data-key"); if (k === null || ev.target.type !== "range") return; st[st.art][k] = Number(ev.target.value); render(false); });
+  render(true);
+}
+
+/* ================= AUFGABEN ================= */
+var NICHTS = "Nichts, die Verlegung entspricht den Regeln.";
+function fall(art, w){
+  var p = pruefe(art, w), fehler = p.filter(function(x){ return !x.ok; }), c = fehler.length ? fehler[0].f : NICHTS;
+  var andere = shuffle(p.filter(function(x){ return x.ok; }).map(function(x){ return x.f; })).slice(0, fehler.length ? 2 : 3), o = [c].concat(andere);
+  if (fehler.length) o.push(NICHTS);
+  return {c:c, o:shuffle(o), g:fehler.length ? fehler[0].g : "Alle geprüften Punkte sind eingehalten."};
+}
+function qFund(){
+  var w = {lage:"hochkant", dist:pick([5, 6, 8]), verb:pick([3, 4, 5]), ring:"zu", anschl:pick(["inox", "cu"])}, f = pick([0, 1, 2, 3, 4, 5]);
+  if (f === 1) w.lage = "flach"; if (f === 2) w.dist = pick([2, 3, 4]); if (f === 3) w.verb = pick([6, 8, 10]); if (f === 4) w.ring = "offen"; if (f === 5) w.anschl = "blank";
+  var x = fall("fund", w);
+  return {
+    text: "Kontrolle auf der Baustelle: Das Stahlband 25 × 3" + NB + "mm liegt " + w.lage + " auf der untersten Lage der Armierung, " + w.dist + NB + "cm von der Schalung entfernt. Es ist alle " + w.verb + NB + "m mit der Armierung verbunden und " + (w.ring === "zu" ? "als geschlossener Ring" : "nicht als geschlossener Ring") + " verlegt. Die Anschlussstelle besteht aus " + {blank:"blankem Stahl", inox:"nichtrostendem Stahl (Inox)", cu:"Kupfer"}[w.anschl] + ". Was ist zu beanstanden?",
+    parts: [{label:"Beanstandung", options:x.o, correct:x.c}],
+    hint: "Prüfen Sie fünf Punkte: Lage des Bandes, Beton auf jeder Seite, Abstand der Verbindungen, geschlossener Ring, Material der Anschlussstelle.",
+    solution: "<p><b>" + x.c + "</b></p><p>" + x.g + "</p>"
+  };
+}
+function qRing(){
+  var w = {abst:pick([1, 1.2, 1.5]), tief:pick([70, 80, 100]), anteil:pick([80, 90, 100]), verb:2}, f = pick([0, 1, 2, 3, 4]);
+  if (f === 1) w.abst = pick([0.3, 0.5, 0.8]); if (f === 2) w.tief = pick([30, 40, 50, 60]); if (f === 3) w.anteil = pick([50, 60, 70]); if (f === 4) w.verb = 1;
+  var x = fall("ring", w);
+  return {
+    text: "Das Gebäude hat ein isoliertes Fundament. Der zusätzliche Ringerder (Kupfer-Runddraht 50" + NB + "mm²) liegt " + fmt(w.abst) + NB + "m vom Gebäude entfernt in " + w.tief + NB + "cm Tiefe. " + w.anteil + NB + "% des Rings liegen im Erdreich. Er ist an " + (w.verb === 2 ? "zwei Stellen" : "einer Stelle") + " mit dem Fundamenterder verbunden. Was ist zu beanstanden?",
+    parts: [{label:"Beanstandung", options:x.o, correct:x.c}],
+    hint: "Prüfen Sie vier Punkte: Abstand zum Gebäude, Verlegetiefe, Anteil im Erdreich, Anzahl der Verbindungen mit dem Fundamenterder.",
+    solution: "<p><b>" + x.c + "</b></p><p>" + x.g + "</p>"
+  };
+}
+function qTief(){
+  var L = pick([2.5, 3, 3.5, 4, 5]), c = 1.5 * L;
+  function sh(x){ return fmt(x) + NB + "m"; }
+  return {
+    text: "Zwei Tiefenerder mit je " + fmt(L) + NB + "m Elektrodenlänge werden parallelgeschaltet. Wie gross muss der Abstand zwischen ihnen mindestens sein?",
+    parts: [{label:"Mindestabstand", options:[L, c, 2 * L, L + 1].filter(function(v, n, arr){ return arr.indexOf(v) === n; }).concat(c === L + 1 || 2 * L === L + 1 ? [L / 2] : []).sort(function(p, q){ return p - q; }), correct:c, mono:true, show:sh}],
+    hint: "Mindestabstand = 1,5 × Elektrodenlänge.",
+    solution: "<p class=\"num\">1,5 · " + fmt(L) + NB + "m = <b>" + sh(c) + "</b></p><p>Die Tiefenerder müssen untereinander gut leitend verbunden werden.</p>"
+  };
+}
+/* Zahlenwerte: [Frage, richtig, falsche Werte, Einheit, Erklärung] */
+var ZAHL = [
+  ["Wie tief muss ein Erder im Erdreich mindestens verlegt werden?", 70, [30, 50, 100], "cm", "Ab dieser Tiefe sind Temperatur und Feuchtigkeit des Erdreichs relativ konstant."],
+  ["Als Fundamenterder kann auch das Armierungseisen verwendet werden. Welchen Durchmesser muss es mindestens aufweisen?", 10, [6, 8, 16], "mm", "Das verwendete Armierungseisen muss einen Mindestdurchmesser von 10 mm aufweisen."],
+  ["Von wie viel Beton muss ein Bandstahlerder auf jeder Seite mindestens umschlossen sein?", 5, [2, 3, 10], "cm", "Mindestens 5 cm Beton gewährleisten einen zuverlässigen Korrosionsschutz."],
+  ["In welchem Abstand muss der Fundamenterder mindestens mit den Armierungseisen verbunden werden?", 5, [2, 10, 20], "m", "Mindestens alle 5 m, zum Beispiel mit Kreuzklemmen. Dazwischen dürfen Bindedrähte verwendet werden."],
+  ["Wie gross soll die Elektrodenlänge eines Tiefenerders mindestens sein?", 2.5, [1, 1.5, 5], "m", "Etwa 2,5 m lange Stahlstäbe werden mit einem Bohrhammer in den Boden getrieben."],
+  ["Welchen Abstand zum Gebäude muss ein Ringerder mindestens haben?", 1, [0.3, 0.5, 2], "m", "Ringerder: Abstand zum Gebäude mindestens 1 m, Tiefe mindestens 70 cm."],
+  ["Wie viel Prozent eines Ringerders müssen mindestens im Erdreich liegen?", 80, [50, 60, 100], "%", "Mindestens 80 % des Ringerders müssen im Erdreich sein."],
+  ["Welchen Querschnitt muss ein Erder aus Kupfer mindestens haben?", 50, [16, 25, 95], "mm²", "Kupfer: 50 mm², als Runddraht mit 8 mm Durchmesser."],
+  ["Welchen Durchmesser hat ein Kupfer-Runddraht mit dem Mindestquerschnitt für Banderder?", 8, [4, 6, 10], "mm", "Kupferrunddraht 50 mm² (8 mm Ø)."],
+  ["Welche Mindestdicke muss ein Fundamenterder aus blankem Stahlband aufweisen?", 3, [1, 2, 5], "mm", "Stahlband blank: 75 mm², mindestens 3 mm, zum Beispiel 25 × 3 mm."],
+  ["Welche Mindestdicke muss ein Erder aus Kupferband aufweisen?", 2, [1, 3, 5], "mm", "Kupferband: 50 mm², mindestens 2 mm, zum Beispiel 25 mm × 2 mm."],
+  ["Welchen Durchmesser hat der nicht rostende Stahlstab eines typischen Tiefenerders?", 16, [8, 10, 25], "mm", "Tiefenerder, vertikal im Erdreich: nicht rostender Stahlstab, Ø 16 mm."],
+  ["Welcher Zielwert gilt für den Erdübergangswiderstand eines Tiefenerders (höchstens)?", 10, [1, 100, 500], "Ω", "Zielwert ≤ 10 Ω, abhängig von der Erdungslänge und der Bodenbeschaffenheit."]
+];
+function qZahl(){
+  var q = pick(ZAHL);
+  function sh(x){ return fmt(x) + NB + q[3]; }
+  return {
+    text: q[0],
+    parts: [{label:"Antwort", options:[q[1]].concat(q[2]).sort(function(a, b){ return a - b; }), correct:q[1], mono:true, show:sh}],
+    hint: "Schlagen Sie im Theoriebuch auf NIN31.3 bis NIN31.6 nach.",
+    solution: "<p><b>" + sh(q[1]) + "</b></p><p>" + q[4].replace(/(\d) (mm²|mm|cm|m|%|Ω)/g, "$1" + NB + "$2") + "</p>"
+  };
+}
+var FAKT = [
+  {t:"Wer entscheidet, welche Art von Erder anzuwenden ist?", o:["Die Netzbetreiberin", "Der Elektroinstallateur", "Der Bauleiter", "Der Architekt"], k:0, s:"Welche Art von Erder anzuwenden ist, entscheidet die Netzbetreiberin."},
+  {t:"Wie muss ein Fundamenterder verlegt werden?", o:["Er muss das ganze Gebäude als geschlossenen Ring umschliessen.", "Als gerader Strang unter der Hauptverteilung", "Als offener Halbring auf der Wetterseite", "Senkrecht in jeder Gebäudeecke"], k:0, s:"Der Fundamenterder muss das gesamte Gebäude ringförmig und geschlossen umschliessen."},
+  {t:"Wie muss ein Erder aus Stahlband im Fundament verlegt werden, damit Korrosion durch Lufteinschlüsse vermieden wird?", o:["Hochkant auf Distanzhaltern oder auf der untersten Lage der Armierungseisen", "Flach auf dem Erdreich unter der Sauberkeitsschicht", "Flach auf der obersten Lage der Armierungseisen", "In einem Kunststoffrohr im Beton"], k:0, s:"Lufteinschlüsse müssen unbedingt verhindert werden. Das wird nur erreicht, wenn das Stahlband hochkant verlegt wird."},
+  {t:"Welcher Erder eignet sich besonders zum Erden von Masten, Kaminen und Antennen?", o:["Staberder (Tiefenerder)", "Fundamenterder", "Ringerder", "Wasserleitung aus Metall"], k:0, s:"Tiefenerder werden als Einzelerder oder als Ergänzung eingesetzt, typisch bei Masten, Kaminen oder Antennen."},
+  {t:"Ein Kupfererder liegt auf dem Kies an der Erdoberfläche. Ist er normgerecht verlegt?", o:["Nein, er muss mindestens 70 cm tief im Erdreich verlegt sein.", "Ja, Kupfer korrodiert nicht.", "Ja, wenn er mit Kies überdeckt wird.", "Nein, Kupfer ist als Erder nicht zulässig."], k:0, s:"Jeder Erder muss in einer Mindesttiefe von 70 cm eingebracht werden."},
+  {t:"Die Distanz zwischen Verschalung und Stahlband beträgt 5 cm. Ist diese Distanz zulässig?", o:["Ja, die Distanz soll mindestens 5 cm betragen.", "Nein, es müssen mindestens 10 cm sein.", "Nein, das Band muss an der Verschalung anliegen.", "Ja, zulässig sind höchstens 5 cm."], k:0, s:"Der Bandstahl muss auf jeder Seite von mindestens 5 cm Beton umschlossen sein."},
+  {t:"Was ist eine Anschlussgarnitur?", o:["Die Verbindung zwischen Erder und Schutzpotenzialausgleich (SPA)", "Eine Klemme zum Verbinden zweier Armierungseisen", "Ein Distanzhalter für das Stahlband", "Die Trennstelle zwischen Neutralleiter und Schutzleiter"], k:0, s:"Anschlussstellen (Anschlussgarnituren, «Fünflieber») müssen aus korrosionsfestem Material bestehen."},
+  {t:"Welches Material eignet sich besser für den Fundamenterder in einem Betonfundament?", o:["Verzinkter Stahl: Er ist kostengünstiger als Kupfer.", "Kupfer: Es leitet besser.", "Aluminium: Es ist leichter.", "Blei: Es korrodiert nicht."], k:0, s:"Verzinkter Stahl eignet sich besser als Kupfer für einen Fundamenterder in einem Betonfundament. Stahl ist kostengünstiger."},
+  {t:"Das Gebäude wird mit einem isolierten Fundament ausgeführt. Was muss am Erdungskonzept angepasst werden?", o:["Es muss ein zusätzlicher Banderder ausserhalb des Gebäudes verlegt werden.", "Der Fundamenterder kann ersatzlos entfallen.", "Der Fundamenterder muss aus Kupfer statt aus Stahl sein.", "Es genügt, die Wasserleitung als Erder zu verwenden."], k:0, s:"Zudem ist eine Trennstelle für Messzwecke vorzusehen. Der Banderder muss an mindestens zwei unabhängigen Stellen mit dem Fundamenterder verbunden werden."},
+  {t:"Welche Arbeit muss der Gärtner für den Ringerder ausführen?", o:["In mindestens 1 m Abstand zum Gebäude einen mindestens 70 cm tiefen Graben ausheben", "Direkt an der Fassade einen 30 cm tiefen Graben ausheben", "In 5 m Abstand zum Gebäude einen 2 m tiefen Graben ausheben", "Keine, der Ringerder liegt im Beton"], k:0, s:"Ringerder: Abstand zum Gebäude mindestens 1 m, Tiefe mindestens 70 cm ins Erdreich."},
+  {t:"Dürfen metallene Rohrleitungen für Wasser oder Gas als Erder verwendet werden?", o:["Nein, sie sind als Erder unzulässig.", "Ja, wenn sie mindestens 70 cm tief liegen.", "Ja, wenn sie aus Kupfer bestehen.", "Nur Wasserleitungen, Gasleitungen nicht."], k:0, s:"Rohrleitungen aus Metall, die der Leitung von Wasser, brennbaren Flüssigkeiten oder Gasen dienen, sind als Erder unzulässig."},
+  {t:"Warum gilt der Fundamenterder als optimale Erdungslösung?", o:["Aus elektrotechnischer und korrosionstechnischer Sicht", "Weil er am wenigsten Material braucht", "Weil er nachträglich leicht eingebaut werden kann", "Weil er keine Verbindung zur Armierung braucht"], k:0, s:"Der Fundamenterder ist grundsätzlich anderen Erdungssystemen vorzuziehen."},
+  {t:"Darf an Verbindungsstellen des Fundamenterders Bindedraht als Verbindung verwendet werden?", o:["Nein, es sind Klemm-, Quetsch- oder gleichwertige Verbindungen anzuwenden.", "Ja, Bindedraht genügt überall.", "Ja, wenn er doppelt gewickelt wird.", "Nur bei Kupfererdern"], k:0, s:"Der Einsatz von Bindedraht ist an Verbindungsstellen unzulässig. Zwischen den Verbindungen im 5-m-Abstand dürfen Bindedrähte verwendet werden."},
+  {t:"Wann kommt ein Banderder (Oberflächenerder) vor allem zum Einsatz?", o:["Bei bestehenden Gebäuden ohne ausreichende Erdung, wenn eine Fundamenterdung nachträglich nicht mehr möglich ist", "Bei jedem Neubau anstelle des Fundamenterders", "Nur bei Hochspannungsanlagen", "Nur in Gebäuden ohne Keller"], k:0, s:"Banderder werden horizontal im Erdreich verlegt, als Strahlenerder oder Ringerder."}
+];
+function qFakt(){
+  var k = pick(FAKT);
+  function nbsp(s){ return s.replace(/(\d) (mm²|mm|cm|m|%|Ω)/g, "$1" + NB + "$2"); }
+  var o = k.o.map(nbsp);
+  return {
+    text: nbsp(k.t),
+    parts: [{label:"Antwort", options:shuffle(o), correct:o[k.k]}],
+    hint: "Schlagen Sie im Theoriebuch auf NIN31.3 bis NIN31.6 nach.",
+    solution: "<p><b>" + o[k.k] + "</b></p><p>" + nbsp(k.s) + "</p>"
+  };
+}
+function qOrdnen(){
+  return {
+    text: "Welche Arten von Erdern werden unterschieden? Ordnen Sie diese nach der Häufigkeit ihrer Anwendung in der Praxis (häufigste zuerst).",
+    parts: [{type:"order", label:"Reihenfolge", items:["Fundamenterder", "Banderder", "Staberder (Tiefenerder)"]}],
+    hint: "Der Erder, der bereits in der Rohbauphase im Beton eingebettet wird, kommt am häufigsten vor.",
+    solution: "<p><b>1. Fundamenterder, 2. Banderder, 3. Staberder (Tiefenerder)</b></p>"
+  };
+}
+function qMehrfach(){
+  var q = pick([
+    {t:"Welche zwei Anforderungen werden an die Austrittsstelle des Erders aus dem Erdboden oder aus dem Fundament gestellt?", o:["leicht zugänglich", "gegen Korrosion geschützt", "mindestens 2 m über Boden", "mit Beton vergossen"], c:["leicht zugänglich", "gegen Korrosion geschützt"], s:"Die Austrittsstelle muss leicht zugänglich und gegen Korrosion geschützt sein."},
+    {t:"Wie können Armierungseisen, die als Fundamenterder dienen, fachgerecht miteinander verbunden werden?", o:["durch Schweissen", "durch Pressen", "mittels Klemmen", "nur mit Bindedraht"], c:["durch Schweissen", "durch Pressen", "mittels Klemmen"], s:"Schweissen, Klemmen, Pressen oder geeignete Verbindungselemente. Der Einsatz von Bindedraht ist an Verbindungsstellen unzulässig."},
+    {t:"Aus welchen Materialien dürfen die Übergänge bestehen, die aus dem Beton zu den Anschlussstellen herausgeführt werden?", o:["nichtrostender Stahl (Inox)", "Kupfer", "blanker Stahl", "verzinkter Stahl"], c:["nichtrostender Stahl (Inox)", "Kupfer"], s:"Blanker oder verzinkter Stahl darf nicht aus dem Beton herausgeführt werden, da er sonst korrodieren würde."},
+    {t:"Wofür ist der Erder entscheidend?", o:["das Auslösen von Schutzorganen", "die Vermeidung gefährlicher Berührungsspannungen", "den Schutz vor Überspannungen und Blitzschlag", "die Erhöhung der Netzspannung"], c:["das Auslösen von Schutzorganen", "die Vermeidung gefährlicher Berührungsspannungen", "den Schutz vor Überspannungen und Blitzschlag"], s:"Der Erder stellt sicher, dass ein definierter Strompfad zur Erde besteht."}
+  ]);
+  return {
+    text: q.t,
+    parts: [{type:"multi", label:"Antworten", options:shuffle(q.o), correct:q.c}],
+    hint: "Es sind mehrere Antworten richtig.",
+    solution: "<p><b>" + q.c.join(", ") + "</b></p><p>" + q.s + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.22) return qFund();
+  if (x < 0.36) return qRing();
+  if (x < 0.42) return qTief();
+  if (x < 0.64) return qZahl();
+  if (x < 0.88) return qFakt();
+  if (x < 0.92) return qOrdnen();
+  return qMehrfach();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qFund, qFund, qRing, pick([qTief, qOrdnen]), qZahl, qZahl, qFakt, qMehrfach]); }});
+})();
+
+</script>
+</body>
+</html>

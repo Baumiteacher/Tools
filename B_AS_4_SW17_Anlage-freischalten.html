@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_AS_4 TA3 Anlage freischalten BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+.bild{width:100%;height:auto;display:block}
+.h-live{stroke:var(--bad);stroke-width:3.5;fill:none}
+.h-tot{stroke:var(--muted);stroke-width:2;fill:none}
+.h-halter{fill:var(--surface);stroke:var(--ink);stroke-width:1.8}
+.h-halter.leer{stroke-dasharray:4 3}
+.h-sich{fill:var(--line);stroke:var(--ink);stroke-width:1.5}
+.h-kl{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.h-bereich{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:6 4}
+.h-deck{fill:var(--accent);opacity:.28;stroke:var(--accent);stroke-width:1.5}
+.h-schild{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.5}
+.h-t{fill:var(--ink);font-family:var(--sans);font-size:10.5px;font-weight:700}
+.h-m{fill:var(--muted);font-family:var(--sans);font-size:9px}
+.h-a{fill:var(--accent);font-family:var(--sans);font-size:9px;font-weight:700}
+.sich{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aktionen{display:flex;flex-direction:column;gap:6px}
+.aktionen .btn{text-align:left}
+.meldung{border-radius:8px;padding:10px 12px;border:1px solid var(--line);font-weight:600}
+.meldung.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.meldung.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.regelstand{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.regelstand li{display:grid;grid-template-columns:1.8em 1fr auto;gap:8px;align-items:start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.regelstand .nr{font-family:var(--mono);font-weight:700}
+.regelstand .t{font-weight:700}
+.regelstand .d{font-size:.88rem;color:var(--muted)}
+.regelstand li.ok{border-color:var(--ok)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_AS_4 PSA (Elektro) · Teilauftrag 3</p>
+    <h1>Anlage freischalten BAP</h1>
+    <p class="lead">In der Hauptverteilung einer Wohnüberbauung ersetzen Sie die Verdrahtung der Wohnung 1. Bereiten Sie die Anlage Schritt für Schritt so vor, dass Sie im spannungsfreien Zustand arbeiten können.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <p class="note">Auftrag aus Übung 24: Verdrahtung zwischen der Klemme 160X8 (Wohnung 1) und der Bezügerüberstrom-Schutzeinrichtung 160F2 ersetzen. Im Arbeitsbereich verlaufen auch die Leitungen und Klemmen der Wohnungen 2 bis 6. Für Arbeiten unter Spannung sind Sie nicht geschult, also arbeiten Sie im spannungsfreien Zustand.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Hauptverteilung</h2>
+        <svg class="bild" id="hv" viewBox="0 0 340 172" role="img" aria-label="Hauptverteilung mit den Sicherungen der Wohnungen 1 bis 6 und dem Arbeitsbereich"></svg>
+        <p class="note">Vereinfachte Darstellung. Rot: unter Spannung. Grau: spannungsfrei. Gestrichelt blau: Ihr Arbeitsbereich.</p>
+      </div>
+
+      <div class="plain">
+        <fieldset>
+          <legend>Sicherungen (antippen zum Entfernen oder Einsetzen)</legend>
+          <div class="sich" id="sich"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Weitere Handlungen</legend>
+          <div class="aktionen" id="aktionen">
+            <button class="btn ghost" type="button" data-akt="mit" id="akt-mit">Schmelzsicherungen mitnehmen und sicher aufbewahren</button>
+            <button class="btn ghost" type="button" data-akt="schild" id="akt-schild">Verbotsschild anbringen</button>
+            <button class="btn ghost" type="button" data-akt="messen" id="akt-messen">Mit Stefania die Spannungsfreiheit im Arbeitsbereich prüfen</button>
+            <button class="btn ghost" type="button" data-akt="decken" id="akt-decken">Benachbarte unter Spannung stehende Teile abdecken</button>
+            <button class="btn ghost" type="button" data-akt="neu" id="akt-neu">Von vorne beginnen</button>
+          </div>
+        </fieldset>
+        <p class="meldung" id="meldung" aria-live="polite"></p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Stand der fünf Sicherheitsregeln</h2>
+        <ol class="regelstand" id="stand"></ol>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Um den spannungsfreien Zustand einer Anlage herzustellen, sind zwingend die fünf Sicherheitsregeln für spannungsfreies Arbeiten einzuhalten.</p>
+          <p>Ich führe nur Arbeiten aus, für die ich geschult und berechtigt bin (organisatorische Regel 2).</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Warum entfernen Sie nicht nur die Sicherung der Wohnung 1?</li>
+          <li>Was passiert, wenn Sie die Spannungsfreiheit prüfen wollen, bevor die Anlage gegen Wiedereinschalten gesichert ist?</li>
+          <li>Bei welcher Sicherheitsregel unterstützt Sie Stefania?</li>
+          <li>Entfernen Sie nur die Sicherung der Wohnung 1. Welche Regel verlangt dann eine zusätzliche Handlung?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Arbeitssicherheit AS1.7 und AS1.8, 5 + 5 Lebenswichtige Regeln im Umgang mit Elektrizität.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Arbeitssicherheit, Kapitel 1: AS1.8 (Sicherheitsregeln für spannungsfreies Arbeiten) und AS1.7 (Organisatorische Regeln für sicheres Arbeiten)</li><li>Arbeitsblätter AS4 PSA (Elektro), Teilauftrag 3: Übungen 24 und 25 (AS4.7)</li><li>Arbeitsblätter AS4 PSA (Elektro), Teilauftrag 1: Übungen 9 und 10 (AS4.3)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+
+/* Inhalte: Theoriebuch AS1.7 und AS1.8, Arbeitsblatt AS4 Übungen 24 und 25 sowie 9 und 10 */
+var SPF = ["Freischalten", "Gegen Wiedereinschalten sichern", "Spannungsfreiheit feststellen", "Erden und kurzschliessen", "Benachbarte unter Spannung stehende Teile abdecken oder abschranken"];
+var ORG = ["Auftrag und Verantwortung klar?", "Für die Arbeit geschult und berechtigt?", "Arbeitsmittel sicher und intakt?", "Trage ich die persönliche Schutzausrüstung?", "Wurde alles kontrolliert, bevor die Anlage in Betrieb genommen wird?"];
+
+function neu(){ return {raus:[false, false, false, false, false, false], mit:false, schild:false, frei:false, deck:false, msg:"Beginnen Sie mit Regel 1: Schalten Sie frei.", art:""}; }
+var st = neu();
+function alle(){ return st.raus.every(function(x){ return x; }); }
+function nochAn(){ var a = []; st.raus.forEach(function(x, k){ if (!x) a.push(k + 1); }); return a; }
+function liste(a){ return a.length === 1 ? String(a[0]) : a.slice(0, -1).join(", ") + " und " + a[a.length - 1]; }
+function wohn(a, gross){ return (a.length > 1 ? (gross ? "Die Wohnungen " : "der Wohnungen ") : (gross ? "Die Wohnung " : "der Wohnung ")) + liste(a); }
+function stand(){
+  var r1 = st.raus[0], r2 = r1 && st.mit, r3 = r2 && st.frei, r5 = r3 && (alle() || st.deck);
+  return {r1:r1, r2:r2, r3:r3, r5:r5, fertig:r1 && r2 && r3 && r5};
+}
+window.__t = {st:function(){ return st; }, stand:stand};
+
+function zeichne(){
+  var h = "", s = stand();
+  h += "<path class=\"h-live\" d=\"M16 22 H324\"/><text class=\"h-m\" x=\"16\" y=\"13\">Zuleitung, unter Spannung</text>";
+  h += "<rect class=\"h-bereich\" x=\"20\" y=\"98\" width=\"300\" height=\"44\" rx=\"6\"/><text class=\"h-a\" x=\"316\" y=\"94\" text-anchor=\"end\">Arbeitsbereich</text>";
+  for (var k = 0; k < 6; k++){
+    var x = 45 + k * 50, raus = st.raus[k];
+    h += "<path class=\"h-live\" d=\"M" + x + " 22 V40\"/>";
+    h += "<path class=\"" + (raus ? "h-tot" : "h-live") + "\" d=\"M" + x + " 80 V116\"/>";
+    h += "<rect class=\"h-halter" + (raus ? " leer" : "") + "\" x=\"" + (x - 13) + "\" y=\"40\" width=\"26\" height=\"40\" rx=\"3\"/>";
+    if (!raus) h += "<rect class=\"h-sich\" x=\"" + (x - 6) + "\" y=\"46\" width=\"12\" height=\"28\" rx=\"2\"/>";
+    h += "<rect class=\"h-kl\" x=\"" + (x - 9) + "\" y=\"116\" width=\"18\" height=\"12\" rx=\"2\"/>";
+    h += "<text class=\"h-t\" x=\"" + x + "\" y=\"158\" text-anchor=\"middle\">W" + (k + 1) + "</text>";
+  }
+  h += "<text class=\"h-m\" x=\"45\" y=\"169\" text-anchor=\"middle\">160F2</text>";
+  if (st.deck && !alle()) st.raus.forEach(function(raus, k){ if (!raus) h += "<rect class=\"h-deck\" x=\"" + (45 + k * 50 - 16) + "\" y=\"102\" width=\"32\" height=\"36\" rx=\"4\"/>"; });
+  if (st.schild) h += "<rect class=\"h-schild\" x=\"232\" y=\"3\" width=\"92\" height=\"14\" rx=\"3\"/><text class=\"h-t\" x=\"278\" y=\"13.5\" text-anchor=\"middle\" style=\"fill:var(--bad)\">Nicht schalten</text>";
+  $("hv").innerHTML = h;
+  return s;
+}
+function render(){
+  var s = zeichne(), an = nochAn();
+  $("sich").innerHTML = st.raus.map(function(raus, k){
+    return "<button class=\"opt txt\" type=\"button\" id=\"sich-" + k + "\" data-k=\"" + k + "\" aria-pressed=\"" + raus + "\">Wohnung " + (k + 1) + ": " + (raus ? "entfernt" : "eingesetzt") + "</button>";
+  }).join("");
+  var m = $("meldung");
+  m.textContent = s.fertig ? "Die Anlage ist vorbereitet. Sie können im spannungsfreien Zustand arbeiten." : st.msg;
+  m.className = "meldung" + (s.fertig ? " ok" : st.art ? " " + st.art : "");
+  var z = [
+    {ok:s.r1, d:s.r1 ? (alle() ? "Die Sicherungen der Wohnungen 1 bis 6 sind entfernt." : "Die Sicherung der Wohnung 1 ist entfernt. " + wohn(an, true) + (an.length > 1 ? " stehen" : " steht") + " noch unter Spannung.") : "Sicherungen entfernen."},
+    {ok:s.r2, d:s.r2 ? "Die Schmelzsicherungen sind mitgenommen und sicher aufbewahrt." + (st.schild ? " Zusätzlich ist ein Verbotsschild angebracht." : "") : "Schmelzsicherungen mitnehmen und sicher aufbewahren. Zusätzlich Verbotsschilder anbringen."},
+    {ok:s.r3, d:s.r3 ? "Mit einem funktionstüchtigen Messgerät geprüft. Stefania hat Sie beim Feststellen der Spannungsfreiheit unterstützt." : "Überprüfung mit funktionstüchtigem Messgerät (Voltmeter)."},
+    {ent:true, d:"Entfällt bei Niederspannungsanlagen, wenn keine Gefahr von Spannungsübertragung oder Rückeinspeisung besteht. Annahme für diese Übung: keine solche Gefahr."},
+    {ok:s.r5, d:s.r5 ? (alle() ? "Im Arbeitsbereich befinden sich keine benachbarten Teile unter Spannung." : "Die unter Spannung stehenden Teile " + wohn(an) + " sind abgedeckt.") : (alle() ? "Wird nach dem Feststellen der Spannungsfreiheit beurteilt." : "Im Arbeitsbereich stehen noch Leitungen und Klemmen " + wohn(an) + " unter Spannung.")}
+  ];
+  $("stand").innerHTML = z.map(function(x, k){
+    return "<li class=\"" + (x.ok ? "ok" : "") + "\"><span class=\"nr\">" + (k + 1) + "</span><span><span class=\"t\">" + SPF[k] + "</span><br><span class=\"d\">" + x.d + "</span></span><span class=\"pill " + (x.ok ? "ok" : x.ent ? "" : "bad") + "\">" + (x.ok ? "erfüllt" : x.ent ? "entfällt" : "offen") + "</span></li>";
+  }).join("");
+}
+function melde(t, art){ st.msg = t; st.art = art || ""; }
+function sicherung(k){
+  if (st.raus[k]){
+    if (st.mit){ melde("Die Schmelzsicherungen sind mitgenommen und sicher aufbewahrt. Niemand kann sie wieder einsetzen. Genau das ist der Zweck von Regel 2.", "bad"); return; }
+    st.raus[k] = false; st.frei = false; st.deck = false;
+    melde("Sicherung der Wohnung " + (k + 1) + " wieder eingesetzt.");
+  } else {
+    st.raus[k] = true; st.frei = false;
+    melde(k === 0 ? "Sicherung 160F2 der Wohnung 1 entfernt. Denken Sie an die Leitungen und Klemmen der Wohnungen 2 bis 6 im Arbeitsbereich." : "Sicherung der Wohnung " + (k + 1) + " entfernt." + (st.mit ? " Sie nehmen auch diese Sicherung mit. Prüfen Sie die Spannungsfreiheit erneut." : ""));
+  }
+}
+function aktion(a){
+  var s = stand();
+  if (a === "neu"){ st = neu(); return; }
+  if (a === "mit"){
+    if (!s.r1){ melde("Zuerst Regel 1: Entfernen Sie die Sicherung der Wohnung 1, an der Sie arbeiten.", "bad"); return; }
+    st.mit = true; melde("Regel 2 erfüllt: Die entfernten Schmelzsicherungen sind mitgenommen und sicher aufbewahrt.");
+  } else if (a === "schild"){
+    if (!s.r1){ melde("Zuerst Regel 1: Schalten Sie frei.", "bad"); return; }
+    st.schild = true; melde(st.mit ? "Zusätzlich ist ein Verbotsschild angebracht." : "Verbotsschild angebracht. Das allein genügt nicht: Nehmen Sie die Schmelzsicherungen mit.");
+  } else if (a === "messen"){
+    if (!s.r1){ melde("Zuerst Regel 1: Schalten Sie frei.", "bad"); return; }
+    if (!s.r2){ melde("Zuerst Regel 2: Sichern Sie die Anlage gegen Wiedereinschalten, bevor Sie die Spannungsfreiheit feststellen.", "bad"); return; }
+    st.frei = true;
+    melde(alle() ? "Regel 3 erfüllt: Der ganze Arbeitsbereich ist spannungsfrei." : "Regel 3: Die Verdrahtung der Wohnung 1 ist spannungsfrei. Das Messgerät zeigt aber Spannung an den Leitungen und Klemmen " + wohn(nochAn()) + ". Entfernen Sie auch diese Sicherungen oder decken Sie die Teile ab (Regel 5).", alle() ? "" : "bad");
+  } else if (a === "decken"){
+    if (alle()){ melde("Es gibt nichts abzudecken: Im Arbeitsbereich stehen keine benachbarten Teile unter Spannung."); return; }
+    if (!s.r3){ melde("Halten Sie die Reihenfolge ein: zuerst freischalten, sichern und die Spannungsfreiheit feststellen.", "bad"); return; }
+    st.deck = true; melde("Regel 5 erfüllt: Die benachbarten, unter Spannung stehenden Teile sind abgedeckt. In der Lösung des Arbeitsblatts werden stattdessen die Sicherungen der Wohnungen 1 bis 6 entfernt.");
+  }
+}
+function init(){
+  $("sich").addEventListener("click", function(e){ var b = e.target.closest("button[data-k]"); if (!b) return; var k = Number(b.getAttribute("data-k")); sicherung(k); render(); var f = $("sich-" + k); if (f) f.focus(); });
+  $("aktionen").addEventListener("click", function(e){ var b = e.target.closest("button[data-akt]"); if (!b) return; aktion(b.getAttribute("data-akt")); render(); });
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+var LAGE = "Sie sollen in der Hauptverteilung einer Wohnüberbauung die Verdrahtung der Wohnung 1 ersetzen. Im Arbeitsbereich verlaufen auch die Leitungen und Klemmen der Wohnungen 2 bis 6.";
+var VORGEHEN = ["Sicherungen der Wohnungen 1 bis 6 entfernen", "Schmelzsicherungen mitnehmen und sicher aufbewahren", "Spannungsfreiheit im Arbeitsbereich prüfen", "Mit dem Ersetzen der Verdrahtung beginnen"];
+function qVorgehen(){
+  return {
+    text: LAGE + " Bringen Sie Ihr Vorgehen in die richtige Reihenfolge.",
+    parts: [{type:"order", label:"Vorgehen", items:VORGEHEN}],
+    hint: "Freischalten, sichern, Spannungsfreiheit feststellen – erst dann arbeiten.",
+    solution: "<ol class=\"steps\">" + VORGEHEN.map(function(t){ return "<li>" + t + "</li>"; }).join("") + "</ol>"
+  };
+}
+function qRegeln(){
+  return {
+    text: "Bringen Sie die fünf Sicherheitsregeln für spannungsfreies Arbeiten in die richtige Reihenfolge.",
+    parts: [{type:"order", label:"Reihenfolge", items:SPF}],
+    hint: "Zuerst freischalten, dann sichern, dann prüfen.",
+    solution: "<ol class=\"steps\">" + SPF.map(function(t){ return "<li>" + t + "</li>"; }).join("") + "</ol>"
+  };
+}
+var HANDLUNG = [
+  ["Sie entfernen die Sicherungen der Wohnungen 1 bis 6.", 0],
+  ["Sie nehmen die Schmelzsicherungen mit und bewahren sie sicher auf.", 1],
+  ["Sie bringen an der Hauptverteilung ein Verbotsschild an.", 1],
+  ["Sie prüfen mit einem funktionstüchtigen Messgerät, ob im Arbeitsbereich noch Spannung vorhanden ist.", 2],
+  ["Sie decken die Leitungen und Klemmen der Wohnungen 2 bis 6 mit isolierenden Tüchern ab, weil diese noch unter Spannung stehen.", 4],
+  ["Sie entfernen die Schmelzsicherung 160F2 der Wohnung 1.", 0],
+  ["Sie sichern den Betätigungsmechanismus eines Schaltgeräts mit einem Schloss.", 1],
+  ["Stefania unterstützt Sie beim Messen im Arbeitsbereich.", 2],
+  ["Sie erden zuerst und verbinden dann mit den kurzzuschliessenden aktiven Teilen.", 3]
+];
+var NAECHSTE = [
+  ["Sie haben die Sicherungen der Wohnungen 1 bis 6 entfernt.", 1],
+  ["Sie haben die Sicherungen entfernt, mitgenommen und sicher aufbewahrt.", 2],
+  ["Sie haben freigeschaltet, gesichert und die Spannungsfreiheit festgestellt. Die Regel 4 entfällt, weil keine Gefahr von Spannungsübertragung oder Rückeinspeisung besteht.", 4],
+  ["Sie stehen vor der Hauptverteilung und haben noch nichts unternommen.", 0]
+];
+function qNaechste(){
+  var n = pick(NAECHSTE);
+  return {
+    text: n[0] + " Welche Sicherheitsregel für spannungsfreies Arbeiten ist als nächste an der Reihe?",
+    parts: [{label:"Nächste Regel", options:SPF.slice(), correct:SPF[n[1]]}],
+    hint: "Die fünf Regeln werden der Reihe nach angewendet.",
+    solution: "<p>Regel " + (n[1] + 1) + ": <b>" + SPF[n[1]] + "</b></p>"
+  };
+}
+function qHandlung(){
+  var h = pick(HANDLUNG);
+  return {
+    text: h[0] + " Welche Sicherheitsregel für spannungsfreies Arbeiten wenden Sie damit an?",
+    parts: [{label:"Sicherheitsregel", options:SPF.slice(), correct:SPF[h[1]]}],
+    hint: "Freischalten trennt die Anlage von der Spannung. Sichern verhindert, dass jemand wieder einschaltet.",
+    solution: "<p>Regel " + (h[1] + 1) + ": <b>" + SPF[h[1]] + "</b></p>"
+  };
+}
+function qBenno(){
+  return {
+    text: "Ihr Monteur Benno weist bei der Auftragserteilung kurz darauf hin, dass es sich um AuS 1 handelt, kann es Ihnen aber aus Zeitmangel nicht näher erklären. Sie wurden bisher nicht im Bereich AuS 1 geschult und wissen nicht, wie Sie die Spannungsfreiheit korrekt prüfen. Gegen welche organisatorische Regel für sicheres Arbeiten verstösst Benno?",
+    parts: [{label:"Organisatorische Regel", options:ORG.slice(), correct:ORG[1]}],
+    hint: "Der Vorgesetzte setzt nur geschulte und berechtigte Angestellte ein.",
+    solution: "<p>Regel 2: <b>" + ORG[1] + "</b></p><p>Sie sind für diesen Auftrag nicht ausreichend geschult und wissen nicht, wie die Spannungsfreiheit korrekt geprüft werden muss.</p>"
+  };
+}
+var M_FREI = ["Leitungsschutzschalter ausschalten", "Schmelzsicherung entfernen", "Allpoligen Hauptschalter betätigen", "Anlage ausstecken"];
+var M_SICH = ["Schaltschloss am Leitungsschutzschalter anbringen", "Schmelzsicherungen entfernen und mitnehmen", "Verbotsschild anbringen", "Abgänge des Stromkreises in der Unterverteilung abhängen"];
+var M_ANDERE = ["Mit einem Voltmeter die Spannungsfreiheit feststellen", "Benachbarte Teile mit isolierenden Tüchern abdecken", "Erden und kurzschliessen"];
+function qMoeglich(){
+  var frei = Math.random() < 0.5;
+  var richtig = shuffle(frei ? M_FREI : M_SICH).slice(0, 3), falsch = shuffle(M_ANDERE.concat(frei ? ["Verbotsschild anbringen"] : ["Leitungsschutzschalter ausschalten"])).slice(0, 3);
+  return {
+    text: frei ? "Mit welchen Möglichkeiten können Sie eine elektrische Anlage <b>freischalten</b>?" : "Mit welchen Möglichkeiten können Sie eine elektrische Anlage <b>gegen Wiedereinschalten sichern</b>?",
+    parts: [{type:"multi", label:"Möglichkeiten", options:shuffle(richtig.concat(falsch)), correct:richtig}],
+    hint: frei ? "Freischalten heisst: Die Anlage wird von der Spannung getrennt." : "Sichern heisst: Niemand kann die Anlage versehentlich wieder einschalten.",
+    solution: "<p><b>" + richtig.join(" · ") + "</b></p><p>Alle Möglichkeiten: " + (frei ? M_FREI : M_SICH).join(", ") + ".</p>"
+  };
+}
+var FAKTEN = [
+  {t:LAGE + " Warum entfernen Sie nicht nur die Sicherung der Wohnung 1, sondern die Sicherungen der Wohnungen 1 bis 6?", o:["Weil sonst im Arbeitsbereich benachbarte Teile unter Spannung stehen.", "Weil die Wohnungen 2 bis 6 sonst zu viel Strom beziehen.", "Weil sonst die Sicherung der Wohnung 1 nicht entfernt werden kann.", "Weil das Messgerät sonst nicht funktioniert."], s:""},
+  {t:"Sie bitten Stefania um Hilfe. Bei welcher Sicherheitsregel für spannungsfreies Arbeiten unterstützt sie Sie?", o:["Beim Feststellen der Spannungsfreiheit", "Beim Erden und Kurzschliessen", "Beim Schreiben des Arbeitsrapports", "Beim Wiedereinschalten der Anlage"], s:"Sie stellt zudem sicher, dass sich im Arbeitsbereich keine benachbarten Teile unter Spannung befinden."},
+  {t:"Was stellt Stefania zusätzlich zum Feststellen der Spannungsfreiheit sicher?", o:["Dass sich im Arbeitsbereich keine benachbarten Teile unter Spannung befinden", "Dass die Sicherungen wieder eingesetzt werden", "Dass der Kunde informiert ist", "Dass die Verdrahtung die richtige Farbe hat"], s:""},
+  {t:"Sie haben die Sicherungen entfernt. Was machen Sie mit den Schmelzsicherungen, um die Anlage gegen Wiedereinschalten zu sichern?", o:["Mitnehmen und sicher aufbewahren", "Auf die Hauptverteilung legen", "Lose wieder in den Halter stecken", "Dem Hauswart übergeben, damit er sie bei Bedarf einsetzt"], s:""},
+  {t:"Sie haben freigeschaltet und gesichert. Dürfen Sie jetzt sofort mit der Arbeit beginnen?", o:["Nein. Zuerst muss die Spannungsfreiheit festgestellt werden.", "Ja, das Freischalten genügt.", "Ja, sobald ein Verbotsschild hängt.", "Ja, wenn die Arbeit kurz ist."], s:""},
+  {t:"Sie entfernen nur die Sicherung der Wohnung 1. Die Leitungen und Klemmen der Wohnungen 2 bis 6 im Arbeitsbereich bleiben unter Spannung. Welche Sicherheitsregel verlangt jetzt eine zusätzliche Handlung?", o:[SPF[4], SPF[3], SPF[0], "Keine"], s:"In der Lösung des Arbeitsblatts werden die Sicherungen der Wohnungen 1 bis 6 entfernt. Dann stehen keine benachbarten Teile unter Spannung."},
+  {t:"Womit stellen Sie die Spannungsfreiheit fest?", o:["Mit einem funktionstüchtigen Messgerät (Voltmeter)", "Mit dem Handrücken", "Durch einen Blick auf die Sicherungen", "Mit einem Verbotsschild"], s:""},
+  {t:"Wann entfällt die Regel 4 «Erden und kurzschliessen»?", o:["Bei Niederspannungsanlagen, wenn keine Gefahr von Spannungsübertragung oder Rückeinspeisung besteht", "Immer, wenn ein Verbotsschild angebracht ist", "Bei Hochspannungsanlagen", "Wenn zwei Personen anwesend sind"], s:""},
+  {t:"Benno sagt, es handle sich um AuS 1. Sie sind dafür nicht geschult. Wie verhalten Sie sich richtig?", o:["Ich führe nur Arbeiten aus, für die ich geschult und berechtigt bin, und frage bei Unklarheiten meinen Vorgesetzten.", "Ich arbeite vorsichtig unter Spannung.", "Ich arbeite unter Spannung, trage aber Handschuhe.", "Ich lasse die Arbeit von einem anderen Lernenden ausführen."], s:"Sie bereiten die Anlage so vor, dass Sie im spannungsfreien Zustand arbeiten können."},
+  {t:"Sie prüfen die Spannungsfreiheit, bevor die Anlage gegen Wiedereinschalten gesichert ist. Was ist daran falsch?", o:["Die Reihenfolge der Sicherheitsregeln ist nicht eingehalten: zuerst sichern, dann prüfen.", "Nichts, die Reihenfolge spielt keine Rolle.", "Das Messgerät wird dadurch beschädigt.", "Die Sicherungen lösen aus."], s:""}
+];
+function qFakt(){
+  var f = pick(FAKTEN);
+  return {
+    text: f.t,
+    parts: [{label:"Antwort", options:shuffle(f.o), correct:f.o[0]}],
+    hint: "Gehen Sie die fünf Sicherheitsregeln für spannungsfreies Arbeiten der Reihe nach durch (AS1.8).",
+    solution: "<p><b>" + f.o[0] + "</b></p>" + (f.s ? "<p>" + f.s + "</p>" : "")
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.10) return qVorgehen();
+  if (x < 0.20) return qRegeln();
+  if (x < 0.36) return qHandlung();
+  if (x < 0.46) return qNaechste();
+  if (x < 0.52) return qBenno();
+  if (x < 0.64) return qMoeglich();
+  return qFakt();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){
+  return BAP.examFrom([qVorgehen, qHandlung, qHandlung, qNaechste, qBenno, qMoeglich, qFakt, qFakt]);
+}});
+})();
+
+</script>
+</body>
+</html>
