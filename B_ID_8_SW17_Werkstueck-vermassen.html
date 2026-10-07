@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_8 TA6 Werkstück vermassen BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Vermassung nach Arbeitsblatt ID8 Teilauftrag 6 */
+:root{--m-neu:#C2185B}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--m-neu:#FF8FB8} }
+:root[data-theme="dark"]{--m-neu:#FF8FB8}
+.m-k{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.m-k.fl{fill:var(--surface)}
+.m-k.dn{stroke-width:1.2}
+.m-k.st{stroke-width:1;stroke-dasharray:7 4}
+.m-m{fill:none;stroke:var(--ink);stroke-width:.8;stroke-linecap:butt}
+.m-p{fill:var(--ink);stroke:none}
+.m-a{fill:none;stroke:var(--ink);stroke-width:.8;stroke-dasharray:9 3 2 3}
+.m-t{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.m-r{fill:none;stroke:var(--line);stroke-width:.6}
+.m-m.akt,.m-a.akt{stroke:var(--accent);stroke-width:1.8} .m-p.akt{fill:var(--accent)} .m-t.akt{fill:var(--accent);font-weight:700;font-size:12px}
+.m-m.frage{stroke:var(--accent);stroke-width:1.8} .m-p.frage{fill:var(--accent)} .m-t.frage{fill:var(--accent);font-weight:700;font-size:14px}
+.m-m.neu{stroke:var(--m-neu);stroke-width:1.4} .m-p.neu{fill:var(--m-neu)} .m-t.neu{fill:var(--m-neu);font-weight:700}
+.bild{width:100%;height:auto;display:block;max-width:520px;margin-inline:auto}
+.erkl{border-left:4px solid var(--accent);padding:2px 0 2px 12px;min-height:3em}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.rechnung{font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.6}
+.nw{white-space:nowrap}
+.q-schema{display:block;width:100%;max-width:420px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt · Teilauftrag 6</p>
+    <h1>Werkstück vermassen BAP</h1>
+    <p class="lead">Jede Kante, jede Nut und jede Bohrung braucht ihr Mass. Lesen Sie die Masse an vier einfachen Werkstücken ab, erkennen Sie Durchmesser und Radius und berechnen Sie Masse, die nicht direkt eingetragen sind.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel" aria-live="polite">
+        <h2>Bauteil und Masse</h2>
+        <fieldset>
+          <legend>Bauteil wählen</legend>
+          <div class="opts" id="typ"></div>
+        </fieldset>
+        <div class="opts" id="anzeige"></div>
+        <svg class="bild" id="zeichnung" viewBox="0 0 340 280" role="img" aria-label="Technische Zeichnung des gewählten Bauteils mit Masslinien"></svg>
+        <fieldset>
+          <legend>Mass auswählen</legend>
+          <div class="opts" id="masse"></div>
+        </fieldset>
+        <p class="erkl" id="erkl"></p>
+        <div class="opts">
+          <button class="opt txt" type="button" id="b-neu">Andere Masse (Beispiel des Tools)</button>
+          <button class="opt txt" type="button" id="b-ab">Masse des Arbeitsblatts</button>
+        </div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Was nicht eingetragen ist, lässt sich berechnen</h2>
+        <div class="rechnung" id="rechnung"></div>
+        <p class="note">Ein Bauteil ist vollständig vermasst, wenn sich jede Kante und jede Bohrung ohne Nachmessen herstellen lässt. Masse, die sich aus anderen ergeben, werden nicht doppelt eingetragen.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Die Masszahl gibt die wirkliche Grösse des Bauteils in Millimetern an. Im Massstab 1:1 ist die Zeichnung gleich gross wie das Bauteil.</p>
+          <p>Ø steht für den Durchmesser, R für den Radius. Der Durchmesser ist doppelt so gross wie der Radius.</p>
+          <p>Die Lage einer Bohrung wird auf ihre Mitte vermasst. Die Mitte ist mit zwei Mittellinien gekennzeichnet (strichpunktiert).</p>
+          <p>In den Lösungen der Übungen 40 bis 43 stehen die Masszahlen über der Masslinie; senkrechte Masse sind von rechts lesbar.</p>
+          <p>Mehrere Masse können von derselben Kante aus eingetragen sein (Übung 40: 15, 30 und 60) oder aneinander anschliessen (Übung 41: 50 und 15).</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Übung 40: Wie breit ist die Nut? Welches Mass müssen Sie dazu von welchem abziehen?</li>
+          <li>Übung 41: Wie weit ist der Ausschnitt von der rechten Kante entfernt?</li>
+          <li>Übung 42: Wie lang ist das Bauteil insgesamt, mit der Rundung?</li>
+          <li>Übung 43: Wie gross ist der Abstand zwischen den Mitten der beiden kleinen Bohrungen?</li>
+          <li>Schalten Sie die Masse aus und das Raster ein. Können Sie alle Masse an den Häuschen abzählen?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Zu diesem Thema gibt es keinen Abschnitt im Theoriebuch. Nehmen Sie die Arbeitsblätter dazu: Übungen 40 bis 43. Dort sind die Bauteile im Massstab 1:1 gezeichnet und werden mit dem Massstab ausgemessen.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt, Teilauftrag 6 Werkstück zeichnen: Übungen 40 bis 43 (ID8.29 bis ID8.31)</li><li>Bauteile, Masse und Anordnung der Masslinien nach den Lösungen der Übungen 40 bis 43, neu gezeichnet. Am Bildschirm stimmt der Massstab 1:1 nicht; dafür gibt es das Raster mit 5 mm pro Häuschen.</li><li>Die «anderen Masse» in Erkunden und die Bauteile in Üben und Prüfen sind Beispiele des Tools: gleiche Form wie im Arbeitsblatt, andere Zahlen.</li><li>Regeln zur Darstellung (Linienarten, Leserichtung der Masszahlen) beschreibt das Tool nur so weit, wie sie in den Lösungen des Arbeitsblatts zu sehen sind. Im Theoriebuch gibt es zu diesem Thema keinen Abschnitt.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Vermassung wie in den Arbeitsblättern ID8 Teilauftrag 6 (Übungen 40 bis 46): Körperkanten dick, Masslinien und Masshilfslinien dünn, Mittellinien strichpunktiert.
+   Alle Angaben in Millimetern des Werkstücks, Ursprung unten links, y nach oben. S = Zeichnungseinheiten pro Millimeter. */
+var MAS = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function blatt(S, x0, y0){
+  function X(x){ return n(x0 + x * S); }
+  function Y(y){ return n(y0 - y * S); }
+  function kl(o, basis){ o = o || {}; return basis + (o.akt ? " akt" : "") + (o.frage ? " frage" : "") + (o.neu ? " neu" : ""); }
+  function pfeil(x, y, dx, dy, o){
+    var l = Math.sqrt(dx * dx + dy * dy), ux = dx / l, uy = dy / l, L = 7, B = 1.5;
+    return "<path class=\"" + kl(o, "m-p") + "\" d=\"M" + n(x) + " " + n(y) + " L" + n(x - ux * L - uy * B) + " " + n(y - uy * L + ux * B) + " L" + n(x - ux * L + uy * B) + " " + n(y - uy * L - ux * B) + " Z\"/>";
+  }
+  function text(x, y, t, o, dreh){
+    return "<text class=\"" + kl(o, "m-t") + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\" text-anchor=\"" + ((o && o.anker) || "middle") + "\"" + (dreh ? " transform=\"rotate(" + dreh + " " + n(x) + " " + n(y) + ")\"" : "") + ">" + ((o && o.frage) ? "?" : t) + "</text>";
+  }
+  /* waagrechtes Mass zwischen xa und xb; fa, fb: Höhe (mm), an der die Masshilfslinien beginnen; yl: Höhe der Masslinie (mm) */
+  function hm(xa, xb, fa, fb, yl, t, o){
+    var ya = Y(yl), r = yl < Math.min(fa, fb) ? 3 : -3, h = "", innen = Math.abs(xb - xa) * S >= 19;
+    h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + X(xa) + " " + Y(fa) + " V" + n(ya + r) + " M" + X(xb) + " " + Y(fb) + " V" + n(ya + r) + "\"/>";
+    if (innen) h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + X(xa) + " " + ya + " H" + X(xb) + "\"/>" + pfeil(X(xa), ya, -1, 0, o) + pfeil(X(xb), ya, 1, 0, o);
+    else h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + n(X(xa) - 12) + " " + ya + " H" + n(X(xb) + 12) + "\"/>" + pfeil(X(xa), ya, 1, 0, o) + pfeil(X(xb), ya, -1, 0, o);
+    return h + text((X(xa) + X(xb)) / 2, ya - 3, t, o);
+  }
+  /* senkrechtes Mass zwischen ya und yb; fa, fb: Stelle (mm), an der die Masshilfslinien beginnen; xl: Lage der Masslinie (mm) */
+  function vm(ya, yb, fa, fb, xl, t, o){
+    var xa = X(xl), r = xl < Math.min(fa, fb) ? -3 : 3, h = "", innen = Math.abs(yb - ya) * S >= 19;
+    h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + X(fa) + " " + Y(ya) + " H" + n(xa + r) + " M" + X(fb) + " " + Y(yb) + " H" + n(xa + r) + "\"/>";
+    if (innen) h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + xa + " " + Y(ya) + " V" + Y(yb) + "\"/>" + pfeil(xa, Y(ya), 0, ya < yb ? 1 : -1, o) + pfeil(xa, Y(yb), 0, ya < yb ? -1 : 1, o);
+    else h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + xa + " " + n(Y(Math.min(ya, yb)) + 12) + " V" + n(Y(Math.max(ya, yb)) - 12) + "\"/>" + pfeil(xa, Y(Math.min(ya, yb)), 0, -1, o) + pfeil(xa, Y(Math.max(ya, yb)), 0, 1, o);
+    return h + text(xa - 3, (Y(ya) + Y(yb)) / 2, t, o, -90);
+  }
+  /* Durchmesser: Masslinie schräg durch die Mitte, Masszahl am äusseren Ende. w: Winkel in Grad (0 = nach rechts, 90 = nach oben) */
+  function dia(cx, cy, d, w, t, o){
+    o = o || {}; var a = w * Math.PI / 180, ux = Math.cos(a), uy = -Math.sin(a), r = d / 2 * S, x = X(cx), y = Y(cy), h = "", aus = o.aus === undefined ? 30 : o.aus, innen = r >= 14 && !o.aussen;
+    var x1 = x - ux * (r + (innen ? 8 : 12)), y1 = y - uy * (r + (innen ? 8 : 12)), x2 = x + ux * (r + aus), y2 = y + uy * (r + aus);
+    h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(x2) + " " + n(y2) + "\"/>";
+    if (innen) h += pfeil(x + ux * r, y + uy * r, ux, uy, o) + pfeil(x - ux * r, y - uy * r, -ux, -uy, o);
+    else h += pfeil(x + ux * r, y + uy * r, -ux, -uy, o) + pfeil(x - ux * r, y - uy * r, ux, uy, o);
+    var dreh = -w; if (dreh < -90) dreh += 180; if (dreh > 90) dreh -= 180;
+    var tx = x + ux * (r + aus - 10), ty = y + uy * (r + aus - 10), nx = uy, ny = -ux; if (ny > 0){ nx = -nx; ny = -ny; }
+    return h + text(tx + nx * 3.5, ty + ny * 3.5, t, o, dreh);
+  }
+  /* Radius: Masslinie von aussen über den Bogen bis zur Mitte */
+  function rad(cx, cy, r0, w, t, o){
+    o = o || {}; var a = w * Math.PI / 180, ux = Math.cos(a), uy = -Math.sin(a), r = r0 * S, x = X(cx), y = Y(cy), aus = o.aus === undefined ? 30 : o.aus;
+    var h = "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + n(x) + " " + n(y) + " L" + n(x + ux * (r + aus)) + " " + n(y + uy * (r + aus)) + "\"/>" + pfeil(x + ux * r, y + uy * r, -ux, -uy, o);
+    var dreh = -w; if (dreh < -90) dreh += 180; if (dreh > 90) dreh -= 180;
+    var tx = x + ux * (r + aus - 11), ty = y + uy * (r + aus - 11), nx = uy, ny = -ux; if (ny > 0){ nx = -nx; ny = -ny; }
+    return h + text(tx + nx * 3.5, ty + ny * 3.5, t, o, dreh);
+  }
+  function kante(d, cls){ return "<path class=\"m-k" + (cls ? " " + cls : "") + "\" d=\"" + d + "\"/>"; }
+  function poly(p, cls){ return kante("M" + p.map(function(q){ return X(q[0]) + " " + Y(q[1]); }).join(" L") + " Z", cls); }
+  function kreis(cx, cy, d, cls){ return "<circle class=\"m-k" + (cls ? " " + cls : "") + "\" cx=\"" + X(cx) + "\" cy=\"" + Y(cy) + "\" r=\"" + n(d / 2 * S) + "\"/>"; }
+  /* Mittellinien: Kreuz in der Bohrungsmitte, über den Rand hinaus */
+  function mitte(cx, cy, d, o){ var l = d / 2 * S + ((o && o.ueber) || 6); return "<path class=\"" + kl(o, "m-a") + "\" d=\"M" + n(X(cx) - l) + " " + Y(cy) + " H" + n(X(cx) + l) + " M" + X(cx) + " " + n(Y(cy) - l) + " V" + n(Y(cy) + l) + "\"/>"; }
+  function achse(xa, ya, xb, yb, o){ return "<path class=\"" + kl(o, "m-a") + "\" d=\"M" + X(xa) + " " + Y(ya) + " L" + X(xb) + " " + Y(yb) + "\"/>"; }
+  function linie(xa, ya, xb, yb, cls){ return "<path class=\"" + cls + "\" d=\"M" + X(xa) + " " + Y(ya) + " L" + X(xb) + " " + Y(yb) + "\"/>"; }
+  /* Raster mit der Schrittweite s (mm) über das Rechteck xa..xb, ya..yb */
+  function raster(xa, ya, xb, yb, s){
+    var d = "", k;
+    for (k = xa; k <= xb + 1e-9; k += s) d += "M" + X(k) + " " + Y(ya) + " V" + Y(yb) + " ";
+    for (k = ya; k <= yb + 1e-9; k += s) d += "M" + X(xa) + " " + Y(k) + " H" + X(xb) + " ";
+    return "<path class=\"m-r\" d=\"" + d + "\"/>";
+  }
+  return {S:S, X:X, Y:Y, hm:hm, vm:vm, dia:dia, rad:rad, kante:kante, poly:poly, kreis:kreis, mitte:mitte, achse:achse, linie:linie, raster:raster, text:text, pfeil:pfeil};
+}
+return {blatt:blatt, n:n};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = String.fromCharCode(160);
+function MM(x){ return fmt(x) + NB + "mm"; }
+
+/* ================= BAUTEILE (Arbeitsblatt ID8 Übungen 40 bis 43) ================= */
+/* Jedes Bauteil liefert: Zeichnung, eingetragene Masse (id, t = Masszahl, k = Kurzname, b = Beschreibung, v = Wert) und berechenbare Masse */
+var TYP = {
+  u40: {
+    name:"Übung 40", ab:{B:60, H:40, T:35, n1:15, n2:30, nh:15},
+    zufall:function(){ var p, x, n = 0; do { p = {B:pick([50, 60, 70]), H:pick([30, 40, 50]), T:pick([25, 30, 35, 40]), n1:pick([10, 15, 20]), nh:pick([10, 15, 20])}; p.n2 = p.n1 + pick([10, 15, 20]); x = p.B - (p.B - p.T) * p.nh / p.H; n++; } while ((p.T > p.B - 15 || p.nh > p.H - 15 || p.n2 + 5 > x) && n < 500); return p; },
+    masse:function(p){ return [
+      {id:"T", v:p.T, t:"" + p.T, k:"obere Kante", b:"Länge der oberen Kante, von der linken Kante bis zum Beginn der Schräge."},
+      {id:"H", v:p.H, t:"" + p.H, k:"Höhe", b:"Höhe des Bauteils."},
+      {id:"nh", v:p.nh, t:"" + p.nh, k:"Tiefe der Nut", b:"Tiefe der Nut, von der Unterkante aus gemessen."},
+      {id:"n1", v:p.n1, t:"" + p.n1, k:"Nut ab links", b:"Abstand der linken Nutkante von der linken Kante des Bauteils."},
+      {id:"n2", v:p.n2, t:"" + p.n2, k:"Nutende ab links", b:"Abstand der rechten Nutkante von der linken Kante des Bauteils. Das Mass geht von derselben Kante aus wie das vorherige."},
+      {id:"B", v:p.B, t:"" + p.B, k:"Länge unten", b:"Gesamtlänge des Bauteils an der Unterkante."}
+    ]; },
+    rechne:function(p){ return [
+      {n:"Breite der Nut", v:p.n2 - p.n1, w:p.n2 + " − " + p.n1},
+      {n:"Waagrechte Länge der Schräge", v:p.B - p.T, w:p.B + " − " + p.T},
+      {n:"Unterkante rechts von der Nut", v:p.B - p.n2, w:p.B + " − " + p.n2},
+      {n:"Material über der Nut", v:p.H - p.nh, w:p.H + " − " + p.nh}
+    ]; },
+    zeichne:function(p, o){
+      var S = 3.5, M = MAS.blatt(S, 76, 44 + p.H * S), h = "", W = 76 + p.B * S + 14, Ht = 44 + p.H * S + 100;
+      if (o.raster) h += M.raster(0, 0, p.B, p.H, 5);
+      h += M.poly([[0, 0], [p.n1, 0], [p.n1, p.nh], [p.n2, p.nh], [p.n2, 0], [p.B, 0], [p.T, p.H], [0, p.H]]);
+      if (o.masse){
+        h += M.hm(0, p.T, p.H, p.H, p.H + 7, "" + p.T, o.f("T")) + M.vm(0, p.H, 0, 0, -17, "" + p.H, o.f("H")) + M.vm(0, p.nh, 0, p.n1, -7, "" + p.nh, o.f("nh"));
+        h += M.hm(0, p.n1, 0, 0, -7, "" + p.n1, o.f("n1")) + M.hm(0, p.n2, 0, 0, -15, "" + p.n2, o.f("n2")) + M.hm(0, p.B, 0, 0, -23, "" + p.B, o.f("B"));
+      }
+      return {svg:h, vb:"0 0 " + MAS.n(Math.max(W, 300)) + " " + MAS.n(Ht)};
+    }
+  },
+  u41: {
+    name:"Übung 41", ab:{L:100, H:40, a:50, w:15, b:10, h:20},
+    zufall:function(){ var p, n = 0; do { p = {L:pick([80, 90, 100, 110]), H:pick([40, 50]), a:pick([30, 35, 40, 45, 50, 55, 60]), w:pick([10, 15, 20, 25]), b:pick([5, 10, 15]), h:pick([15, 20, 25])}; n++; } while ((p.a + p.w > p.L - 15 || p.b + p.h > p.H - 5) && n < 500); return p; },
+    masse:function(p){ return [
+      {id:"H", v:p.H, t:"" + p.H, k:"Höhe", b:"Höhe des Bauteils."},
+      {id:"h", v:p.h, t:"" + p.h, k:"Höhe Ausschnitt", b:"Höhe des Ausschnitts. Das Mass schliesst an das Mass darunter an."},
+      {id:"b", v:p.b, t:"" + p.b, k:"Ausschnitt ab unten", b:"Abstand des Ausschnitts von der Unterkante."},
+      {id:"a", v:p.a, t:"" + p.a, k:"Ausschnitt ab links", b:"Abstand des Ausschnitts von der linken Kante."},
+      {id:"w", v:p.w, t:"" + p.w, k:"Breite Ausschnitt", b:"Breite des Ausschnitts. Das Mass schliesst an das Mass links davon an."},
+      {id:"L", v:p.L, t:"" + p.L, k:"Länge", b:"Gesamtlänge des Bauteils."}
+    ]; },
+    rechne:function(p){ return [
+      {n:"Abstand des Ausschnitts von der rechten Kante", v:p.L - p.a - p.w, w:p.L + " − " + p.a + " − " + p.w},
+      {n:"Abstand des Ausschnitts von der Oberkante", v:p.H - p.b - p.h, w:p.H + " − " + p.b + " − " + p.h},
+      {n:"Rechte Kante des Ausschnitts ab der linken Kante", v:p.a + p.w, w:p.a + " + " + p.w},
+      {n:"Obere Kante des Ausschnitts ab der Unterkante", v:p.b + p.h, w:p.b + " + " + p.h}
+    ]; },
+    zeichne:function(p, o){
+      var S = 2.45, M = MAS.blatt(S, 72, 16 + p.H * S), h = "";
+      if (o.raster) h += M.raster(0, 0, p.L, p.H, 5);
+      h += M.poly([[0, 0], [p.L, 0], [p.L, p.H], [0, p.H]]) + M.poly([[p.a, p.b], [p.a + p.w, p.b], [p.a + p.w, p.b + p.h], [p.a, p.b + p.h]], "dn");
+      if (o.masse){
+        h += M.vm(0, p.H, 0, 0, -22, "" + p.H, o.f("H")) + M.vm(p.b, p.b + p.h, p.a, p.a, -9, "" + p.h, o.f("h")) + M.vm(0, p.b, 0, p.a, -9, "" + p.b, o.f("b"));
+        h += M.hm(0, p.a, 0, p.b, -9, "" + p.a, o.f("a")) + M.hm(p.a, p.a + p.w, p.b, p.b, -9, "" + p.w, o.f("w")) + M.hm(0, p.L, 0, 0, -20, "" + p.L, o.f("L"));
+      }
+      return {svg:h, vb:"0 0 " + MAS.n(72 + p.L * S + 10) + " " + MAS.n(16 + p.H * S + 62)};
+    }
+  },
+  u42: {
+    name:"Übung 42", ab:{L:100, H:40, d:20, e:50},
+    zufall:function(){ var p, n = 0; do { p = {L:pick([80, 90, 100]), H:pick([30, 40, 50]), d:pick([10, 15, 20]), e:pick([30, 40, 50, 60])}; n++; } while ((p.d > p.H - 20 || p.e > p.L - 20) && n < 500); return p; },
+    masse:function(p){ var R = p.H / 2; return [
+      {id:"R", v:R, t:"R" + fmt(R), k:"Rundung", b:"Radius der Rundung am linken Ende. Der Mittelpunkt liegt auf der Mittellinie."},
+      {id:"d", v:p.d, t:"Ø" + p.d, k:"Bohrung", b:"Durchmesser der Bohrung."},
+      {id:"H", v:p.H, t:"" + p.H, k:"Höhe", b:"Höhe des Bauteils."},
+      {id:"m", v:R, t:"" + fmt(R), k:"Mitte ab unten", b:"Lage der Mittellinie und damit der Bohrungsmitte über der Unterkante."},
+      {id:"e", v:p.e, t:"" + p.e, k:"Bohrung ab rechts", b:"Abstand der Bohrungsmitte von der rechten Kante."},
+      {id:"L", v:p.L, t:"" + p.L, k:"Länge ab Mitte Rundung", b:"Länge von der Mitte der Rundung bis zur rechten Kante."}
+    ]; },
+    rechne:function(p){ var R = p.H / 2; return [
+      {n:"Gesamtlänge mit der Rundung", v:p.L + R, w:p.L + " + " + fmt(R)},
+      {n:"Abstand der Bohrungsmitte von der Mitte der Rundung", v:p.L - p.e, w:p.L + " − " + p.e},
+      {n:"Durchmesser der Rundung", v:p.H, w:"2 · " + fmt(R)},
+      {n:"Abstand des Bohrungsrandes von der rechten Kante", v:p.e - p.d / 2, w:p.e + " − " + fmt(p.d / 2)}
+    ]; },
+    zeichne:function(p, o){
+      var S = 2.25, R = p.H / 2, M = MAS.blatt(S, 46 + R * S, 20 + p.H * S), h = "", xb = p.L - p.e;
+      if (o.raster) h += M.raster(-R, 0, p.L, p.H, 5);
+      h += M.kante("M" + M.X(0) + " " + M.Y(p.H) + " H" + M.X(p.L) + " V" + M.Y(0) + " H" + M.X(0) + " A" + MAS.n(R * S) + " " + MAS.n(R * S) + " 0 0 1 " + M.X(0) + " " + M.Y(p.H));
+      h += M.kreis(xb, R, p.d, "dn");
+      h += M.achse(-R - 4, R, p.L + 4, R) + M.achse(0, -3, 0, p.H + 4) + M.achse(xb, R - p.d / 2 - 4, xb, R + p.d / 2 + 4);
+      if (o.masse){
+        h += M.rad(0, R, R, 212, "R" + fmt(R), {akt:o.f("R").akt, frage:o.f("R").frage, aus:32}) + M.dia(xb, R, p.d, 162, "Ø" + p.d, {akt:o.f("d").akt, frage:o.f("d").frage, aus:34});
+        h += M.vm(0, p.H, p.L, p.L, p.L + 19, "" + p.H, o.f("H")) + M.vm(0, R, p.L, p.L, p.L + 9, "" + fmt(R), o.f("m"));
+        h += M.hm(xb, p.L, R - p.d / 2, 0, -9, "" + p.e, o.f("e")) + M.hm(0, p.L, 0, 0, -19, "" + p.L, o.f("L"));
+      }
+      return {svg:h, vb:"0 0 " + MAS.n(46 + (R + p.L) * S + 52) + " " + MAS.n(20 + p.H * S + 58)};
+    }
+  },
+  u43: {
+    name:"Übung 43", ab:{A:60, x1:15, y1:45, d1:10, y2:15, d2:15},
+    zufall:function(){ var p, n = 0; do { p = {A:pick([50, 60, 70, 80]), x1:pick([10, 15, 20]), d1:pick([6, 8, 10]), y2:pick([10, 15, 20]), d2:pick([12, 15, 20])}; p.y1 = p.A - pick([10, 15, 20]); n++; } while ((p.y1 - p.y2 < (p.d1 + p.d2) / 2 + 5 || p.y2 - p.d2 / 2 < 4 || p.A / 2 - p.x1 < p.d1 / 2 + 3) && n < 500); return p; },
+    masse:function(p){ return [
+      {id:"x1", v:p.x1, t:"" + p.x1, k:"kleine Bohrung ab links", b:"Abstand der Mitte der linken kleinen Bohrung von der linken Kante. Die rechte Bohrung liegt spiegelbildlich zur Mittellinie."},
+      {id:"A2", v:p.A / 2, t:"" + fmt(p.A / 2), k:"Mittellinie", b:"Lage der senkrechten Mittellinie und damit der grossen Bohrung ab der linken Kante."},
+      {id:"A", v:p.A, t:"" + p.A, k:"Breite", b:"Breite des Bauteils."},
+      {id:"Ah", v:p.A, t:"" + p.A, k:"Höhe", b:"Höhe des Bauteils."},
+      {id:"y1", v:p.y1, t:"" + p.y1, k:"kleine Bohrungen ab unten", b:"Abstand der Mitten der beiden kleinen Bohrungen von der Unterkante."},
+      {id:"y2", v:p.y2, t:"" + p.y2, k:"grosse Bohrung ab unten", b:"Abstand der Mitte der grossen Bohrung von der Unterkante."},
+      {id:"d1", v:p.d1, t:"Ø" + p.d1, k:"kleine Bohrungen", b:"Durchmesser der beiden kleinen Bohrungen."},
+      {id:"d2", v:p.d2, t:"Ø" + p.d2, k:"grosse Bohrung", b:"Durchmesser der grossen Bohrung."}
+    ]; },
+    rechne:function(p){ return [
+      {n:"Abstand zwischen den Mitten der beiden kleinen Bohrungen", v:p.A - 2 * p.x1, w:p.A + " − 2 · " + p.x1},
+      {n:"Abstand der rechten kleinen Bohrung von der linken Kante", v:p.A - p.x1, w:p.A + " − " + p.x1},
+      {n:"Senkrechter Abstand zwischen den kleinen Bohrungen und der grossen Bohrung", v:p.y1 - p.y2, w:p.y1 + " − " + p.y2},
+      {n:"Abstand des Randes der grossen Bohrung von der Unterkante", v:p.y2 - p.d2 / 2, w:p.y2 + " − " + fmt(p.d2 / 2)}
+    ]; },
+    zeichne:function(p, o){
+      var S = 2.8, M = MAS.blatt(S, 96, 78 + p.A * S), h = "", A = p.A;
+      if (o.raster) h += M.raster(0, 0, A, A, 5);
+      h += M.poly([[0, 0], [A, 0], [A, A], [0, A]]) + M.kreis(p.x1, p.y1, p.d1, "dn") + M.kreis(A - p.x1, p.y1, p.d1, "dn") + M.kreis(A / 2, p.y2, p.d2, "dn");
+      h += M.mitte(p.x1, p.y1, p.d1) + M.mitte(A - p.x1, p.y1, p.d1) + M.mitte(A / 2, p.y2, p.d2) + M.achse(A / 2, -4, A / 2, A + 3);
+      if (o.masse){
+        h += M.hm(0, p.x1, A, p.y1 + p.d1 / 2, A + 7, "" + p.x1, o.f("x1")) + M.hm(0, A / 2, A, A, A + 15, "" + fmt(A / 2), o.f("A2")) + M.hm(0, A, A, A, A + 23, "" + A, o.f("A"));
+        h += M.vm(0, p.y2, 0, A / 2 - p.d2 / 2, -9, "" + p.y2, o.f("y2")) + M.vm(0, p.y1, 0, p.x1 - p.d1 / 2, -19, "" + p.y1, o.f("y1")) + M.vm(0, A, 0, 0, -29, "" + A, o.f("Ah"));
+        h += M.dia(A - p.x1, p.y1, p.d1, 16, "Ø" + p.d1, {akt:o.f("d1").akt, frage:o.f("d1").frage, aus:(p.x1 + 11) * S}) + M.dia(A / 2, p.y2, p.d2, 22, "Ø" + p.d2, {akt:o.f("d2").akt, frage:o.f("d2").frage, aus:(A / 2 - p.d2 / 2 + 11) * S});
+      }
+      return {svg:h, vb:"0 0 " + MAS.n(96 + A * S + 62) + " " + MAS.n(78 + A * S + 20)};
+    }
+  }
+};
+var IDS = ["u40", "u41", "u42", "u43"];
+/* o: {raster, masse, akt: id des hervorgehobenen Masses, frage: id des gesuchten Masses} */
+function zeichne(typ, p, o){
+  var opt = {raster:o.raster, masse:o.masse !== false, f:function(id){ return {akt:o.akt === id, frage:o.frage === id}; }};
+  return TYP[typ].zeichne(p, opt);
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {typ:"u40", p:null, raster:true, masse:true, akt:"T", eigen:false};
+function render(fokus){
+  var T = TYP[st.typ], ms = T.masse(st.p), z;
+  if (!ms.some(function(m){ return m.id === st.akt; })) st.akt = ms[0].id;
+  $("typ").innerHTML = IDS.map(function(id){ return "<button class=\"opt txt\" type=\"button\" data-t=\"" + id + "\" aria-pressed=\"" + (st.typ === id) + "\">" + TYP[id].name + "</button>"; }).join("");
+  $("anzeige").innerHTML = "<button class=\"opt txt\" type=\"button\" data-a=\"raster\" aria-pressed=\"" + st.raster + "\">Raster 5" + NB + "mm</button><button class=\"opt txt\" type=\"button\" data-a=\"masse\" aria-pressed=\"" + st.masse + "\">Masse zeigen</button>";
+  z = zeichne(st.typ, st.p, {raster:st.raster, masse:st.masse, akt:st.masse ? st.akt : ""});
+  $("zeichnung").setAttribute("viewBox", z.vb); $("zeichnung").innerHTML = z.svg;
+  $("masse").innerHTML = ms.map(function(m){ return "<button class=\"opt txt\" type=\"button\" data-m=\"" + m.id + "\" aria-pressed=\"" + (st.akt === m.id) + "\"><b>" + m.t + "</b> " + m.k + "</button>"; }).join("");
+  var m = ms.filter(function(e){ return e.id === st.akt; })[0];
+  $("erkl").innerHTML = "<b>" + m.t + ":</b> " + m.b + (st.eigen ? " <span class=\"nw\">(Beispiel des Tools)</span>" : "");
+  $("rechnung").innerHTML = T.rechne(st.p).map(function(r){ return "<span>" + r.n + " = " + r.w + " = <b>" + MM(r.v) + "</b></span>"; }).join("");
+  if (fokus){ var el = document.querySelector(fokus); if (el) el.focus(); }
+}
+function init(){
+  st.p = TYP[st.typ].ab;
+  $("typ").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-t]"); if (!b) return; st.typ = b.getAttribute("data-t"); st.p = TYP[st.typ].ab; st.eigen = false; st.akt = ""; render("#typ button[data-t=\"" + st.typ + "\"]"); });
+  $("anzeige").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-a]"); if (!b) return; var a = b.getAttribute("data-a"); st[a] = !st[a]; render("#anzeige button[data-a=\"" + a + "\"]"); });
+  $("masse").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-m]"); if (!b) return; st.akt = b.getAttribute("data-m"); st.masse = true; render("#masse button[data-m=\"" + st.akt + "\"]"); });
+  $("b-neu").addEventListener("click", function(){ st.p = TYP[st.typ].zufall(); st.eigen = true; render(); });
+  $("b-ab").addEventListener("click", function(){ st.p = TYP[st.typ].ab; st.eigen = false; render(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID8 Übungen 40 bis 43) ================= */
+function bild(typ, p, o){ var z = zeichne(typ, p, o); return "<svg class=\"q-schema\" viewBox=\"" + z.vb + "\" role=\"img\" aria-label=\"Technische Zeichnung des Bauteils\">" + z.svg + "</svg>"; }
+function zahlOpt(c, cands){
+  var out = [c];
+  shuffle(cands).concat([c + 5, c - 5, c + 10, c * 2, c + 15, c + 20]).forEach(function(x){ if (out.length < 4 && x > 0 && out.indexOf(x) < 0) out.push(x); });
+  return out.sort(function(a, b){ return a - b; });
+}
+function qLesen(){
+  var typ = pick(IDS), T = TYP[typ], p = T.zufall(), ms = T.masse(p), m = pick(ms), andere = ms.map(function(e){ return e.v; });
+  var art = m.t.charAt(0) === "Ø" ? "den Durchmesser" : m.t.charAt(0) === "R" ? "den Radius" : "das Mass";
+  return {
+    text: "Bei diesem Bauteil fehlt eine Masszahl (Fragezeichen). Bestimmen Sie " + art + " mit dem Raster: Ein Häuschen ist 5" + NB + "mm breit und 5" + NB + "mm hoch." + bild(typ, p, {raster:true, frage:m.id}),
+    parts: [{label:"Fehlende Masszahl" + (art === "das Mass" ? "" : " (" + (art === "den Radius" ? "R" : "Ø") + ")"), options:zahlOpt(m.v, andere), correct:m.v, mono:true, show:MM}],
+    hint: "Zählen Sie die Häuschen zwischen den beiden Masshilfslinien und rechnen Sie mal 5 mm. " + (art === "den Durchmesser" ? "Der Durchmesser geht quer durch die ganze Bohrung." : art === "den Radius" ? "Der Radius reicht von der Mitte bis zum Bogen." : ""),
+    solution: "<p>" + m.b + " <b>" + m.t + "</b>, also " + MM(m.v) + ".</p>" + bild(typ, p, {raster:true, akt:m.id})
+  };
+}
+function qRechnen(){
+  var typ = pick(IDS), T = TYP[typ], p = T.zufall(), r = pick(T.rechne(p)), andere = T.masse(p).map(function(e){ return e.v; });
+  return {
+    text: "Dieses Mass ist in der Zeichnung nicht eingetragen. Berechnen Sie es aus den eingetragenen Massen:<br><b>" + r.n + "</b>" + bild(typ, p, {raster:false}),
+    parts: [{label:"Gesuchtes Mass", options:zahlOpt(r.v, andere), correct:r.v, mono:true, show:MM}],
+    hint: "Suchen Sie die zwei oder drei Masse, die an der gesuchten Strecke beteiligt sind, und zählen Sie sie zusammen oder ziehen Sie sie voneinander ab.",
+    solution: "<p>" + r.n + " = " + r.w + " = <b>" + MM(r.v) + "</b></p>"
+  };
+}
+function qZeichen(){
+  var d = pick([6, 8, 10, 12, 15, 20, 30, 40, 60]), art = pick(["dR", "Rd", "was"]);
+  if (art === "dR") return {
+    text: "Eine Bohrung ist mit <b>Ø" + d + "</b> vermasst. Wie gross ist ihr Radius?",
+    parts: [{label:"Radius", options:zahlOpt(d / 2, [d, d * 2, d / 4]), correct:d / 2, mono:true, show:MM}],
+    hint: "Ø steht für den Durchmesser. Der Radius ist die Hälfte davon.",
+    solution: "<p>Radius = " + BAP.frac("Durchmesser", "2") + " = " + BAP.frac(MM(d), "2") + " = <b>" + MM(d / 2) + "</b></p>"
+  };
+  if (art === "Rd") return {
+    text: "Eine Rundung ist mit <b>R" + d + "</b> vermasst. Wie breit ist ein Bauteil, dessen Ende als Halbkreis mit diesem Radius gerundet ist?",
+    parts: [{label:"Breite des Bauteils", options:zahlOpt(d * 2, [d, d / 2, d * 3]), correct:d * 2, mono:true, show:MM}],
+    hint: "R steht für den Radius. Ein Halbkreis ist so breit wie sein Durchmesser.",
+    solution: "<p>Breite = Durchmesser = 2 · Radius = 2 · " + MM(d) + " = <b>" + MM(d * 2) + "</b> (wie in Übung 42: R20 und Höhe 40)</p>"
+  };
+  var q = pick([
+    {t:"Was bedeutet die Masszahl <b>Ø" + d + "</b>?", o:["Durchmesser " + d + " mm", "Radius " + d + " mm", "Tiefe " + d + " mm", d + " Bohrungen"]},
+    {t:"Was bedeutet die Masszahl <b>R" + d + "</b>?", o:["Radius " + d + " mm", "Durchmesser " + d + " mm", "Rand " + d + " mm", "Rechteck mit " + d + " mm Seitenlänge"]},
+    {t:"Worauf bezieht sich das Mass für die Lage einer Bohrung?", o:["Auf die Mitte der Bohrung", "Auf den linken Rand der Bohrung", "Auf den rechten Rand der Bohrung", "Auf den tiefsten Punkt der Bohrung"]},
+    {t:"Eine Zeichnung ist im Massstab 1:1 gezeichnet. Eine Kante ist auf dem Papier " + (d + 20) + " mm lang. Wie lang ist sie am Bauteil?", o:[(d + 20) + " mm", (d + 20) * 2 + " mm", (d + 20) / 2 + " mm", (d + 20) * 10 + " mm"]},
+    {t:"In welcher Einheit stehen die Masszahlen in den Zeichnungen der Übungen 40 bis 43?", o:["In Millimetern", "In Zentimetern", "In Metern", "In Zoll"]},
+    {t:"Übung 40: Von der linken Kante aus sind die Masse 15, 30 und 60 eingetragen. Was fällt auf?", o:["Alle drei Masse gehen von derselben Kante aus.", "Jedes Mass schliesst an das vorherige an.", "Die Masse sind Durchmesser.", "Die Masse gehören zur Höhe des Bauteils."]},
+    {t:"Übung 41: Unten sind die Masse 50 und 15 nebeneinander eingetragen. Was bedeutet das?", o:["Der Ausschnitt beginnt 50 mm von der linken Kante und ist 15 mm breit.", "Der Ausschnitt beginnt 15 mm von der linken Kante und ist 50 mm breit.", "Das Bauteil ist 65 mm lang.", "Der Ausschnitt ist 50 mm hoch und 15 mm breit."]}
+  ]);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Ø steht für den Durchmesser, R für den Radius. Masszahlen geben Millimeter an.", solution:"<p><b>" + q.o[0] + "</b></p>" };
+}
+function qAb(){
+  var typ = pick(IDS), T = TYP[typ], p = T.ab, r = pick(T.rechne(p)), andere = T.masse(p).map(function(e){ return e.v; });
+  return {
+    text: T.name + " des Arbeitsblatts: Berechnen Sie das folgende Mass aus den eingetragenen Massen.<br><b>" + r.n + "</b>" + bild(typ, p, {raster:false}),
+    parts: [{label:"Gesuchtes Mass", options:zahlOpt(r.v, andere), correct:r.v, mono:true, show:MM}],
+    hint: "Suchen Sie die Masse, die an der gesuchten Strecke beteiligt sind.",
+    solution: "<p>" + r.n + " = " + r.w + " = <b>" + MM(r.v) + "</b></p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.36) return qLesen();
+  if (x < 0.66) return qRechnen();
+  if (x < 0.8) return qAb();
+  return qZeichen();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qLesen, qLesen, qLesen, qRechnen, qRechnen, qAb, qZeichen, qZeichen]); }});
+})();
+</script>
+</body>
+</html>

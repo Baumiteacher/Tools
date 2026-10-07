@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_6 TA6 Parallelschaltung mit Leistung BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Schaltzeichen nach Theoriebuch (AAD28, AAD30.1) und Arbeitsblättern (ID4, ID5) */
+:root{ --sym:#2B3E66; --w-l:#7F4F3F; --w-n:#4F86B8; --w-ld:#F26B21; --w-ld2:#9B59C6; --w-k:#F26B21; --w-pe1:#7AC943; --w-pe2:#F7DC3B;
+  --t-l:#993300; --t-ld:#800080; --t-ldb:#FF6600; --t-n:#0000FF; --t-k:#FF00FF; --plan:#4F86B8; --lampe-an:#F6D13A;
+  --w-l2:#141414; --w-l2h:transparent; --w-l3:#8C8C8C; --w-i:#F03A17; --et-u:#0000FF; --et-i:#E60000 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 } }
+:root[data-theme="dark"]{ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 }
+.sy{fill:none;stroke:var(--sym);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy.dn{stroke-width:1.3}
+.sy.dk{stroke-width:2.6}
+.sy-s{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy-s.dn{stroke-width:1.2}
+.sy-f{fill:var(--sym);stroke:none}
+.sy-fs{fill:var(--ink);stroke:none}
+.sy-bg{fill:var(--surface)}
+.sy-d{stroke-dasharray:3.5 3}
+.sy-t{fill:var(--sym);font-family:var(--sans);font-size:11px}
+.sy-ts{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.w{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.w.live{stroke-width:5}
+.w-l{stroke:var(--w-l)} .w-n{stroke:var(--w-n)} .w-ld{stroke:var(--w-ld)} .w-ld2{stroke:var(--w-ld2)} .w-k{stroke:var(--w-k)}
+.w-pe1{stroke:var(--w-pe1)} .w-pe2{stroke:var(--w-pe2);stroke-dasharray:6 6;stroke-linecap:butt}
+.t-l{stroke:var(--t-l)} .t-ld{stroke:var(--t-ld)} .t-ldb{stroke:var(--t-ldb)} .t-n{stroke:var(--t-n)} .t-k{stroke:var(--t-k)} .t-s{stroke:var(--ink)}
+.plan{fill:none;stroke:var(--plan);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.plan.an{stroke-width:5.5}
+.plan.fehler{stroke:var(--bad)}
+/* Aussenleiter L2 (schwarz) und L3 (grau), Strompfeile des Arbeitsblatts, Messschaltung des Theoriebuchs */
+.w-l2{stroke:var(--w-l2)} .w-l2h{stroke:var(--w-l2h);stroke-width:4.8} .w-l3{stroke:var(--w-l3)}
+.w-i{fill:var(--w-i);stroke:none}
+.w-it{fill:var(--w-i);font-family:var(--sans);font-size:9px}
+.et-us{fill:none;stroke:var(--et-u);stroke-width:1.5;stroke-linecap:round}
+.et-is{fill:none;stroke:var(--et-i);stroke-width:1.5;stroke-linecap:round}
+.et-uf{fill:var(--et-u);stroke:none} .et-if{fill:var(--et-i);stroke:none}
+.et-ut{fill:var(--et-u);font-family:var(--sans);font-size:11px} .et-it{fill:var(--et-i);font-family:var(--sans);font-size:11px}
+
+[hidden]{display:none!important}
+:root{--c-p:#0B8A45}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--c-p:#5FD990} }
+:root[data-theme="dark"]{--c-p:#5FD990}
+.schaltung{width:100%;height:auto;display:block}
+.sk-p{fill:var(--c-p);font-family:var(--sans);font-size:11px}
+.sk-q{fill:var(--accent);font-weight:700}
+.messwerte{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.92rem;display:flex;flex-wrap:wrap;gap:4px 14px}
+.messwerte b{font-weight:700}
+.mw-u{color:var(--et-u)} .mw-i{color:var(--et-i)} .mw-p{color:var(--c-p)}
+.teiler{display:flex;height:38px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.teiler .zone{flex-direction:column;line-height:1.1;font-size:.7rem}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.rechnung .zw{font-weight:700;color:var(--muted);font-size:.86rem;line-height:1.3;margin-top:4px}
+.r-slider{display:grid;grid-template-columns:7.6em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.q-schema{display:block;width:100%;max-width:330px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.nw{white-space:nowrap}
+.wz{white-space:nowrap}
+.wz-i{border-top:1.5px solid currentColor;padding:0 .15em;margin-left:-.05em}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_6 Apparate und Leitungen, einfache Verbraucherinstallation · Teilauftrag 6</p>
+    <h1>Parallelschaltung mit Leistung BAP</h1>
+    <p class="lead">Zwei Widerstände liegen parallel an der gleichen Spannung. Berechnen Sie aus dem Gesamtstrom oder aus einer Leistung alle Werte der Schaltung und tragen Sie diese in die Skizze ein.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Was ist gegeben?</legend>
+          <div class="seg" id="typ">
+            <button class="opt txt" type="button" data-typ="I" id="typ-I" aria-pressed="true">Gesamtstrom <i>I</i> (wie Übung 49)</button>
+            <button class="opt txt" type="button" data-typ="P" id="typ-P" aria-pressed="false">Leistung <i>P</i><sub>1</sub> (wie Übung 50)</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Werte einstellen</legend>
+          <div class="plain">
+            <label class="r-slider" for="s-g"><span class="num" id="v-g"></span><input type="range" id="s-g" min="5" max="500" step="1" value="46"></label>
+            <label class="r-slider" for="s-r1"><span class="num" id="v-r1"></span><input type="range" id="s-r1" min="10" max="1000" step="10" value="360"></label>
+            <label class="r-slider" for="s-r2"><span class="num" id="v-r2"></span><input type="range" id="s-r2" min="10" max="1000" step="10" value="560"></label>
+          </div>
+          <div class="opts" id="laden">
+            <button class="opt txt" type="button" id="ue49" data-ue="49">Übung 49 laden</button>
+            <button class="opt txt" type="button" id="ue50" data-ue="50">Übung 50 laden</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Skizze mit allen Werten</h2>
+        <svg class="schaltung" id="schaltung" viewBox="0 0 340 178" role="img" aria-label="Parallelschaltung: Spannungsquelle mit zwei parallel geschalteten Widerständen R1 und R2, Spannung U, Gesamtstrom I und Teilströme I1 und I2"></svg>
+        <p class="messwerte" id="messwerte"></p>
+        <p class="note">Darstellung wie im Arbeitsblatt: Ströme rot, Spannung blau, Leistungen grün. Die Leistungen sind in der Skizze zu Übung 49 nicht verlangt, das Tool zeigt sie zusätzlich.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Leistung</h2>
+        <div class="rechnung" id="leistung"></div>
+        <div class="plain">
+          <p class="label">So verteilt sich die Gesamtleistung <i>P</i> auf die beiden Widerstände</p>
+          <div class="teiler" id="teiler"></div>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch ET4.5 bis ET4.7, ET2.16)</h2>
+        <div class="merke">
+          <p>Parallelgeschaltete Widerstände liegen an der gleichen Spannung.</p>
+          <p>Bei der Parallelschaltung entspricht der Gesamtstrom der Summe der Teilströme.</p>
+          <p>Bei der Parallelschaltung ist der Gesamtwiderstand immer kleiner als der kleinste Teilwiderstand.</p>
+          <p>Auch bei der Parallelschaltung ergibt die Summe der Einzelleistungen die Gesamtleistung.</p>
+          <p id="merk-formeln"></p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie Übung 49. Lösen Sie die Aufgabe zuerst auf dem Arbeitsblatt und vergleichen Sie dann die Teilströme.</li>
+          <li>Laden Sie Übung 50. Weshalb dürfen Sie die Spannung der ganzen Schaltung aus <i>P</i><sub>1</sub> und <i>R</i><sub>1</sub> berechnen?</li>
+          <li>Machen Sie <i>R</i><sub>2</sub> kleiner als <i>R</i><sub>1</sub>. Welcher Widerstand nimmt jetzt die grössere Leistung auf?</li>
+          <li>Stellen Sie beide Widerstände gleich gross ein. Wie verteilen sich Strom und Leistung?</li>
+          <li>Verdoppeln Sie den Gesamtstrom <i>I</i>. Wie ändert sich die Gesamtleistung <i>P</i>?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET4.5 bis ET4.7 (Parallelschaltung) und ET2.16 (Erweitertes ohmsches Gesetz, Formelrad).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Elektrotechnik, Kapitel 4 Grundschaltungen der Elektrotechnik: ET4.5 bis ET4.7 (Parallelschaltung, Gesamtwiderstand, Verhalten der Leistung)</li><li>Theoriebuch Elektrotechnik, Kapitel 2 Grundbegriffe der Elektrotechnik: ET2.15 bis ET2.17 (Elektrische Leistung, erweitertes ohmsches Gesetz, Leistung bei Spannungs- und Stromänderung)</li><li>Arbeitsblätter ID6 Apparate und Leitungen, Teilauftrag 6 Parallelschaltung mit Leistung: Übungen 49 und 50 (ID6.27 und ID6.28)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Schaltzeichen-Bibliothek: Formen aus Theoriebuch AAD28.2 bis AAD28.5, AAD30.1 und den Arbeitsblättern ID4 und ID5 übernommen */
+var SYM = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function pfad(d, cls, extra){ return "<path class=\"" + cls + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function kreis(x, y, r, cls){ return "<circle class=\"" + cls + "\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>"; }
+function text(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+
+/* ===== Installationsplan und Prinzipschema (AAD30.1, AAD28.2 bis AAD28.5) ===== */
+function fahne(x, y, r, grad, uhr, len, hk){
+  var a = grad * Math.PI / 180, b = a + (uhr ? 1 : -1) * Math.PI / 2;
+  var x1 = x + (r + len) * Math.cos(a), y1 = y + (r + len) * Math.sin(a);
+  return "M" + n(x + r * Math.cos(a)) + " " + n(y + r * Math.sin(a)) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * Math.cos(b)) + " " + n(y1 + hk * Math.sin(b));
+}
+/* Schalter im Plan: typ 0, 1, 2, 3 oder 6 */
+function schalter(x, y, typ, o){
+  o = o || {}; var r = o.r || 9, len = o.len || 15, hk = o.hk || 7, d = "";
+  if (String(typ) === "2"){
+    /* Sch 2 gemäss Vorgabe BAP (Bildschirmfoto vom 5.10.): zwei parallele Striche nach rechts oben, jeder mit einem Haken nach rechts unten */
+    var c = Math.SQRT1_2, ab = 0.28 * r, T = [(r + len) * 1.12, (r + len) * 1.12 * 0.84];
+    [-1, 1].forEach(function(seite, k){
+      var ox = seite * ab * c, oy = seite * ab * c, a0 = Math.sqrt(r * r - ab * ab);
+      var x0 = x + ox + a0 * c, y0 = y + oy - a0 * c, x1 = x + ox + T[k] * c, y1 = y + oy - T[k] * c;
+      d += "M" + n(x0) + " " + n(y0) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * c) + " " + n(y1 + hk * c) + " ";
+    });
+    return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+  }
+  /* "2p" und "2u": die beiden Formen aus dem Theoriebuch AAD28.4 (Prinzipschema und Abbildung UP-Installation), in den Tools nicht mehr verwendet */
+  var f = {0:[[-45, 1]], 1:[[-45, 1], [-135, 0]], "2p":[[-45, 1], [-135, 1]], "2u":[[-45, 0], [-135, 0]], 3:[[-45, 1], [135, 1]], 6:[[-45, 1], [-135, 0], [135, 1], [45, 0]]}[typ];
+  f.forEach(function(e){ d += fahne(x, y, r, e[0], e[1], len, hk) + " "; });
+  return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+}
+/* Steckdose Typ 13 im Plan: Stiel ab (x,y) in Richtung grad, Querstrich, Bogen */
+function steckdose(x, y, grad, o){
+  o = o || {}; var s = o.stiel === undefined ? 10 : o.stiel, b = o.b || 9, ra = o.ra || 7.5;
+  var a = grad * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+  var ex = x + s * dx, ey = y + s * dy, cx = ex + ra * dx, cy = ey + ra * dy;
+  var d = "M" + n(x) + " " + n(y) + " L" + n(ex) + " " + n(ey) + " M" + n(ex + b * px) + " " + n(ey + b * py) + " L" + n(ex - b * px) + " " + n(ey - b * py)
+        + " M" + n(cx + ra * px) + " " + n(cy + ra * py) + " A" + ra + " " + ra + " 0 0 1 " + n(cx - ra * px) + " " + n(cy - ra * py);
+  return pfad(d, "sy dk");
+}
+function leuchte(x, y, o){ o = o || {}; var s = o.s || 10; return pfad("M" + n(x - s) + " " + n(y - s) + " L" + n(x + s) + " " + n(y + s) + " M" + n(x + s) + " " + n(y - s) + " L" + n(x - s) + " " + n(y + s), "sy dk"); }
+function dose(x, y, o){ o = o || {}; var s = o.s || 11; return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + kreis(x, y, o.punkt || 3.6, "sy-f"); }
+/* Zuleitung nach UV: Kasten mit Pfeilspitze, spitze nach rechts (1) oder links (-1); (x,y) ist der Anschlusspunkt der Leitung */
+function uv(x, y, richtung, label){
+  var w = 26, h = 8, k = richtung, x1 = x + k * w, d = "M" + n(x) + " " + n(y - h) + " H" + n(x1) + " V" + n(y + h) + " H" + n(x) + " Z M" + n(x1) + " " + n(y - h) + " L" + n(x1 + k * 9) + " " + n(y) + " L" + n(x1) + " " + n(y + h);
+  return pfad(d, "sy sy-bg") + text(x + k * w / 2, y + 4, label || "UV", "sy-t", "middle");
+}
+function ventilator(x, y, o){
+  o = o || {}; var s = o.s || 12, a = s * 0.62, b = s * 0.36;
+  return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + unendlich(x, y, a, b);
+}
+function unendlich(x, y, a, b){
+  return pfad("M" + n(x) + " " + n(y) + " C" + n(x + a * 0.5) + " " + n(y - b * 1.5) + " " + n(x + a * 1.4) + " " + n(y - b * 1.2) + " " + n(x + a * 1.4) + " " + n(y)
+    + " C" + n(x + a * 1.4) + " " + n(y + b * 1.2) + " " + n(x + a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y)
+    + " C" + n(x - a * 0.5) + " " + n(y - b * 1.5) + " " + n(x - a * 1.4) + " " + n(y - b * 1.2) + " " + n(x - a * 1.4) + " " + n(y)
+    + " C" + n(x - a * 1.4) + " " + n(y + b * 1.2) + " " + n(x - a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y), "sy dk");
+}
+/* Markierung der Drahtzahl: kurzer Querstrich über die Leitung */
+function marke(x, y, senkrechteLeitung, l){ l = l || 7; return pfad(senkrechteLeitung ? "M" + n(x - l) + " " + n(y) + " H" + n(x + l) : "M" + n(x) + " " + n(y - l) + " V" + n(y + l), "sy dn"); }
+
+/* ===== Stromlaufschema nach Theoriebuch (schwarz gezeichnet) ===== */
+function lampeT(x, y, o){
+  o = o || {}; var r = o.r || 11, d = r * 0.707, h = "";
+  h += "<circle class=\"sy-s\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"" + (o.an ? " style=\"fill:var(--lampe-an)\"" : " style=\"fill:var(--surface)\"") + "/>";
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy-s");
+  if (o.name) h += text(x - r - 5, y + 5, o.name, "sy-ts", "end", " style=\"font-size:13px\"");
+  if (o.x12 !== false){ h += text(x - 3, y - r - 2, "X1", "sy-ts", "end", " style=\"font-size:8px\"") + text(x - 3, y + r + 9, "X2", "sy-ts", "end", " style=\"font-size:8px\""); }
+  if (o.buchstabe) h += text(x + r * 0.6, y - r - 1, o.buchstabe, "sy-ts", "start", " style=\"font-size:12px\"");
+  return h;
+}
+/* Neutralleiter-Kennzeichen: Schrägstrich mit Punkt */
+function nMarke(x, y){ return pfad("M" + n(x - 4) + " " + n(y + 5) + " L" + n(x + 3) + " " + n(y - 7), "w t-n", " style=\"stroke-width:2\"") + kreis(x + 3.4, y - 8, 2, "sy-fs"); }
+/* Verbindung Antrieb zu Schaltstück: gestrichelt mit Kerbe (v oder ^) */
+function gestaenge(x0, x1, y, auf){
+  var m = x0 + (x1 - x0) * 0.42, k = auf ? -1 : 1;
+  return pfad("M" + n(x0) + " " + n(y) + " H" + n(m - 6), "sy-s dn sy-d") + pfad("M" + n(m - 6) + " " + n(y) + " H" + n(m - 4) + " L" + n(m) + " " + n(y + k * 7) + " L" + n(m + 4) + " " + n(y) + " H" + n(m + 6), "sy-s dn") + pfad("M" + n(m + 6) + " " + n(y) + " H" + n(x1), "sy-s dn sy-d");
+}
+/* Antrieb: "klammer" [ (Schema 0), "balken" | mit Ansatz (Schema 1 und 3), "dreh" (Schema 2) */
+function antriebT(art, x, y, h){
+  h = h || 9;
+  if (art === "klammer") return pfad("M" + n(x + 5) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 5), "sy-s");
+  if (art === "dreh") return pfad("M" + n(x - 6) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 6), "sy-s");
+  return pfad("M" + n(x) + " " + n(y - h) + " V" + n(y + h) + " M" + n(x) + " " + n(y) + " H" + n(x + 4), "sy-s");
+}
+
+/* ===== Wirkschaltschema nach Arbeitsblatt (dunkelblau gezeichnet) ===== */
+function klemme(x, y, o){
+  o = o || {}; var r = o.r || 5.5, k = r * 0.72, s = o.steigend ? -1 : 1;
+  return kreis(x, y, r, "sy dk sy-bg") + pfad("M" + n(x - k) + " " + n(y - s * k) + " L" + n(x + k) + " " + n(y + s * k), "sy dk");
+}
+/* Anschlussklemme im Ersatzschaltbild: offener Ring */
+function ring(x, y, r){ return "<circle class=\"sy sy-bg\" style=\"stroke-width:3\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + (r || 5) + "\"/>"; }
+/* Leuchte im Wirkschaltschema: strichpunktierter Kasten, Kreuz und Schutzleiteranschluss rechts. (x,y) ist die Mitte des Kreuzes. */
+function leuchteW(x, y, o){
+  o = o || {}; var s = o.s || 36, x0 = x - 0.407 * s, y0 = y - 0.49 * s, x1 = x0 + s, y1 = y0 + s, mx = x0 + s / 2, my = y0 + s / 2, g = 0.09 * s, d = 0.31 * s, h = "";
+  if (o.an) h += "<rect x=\"" + n(x0) + "\" y=\"" + n(y0) + "\" width=\"" + s + "\" height=\"" + s + "\" style=\"fill:var(--lampe-an);opacity:.75\"/>";
+  h += pfad("M" + n(mx - g) + " " + n(y0) + " H" + n(x0) + " V" + n(my - g) + " M" + n(x0) + " " + n(my + g) + " V" + n(y1) + " H" + n(mx - g)
+    + " M" + n(mx + g) + " " + n(y1) + " H" + n(x1) + " V" + n(my + g) + " M" + n(x1) + " " + n(my - g) + " V" + n(y0) + " H" + n(mx + g), "sy dk", " style=\"stroke-linecap:butt\"");
+  [[mx, y0], [mx, y1], [x0, my]].forEach(function(p){ h += kreis(p[0], p[1], 1.2, "sy-f"); });
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy dk");
+  /* Schutzleiteranschluss: Erdungszeichen, Strich, Klemme auf dem rechten Rand */
+  var kx = x1 - 0.035 * s, ky = y, kr = 0.058 * s, ex = kx - 0.17 * s;
+  h += pfad("M" + n(kx - kr) + " " + n(ky) + " H" + n(ex) + " M" + n(ex) + " " + n(ky - 0.067 * s) + " V" + n(ky + 0.067 * s) + " M" + n(ex - 0.035 * s) + " " + n(ky - 0.042 * s) + " V" + n(ky + 0.042 * s) + " M" + n(ex - 0.07 * s) + " " + n(ky - 0.02 * s) + " V" + n(ky + 0.02 * s), "sy dn");
+  h += kreis(kx, ky, kr, "sy dn sy-bg") + pfad("M" + n(kx - kr * 0.7) + " " + n(ky - kr * 0.7) + " L" + n(kx + kr * 0.7) + " " + n(ky + kr * 0.7), "sy dn");
+  return {svg:h, pe:[kx + kr, ky], oben:[x, y0], unten:[x, y1], x0:x0, y0:y0, x1:x1, y1:y1};
+}
+/* Antrieb im Wirkschaltschema: Querbalken oben, gestrichelte Verbindung, bei rastenden Schaltern mit Zickzack */
+function antriebW(x, yBalken, yUnten, rastend, o){
+  o = o || {}; var b = o.b || 8, h = pfad("M" + n(x - b) + " " + n(yBalken) + " H" + n(x + b), "sy dk");
+  if (!rastend) return h + pfad("M" + n(x) + " " + n(yBalken + 3) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+  var m = yBalken + (yUnten - yBalken) * 0.5;
+  return h + pfad("M" + n(x) + " " + n(yBalken + 2) + " V" + n(m - 5), "sy dk sy-d", " style=\"stroke-linecap:butt\"") + pfad("M" + n(x) + " " + n(m - 5) + " L" + n(x - 5) + " " + n(m) + " L" + n(x) + " " + n(m + 5), "sy dk") + pfad("M" + n(x) + " " + n(m + 6) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+}
+/* Widerstand im Ersatzschaltbild: Rechteck mit Bezeichnung */
+function widerstand(x, y, o){
+  o = o || {}; var w = o.w || 46, h = o.h || 17;
+  return "<rect class=\"sy sy-bg" + (o.cls ? " " + o.cls : "") + "\" style=\"stroke-width:3\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - h / 2) + "\" width=\"" + w + "\" height=\"" + h + "\"/>"
+    + (o.name ? "<text class=\"sy-t\" x=\"" + n(x) + "\" y=\"" + n(y + 4.5) + "\" text-anchor=\"middle\" style=\"font-size:12px\">R<tspan dy=\"3\" style=\"font-size:8.5px\">" + o.name + "</tspan></text>" : "");
+}
+/* ===== Schaltschema nach Arbeitsblatt ID5, Übungen 14 und 29 (dunkelblau gezeichnet) ===== */
+/* Sammelschienen, z. B. L1, L2, L3, N. Gibt die Höhe jeder Schiene zurück. */
+function schienen(x0, x1, y0, dy, namen, fs){
+  var h = "", ys = {}; fs = fs || 10.5;
+  namen.forEach(function(nm, i){ var y = y0 + i * dy; ys[nm] = y; h += pfad("M" + n(x0) + " " + n(y) + " H" + n(x1), "sy dk") + text(x0 - 3, y + fs * 0.35, nm, "sy-t", "end", " style=\"font-size:" + fs + "px\""); });
+  return {svg:h, y:ys};
+}
+/* Leitungsschutzschalter wie im Arbeitsblatt: pole = [{x, von}] (von = Höhe der Schiene), nPol = {x, von} für den Neutralleitertrenner oder null.
+   yo = oberes Ende der Schaltstücke, yu = Drehpunkt, bis = unteres Ende der Leitung. Das erste Schaltstück trägt die Auslöser. */
+function ls(pole, nPol, yo, yu, bis){
+  var dy = yu - yo, dx = dy * 0.5, s = dy / 138, h = "", d = "";
+  pole.forEach(function(p){ d += "M" + n(p.x) + " " + n(p.von) + " V" + n(yo) + " M" + n(p.x - dx) + " " + n(yo) + " L" + n(p.x) + " " + n(yu) + " V" + n(bis) + " "; });
+  h += pfad(d, "sy dk");
+  /* Auslöser am ersten Schaltstück: obere Linie mit rechteckigem Absatz (thermisch), untere Linie mit Pfeil (magnetisch) */
+  var p0 = pole[0], ux = -0.88, uy = 0.47, vx = -0.47, vy = -0.88;
+  function aufBlatt(t){ return [p0.x - dx + dx * t, yo + dy * t]; }
+  var a = aufBlatt(0.31), b = aufBlatt(0.53), q = [a[0], a[1]], dd = "M" + n(q[0]) + " " + n(q[1]);
+  [[53, 0], [0, 28], [28, 0], [0, -28], [45, 0]].forEach(function(st){ q = [q[0] + (st[0] * ux + st[1] * vx) * s, q[1] + (st[0] * uy + st[1] * vy) * s]; dd += " L" + n(q[0]) + " " + n(q[1]); });
+  h += pfad(dd, "sy");
+  var e = [b[0] + 108 * ux * s, b[1] + 108 * uy * s], sp = [b[0] + 124 * ux * s, b[1] + 124 * uy * s];
+  h += pfad("M" + n(b[0]) + " " + n(b[1]) + " L" + n(e[0]) + " " + n(e[1]), "sy");
+  h += "<path class=\"sy-f\" d=\"M" + n(sp[0]) + " " + n(sp[1]) + " L" + n(e[0] + 9 * vx * s) + " " + n(e[1] + 9 * vy * s) + " L" + n(e[0] - 9 * vx * s) + " " + n(e[1] - 9 * vy * s) + " Z\"/>";
+  /* mechanische Verbindung der Schaltstücke: gestrichelt */
+  if (pole.length > 1){ var l = pole[pole.length - 1]; h += pfad("M" + n(p0.x - dx + dx * 0.52 + 2) + " " + n(yo + dy * 0.52) + " H" + n(l.x - dx + dx * 0.52 - 1), "sy dn sy-d"); }
+  if (nPol){
+    var bb = dy * 0.26;
+    h += pfad("M" + n(nPol.x) + " " + n(nPol.von) + " V" + n(yo) + " M" + n(nPol.x - bb) + " " + n(yo) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yo + dy * 0.1) + " V" + n(yu - dy * 0.08)
+      + " M" + n(nPol.x - bb) + " " + n(yu) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yu) + " V" + n(bis), "sy dk");
+  }
+  return h;
+}
+/* Klemmenleiste: Kästchen mit hochgestellter Beschriftung. Gibt die Mitte jeder Klemme zurück. */
+function klemmenleiste(x, y, namen, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 35, h = "", xs = {};
+  namen.forEach(function(nm, i){
+    var x0 = x + i * b, cx = x0 + b / 2; xs[nm] = cx;
+    h += "<rect class=\"sy dk sy-bg\" x=\"" + n(x0) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>";
+    h += text(cx + 3.4, y + hh - 4, nm, "sy-t", "start", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(cx + 3.4) + " " + n(y + hh - 4) + ")\"");
+  });
+  return {svg:h, x:xs, oben:y, unten:y + hh};
+}
+/* Verbraucher als Widerstand, stehend, Beschriftung hochgestellt. (x, y) ist der obere Anschluss. */
+function widerstandW(x, y, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 52;
+  return "<rect class=\"sy dk sy-bg" + (o.cls ? " " + o.cls : "") + "\" x=\"" + n(x - b / 2) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>"
+    + text(x + 3.4, y + hh / 2, o.name || "", "sy-t", "middle", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(x + 3.4) + " " + n(y + hh / 2) + ")\"");
+}
+/* Strompfeil wie im Arbeitsblatt: rotes Dreieck auf dem Leiter, Wert daneben. richtung 1 = nach unten, -1 = nach oben */
+function stromW(x, y, richtung, label, anker){
+  var k = richtung || 1, h = "<path class=\"w-i\" d=\"M" + n(x - 4.2) + " " + n(y - 3.6 * k) + " H" + n(x + 4.2) + " L" + n(x) + " " + n(y + 4.6 * k) + " Z\"/>";
+  if (label) h += text(anker === "start" ? x + 6 : x - 6, y + 3, label, "w-it", anker === "start" ? "start" : "end");
+  return h;
+}
+
+/* ===== Messschaltung nach Theoriebuch ET4.1 und ET4.5 (schwarz, Spannung blau, Strom rot) ===== */
+/* Messgerät: Kreis mit Buchstabe. art "i" = Ampèremeter (rot), "u" = Voltmeter (blau) */
+function messT(x, y, art, r){
+  r = r || 9; var c = art === "u" ? "et-u" : "et-i";
+  return "<circle class=\"" + c + "s\" style=\"fill:var(--surface)\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>" + text(x, y + 4, art === "u" ? "V" : "A", c + "t", "middle", art === "u" ? " style=\"font-weight:700\"" : "");
+}
+/* Pfeil mit gefüllter Spitze von (x1,y1) nach (x2,y2) */
+function pfeilT(x1, y1, x2, y2, art, nurSpitze){
+  var c = art === "u" ? "et-u" : "et-i", L = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)), ux = (x2 - x1) / L, uy = (y2 - y1) / L, sl = 8, sb = 3;
+  var bx = x2 - ux * sl, by = y2 - uy * sl;
+  return (nurSpitze ? "" : pfad("M" + n(x1) + " " + n(y1) + " L" + n(bx) + " " + n(by), c + "s"))
+    + "<path class=\"" + c + "f\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(bx - uy * sb) + " " + n(by + ux * sb) + " L" + n(bx + uy * sb) + " " + n(by - ux * sb) + " Z\"/>";
+}
+/* Gleichspannungsquelle: langer dünner Strich (+), kurzer dicker Strich (−). (x, y) ist die Mitte zwischen den Strichen. */
+function quelleT(x, y){
+  return pfad("M" + n(x - 8) + " " + n(y - 2.5) + " H" + n(x + 8), "sy-s dn") + pfad("M" + n(x - 4) + " " + n(y + 2.5) + " H" + n(x + 4), "sy-s", " style=\"stroke-width:3;stroke-linecap:butt\"")
+    + text(x - 4, y - 5.5, "+", "et-it", "middle", " style=\"font-weight:700\"") + text(x - 4, y + 12, "−", "et-ut", "middle", " style=\"font-weight:700\"");
+}
+return {pfad:pfad, kreis:kreis, text:text, schalter:schalter, steckdose:steckdose, leuchte:leuchte, dose:dose, uv:uv, ventilator:ventilator, unendlich:unendlich, marke:marke,
+        lampeT:lampeT, nMarke:nMarke, gestaenge:gestaenge, antriebT:antriebT, klemme:klemme, ring:ring, leuchteW:leuchteW, antriebW:antriebW, widerstand:widerstand,
+        schienen:schienen, ls:ls, klemmenleiste:klemmenleiste, widerstandW:widerstandW, stromW:stromW, messT:messT, pfeilT:pfeilT, quelleT:quelleT, n:n};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac, S = SYM;
+var NB = String.fromCharCode(160);
+function V(x){ return BAP.unit(x, "V", 3); }
+function A(x){ return BAP.amp(x, 3); }
+function O(x){ return BAP.ohm(x, 4); }
+function W(x){ var a = Math.abs(x); return a >= 1000 ? BAP.unit(x / 1000, "kW", 3) : (a > 0 && a < 1) ? BAP.unit(x * 1000, "mW", 3) : BAP.unit(x, "W", 3); }
+function tsd(x){ return String(x).replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(8217)); }
+/* «=» bei genauem, «≈» bei gerundetem Wert */
+function gl(x, sig){ return Math.abs(round(x, sig || 3) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+/* Zeichen vor einer Rechnung mit bereits gerundeten Werten */
+function gz(){ for (var i = 0; i < arguments.length; i++) if (gl(arguments[i]) === "≈") return "≈"; return "="; }
+function ix(sym, idx){ return "<i>" + sym + "</i>" + (idx ? "<sub>" + idx + "</sub>" : ""); }
+function wz(inner){ return "<span class=\"wz\">√<span class=\"wz-i\">" + inner + "</span></span>"; }
+var R_ = function(k){ return ix("R", k); }, I_ = function(k){ return ix("I", k); }, P_ = function(k){ return ix("P", k); };
+
+/* Gesetze der Parallelschaltung (ET4.5 bis ET4.7). typ "I": Gesamtstrom gegeben (Übung 49), typ "P": Leistung P1 gegeben (Übung 50) */
+function rechne(typ, R1, R2, g){
+  var R = R1 * R2 / (R1 + R2), U = typ === "I" ? R * g : Math.sqrt(g * R1);
+  var I1 = U / R1, I2 = U / R2;
+  return {R:R, U:U, I1:I1, I2:I2, I:I1 + I2, P1:U * I1, P2:U * I2, P:U * (I1 + I2)};
+}
+window.__t = {rechne:rechne};
+
+/* ================= SKIZZE wie im Arbeitsblatt (Übung 49 und 50) ================= */
+function lab(sym, idx, rest){
+  return sym + (idx ? "<tspan dy=\"2.5\" style=\"font-size:7.5px\">" + idx + "</tspan><tspan dy=\"-2.5\">" + (rest || "") + "</tspan>" : (rest || ""));
+}
+function hoch(x, y, t, cls, anker){ return "<text class=\"" + cls + "\" x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"" + (anker || "middle") + "\" transform=\"rotate(-90 " + x + " " + y + ")\">" + t + "</text>"; }
+function wert(v){ return v === undefined ? "" : " = " + v; }
+/* o: {I, U, I1, I2, R1, R2, P1, P2}; fehlende Angaben bleiben wie auf dem Arbeitsblatt leer */
+function skizze(o){
+  var yo = 22, yu = 160, xq = 44, xs = [202, 292], h = "", dr = " style=\"stroke-width:1.5\"";
+  h += S.pfad("M" + xq + " 95.5 V" + yo + " H" + xs[1] + " M" + xq + " 100.5 V" + yu + " H" + xs[1], "sy-s", dr);
+  h += S.quelleT(xq, 98);
+  h += S.pfeilT(xq, yo, 78, yo, "i") + "<text class=\"et-it\" x=\"36\" y=\"13\">" + lab("I", "", wert(o.I)) + "</text>";
+  h += S.pfeilT(84, 62, 84, 136, "u") + hoch(78, 99, lab("U", "", wert(o.U)), "et-ut");
+  xs.forEach(function(x, k){
+    var nr = k + 1;
+    h += S.pfad("M" + x + " " + yo + " V98 M" + x + " 140 V" + yu, "sy-s", dr);
+    h += S.pfeilT(x, yo, x, 88, "i") + hoch(x - 6, 27, lab("I", nr, wert(o["I" + nr])), "et-it", "end");
+    h += "<rect class=\"sy-s\" x=\"" + (x - 7) + "\" y=\"98\" width=\"14\" height=\"42\" style=\"fill:var(--surface);stroke-width:1.5\"/>" + hoch(x + 3.5, 119, lab("R", nr), "sy-ts");
+    h += hoch(x - 12, 119, o["R" + nr], "sy-ts");
+    if (o["P" + nr] !== undefined) h += hoch(x - 25, 119, o["P" + nr], "sk-p");
+  });
+  return h;
+}
+function qSkizze(o, alt){ return "<svg class=\"q-schema\" viewBox=\"0 0 340 178\" role=\"img\" aria-label=\"" + alt + "\">" + skizze(o) + "</svg>"; }
+
+/* ================= ERKUNDEN ================= */
+var st = {typ:"I", I:0.0456, P1:125, R1:360, R2:560};
+function gegeben(){ return st.typ === "I" ? st.I : st.P1; }
+function render(){
+  var R1 = st.R1, R2 = st.R2, e = rechne(st.typ, R1, R2, gegeben()), istI = st.typ === "I";
+  $("typ-I").setAttribute("aria-pressed", String(istI));
+  $("typ-P").setAttribute("aria-pressed", String(!istI));
+  $("v-g").innerHTML = istI ? "<i>I</i> = " + A(st.I) : P_(1) + " = " + W(st.P1);
+  $("v-r1").innerHTML = R_(1) + " = " + O(R1);
+  $("v-r2").innerHTML = R_(2) + " = " + O(R2);
+  $("s-g").setAttribute("aria-label", istI ? "Gesamtstrom einstellen" : "Leistung P1 einstellen");
+
+  $("schaltung").innerHTML = skizze({I:A(e.I), U:V(e.U), I1:A(e.I1), I2:A(e.I2), R1:O(R1), R2:O(R2), P1:W(e.P1), P2:W(e.P2)});
+  $("messwerte").innerHTML = "<span class=\"mw-u\"><i>U</i> " + gl(e.U) + " <b>" + V(e.U) + "</b></span><span class=\"mw-i\"><i>I</i> " + gl(e.I) + " <b>" + A(e.I) + "</b></span><span class=\"mw-i\">" + I_(1) + " " + gl(e.I1) + " <b>" + A(e.I1) + "</b></span><span class=\"mw-i\">" + I_(2) + " " + gl(e.I2) + " <b>" + A(e.I2) + "</b></span><span class=\"mw-p\"><i>P</i> " + gl(e.P) + " <b>" + W(e.P) + "</b></span>";
+
+  var h = "";
+  if (istI){
+    h += "<span class=\"zw\">Gegeben: " + R_(1) + " = " + O(R1) + ", " + R_(2) + " = " + O(R2) + ", <i>I</i> = " + A(st.I) + "</span>";
+    h += "<span><i>R</i> = " + F(R_(1) + " · " + R_(2), R_(1) + " + " + R_(2)) + " = " + F(O(R1) + " · " + O(R2), O(R1) + " + " + O(R2)) + " <span class=\"nw\">" + gl(e.R, 4) + " <b>" + O(e.R) + "</b></span></span>";
+    h += "<span><i>U</i> = <i>R</i> · <i>I</i> = " + O(e.R) + " · " + A(st.I) + " " + gl(e.U) + " <b>" + V(e.U) + "</b></span>";
+    h += "<span>" + I_(1) + " = " + F("<i>U</i>", R_(1)) + " = " + F(V(e.U), O(R1)) + " " + gz(e.U, e.I1) + " <b>" + A(e.I1) + "</b></span>";
+    h += "<span>" + I_(2) + " = " + F("<i>U</i>", R_(2)) + " = " + F(V(e.U), O(R2)) + " " + gz(e.U, e.I2) + " <b>" + A(e.I2) + "</b></span>";
+    h += "<span>Kontrolle: " + I_(1) + " + " + I_(2) + " " + gz(e.I1, e.I2) + " " + A(e.I1) + " + " + A(e.I2) + " " + gz(e.I1, e.I2) + " " + A(e.I) + " = <i>I</i></span>";
+  } else {
+    h += "<span class=\"zw\">Gegeben: " + P_(1) + " = " + W(st.P1) + ", " + R_(1) + " = " + O(R1) + ", " + R_(2) + " = " + O(R2) + "</span>";
+    h += "<span><i>U</i> = " + wz(P_(1) + " · " + R_(1)) + " = " + wz(W(st.P1) + " · " + O(R1)) + " = " + wz(tsd(round(st.P1 * R1, 6))) + " <span class=\"nw\">" + gl(e.U) + " <b>" + V(e.U) + "</b></span></span>";
+    h += "<span>" + I_(1) + " = " + F("<i>U</i>", R_(1)) + " = " + F(V(e.U), O(R1)) + " " + gz(e.U, e.I1) + " <b>" + A(e.I1) + "</b></span>";
+    h += "<span>" + I_(2) + " = " + F("<i>U</i>", R_(2)) + " = " + F(V(e.U), O(R2)) + " " + gz(e.U, e.I2) + " <b>" + A(e.I2) + "</b></span>";
+    h += "<span><i>I</i> = " + I_(1) + " + " + I_(2) + " " + gz(e.I1, e.I2) + " " + A(e.I1) + " + " + A(e.I2) + " " + gz(e.I1, e.I2, e.I) + " <b>" + A(e.I) + "</b></span>";
+  }
+  h += "<span class=\"note\">Das Tool rechnet mit den ungerundeten Zwischenergebnissen weiter und rundet erst die Anzeige. Rechnen Sie mit gerundeten Zwischenergebnissen, kann die letzte Stelle abweichen.</span>";
+  $("rechnung").innerHTML = h;
+
+  var p = "";
+  if (istI) p += "<span>" + P_(1) + " = <i>U</i> · " + I_(1) + " = " + V(e.U) + " · " + A(e.I1) + " " + gz(e.U, e.I1, e.P1) + " <b>" + W(e.P1) + "</b></span>";
+  p += "<span>" + P_(2) + " = <i>U</i> · " + I_(2) + " = " + V(e.U) + " · " + A(e.I2) + " " + gz(e.U, e.I2, e.P2) + " <b>" + W(e.P2) + "</b></span>";
+  p += "<span><i>P</i> = " + P_(1) + " + " + P_(2) + " " + gz(e.P1, e.P2) + " " + W(e.P1) + " + " + W(e.P2) + " " + gz(e.P1, e.P2, e.P) + " <b>" + W(e.P) + "</b></span>";
+  p += "<span>Kontrolle: <i>P</i> = <i>U</i> · <i>I</i> = " + V(e.U) + " · " + A(e.I) + " " + gz(e.U, e.I, e.P) + " " + W(e.P) + "</span>";
+  p += "<span>" + (R1 === R2 ? "Beide Widerstände sind gleich gross. Sie nehmen die gleiche Leistung auf." : "An beiden Widerständen liegt die gleiche Spannung. Der kleinere Widerstand " + R_(R1 < R2 ? 1 : 2) + " führt den grösseren Strom und nimmt deshalb die grössere Leistung auf.") + "</span>";
+  $("leistung").innerHTML = p;
+  $("teiler").innerHTML = [[1, e.P1, "z1"], [2, e.P2, "z2"]].map(function(z){
+    return "<div class=\"zone " + z[2] + "\" style=\"width:" + (z[1] / e.P * 100).toFixed(2) + "%\"><span>P" + z[0] + "</span><span>" + W(z[1]) + "</span></div>";
+  }).join("");
+}
+function schieber(){
+  var g = $("s-g");
+  if (st.typ === "I"){ g.min = 5; g.max = 500; g.step = 1; g.value = Math.round(st.I * 1000); }
+  else { g.min = 5; g.max = 500; g.step = 5; g.value = st.P1; }
+  $("s-r1").value = st.R1; $("s-r2").value = st.R2;
+}
+function init(){
+  $("merk-formeln").innerHTML = "Praktische Formeln aus dem Formelrad: <i>U</i> = " + wz("<i>P</i> · <i>R</i>") + ", <i>I</i> = " + F("<i>U</i>", "<i>R</i>") + ", <i>P</i> = <i>U</i> · <i>I</i>";
+  $("typ").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-typ]"); if (!b) return; st.typ = b.getAttribute("data-typ"); schieber(); render(); });
+  $("s-g").addEventListener("input", function(){ if (st.typ === "I") st.I = Number(this.value) / 1000; else st.P1 = Number(this.value); render(); });
+  $("s-r1").addEventListener("input", function(){ st.R1 = Number(this.value); render(); });
+  $("s-r2").addEventListener("input", function(){ st.R2 = Number(this.value); render(); });
+  $("laden").addEventListener("click", function(ev){
+    var b = ev.target.closest("button[data-ue]"); if (!b) return;
+    if (b.getAttribute("data-ue") === "49"){ st.typ = "I"; st.I = 0.0456; st.R1 = 360; st.R2 = 560; }
+    else { st.typ = "P"; st.P1 = 125; st.R1 = 20; st.R2 = 50; }
+    schieber(); render();
+  });
+  schieber(); render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID6 Übungen 49 und 50, Theoriebuch ET4.5 bis ET4.7, ET2.16) ================= */
+function optionen(c, cands, show){
+  var out = [c], seen = {}; seen[show(c)] = 1;
+  shuffle(cands).concat([c * 2, c / 2, c * 3, c * 1.5, c / 4, c * 10]).forEach(function(x){
+    if (out.length < 4 && x > 0 && isFinite(x) && x < c * 50 && x > c / 50){ var t = show(x); if (!seen[t]){ seen[t] = 1; out.push(x); } }
+  });
+  return out.sort(function(a, b){ return a - b; });
+}
+/* Gesamtstrom gegeben: [R1, R2, I in A]. Erste Zeile: Übung 49 */
+var DA = [[360, 560, 0.0456], [100, 400, 0.05], [60, 120, 0.3], [30, 60, 1.2], [200, 50, 0.5], [120, 40, 0.8], [150, 100, 0.2], [1000, 1500, 0.01], [220, 330, 0.025], [20, 30, 5], [470, 330, 0.02], [82, 68, 0.15]];
+function wegA(R1, R2, I, e, bis){
+  var s = "<p class=\"num\"><i>R</i> = " + F(R_(1) + " · " + R_(2), R_(1) + " + " + R_(2)) + " = " + F(O(R1) + " · " + O(R2), O(R1) + " + " + O(R2)) + " " + gl(e.R, 4) + " " + O(e.R) + "</p>";
+  if (bis === "R") return s;
+  s += "<p class=\"num\"><i>U</i> = <i>R</i> · <i>I</i> = " + O(e.R) + " · " + A(I) + " " + gl(e.U) + " " + V(e.U) + "</p>";
+  if (bis === "U") return s;
+  if (bis === "P") return s + "<p class=\"num\"><i>P</i> = <i>U</i> · <i>I</i> = " + V(e.U) + " · " + A(I) + " " + gl(e.P) + " " + W(e.P) + "</p>";
+  return s + "<p class=\"num\">" + I_(1) + " = " + F("<i>U</i>", R_(1)) + " = " + F(V(e.U), O(R1)) + " " + gl(e.I1) + " " + A(e.I1) + "</p><p class=\"num\">" + I_(2) + " = " + F("<i>U</i>", R_(2)) + " = " + F(V(e.U), O(R2)) + " " + gl(e.I2) + " " + A(e.I2) + "</p>";
+}
+function qStrom(){
+  var d = pick(DA), R1 = d[0], R2 = d[1], I = d[2], e = rechne("I", R1, R2, I), art = pick(["teil", "teil", "U", "R", "P"]);
+  var kopf = "Der Gesamtstrom durch zwei parallel geschaltete Widerstände von " + O(R1) + " und " + O(R2) + " beträgt " + A(I) + ". ";
+  var bild = qSkizze({I:A(I), R1:O(R1), R2:O(R2)}, "Parallelschaltung mit R1 = " + O(R1) + ", R2 = " + O(R2) + " und Gesamtstrom I = " + A(I));
+  var tip = "Berechnen Sie zuerst den Gesamtwiderstand <i>R</i> = " + F(R_(1) + " · " + R_(2), R_(1) + " + " + R_(2)) + ", dann die Spannung <i>U</i> = <i>R</i> · <i>I</i>.";
+  var falschI = [e.I / 2, I, e.U / (R1 + R2), I * R1 / (R1 + R2), I * R2 / (R1 + R2)];
+  if (art === "teil") return {
+    text: kopf + "Berechnen Sie die beiden Teilströme." + bild,
+    parts: [{label:"Teilstrom I1", options:optionen(e.I1, falschI, A), correct:e.I1, mono:true, show:A}, {label:"Teilstrom I2", options:optionen(e.I2, falschI, A), correct:e.I2, mono:true, show:A}],
+    hint: tip + " Diese Spannung liegt an beiden Widerständen.",
+    solution: wegA(R1, R2, I, e, "teil") + "<p><b>" + I_(1) + " " + gl(e.I1) + " " + A(e.I1) + ", " + I_(2) + " " + gl(e.I2) + " " + A(e.I2) + "</b></p><p>Kontrolle: Die Summe der Teilströme ergibt den Gesamtstrom " + A(I) + ".</p>"
+  };
+  if (art === "U") return {
+    text: kopf + "Wie gross ist die Spannung <i>U</i> an der Parallelschaltung?" + bild,
+    parts: [{label:"Spannung U", options:optionen(e.U, [(R1 + R2) * I, R1 * I, R2 * I, (R1 + R2) / 2 * I], V), correct:e.U, mono:true, show:V}],
+    hint: tip,
+    solution: wegA(R1, R2, I, e, "U") + "<p><b><i>U</i> " + gl(e.U) + " " + V(e.U) + "</b></p>"
+  };
+  if (art === "R") return {
+    text: kopf + "Wie gross ist der Gesamtwiderstand <i>R</i> der Schaltung?" + bild,
+    parts: [{label:"Gesamtwiderstand R", options:optionen(e.R, [R1 + R2, (R1 + R2) / 2, Math.min(R1, R2), Math.max(R1, R2), Math.abs(R1 - R2)], O), correct:e.R, mono:true, show:O}],
+    hint: "Für zwei parallel geschaltete Widerstände gilt: <i>R</i> = " + F(R_(1) + " · " + R_(2), R_(1) + " + " + R_(2)) + ". Der Gesamtwiderstand ist kleiner als der kleinste Teilwiderstand.",
+    solution: wegA(R1, R2, I, e, "R") + "<p><b><i>R</i> " + gl(e.R, 4) + " " + O(e.R) + "</b></p>"
+  };
+  return {
+    text: kopf + "Welche Leistung nimmt die ganze Schaltung auf?" + bild,
+    parts: [{label:"Gesamtleistung P", options:optionen(e.P, [(R1 + R2) * I * I, R1 * I * I, R2 * I * I, e.P1, e.P2], W), correct:e.P, mono:true, show:W}],
+    hint: tip + " Danach gilt <i>P</i> = <i>U</i> · <i>I</i>.",
+    solution: wegA(R1, R2, I, e, "P") + "<p><b><i>P</i> " + gl(e.P) + " " + W(e.P) + "</b></p>"
+  };
+}
+/* Leistung P1 gegeben: [P1, R1, R2] mit glatter Spannung. Erste Zeile: Übung 50 */
+var DB = [[125, 20, 50], [100, 25, 50], [90, 10, 30], [200, 50, 100], [45, 20, 60], [144, 36, 24], [529, 100, 46], [1058, 50, 115], [60, 15, 10], [80, 20, 40], [36, 4, 6], [48, 12, 8]];
+var NAME = {U:"Spannung U", I1:"Teilstrom I1", I2:"Teilstrom I2", I:"Gesamtstrom I", P2:"Leistung P2", P:"Gesamtleistung P"};
+function wegB(P1, R1, R2, e, ziel){
+  var z = {
+    U: "<p class=\"num\"><i>U</i> = " + wz(P_(1) + " · " + R_(1)) + " = " + wz(W(P1) + " · " + O(R1)) + " = " + wz(tsd(P1 * R1)) + " = " + V(e.U) + "</p>",
+    I1: "<p class=\"num\">" + I_(1) + " = " + F("<i>U</i>", R_(1)) + " = " + F(V(e.U), O(R1)) + " " + gl(e.I1) + " " + A(e.I1) + "</p>",
+    I2: "<p class=\"num\">" + I_(2) + " = " + F("<i>U</i>", R_(2)) + " = " + F(V(e.U), O(R2)) + " " + gl(e.I2) + " " + A(e.I2) + "</p>",
+    I: "<p class=\"num\"><i>I</i> = " + I_(1) + " + " + I_(2) + " = " + A(e.I1) + " + " + A(e.I2) + " " + gl(e.I) + " " + A(e.I) + "</p>",
+    P2: "<p class=\"num\">" + P_(2) + " = <i>U</i> · " + I_(2) + " = " + V(e.U) + " · " + A(e.I2) + " " + gl(e.P2) + " " + W(e.P2) + "</p>",
+    P: "<p class=\"num\"><i>P</i> = " + P_(1) + " + " + P_(2) + " = " + W(P1) + " + " + W(e.P2) + " " + gl(e.P) + " " + W(e.P) + "</p>"
+  };
+  var kette = {U:["U"], I1:["U", "I1"], I2:["U", "I2"], I:["U", "I1", "I2", "I"], P2:["U", "I2", "P2"], P:["U", "I2", "P2", "P"]}[ziel];
+  return kette.map(function(k){ return z[k]; }).join("");
+}
+function qLeistung(){
+  var d = pick(DB), P1 = d[0], R1 = d[1], R2 = d[2], e = rechne("P", R1, R2, P1), ziel = pick(["U", "U", "I1", "I2", "I", "P2", "P", "P"]);
+  var c = e[ziel], sh = {U:V, I1:A, I2:A, I:A, P2:W, P:W}[ziel];
+  var falsch = {
+    U: [P1 / R1, Math.sqrt(P1 / R1), P1 * R1 / 100, Math.sqrt(P1 * R2), e.U / 2],
+    I1: [e.I2, e.I, P1 / R1, e.U / (R1 + R2), e.I1 / 2],
+    I2: [e.I1, e.I, P1 / R2, e.U / (R1 + R2), e.I2 * 2],
+    I: [e.I1, e.I2, e.U / (R1 + R2), Math.abs(e.I1 - e.I2) || e.I * 2, e.I1 * 2],
+    P2: [P1, P1 * R2 / R1, e.P, e.I2 * R2 / 2, e.U * e.I1 / 2],
+    P: [P1, e.P2, P1 * 2, e.U * e.U / (R1 + R2), Math.abs(P1 - e.P2) || P1 / 2]
+  }[ziel];
+  var frage = {U:"Wie gross ist die Spannung <i>U</i> der Schaltung?", I1:"Wie gross ist der Teilstrom " + I_(1) + "?", I2:"Wie gross ist der Teilstrom " + I_(2) + "?", I:"Wie gross ist der Gesamtstrom <i>I</i>?", P2:"Welche Leistung " + P_(2) + " nimmt der Widerstand " + R_(2) + " auf?", P:"Wie gross ist die Gesamtleistung <i>P</i> der Schaltung?"}[ziel];
+  var sym = {U:"<i>U</i>", I1:I_(1), I2:I_(2), I:"<i>I</i>", P2:P_(2), P:"<i>P</i>"}[ziel];
+  return {
+    text: "Gegeben ist die nachfolgende Parallelschaltung. Der Widerstand " + R_(1) + " = " + O(R1) + " nimmt die Leistung " + P_(1) + " = " + W(P1) + " auf. Parallel dazu liegt " + R_(2) + " = " + O(R2) + ". " + frage
+      + qSkizze({R1:O(R1), R2:O(R2), P1:W(P1)}, "Parallelschaltung mit R1 = " + O(R1) + " und P1 = " + W(P1) + " sowie R2 = " + O(R2)),
+    parts: [{label:NAME[ziel], options:optionen(c, falsch, sh), correct:c, mono:true, show:sh}],
+    hint: "Berechnen Sie zuerst die Spannung aus " + P_(1) + " und " + R_(1) + ": <i>U</i> = " + wz(P_(1) + " · " + R_(1)) + ". Diese Spannung liegt auch an " + R_(2) + ".",
+    solution: wegB(P1, R1, R2, e, ziel) + "<p><b>" + sym + " " + gl(c) + " " + sh(c) + "</b></p>"
+  };
+}
+/* Passende Formel aus dem Formelrad (ET2.16) */
+function bq(z){ return "<i>" + z + "</i>²"; }
+var FORM = [
+  {ges:"die Spannung <i>U</i>", geg:"die Leistung <i>P</i> und der Widerstand <i>R</i>", c:"<i>U</i> = " + wz("<i>P</i> · <i>R</i>"), o:["<i>U</i> = " + wz(F("<i>P</i>", "<i>R</i>")), "<i>U</i> = <i>P</i> · <i>R</i>", "<i>U</i> = " + F("<i>P</i>", "<i>R</i>")]},
+  {ges:"den Strom <i>I</i>", geg:"die Leistung <i>P</i> und der Widerstand <i>R</i>", c:"<i>I</i> = " + wz(F("<i>P</i>", "<i>R</i>")), o:["<i>I</i> = " + wz("<i>P</i> · <i>R</i>"), "<i>I</i> = " + F("<i>P</i>", "<i>R</i>"), "<i>I</i> = <i>P</i> · <i>R</i>"]},
+  {ges:"die Leistung <i>P</i>", geg:"die Spannung <i>U</i> und der Widerstand <i>R</i>", c:"<i>P</i> = " + F(bq("U"), "<i>R</i>"), o:["<i>P</i> = <i>U</i> · <i>R</i>", "<i>P</i> = " + bq("U") + " · <i>R</i>", "<i>P</i> = " + F("<i>U</i>", "<i>R</i>")]},
+  {ges:"die Leistung <i>P</i>", geg:"der Strom <i>I</i> und der Widerstand <i>R</i>", c:"<i>P</i> = " + bq("I") + " · <i>R</i>", o:["<i>P</i> = <i>I</i> · <i>R</i>", "<i>P</i> = " + F(bq("I"), "<i>R</i>"), "<i>P</i> = " + F("<i>I</i>", "<i>R</i>")]},
+  {ges:"den Widerstand <i>R</i>", geg:"die Spannung <i>U</i> und die Leistung <i>P</i>", c:"<i>R</i> = " + F(bq("U"), "<i>P</i>"), o:["<i>R</i> = " + F("<i>U</i>", "<i>P</i>"), "<i>R</i> = " + F("<i>P</i>", bq("U")), "<i>R</i> = <i>U</i> · <i>P</i>"]},
+  {ges:"den Widerstand <i>R</i>", geg:"die Leistung <i>P</i> und der Strom <i>I</i>", c:"<i>R</i> = " + F("<i>P</i>", bq("I")), o:["<i>R</i> = " + F("<i>P</i>", "<i>I</i>"), "<i>R</i> = " + F(bq("I"), "<i>P</i>"), "<i>R</i> = <i>P</i> · <i>I</i>"]}
+];
+function qFormel(){
+  var f = pick(FORM);
+  return {
+    text: "Von einem Widerstand einer Parallelschaltung sind " + f.geg + " bekannt. Mit welcher Formel berechnen Sie " + f.ges + "?",
+    parts: [{label:"Formel", options:shuffle([f.c].concat(f.o)), correct:f.c}],
+    hint: "Suchen Sie im Formelrad (ET2.16) im Feld der gesuchten Grösse die Formel mit den beiden bekannten Grössen.",
+    solution: "<p><b>" + f.c + "</b></p><p>Die Formel entsteht aus <i>P</i> = <i>U</i> · <i>I</i> und <i>U</i> = <i>R</i> · <i>I</i> (erweitertes ohmsches Gesetz, ET2.16).</p>"
+  };
+}
+/* Verhältnis der Leistungen: [R1, R2] mit ganzzahligem Verhältnis */
+var DV = [[20, 60], [60, 20], [50, 100], [100, 50], [30, 120], [120, 30], [40, 200], [200, 40], [46, 92], [150, 50], [25, 100], [230, 115]];
+function qVerhaeltnis(){
+  var d = pick(DV), R1 = d[0], R2 = d[1], n = Math.max(R1, R2) / Math.min(R1, R2), kl = R1 < R2 ? 1 : 2, gr = 3 - kl;
+  function satz(a, b, k){ return "P" + a + " ist " + k + "-mal so gross wie P" + b + "."; }
+  var c = satz(kl, gr, n);
+  return {
+    text: "Zwei Widerstände " + R_(1) + " = " + O(R1) + " und " + R_(2) + " = " + O(R2) + " sind parallel geschaltet. Wie verhalten sich die Leistungen " + P_(1) + " und " + P_(2) + " zueinander?",
+    parts: [{label:"Aussage", options:shuffle([c, satz(gr, kl, n), "P1 und P2 sind gleich gross.", satz(kl, gr, n * n)]), correct:c}],
+    hint: "An beiden Widerständen liegt die gleiche Spannung. Es gilt <i>P</i> = " + F(bq("U"), "<i>R</i>") + ".",
+    solution: "<p><b>" + c + "</b></p><p class=\"num\">" + F(P_(kl), P_(gr)) + " = " + F(R_(gr), R_(kl)) + " = " + F(O(kl === 1 ? R2 : R1), O(kl === 1 ? R1 : R2)) + " = " + n + "</p><p>Bei gleicher Spannung nimmt der kleinere Widerstand die grössere Leistung auf. Die Leistungen verhalten sich umgekehrt wie die Widerstände.</p>"
+  };
+}
+function qRueck(){
+  var d = pick(DB), e = rechne("P", d[1], d[2], d[0]), art = pick(["I", "R"]);
+  var kopf = "Eine Parallelschaltung aus zwei Widerständen nimmt an <i>U</i> = " + V(e.U) + " insgesamt die Leistung <i>P</i> = " + W(e.P) + " auf. ";
+  if (art === "I") return {
+    text: kopf + "Wie gross ist der Gesamtstrom <i>I</i>?",
+    parts: [{label:"Gesamtstrom I", options:optionen(e.I, [e.U / e.P, e.I1, e.I2, e.I * 2, Math.sqrt(e.P / e.U)], A), correct:e.I, mono:true, show:A}],
+    hint: "Aus <i>P</i> = <i>U</i> · <i>I</i> folgt <i>I</i> = " + F("<i>P</i>", "<i>U</i>") + ".",
+    solution: "<p class=\"num\"><i>I</i> = " + F("<i>P</i>", "<i>U</i>") + " = " + F(W(e.P), V(e.U)) + " " + gl(e.I) + " <b>" + A(e.I) + "</b></p>"
+  };
+  return {
+    text: kopf + "Wie gross ist der Gesamtwiderstand <i>R</i> der Schaltung?",
+    parts: [{label:"Gesamtwiderstand R", options:optionen(e.R, [e.U / e.P * 10, e.P / e.U, d[1] + d[2], e.U * e.U / e.P * 2, d[1]], O), correct:e.R, mono:true, show:O}],
+    hint: "Aus <i>P</i> = " + F(bq("U"), "<i>R</i>") + " folgt <i>R</i> = " + F(bq("U"), "<i>P</i>") + ".",
+    solution: "<p class=\"num\"><i>R</i> = " + F(bq("U"), "<i>P</i>") + " = " + F("(" + V(e.U) + ")²", W(e.P)) + " " + gl(e.R, 4) + " <b>" + O(e.R) + "</b></p>"
+  };
+}
+function qMehrere(){
+  var gut = ["<i>U</i> · " + I_(2), F(bq("U"), R_(2)), "<i>I</i><sub>2</sub>² · " + R_(2)];
+  var schlecht = ["<i>I</i>² · " + R_(2), "<i>U</i> · <i>I</i>", F("<i>U</i>", R_(2))];
+  return {
+    text: "In einer Parallelschaltung ist <i>U</i> die Spannung, <i>I</i> der Gesamtstrom und " + I_(2) + " der Teilstrom durch " + R_(2) + ". Mit welchen Formeln lässt sich die Leistung " + P_(2) + " am Widerstand " + R_(2) + " berechnen? Wählen Sie alle richtigen Formeln.",
+    parts: [{label:"Richtige Formeln für P2", type:"multi", options:shuffle(gut.concat(schlecht)), correct:gut}],
+    hint: "Für " + P_(2) + " zählen nur die Grössen am Widerstand " + R_(2) + ": die Spannung <i>U</i>, der Teilstrom " + I_(2) + " und " + R_(2) + ".",
+    solution: "<p><b>" + P_(2) + " = " + gut.join(" = ") + "</b></p><p><i>U</i> · <i>I</i> ist die Gesamtleistung. <i>I</i>² · " + R_(2) + " ist falsch, weil durch " + R_(2) + " nur der Teilstrom " + I_(2) + " fliesst. " + F("<i>U</i>", R_(2)) + " ergibt den Teilstrom " + I_(2) + ".</p>"
+  };
+}
+var KONZEPT = [
+  {t:"Welche Grösse ist in der Parallelschaltung an beiden Widerständen gleich?", o:["Die Spannung", "Der Strom", "Die Leistung", "Der Widerstand"], c:"Die Spannung", s:"Parallelgeschaltete Widerstände liegen an der gleichen Spannung."},
+  {t:"In Übung 50 ist nur " + P_(1) + " und " + R_(1) + " von einem der beiden Widerstände bekannt. Weshalb darf daraus die Spannung der ganzen Schaltung berechnet werden?", o:["Weil an R1 die gleiche Spannung liegt wie an R2 und an der Quelle", "Weil durch R1 der Gesamtstrom fliesst", "Weil R1 der kleinere Widerstand ist", "Weil P1 die Gesamtleistung ist"], c:"Weil an R1 die gleiche Spannung liegt wie an R2 und an der Quelle", s:"Parallelgeschaltete Widerstände liegen an der gleichen Spannung. Die Spannung an " + R_(1) + " ist deshalb die Spannung der ganzen Schaltung."},
+  {t:"Wie berechnen Sie die Gesamtleistung einer Parallelschaltung aus den Einzelleistungen?", o:["Die Einzelleistungen werden addiert.", "Die Einzelleistungen werden multipliziert.", "Es zählt nur die grösste Einzelleistung.", "Der Mittelwert der Einzelleistungen wird gebildet."], c:"Die Einzelleistungen werden addiert.", s:"Auch bei der Parallelschaltung ergibt die Summe der Einzelleistungen die Gesamtleistung."},
+  {t:"Welcher Widerstand einer Parallelschaltung nimmt die grössere Leistung auf?", o:["Der kleinere Widerstand", "Der grössere Widerstand", "Beide immer gleich viel", "Derjenige, der näher bei der Quelle liegt"], c:"Der kleinere Widerstand", s:"Durch den kleinsten Widerstand fliesst der grösste Strom. Bei gleicher Spannung ergibt das die grösste Leistung."},
+  {t:"Zu einer Parallelschaltung wird ein weiterer Widerstand parallel dazugeschaltet. Die Spannung bleibt gleich. Was passiert mit der Gesamtleistung?", o:["Sie wird grösser.", "Sie wird kleiner.", "Sie bleibt gleich.", "Sie wird null."], c:"Sie wird grösser.", s:"Es kommt ein weiterer Teilstrom und damit eine weitere Einzelleistung dazu. Die Summe der Einzelleistungen ergibt die Gesamtleistung."},
+  {t:"Der Gesamtstrom einer Parallelschaltung wird verdoppelt, die Widerstände bleiben gleich. Wie ändert sich die Gesamtleistung?", o:["Sie wird 4-mal so gross.", "Sie wird doppelt so gross.", "Sie bleibt gleich.", "Sie wird halb so gross."], c:"Sie wird 4-mal so gross.", s:"Bei gleichem Widerstand verdoppelt sich auch die Spannung. Aus <i>P</i> = <i>I</i>² · <i>R</i> folgt: doppelter Strom, vierfache Leistung (ET2.17)."},
+  {t:"Wie gross ist der Gesamtwiderstand von zwei parallel geschalteten Widerständen im Vergleich zu den Teilwiderständen?", o:["Kleiner als der kleinste Teilwiderstand", "Grösser als der grösste Teilwiderstand", "Gleich der Summe der Teilwiderstände", "Gleich dem Mittelwert der Teilwiderstände"], c:"Kleiner als der kleinste Teilwiderstand", s:"Bei der Parallelschaltung ist der Gesamtwiderstand immer kleiner als der kleinste Teilwiderstand."},
+  {t:"Welche Kontrolle passt zu den berechneten Teilströmen " + I_(1) + " und " + I_(2) + " einer Parallelschaltung?", o:["I1 + I2 muss den Gesamtstrom I ergeben.", "I1 und I2 müssen gleich gross sein.", "I1 · I2 muss den Gesamtstrom I ergeben.", "I1 − I2 muss null ergeben."], c:"I1 + I2 muss den Gesamtstrom I ergeben.", s:"Bei der Parallelschaltung entspricht der Gesamtstrom der Summe der Teilströme."}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return {
+    text: k.t,
+    parts: [{label:"Antwort", options:shuffle(k.o), correct:k.c}],
+    hint: "Lesen Sie die Merksätze im Theoriebuch auf ET4.5 bis ET4.7.",
+    solution: "<p><b>" + k.c + "</b></p><p>" + k.s + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.27) return qStrom();
+  if (x < 0.57) return qLeistung();
+  if (x < 0.67) return qFormel();
+  if (x < 0.76) return qVerhaeltnis();
+  if (x < 0.85) return qRueck();
+  if (x < 0.90) return qMehrere();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qStrom, qStrom, qLeistung, qLeistung, qFormel, pick([qVerhaeltnis, qRueck]), pick([qMehrere, qRueck]), qKonzept]); }});
+})();
+
+</script>
+</body>
+</html>

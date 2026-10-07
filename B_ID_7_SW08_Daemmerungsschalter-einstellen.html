@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA1 Dämmerungsschalter einstellen BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Stromlaufschema nach Arbeitsblatt 2. Semester (ID6 bis ID8): schwarz gezeichnet, stromführende Leiter rot hervorgehoben */
+:root{ --sl-an:#D8261C; --sl-gelb:#F6D13A; --sl-q:#2446B8 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sl-an:#FF7F75; --sl-gelb:#F6D13A; --sl-q:#A3B6FF } }
+:root[data-theme="dark"]{ --sl-an:#FF7F75; --sl-gelb:#F6D13A; --sl-q:#A3B6FF }
+.sl{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sl.dn{stroke-width:1}
+.sl.dk{stroke-width:2.8;stroke-linecap:butt}
+.sl.an{stroke:var(--sl-an);stroke-width:2.6}
+.sl.hell{stroke:var(--sl-q);stroke-width:2.6}
+.sl-d{stroke-dasharray:4 3;stroke-linecap:butt}
+.sl-f{fill:var(--ink);stroke:none}
+.sl-bg{fill:var(--surface)}
+.sl-erregt{fill:var(--accent-soft)}
+.sl-gl{fill:var(--sl-gelb);stroke:none;opacity:.9}
+.sl-t{fill:var(--ink);font-family:var(--sans);font-size:10px}
+.sl-t.q{fill:var(--sl-q);font-weight:700}
+.sl-t.b{font-weight:700}
+.sl-hl{fill:var(--accent-soft);stroke:var(--sl-q);stroke-width:1}
+
+/* Wirkschaltschema nach Arbeitsblatt 2. Semester (ID6 Übung 11 und folgende): Schaltzeichen schwarz, Leiter farbig */
+:root{ --wk-m:#FF00FF; --wk-g:#00D800; --wk-l:#8B0000; --wk-t:#FF0000; --wk-n:#0000FF; --wk-ld:#800080; --wk-pe1:#FFF200; --wk-pe2:#008000; --wk-glow:#F6D13A }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --wk-m:#FF7BFF; --wk-g:#5CF05C; --wk-l:#C9483B; --wk-t:#FF8F8F; --wk-n:#7FA8FF; --wk-ld:#D58CE0; --wk-pe1:#FFF200; --wk-pe2:#2FAE4F; --wk-glow:#A8862A } }
+:root[data-theme="dark"]{ --wk-m:#FF7BFF; --wk-g:#5CF05C; --wk-l:#C9483B; --wk-t:#FF8F8F; --wk-n:#7FA8FF; --wk-ld:#D58CE0; --wk-pe1:#FFF200; --wk-pe2:#2FAE4F; --wk-glow:#A8862A }
+.wk{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.wk.an{stroke-width:2.8}
+.wk-l{stroke:var(--wk-l)} .wk-t{stroke:var(--wk-t)} .wk-n{stroke:var(--wk-n)} .wk-ld{stroke:var(--wk-ld)}
+/* Übung 28: Aussenleiter schwarz, Lampendraht magenta */
+.wk-s{stroke:var(--ink)} .wk-m{stroke:var(--wk-m)}
+/* ID7 Übung 3: Tasterdraht grün */
+.wk-g{stroke:var(--wk-g)}
+.wk-pe1{stroke:var(--wk-pe1);stroke-linecap:butt} .wk-pe2{stroke:var(--wk-pe2);stroke-dasharray:4 4;stroke-linecap:butt}
+.wk-glow{fill:none;stroke:var(--wk-glow);stroke-width:7.5;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+.wk-box{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.wk-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.86rem}
+.wk-leg span{display:inline-flex;align-items:center;gap:6px}
+.wk-leg i{display:inline-block;width:22px;height:0;border-top:3px solid}
+.wk-leg .l i{border-color:var(--wk-l)} .wk-leg .s i{border-color:var(--ink)} .wk-leg .m i{border-color:var(--wk-m)} .wk-leg .g i{border-color:var(--wk-g)} .wk-leg .t i{border-color:var(--wk-t)} .wk-leg .n i{border-color:var(--wk-n)} .wk-leg .ld i{border-color:var(--wk-ld)}
+.wk-leg .pe i{border-top:3px dashed var(--wk-pe2);background:var(--wk-pe1);height:3px;border-top-width:0;background-image:repeating-linear-gradient(90deg,var(--wk-pe2) 0 5px,var(--wk-pe1) 5px 10px)}
+
+/* Schaltzeichen nach Theoriebuch (AAD28, AAD30.1) und Arbeitsblättern (ID4, ID5) */
+:root{ --sym:#2B3E66; --w-l:#7F4F3F; --w-n:#4F86B8; --w-ld:#F26B21; --w-ld2:#9B59C6; --w-k:#F26B21; --w-pe1:#7AC943; --w-pe2:#F7DC3B;
+  --t-l:#993300; --t-ld:#800080; --t-ldb:#FF6600; --t-n:#0000FF; --t-k:#FF00FF; --plan:#4F86B8; --lampe-an:#F6D13A;
+  --w-l2:#141414; --w-l2h:transparent; --w-l3:#8C8C8C; --w-i:#F03A17; --et-u:#0000FF; --et-i:#E60000 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 } }
+:root[data-theme="dark"]{ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 }
+.sy{fill:none;stroke:var(--sym);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy.dn{stroke-width:1.3}
+.sy.dk{stroke-width:2.6}
+.sy-s{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy-s.dn{stroke-width:1.2}
+.sy-f{fill:var(--sym);stroke:none}
+.sy-fs{fill:var(--ink);stroke:none}
+.sy-bg{fill:var(--surface)}
+.sy-d{stroke-dasharray:3.5 3}
+.sy-t{fill:var(--sym);font-family:var(--sans);font-size:11px}
+.sy-ts{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.w{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.w.live{stroke-width:5}
+.w-l{stroke:var(--w-l)} .w-n{stroke:var(--w-n)} .w-ld{stroke:var(--w-ld)} .w-ld2{stroke:var(--w-ld2)} .w-k{stroke:var(--w-k)}
+.w-pe1{stroke:var(--w-pe1)} .w-pe2{stroke:var(--w-pe2);stroke-dasharray:6 6;stroke-linecap:butt}
+.t-l{stroke:var(--t-l)} .t-ld{stroke:var(--t-ld)} .t-ldb{stroke:var(--t-ldb)} .t-n{stroke:var(--t-n)} .t-k{stroke:var(--t-k)} .t-s{stroke:var(--ink)}
+.plan{fill:none;stroke:var(--plan);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.plan.an{stroke-width:5.5}
+.plan.fehler{stroke:var(--bad)}
+/* Aussenleiter L2 (schwarz) und L3 (grau), Strompfeile des Arbeitsblatts, Messschaltung des Theoriebuchs */
+.w-l2{stroke:var(--w-l2)} .w-l2h{stroke:var(--w-l2h);stroke-width:4.8} .w-l3{stroke:var(--w-l3)}
+.w-i{fill:var(--w-i);stroke:none}
+.w-it{fill:var(--w-i);font-family:var(--sans);font-size:9px}
+.et-us{fill:none;stroke:var(--et-u);stroke-width:1.5;stroke-linecap:round}
+.et-is{fill:none;stroke:var(--et-i);stroke-width:1.5;stroke-linecap:round}
+.et-uf{fill:var(--et-u);stroke:none} .et-if{fill:var(--et-i);stroke:none}
+.et-ut{fill:var(--et-u);font-family:var(--sans);font-size:11px} .et-it{fill:var(--et-i);font-family:var(--sans);font-size:11px}
+
+[hidden]{display:none!important}
+.bild{width:100%;height:auto;display:block}
+.zustand{display:flex;flex-direction:column;gap:6px}
+.zustand p{border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.zustand p.an{border-color:var(--sl-an);font-weight:600}
+.tab-k{width:100%;border-collapse:collapse;font-size:.92rem}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k td.kb{font-weight:700;white-space:nowrap}
+.tab-k tr.akt td{background:var(--accent-soft)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.q-schema{display:block;width:100%;max-width:340px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.wert{font-family:var(--mono);font-size:1.35rem;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.urteil{font-weight:700;border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.urteil.ok{border-color:var(--ok);color:var(--ok)}
+.urteil.bad{border-color:var(--bad);color:var(--bad)}
+.himmel{height:14px;border-radius:7px;border:1px solid var(--line);background:linear-gradient(90deg,#10141F 0%,#2B3A67 30%,#7FA4D8 62%,#FFE9A6 100%)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 1</p>
+    <h1>Dämmerungsschalter einstellen BAP</h1>
+    <p class="lead">Wahlschalter und Einstellrad des Dämmerungsschalters nach Kundenwunsch stellen, dann im Wirkschaltschema prüfen: Bei welcher Beleuchtungsstärke schaltet das Licht ein?</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Kundenwunsch: Das Licht soll einschalten, wenn die Beleuchtungsstärke unter diesen Wert sinkt</legend>
+          <div class="opts" id="wunsch">
+            <button class="opt txt" type="button" data-w="750" id="w-750" aria-pressed="true">750 lx (Übung 13)</button>
+            <button class="opt txt" type="button" data-w="40" id="w-40" aria-pressed="false">40 lx (Übung 14)</button>
+            <button class="opt txt" type="button" data-w="30" id="w-30" aria-pressed="false">30 lx (Übung 15)</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="panel">
+        <h2>Finder Typ 11.41 einstellen</h2>
+        <fieldset>
+          <legend>Wahlschalter</legend>
+          <div class="opts" id="wahl">
+            <button class="opt txt" type="button" data-m="OFF" id="m-OFF" aria-pressed="false">OFF</button>
+            <button class="opt txt" type="button" data-m="S" id="m-S" aria-pressed="true">STANDARD (1 … 80 lx)</button>
+            <button class="opt txt" type="button" data-m="H" id="m-H" aria-pressed="false">HIGH (30 … 1000 lx)</button>
+            <button class="opt txt" type="button" data-m="ON" id="m-ON" aria-pressed="false">ON</button>
+          </div>
+        </fieldset>
+        <div>
+          <div class="slider-head"><label class="label" for="rad">Einstellrad für den Schaltwert</label><span class="wert" id="rad-v"></span></div>
+          <input type="range" id="rad" min="0" max="100" step="1" value="50" aria-describedby="rad-v">
+        </div>
+        <svg class="bild" id="raeder" viewBox="8 0 228 84" role="img" aria-label="Wahlschalter und Einstellrad des Dämmerungsschalters mit der gewählten Stellung"></svg>
+        <p class="urteil" id="urteil" aria-live="polite"></p>
+        <div class="opts"><button class="opt txt" type="button" id="loesung">Passende Einstellung zeigen</button></div>
+        <p class="note" id="rad-note"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Wirkschaltschema Schaufenster (Übung 13)</h2>
+        <div>
+          <div class="slider-head"><label class="label" for="licht">Beleuchtungsstärke am Lichtsensor B13</label><span class="wert" id="licht-v"></span></div>
+          <input type="range" id="licht" min="0" max="100" step="1" value="78" aria-describedby="licht-v">
+          <div class="himmel" aria-hidden="true"></div>
+        </div>
+        <svg class="bild" id="schema" viewBox="0 0 310 290" role="img" aria-label="Wirkschaltschema Übung 13: Dämmerungsschalter Q11 mit Lichtsensor B13 und Leuchte E15"></svg>
+        <div class="wk-leg" id="legende"></div>
+        <fieldset>
+          <legend>Bedienen</legend>
+          <div class="opts" id="bedienen"></div>
+        </fieldset>
+        <div class="zustand" id="zustand" aria-live="polite"></div>
+        <p class="note">Schaltzeichen und Leiterfarben wie im Arbeitsblatt, Übung 13. Gelb hinterlegt: stromführende Leiter der Leuchte. Hell hinterlegt: die Klemmen 11 und 14 bei geschlossenem Kontakt. Der kleine Strom für die Speisung des Geräts (Klemmen A1 und A2) ist nicht hervorgehoben. Laut Hersteller schaltet das Gerät verzögert: Einschalten nach 15 s, Ausschalten nach 30 s. Das Tool schaltet sofort.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Die vier Stellungen des Wahlschalters</h2>
+        <div class="scroll">
+          <table class="tab-k">
+            <thead><tr><th>Stellung</th><th>Wirkung</th></tr></thead>
+            <tbody id="stellungen">
+              <tr data-m="OFF"><td class="kb">OFF</td><td>Licht ständig aus</td></tr>
+              <tr data-m="S"><td class="kb">STANDARD</td><td>Dämmerungsbetrieb, Schaltwert einstellbar von 1 bis 80 lx</td></tr>
+              <tr data-m="H"><td class="kb">HIGH</td><td>Dämmerungsbetrieb, Schaltwert einstellbar von 30 bis 1000 lx</td></tr>
+              <tr data-m="ON"><td class="kb">ON</td><td>Dauerlicht ein</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Angaben aus der Bedienungsanleitung von Finder. Weitere Angaben des Herstellers: 1 Wechsler 16 A, Leitung zum Lichtsensor höchstens 50 m, das geschaltete Licht soll möglichst nicht auf den Sensor fallen.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Ein Dämmerungsschalter besteht aus einer Schalteinheit und einem Lichtsensor zur Messung der Beleuchtungsstärke (Theoriebuch AAD28.13).</p>
+          <p>Er schaltet die Beleuchtung ein, wenn die gemessene Beleuchtungsstärke unter den eingestellten Schaltwert sinkt.</p>
+          <p>Der Lichtsensor muss das natürliche Umgebungslicht erfassen und darf nicht von der geschalteten Beleuchtung oder anderen Lichtquellen angestrahlt werden.</p>
+          <p>Anwendungen: Schaufensterbeleuchtung, Treppenhausbeleuchtung, Aussenbeleuchtung.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Übung 13: Stellen Sie den Dämmerungsschalter auf 750 lx ein. Welche Stellung des Wahlschalters braucht es?</li>
+          <li>Verkleinern Sie die Beleuchtungsstärke am Sensor langsam. Bei welchem Wert schliesst der Kontakt zwischen den Klemmen 11 und 14?</li>
+          <li>Übung 15: Der Schaltwert soll 30 lx betragen. Zwischen welchen Marken steht das Einstellrad?</li>
+          <li>Stellen Sie den Wahlschalter auf ON und dann auf OFF. Was macht die Leuchte, unabhängig von der Helligkeit?</li>
+          <li>Weshalb darf der Lichtsensor nicht von der geschalteten Leuchte angestrahlt werden?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Schemazeichnen AAD28.13, Dämmerungsschalter.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 1 Zeitschaltuhren: Übungen 10 bis 13 (ID7.7 und ID7.8), Einstellräder auch in Übung 15 (ID7.10)</li><li>Theoriebuch Schemazeichnen, Kapitel 28 Lampen- und Schwachstromschaltungen: AAD28.13 (Dämmerungsschalter)</li><li>Bedienungsanleitung Finder Typ 11.41 (Angaben des Herstellers): Bereiche 1 bis 80 lx und 30 bis 1000 lx, Stellungen OFF und ON, Verzögerungen, Hinweise zum Lichtsensor</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Stromlaufschema-Bibliothek: Schaltzeichen wie in den Arbeitsblättern 2. Semester (ID6 Übungen 1 bis 7 und folgende) */
+var SLP = (function(){
+"use strict";
+var K = 26, DX = 10.6;
+function n(x){ return Math.round(x * 100) / 100; }
+function P(d, cls, extra){ return "<path class=\"" + (cls || "sl") + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function T(x, y, t, anker, gr, cls){
+  if (t === undefined || t === null || t === "") return "";
+  var c = "sl-t" + (t === "?" ? " q" : "") + (cls ? " " + cls : "");
+  return "<text class=\"" + c + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (gr ? " style=\"font-size:" + gr + "px\"" : "") + ">" + t + "</text>";
+}
+function kl(o){ return "sl" + (o.an ? " an" : "") + (o.hell ? " hell" : ""); }
+/* Hervorhebung hinter einem Schaltzeichen */
+function marke(x, y, w, h){ return "<rect class=\"sl-hl\" x=\"" + n(x) + "\" y=\"" + n(y) + "\" width=\"" + n(w) + "\" height=\"" + n(h) + "\" rx=\"4\"/>"; }
+
+/* Antrieb links vom Schaltstück. xm, ym = Mitte des Schaltstücks. Gibt das Zeichen und die Stelle für den Namen zurück. */
+function antrieb(art, xm, ym, c, xmin){
+  var h = "", xb;
+  if (art === "taster" || art === "schalter"){
+    xb = Math.min(xm - 21, (xmin === undefined ? xm : xmin) - 14);
+    h += P("M" + n(xb + 5) + " " + n(ym - 5) + " H" + n(xb) + " V" + n(ym + 5) + " H" + n(xb + 5), c);
+    if (art === "schalter"){
+      /* rastend: Kerbe in der Wirkverbindung */
+      var k = xb + 9.5;
+      h += P("M" + n(xb + 1) + " " + n(ym) + " H" + n(k - 3), c + " dn") + P("M" + n(k - 3) + " " + n(ym) + " L" + n(k) + " " + n(ym + 2.8) + " L" + n(k + 3) + " " + n(ym), c + " dn") + P("M" + n(k + 4.5) + " " + n(ym) + " H" + n(xm - 1), c + " dn sl-d");
+    } else h += P("M" + n(xb + 1) + " " + n(ym) + " H" + n(xm - 1), c + " dn sl-d");
+    return {svg:h, xn:xb - 3};
+  }
+  if (art === "zeit"){
+    /* abfallverzögert: Halbkreis mit Doppellinie zum Schaltstück */
+    xb = Math.min(xm - 19, (xmin === undefined ? xm : xmin) - 12);
+    h += P("M" + n(xb) + " " + n(ym - 5.5) + " A5.5 5.5 0 0 1 " + n(xb) + " " + n(ym + 5.5), c);
+    h += P("M" + n(xb + 4.9) + " " + n(ym - 2.5) + " H" + n(xm - 0.6) + " M" + n(xb + 4.9) + " " + n(ym + 2.5) + " H" + n(xm + 0.6), c + " dn");
+    return {svg:h, xn:xb - 3};
+  }
+  return {svg:"", xn:(xmin === undefined ? xm : xmin) - 5};
+}
+/* Schliesser: oberer Anschluss (x, y), unterer Anschluss (x, y + K). o: zu, n1, n2, name, antrieb, an, hell */
+function schliesser(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x : x - DX, xm = (x + xt) / 2, ym = y + K / 2;
+  if (o.hell) h += marke(x - DX - 4, y, DX + 8, K);
+  var a = antrieb(o.antrieb, xm, ym, c, x - DX);
+  h += a.svg + P("M" + n(x) + " " + n(y + K) + " L" + n(xt) + " " + n(y + (o.zu ? 0 : 0.8)), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - 3, y + K + 10, o.n2, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Öffner: Querstrich am oberen Anschluss nach rechts, Schaltstück liegt daran an. o.zu = betätigt (geöffnet) */
+function oeffner(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x + 0.74 * K : x + 0.43 * K, yt = o.zu ? y + 0.2 * K : y - 0.08 * K, xm = (x + xt) / 2, ym = y + K / 2;
+  if (o.hell) h += marke(x - 2, y - 4, 0.48 * K + 6, K + 4);
+  var a = antrieb(o.antrieb, xm, ym, c, x);
+  h += a.svg + P("M" + n(x) + " " + n(y) + " H" + n(x + 0.48 * K), c) + P("M" + n(x) + " " + n(y + K) + " L" + n(xt) + " " + n(yt), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - 3, y + K + 10, o.n2, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Wechsler: gemeinsamer Anschluss oben (x, y); unten links (x − K/2, y + K) die Öffnerseite, unten rechts (x + K/2, y + K) die Schliesserseite */
+function wechsler(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x + K / 2 : x - 0.38 * K, yt = o.zu ? y + K : y + 1.09 * K, xm = (x + xt) / 2, ym = y + K * 0.5;
+  if (o.hell) h += marke(x - K / 2 - 2, y, K + 4, K + 3);
+  var a = antrieb(o.antrieb, xm, ym, c, x - 0.2 * K);
+  h += a.svg + P("M" + n(x - K / 2) + " " + n(y + K) + " H" + n(x), c) + P("M" + n(x) + " " + n(y) + " L" + n(xt) + " " + n(yt), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - K / 2 - 2.5, y + K + 11, o.n2, "end") + T(x + K / 2 - 2.5, y + K + 11, o.n3, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Spule: Mitte (x, y). art "" Schütz oder Relais, "schritt" Schrittschalter, "min" Minuterie (abfallverzögert). Anschlüsse bei y − 7,5 und y + 7,5 */
+function spule(x, y, o){
+  o = o || {}; var w = 30, hh = 15, h = "";
+  h += "<rect class=\"sl " + (o.erregt ? "sl-erregt" : "sl-bg") + (o.hell ? " hell" : "") + "\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - hh / 2) + "\" width=\"" + w + "\" height=\"" + hh + "\"/>";
+  if (o.art === "schritt") h += P("M" + n(x - 8) + " " + n(y + 3) + " H" + n(x - 0.5) + " V" + n(y - 3) + " H" + n(x + 8), "sl dn");
+  if (o.art === "min") h += "<rect class=\"sl-f\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - hh / 2) + "\" width=\"" + n(w * 0.31) + "\" height=\"" + hh + "\"/>";
+  h += T(x - 3, y - hh / 2 - 2.5, o.a1 === undefined ? "A1" : o.a1, "end", 8.5) + T(x - 3, y + hh / 2 + 8.5, o.a2 === undefined ? "A2" : o.a2, "end", 8.5) + T(x - w / 2 - 3, y + 3.5, o.name, "end");
+  return h;
+}
+/* Leuchte E: Kreuz auf dem Leiter */
+function lampeE(x, y, o){
+  o = o || {}; var a = 8, h = "";
+  if (o.an) h += "<circle class=\"sl-gl\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"11\"/>";
+  h += P("M" + n(x - a) + " " + n(y - a) + " L" + n(x + a) + " " + n(y + a) + " M" + n(x + a) + " " + n(y - a) + " L" + n(x - a) + " " + n(y + a), "sl");
+  if (o.x12 !== false) h += T(x - 4, y - 10, "X1", "end", 8.5) + T(x - 4, y + 17, "X2", "end", 8.5);
+  return h + T(x - 10, y + 3.5, o.name, "end");
+}
+/* Signallampe P: Kreis mit Kreuz */
+function lampeP(x, y, o){
+  o = o || {}; var r = 8.5, d = r * 0.707, h = "";
+  h += "<circle class=\"sl " + (o.an ? "" : "sl-bg") + "\"" + (o.an ? " style=\"fill:var(--sl-gelb)\"" : "") + " cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>";
+  h += P("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sl dn");
+  if (o.x12 !== false) h += T(x - 4, y - r - 2.5, "X1", "end", 8.5) + T(x - 4, y + r + 9, "X2", "end", 8.5);
+  return h + T(x - r - 3, y + 3.5, o.name, "end");
+}
+/* Strompfadleiste: dünne Linie mit Strichen und Nummern */
+function kopf(x0, x1, y, xs){
+  var h = P("M" + n(x0) + " " + n(y) + " H" + n(x1), "sl dn");
+  xs.forEach(function(x, i){ h += P("M" + n(x) + " " + n(y) + " v9", "sl dn") + T(x - 2.5, y + 9, String(i + 1), "end", 9); });
+  return h;
+}
+/* Sammelleiter mit Pfeilspitzen an beiden Enden */
+function schiene(x0, x1, y, label, an){
+  var c = "sl" + (an ? " an" : "");
+  return P("M" + n(x0) + " " + n(y) + " H" + n(x1) + " M" + n(x0 + 5) + " " + n(y - 3.5) + " L" + n(x0) + " " + n(y) + " L" + n(x0 + 5) + " " + n(y + 3.5) + " M" + n(x1 - 5) + " " + n(y - 3.5) + " L" + n(x1) + " " + n(y) + " L" + n(x1 - 5) + " " + n(y + 3.5), c) + T(x0 + 9, y - 3.5, label, "start", 9);
+}
+/* Kennzeichen des Neutralleiters: Schrägstrich mit Punkt */
+function nMarke(x, y){ return P("M" + n(x - 3.5) + " " + n(y + 6) + " L" + n(x + 3) + " " + n(y - 6), "sl") + "<circle class=\"sl-f\" cx=\"" + n(x + 3.4) + "\" cy=\"" + n(y - 7) + "\" r=\"1.7\"/>"; }
+/* Kontakttabelle unter der Spule: H Hauptkontakte, S Schliesser, Ö Öffner */
+function ktab(x, y, o){
+  o = o || {}; var cw = 19, h = "", z = Math.max((o.H || []).length, (o.S || []).length, (o.O || []).length, 1);
+  h += P("M" + n(x - cw * 1.5) + " " + n(y + 11) + " H" + n(x + cw * 1.5) + " M" + n(x - cw / 2) + " " + n(y) + " V" + n(y + 15 + z * 11) + " M" + n(x + cw / 2) + " " + n(y) + " V" + n(y + 15 + z * 11), "sl dn");
+  [["H", -1, o.H], ["S", 0, o.S], ["Ö", 1, o.O]].forEach(function(s){
+    h += T(x + s[1] * cw, y + 8, s[0], "middle", 9, "b");
+    (s[2] || []).forEach(function(e, i){ h += T(x + s[1] * cw, y + 21 + i * 11, e, "middle", 9.5); });
+  });
+  return h;
+}
+function leiter(d, an){ return P(d, "sl" + (an ? " an" : "")); }
+function punkt(x, y, an){ return "<circle class=\"sl-f\"" + (an ? " style=\"fill:var(--sl-an)\"" : "") + " cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"1.9\"/>"; }
+return {K:K, DX:DX, n:n, P:P, T:T, marke:marke, schliesser:schliesser, oeffner:oeffner, wechsler:wechsler, spule:spule, lampeE:lampeE, lampeP:lampeP, kopf:kopf, schiene:schiene, nMarke:nMarke, ktab:ktab, leiter:leiter, punkt:punkt};
+})();
+
+/* Wirkschaltschema-Bibliothek: Schaltzeichen wie im Arbeitsblatt 2. Semester (ID6 Übung 11). Benötigt slp.css (Klassen sl, sl-d, sl-f, sl-t, sl-gl). */
+var WSP = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function P(d, cls, extra){ return "<path class=\"" + (cls || "sl") + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function T(x, y, t, anker, gr, extra){ return "<text class=\"sl-t\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + " style=\"font-size:" + (gr || 10) + "px\"" + (extra || "") + ">" + t + "</text>"; }
+/* Leiter: art l (Aussenleiter), t (Tasterdraht), n (Neutralleiter), ld (Lampendraht), pe (Schutzleiter, gelb mit grünen Strichen). an = stromführend */
+function draht(d, art, an){
+  if (art === "pe") return P(d, "wk wk-pe1") + P(d, "wk wk-pe2");
+  return (an ? P(d, "wk-glow") : "") + P(d, "wk wk-" + art + (an ? " an" : ""));
+}
+/* Anschlusspunkt der Zuleitung: Kreis mit Bezeichnung darüber */
+function anschluss(x, y, name){ return "<circle class=\"wk-box\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"5.3\"/>" + T(x, y - 8, name, "middle", 9.5, " font-family=\"serif\""); }
+/* Punkt auf dem Schaltstück: Abstand t vom Drehpunkt, Abstand q senkrecht nach oben */
+function auf(x0, y0, u, t, q){ return [x0 + u[0] * t + u[1] * q, y0 + u[1] * t - u[0] * q]; }
+/* Pol eines Leitungsschutzschalters, waagrecht. (x, y) = linkes Ende. Breite 41,6. o: zu, ausloeser. Gibt svg und die Stelle der Wirkverbindung zurück. */
+function lsPol(x, y, o){
+  o = o || {}; var x0 = x + 10.2, L = 22.5, u = o.zu ? [0.9988, -0.0489] : [0.9297, -0.3698], h = "";
+  var e = auf(x0, y, u, L, 0);
+  h += P("M" + n(x) + " " + n(y) + " H" + n(x0) + " L" + n(e[0]) + " " + n(e[1]) + " M" + n(x + 31.6) + " " + n(y) + " H" + n(x + 41.6), "sl");
+  if (o.ausloeser){
+    /* thermischer Auslöser: rechteckiger Absatz; magnetischer Auslöser: Pfeil mit Querstrich */
+    var m = [[12.85, 0], [12.85, 3.5], [16.95, 3.5], [16.95, 7.75], [12.7, 7.75], [12.7, 12]].map(function(p){ return auf(x0, y, u, p[0], p[1]); });
+    h += P("M" + m.map(function(p){ return n(p[0]) + " " + n(p[1]); }).join(" L"), "sl", " style=\"stroke-linejoin:miter;stroke-linecap:butt\"");
+    var f = auf(x0, y, u, 6.5, 0), b = auf(x0, y, u, 6.5, 6.4), s = auf(x0, y, u, 6.5, 11.6), b1 = auf(x0, y, u, 3.8, 6.2), b2 = auf(x0, y, u, 9.2, 6.2);
+    h += P("M" + n(f[0]) + " " + n(f[1]) + " L" + n(b[0]) + " " + n(b[1]), "sl") + "<path class=\"sl-f\" d=\"M" + n(s[0]) + " " + n(s[1]) + " L" + n(b1[0]) + " " + n(b1[1]) + " L" + n(b2[0]) + " " + n(b2[1]) + " Z\"/>";
+    var q1 = auf(x0, y, u, 4.45, 14.05), q2 = auf(x0, y, u, 8.55, 14.05), q3 = auf(x0, y, u, 6.5, 14.05), q4 = auf(x0, y, u, 6.5, 18.1);
+    h += P("M" + n(q1[0]) + " " + n(q1[1]) + " L" + n(q2[0]) + " " + n(q2[1]) + " M" + n(q3[0]) + " " + n(q3[1]) + " L" + n(q4[0]) + " " + n(q4[1]), "sl", " style=\"stroke-linecap:butt\"");
+  }
+  return {svg:h, link:auf(x0, y, u, 11.4, 0)};
+}
+/* zweipoliger Leitungsschutzschalter: Pole auf den Höhen y1 und y2, mechanisch verbunden (gestrichelt) */
+function ls2(x, y1, y2, o){
+  o = o || {}; var a = lsPol(x, y1, {zu:o.zu, ausloeser:true}), b = lsPol(x, y2, {zu:o.zu});
+  return a.svg + b.svg + P("M" + n(a.link[0]) + " " + n(a.link[1] + 1.5) + " V" + n(b.link[1] - 1), "sl dn sl-d") + T(x + 23.5, y1 - 21, o.name, "middle", 9.5);
+}
+/* Taster, waagrecht: (x, y) = linkes Ende. Breite 62,4. o.ly: Abstand der Bezeichnung über dem Antrieb (Vorgabe 6). Betätigung oben: Querstrich mit drei Strichen, der mittlere gestrichelt bis zum Schaltstück */
+function taster(x, y, o){
+  o = o || {}; var x0 = x + 20.8, h = "", xe = x0 + 20.9, ye = o.zu ? y - 0.9 : y - 8.45, xm = x0 + 10.55, ym = y + (ye - y) * 10.55 / 20.9, yb = y - 20.9;
+  h += P("M" + n(x) + " " + n(y) + " H" + n(x0) + " L" + n(xe) + " " + n(ye) + " M" + n(x0 + 21.5) + " " + n(y) + " H" + n(x + 62.4), "sl");
+  var dy = o.zu ? 4 : 0;
+  h += P("M" + n(xm - 4.2) + " " + n(yb + 4 + dy) + " V" + n(yb + dy) + " H" + n(xm + 4.2) + " V" + n(yb + 4 + dy), "sl", " style=\"stroke-linejoin:miter;stroke-linecap:butt\"");
+  h += P("M" + n(xm) + " " + n(yb + dy) + " V" + n(ym - 0.5), "sl dn sl-d");
+  return h + T(xm + 0.5, yb - (o.ly === undefined ? 6 : o.ly), o.name, "middle", 9.5);
+}
+/* Leuchte: Kreuz, rechts das Zeichen für den Schutzleiteranschluss mit Punkt. Gibt svg und den Anschlusspunkt PE zurück. */
+function leuchte(x, y, o){
+  o = o || {}; var a = 10.2, h = "";
+  if (o.an) h += "<circle class=\"sl-gl\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"13\"/>";
+  h += P("M" + n(x - a) + " " + n(y - a) + " L" + n(x + a) + " " + n(y + a) + " M" + n(x + a) + " " + n(y - a) + " L" + n(x - a) + " " + n(y + a), "sl");
+  h += P("M" + n(x + 10.6) + " " + n(y - 0.8) + " v1.6 M" + n(x + 12.7) + " " + n(y - 1.95) + " v3.9 M" + n(x + 14.8) + " " + n(y - 3.9) + " v7.8 M" + n(x + 14.8) + " " + n(y) + " H" + n(x + 21.2), "sl", " style=\"stroke-linecap:butt\"");
+  h += "<circle class=\"sl-f\" cx=\"" + n(x + 21.2) + "\" cy=\"" + n(y) + "\" r=\"1.95\"/>";
+  return h + T(x + 10, y - 17, o.name, "start", 9.5);
+}
+/* Schraubklemme: Quadrat mit Kreis und Schrägstrich */
+function klemme(x, y, hell){
+  return "<rect class=\"sl " + (hell ? "sl-hl" : "sl-bg") + "\" x=\"" + n(x - 5.3) + "\" y=\"" + n(y - 5.3) + "\" width=\"10.6\" height=\"10.6\"" + (hell ? " style=\"stroke-width:1.5\"" : "") + "/><circle class=\"sl\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"3.7\"/>" + P("M" + n(x - 2.9) + " " + n(y + 3.1) + " L" + n(x + 2.9) + " " + n(y - 3.1), "sl");
+}
+/* Schrittschalter als Gerät: Kasten mit den Klemmen A1, L, A2 und Lampenanschluss. (x, y) = Klemme A1. o: zu, erregt, name, frage (Klemme, die mit ? beschriftet wird), hell */
+function schritt(x, y, o){
+  o = o || {}; var xr = x + 31.7, yu = y + 41.8, yc = y + 20.7, h = "", fr = o.frage;
+  h += "<rect class=\"wk-box\" x=\"" + n(x - 20.7) + "\" y=\"" + n(y - 7) + "\" width=\"73.5\" height=\"56.3\"/>";
+  h += P("M" + n(x) + " " + n(y + 5.3) + " V" + n(yc - 5.3) + " M" + n(x) + " " + n(yc + 5.3) + " V" + n(yu - 5.3), "sl");
+  h += "<rect class=\"sl " + (o.erregt ? "sl-erregt" : "sl-bg") + "\" x=\"" + n(x - 10.1) + "\" y=\"" + n(yc - 5.3) + "\" width=\"21.1\" height=\"10.6\"/>" + (o.art === "min" ? "<rect class=\"sl-f\" x=\"" + n(x - 10.1) + "\" y=\"" + n(yc - 5.3) + "\" width=\"6.4\" height=\"10.6\"/>" : P("M" + n(x - 3.8) + " " + n(yc + 2.3) + " H" + n(x + 0.4) + " V" + n(yc - 2.3) + " H" + n(x + 4.8), "sl dn", " style=\"stroke-linejoin:miter\""));
+  h += P("M" + n(xr) + " " + n(y + 5.3) + " V" + n(y + 15.2) + " M" + n(xr) + " " + n(yu - 5.3) + " V" + n(y + 26) + " L" + n(o.zu ? xr - 0.6 : xr - 4) + " " + n(y + 15.4), "sl");
+  h += P("M" + n(x + 11) + " " + n(yc) + " H" + n(xr - (o.zu ? 0.8 : 2.4)), "sl dn sl-d");
+  /* Minuterie (Übung 28): Klemmen Taster (mit Tasterzeichen), L, N und Lampenanschluss */
+  var min = o.art === "min", k1 = min ? "T" : "A1", k2 = min ? "N" : "A2";
+  [[k1, x, y, min ? 0 : 1], ["L", xr, y, 1], [k2, x, yu, 1], ["LA", xr, yu, 0]].forEach(function(k){
+    h += klemme(k[1], k[2], o.hell === k[0]);
+    if (k[3]) h += T(k[1] + 8.5, k[2] + 3.8, fr === k[0] ? "?" : k[0], "start", 9.5, fr === k[0] ? " font-weight=\"700\" fill=\"var(--sl-q)\"" : "");
+  });
+  if (min) h += P("M" + n(x + 9.3) + " " + n(y + 5.6) + " H" + n(x + 14) + " L" + n(x + 18.4) + " " + n(y + 3.6) + " M" + n(x + 18.6) + " " + n(y + 5.6) + " H" + n(x + 23) + " M" + n(x + 13.7) + " " + n(y - 1.3) + " H" + n(x + 18.6) + " M" + n(x + 16.1) + " " + n(y - 1.3) + " V" + n(y + 4.4), "sl dn", " style=\"stroke-linecap:butt\"");
+  /* Zeichen für den Lampenanschluss: Kreis mit Kreuz */
+  h += "<circle class=\"sl\" cx=\"" + n(xr + 12.7) + "\" cy=\"" + n(yu + 1.2) + "\" r=\"3.8\"/>" + P("M" + n(xr + 10) + " " + n(yu - 1.5) + " l5.4 5.4 M" + n(xr + 15.4) + " " + n(yu - 1.5) + " l-5.4 5.4", "sl dn");
+  return h + T(x - 25, yc + 3.5, o.name, "end", 9.5);
+}
+/* Drehschalter (ID7 Übung 1): Schaltstück wie ein Pol, darüber der Antrieb: Winkel für die Drehbetätigung und Raste (Zickzack). (x, y) = linkes Ende, Breite 41,6 */
+function dreh(x, y, o){
+  o = o || {}; var p = lsPol(x, y, {zu:o.zu}), xm = p.link[0], ye = p.link[1] - 0.7, h = p.svg, ds = " style=\"stroke-dasharray:2.4 2;stroke-linecap:butt\"";
+  h += P("M" + n(xm - 4.2) + " " + n(y - 17) + " V" + n(y - 20.9) + " H" + n(xm + 4.3) + " V" + n(y - 24.9), "sl", " style=\"stroke-linejoin:miter;stroke-linecap:butt\"");
+  h += P("M" + n(xm) + " " + n(y - 20.9) + " V" + n(y - 14.8), "sl dn", ds) + P("M" + n(xm) + " " + n(y - 14.8) + " l-2.2 2.2 l2.2 2.2", "sl dn") + P("M" + n(xm) + " " + n(y - 10.4) + " V" + n(ye), "sl dn", ds);
+  return h + T(xm + 0.2, y - 27.6, o.name, "middle", 9.5);
+}
+/* H-0-A-Drehschalter (ID7 Übung 3), senkrecht gezeichnet. (x, y) = Punkt auf dem Pol. Pol von y − 21,2 bis y + 27,1; Ausgänge H bei x − 10,4 und A bei x + 10,5, von y + 21 bis y + 41,8.
+   o.pos: "H", "0" oder "A" (die gewählte Stellung wird am Buchstaben markiert), o.an: Strom fliesst über den Schalter, o.name */
+function hoa(x, y, o){
+  o = o || {}; var h = "", xs = {H:x - 10.4, A:x + 10.5}, bx = {H:x - 17.1, "0":x - 10.5, A:x - 3.9};
+  if (o.an && xs[o.pos]) h += P("M" + n(x) + " " + n(y - 21.2) + " V" + n(y + 24) + " H" + n(xs[o.pos]) + " V" + n(y + 41.8), "wk-glow");
+  h += P("M" + n(x) + " " + n(y - 21.2) + " V" + n(y + 27.1) + " M" + n(xs.H) + " " + n(y + 21) + " V" + n(y + 41.8) + " M" + n(xs.A) + " " + n(y + 21) + " V" + n(y + 41.8), "sl", " style=\"stroke-linecap:butt\"");
+  h += "<circle class=\"sl-f\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"1.6\"/>";
+  /* Antrieb: Winkel für die Drehbetätigung, gestrichelte Wirkverbindung mit Raste */
+  h += P("M" + n(x - 21) + " " + n(y + 6.2) + " H" + n(x - 25) + " V" + n(y + 14.7) + " H" + n(x - 29.2), "sl", " style=\"stroke-linejoin:miter;stroke-linecap:butt\"");
+  h += P("M" + n(x - 25) + " " + n(y + 10.5) + " H" + n(x - 23.3) + " M" + n(x - 20.9) + " " + n(y + 10.5) + " H" + n(x - 16.9) + " M" + n(x - 14.4) + " " + n(y + 10.5) + " H" + n(x - 12.65) + " l2.2 2.2 l2.25 -2.2 H" + n(x - 6.4) + " M" + n(x - 4.2) + " " + n(y + 10.5) + " H" + n(x), "sl dn", " style=\"stroke-linecap:butt\"");
+  /* Stellungen H, 0, A mit gestrichelten Pfeilen zur Raste */
+  var dp = " style=\"stroke-dasharray:1.6 1.3;stroke-linecap:butt\"";
+  h += P("M" + n(x - 16.6) + " " + n(y + 2.4) + " L" + n(x - 11.3) + " " + n(y + 7.6) + " M" + n(x - 10.5) + " " + n(y + 2.6) + " V" + n(y + 6.6) + " M" + n(x - 4.3) + " " + n(y + 2.4) + " L" + n(x - 9.6) + " " + n(y + 7.6), "sl dn", dp);
+  h += "<path class=\"sl-f\" d=\"M" + n(x - 10.5) + " " + n(y + 8.3) + " l-1.2 -2 h2.4 Z\"/>";
+  ["H", "0", "A"].forEach(function(b){
+    if (o.pos === b) h += "<circle cx=\"" + n(bx[b]) + "\" cy=\"" + n(y - 0.5) + "\" r=\"3.5\" style=\"fill:var(--accent-soft);stroke:var(--sl-q);stroke-width:1\"/>";
+    h += T(bx[b], y + 1.6, b, "middle", 6, " font-weight=\"700\"");
+  });
+  h += T(x - 15, y + 26.9, "H", "middle", 8.5) + T(x + 15.3, y + 26.9, "A", "middle", 8.5);
+  return h + T(x - 31.8, y + 12.7, o.name, "end", 9.5);
+}
+/* LED-Baugruppe im Taster: Kreis mit Kreuz */
+function led(x, y, an){
+  var r = 5.1, q = r * 0.707;
+  return "<circle class=\"sl " + (an ? "" : "sl-bg") + "\"" + (an ? " style=\"fill:var(--sl-gelb)\"" : "") + " cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>" + P("M" + n(x - q) + " " + n(y - q) + " L" + n(x + q) + " " + n(y + q) + " M" + n(x + q) + " " + n(y - q) + " L" + n(x - q) + " " + n(y + q), "sl dn");
+}
+/* Steckdose T13 im Wirkschaltschema: Sechseck mit drei Kontakten. (x, y) = Mitte der Oberkante; Kontakte L bei x − 11,5, N bei x + 11,5, PE in der Mitte */
+function steckdose13(x, y){
+  var h = P("M" + n(x - 34.4) + " " + n(y + 16.8) + " L" + n(x - 15.9) + " " + n(y) + " H" + n(x + 15.9) + " L" + n(x + 34.4) + " " + n(y + 16.8) + " L" + n(x + 15.9) + " " + n(y + 32.1) + " H" + n(x - 15.9) + " Z", "sl sl-bg");
+  [[-11.5, 10.4], [11.5, 10.4], [0, 22]].forEach(function(k){ h += P("M" + n(x + k[0] - 5.7) + " " + n(y + k[1] + 5.7) + " A5.7 5.7 0 0 1 " + n(x + k[0] + 5.7) + " " + n(y + k[1] + 5.7), "sl"); });
+  return h + P("M" + n(x) + " " + n(y + 16.2) + " V" + n(y + 22), "sl");
+}
+/* Kennzeichen Neutralleiter (Schrägstrich mit Punkt) und Schutzleiter (Schrägstrich mit Querstrich) */
+function nMarke(x, y){ return P("M" + n(x - 2.2) + " " + n(y + 4.5) + " L" + n(x + 2) + " " + n(y - 4.2), "sl") + "<circle class=\"sl-f\" cx=\"" + n(x + 2.2) + "\" cy=\"" + n(y - 4.8) + "\" r=\"1.6\"/>"; }
+function peMarke(x, y){ return P("M" + n(x - 2.2) + " " + n(y + 4.6) + " L" + n(x + 2.2) + " " + n(y - 4.6) + " M" + n(x - 1.8) + " " + n(y - 4.6) + " H" + n(x + 6.2), "sl", " style=\"stroke-linecap:butt\""); }
+/* ---- Geräte der Arbeitsblätter ID7 Übungen 8 bis 15 (Schaltuhr, Dämmerungsschalter, Lichtsensor, Einstellräder) ---- */
+/* Gerätekasten mit Schraubklemmen. Masse in Bildpunkten der Zeichnung, f = Massstab. o: x0, y0, x1, y1, yo, yu (Höhe der oberen und unteren Klemmen),
+   oben und unten: [[Bezeichnung, x], ...], hell: Liste der hervorgehobenen Klemmen, name, nx, ny. Obere Klemmen sind unten beschriftet, untere oben. */
+function kasten(f, o){
+  var v = function(a){ return a * f; }, h = "", hell = o.hell || [];
+  h += "<rect class=\"wk-box\" x=\"" + n(v(o.x0)) + "\" y=\"" + n(v(o.y0)) + "\" width=\"" + n(v(o.x1 - o.x0)) + "\" height=\"" + n(v(o.y1 - o.y0)) + "\"/>";
+  (o.oben || []).forEach(function(k){ h += P("M" + n(v(k[1])) + " " + n(v(o.y0)) + " V" + n(v(o.yo)), "sl") + klemme(v(k[1]), v(o.yo), hell.indexOf(k[0]) >= 0) + T(v(k[1]), v(o.yo) + 13.2, k[0], "middle", 8.5); });
+  (o.unten || []).forEach(function(k){ h += P("M" + n(v(k[1])) + " " + n(v(o.y1)) + " V" + n(v(o.yu)), "sl") + klemme(v(k[1]), v(o.yu), hell.indexOf(k[0]) >= 0) + T(v(k[1]), v(o.yu) - 7.4, k[0], "middle", 8.5); });
+  return h + (o.name ? T(v(o.nx), v(o.ny), o.name, "start", 9.5) : "");
+}
+/* Uhrensymbol der Schaltuhr: Kreis mit zwei Zeigern. Mitte (x, y), Radius r */
+function uhrZ(x, y, r){
+  return "<circle class=\"sl\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + n(r) + "\"/>" + P("M" + n(x) + " " + n(y - r * 0.72) + " V" + n(y + r * 0.12) + " L" + n(x + r * 0.45) + " " + n(y + r * 0.47), "sl");
+}
+/* Lichtabhängiger Widerstand: Rechteck 20,5 × 10,4 mit zwei Pfeilen von links unten. Mitte (x, y). mitLeiter: kurze Anschlüsse links und rechts (Zeichen im Gerät) */
+function ldr(x, y, mitLeiter){
+  var h = "<rect class=\"sl sl-bg\" x=\"" + n(x - 10.25) + "\" y=\"" + n(y - 5.2) + "\" width=\"20.5\" height=\"10.4\"/>";
+  if (mitLeiter) h += P("M" + n(x - 20.4) + " " + n(y) + " H" + n(x - 10.25) + " M" + n(x + 10.25) + " " + n(y) + " H" + n(x + 20.4), "sl");
+  [[-10, -2], [-2.1, 5.9]].forEach(function(a){
+    h += P("M" + n(x + a[0]) + " " + n(y + 14.5) + " L" + n(x + a[1] - 1.6) + " " + n(y + 8), "sl");
+    h += "<path class=\"sl-f\" d=\"M" + n(x + a[1]) + " " + n(y + 6.4) + " l-0.9 4 l-3.1 -3.1 Z\"/>";
+  });
+  return h;
+}
+/* Einstellräder des Dämmerungsschalters Finder 11.41 wie in den Übungen 13 und 15. Mitte (x, y).
+   wahl: Wahlschalter mit den Stellungen STANDARD (1 ... 80), HIGH (30 ... 1000), OFF und ON; pos = "S", "H", "OFF", "ON" oder leer (kein Pfeil)
+   poti: Schaltwert, p = Stellung 0 (Marke 1) bis 1 (Marke 80), leer = kein Pfeil. Die Marken liegen wie im Arbeitsblatt. */
+var POTI = [[1, 0], [10, 0.1875], [20, 0.3142], [40, 0.5], [80, 1]];
+function potiWinkel(p){ return -144 + 288 * p; }
+function rpfeil(x, y, w, l0, l1){
+  var a = w * Math.PI / 180, ux = Math.sin(a), uy = -Math.cos(a), x1 = x + ux * l1, y1 = y + uy * l1;
+  return "<path d=\"M" + n(x + ux * l0) + " " + n(y + uy * l0) + " L" + n(x + ux * (l1 - 2.4)) + " " + n(y + uy * (l1 - 2.4)) + "\" style=\"fill:none;stroke:var(--wk-t);stroke-width:1.2\"/>" +
+    "<path d=\"M" + n(x1) + " " + n(y1) + " L" + n(x1 - ux * 4 - uy * 1.9) + " " + n(y1 - uy * 4 + ux * 1.9) + " L" + n(x1 - ux * 4 + uy * 1.9) + " " + n(y1 - uy * 4 - ux * 1.9) + " Z\" style=\"fill:var(--wk-t);stroke:none\"/>";
+}
+function strich(x, y, w, r0, r1){ var a = w * Math.PI / 180, ux = Math.sin(a), uy = -Math.cos(a); return P("M" + n(x + ux * r0) + " " + n(y + uy * r0) + " L" + n(x + ux * r1) + " " + n(y + uy * r1), "sl"); }
+function wahl(x, y, pos){
+  var r = 10.8, h = "<circle class=\"sl sl-bg\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>", W_ = {S:-45, H:45, OFF:-135, ON:135};
+  [-45, 45, -135, 135].forEach(function(w){ h += strich(x, y, w, r, r + 6.6); });
+  h += T(x - 15.5, y - 12.5, "STANDARD", "end", 8.5) + T(x - 18, y - 22.5, "(1 ... 80)", "end", 8.5) + T(x + 22.5, y - 12.5, "HIGH", "start", 8.5) + T(x + 12.5, y - 22.5, "(30 ... 1000)", "start", 8.5);
+  h += T(x - 16, y + 19.5, "OFF", "end", 8.5) + T(x + 16.5, y + 19.5, "ON", "start", 8.5) + T(x, y + 31.5, "Lux", "middle", 8.5);
+  if (W_[pos] !== undefined) h += rpfeil(x, y, W_[pos], 0.5, 8.6);
+  return h;
+}
+function poti(x, y, p){
+  var r = 10.8, h = "<circle class=\"sl sl-bg\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>";
+  POTI.forEach(function(m){ h += strich(x, y, potiWinkel(m[1]), r, r + 6.2); });
+  h += T(x, y - 20.5, "40", "middle", 8.5) + T(x - 16.5, y - 13.5, "20", "end", 8.5) + T(x - 19.5, y + 3, "10", "end", 8.5);
+  h += T(x - 13.5, y + 24.5, "1", "middle", 8.5) + T(x - 13.5, y + 35, "(30)", "middle", 8.5) + T(x + 15.5, y + 24.5, "80", "middle", 8.5) + T(x + 17.5, y + 35, "(1000)", "middle", 8.5) + T(x + 1, y + 45.5, "Lux", "middle", 8.5);
+  if (p !== undefined && p !== null) h += rpfeil(x, y, potiWinkel(p), 0.5, 8.6);
+  return h;
+}
+/* Schaltwert in Lux aus der Stellung des Einstellrads. Bereich STANDARD: zwischen den Marken geradlinig. Bereich HIGH: nur die Endwerte 30 und 1000 sind beschriftet, dazwischen gleichmässig verteilt (Annahme). */
+function potiWert(p, hoch){
+  var i = 1; while (i < POTI.length - 1 && p > POTI[i][1]) i++;
+  var a = POTI[i - 1], b = POTI[i], s = a[0] + (b[0] - a[0]) * (p - a[1]) / (b[1] - a[1]);
+  return hoch ? 30 + (s - 1) / 79 * 970 : s;
+}
+function potiStellung(lx, hoch){
+  var s = hoch ? 1 + (lx - 30) / 970 * 79 : lx, i = 1; s = Math.max(1, Math.min(80, s));
+  while (i < POTI.length - 1 && s > POTI[i][0]) i++;
+  var a = POTI[i - 1], b = POTI[i];
+  return a[1] + (b[1] - a[1]) * (s - a[0]) / (b[0] - a[0]);
+}
+/* Leuchte mit dem Schutzleiteranschluss auf der linken Seite (ID7 Übung 15) */
+function leuchteL(x, y, o){
+  o = o || {};
+  return "<g transform=\"translate(" + n(2 * x) + " 0) scale(-1 1)\">" + leuchte(x, y, {an:o.an, name:""}) + "</g>" + T(x + 10, y - 17, o.name, "start", 9.5);
+}
+/* Kennzeichen des Neutralleiters auf einem senkrechten Leiter */
+function nMarkeV(x, y){ return "<g transform=\"rotate(-90 " + n(x) + " " + n(y) + ")\">" + nMarke(x, y) + "</g>"; }
+return {kasten:kasten, uhrZ:uhrZ, ldr:ldr, wahl:wahl, poti:poti, potiWert:potiWert, potiStellung:potiStellung, leuchteL:leuchteL, nMarkeV:nMarkeV, n:n, P:P, T:T, draht:draht, anschluss:anschluss, lsPol:lsPol, ls2:ls2, taster:taster, leuchte:leuchte, klemme:klemme, schritt:schritt, dreh:dreh, hoa:hoa, led:led, steckdose13:steckdose13, nMarke:nMarke, peMarke:peMarke};
+})();
+
+/* Schaltzeichen-Bibliothek: Formen aus Theoriebuch AAD28.2 bis AAD28.5, AAD30.1 und den Arbeitsblättern ID4 und ID5 übernommen */
+var SYM = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function pfad(d, cls, extra){ return "<path class=\"" + cls + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function kreis(x, y, r, cls){ return "<circle class=\"" + cls + "\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>"; }
+function text(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+
+/* ===== Installationsplan und Prinzipschema (AAD30.1, AAD28.2 bis AAD28.5) ===== */
+function fahne(x, y, r, grad, uhr, len, hk){
+  var a = grad * Math.PI / 180, b = a + (uhr ? 1 : -1) * Math.PI / 2;
+  var x1 = x + (r + len) * Math.cos(a), y1 = y + (r + len) * Math.sin(a);
+  return "M" + n(x + r * Math.cos(a)) + " " + n(y + r * Math.sin(a)) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * Math.cos(b)) + " " + n(y1 + hk * Math.sin(b));
+}
+/* Schalter im Plan: typ 0, 1, 2, 3 oder 6 */
+function schalter(x, y, typ, o){
+  o = o || {}; var r = o.r || 9, len = o.len || 15, hk = o.hk || 7, d = "";
+  if (String(typ) === "2"){
+    /* Sch 2 gemäss Vorgabe BAP (Bildschirmfoto vom 5.10.): zwei parallele Striche nach rechts oben, jeder mit einem Haken nach rechts unten */
+    var c = Math.SQRT1_2, ab = 0.28 * r, T = [(r + len) * 1.12, (r + len) * 1.12 * 0.84];
+    [-1, 1].forEach(function(seite, k){
+      var ox = seite * ab * c, oy = seite * ab * c, a0 = Math.sqrt(r * r - ab * ab);
+      var x0 = x + ox + a0 * c, y0 = y + oy - a0 * c, x1 = x + ox + T[k] * c, y1 = y + oy - T[k] * c;
+      d += "M" + n(x0) + " " + n(y0) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * c) + " " + n(y1 + hk * c) + " ";
+    });
+    return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+  }
+  /* "2p" und "2u": die beiden Formen aus dem Theoriebuch AAD28.4 (Prinzipschema und Abbildung UP-Installation), in den Tools nicht mehr verwendet */
+  var f = {0:[[-45, 1]], 1:[[-45, 1], [-135, 0]], "2p":[[-45, 1], [-135, 1]], "2u":[[-45, 0], [-135, 0]], 3:[[-45, 1], [135, 1]], 6:[[-45, 1], [-135, 0], [135, 1], [45, 0]]}[typ];
+  f.forEach(function(e){ d += fahne(x, y, r, e[0], e[1], len, hk) + " "; });
+  return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+}
+/* Steckdose Typ 13 im Plan: Stiel ab (x,y) in Richtung grad, Querstrich, Bogen */
+function steckdose(x, y, grad, o){
+  o = o || {}; var s = o.stiel === undefined ? 10 : o.stiel, b = o.b || 9, ra = o.ra || 7.5;
+  var a = grad * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+  var ex = x + s * dx, ey = y + s * dy, cx = ex + ra * dx, cy = ey + ra * dy;
+  var d = "M" + n(x) + " " + n(y) + " L" + n(ex) + " " + n(ey) + " M" + n(ex + b * px) + " " + n(ey + b * py) + " L" + n(ex - b * px) + " " + n(ey - b * py)
+        + " M" + n(cx + ra * px) + " " + n(cy + ra * py) + " A" + ra + " " + ra + " 0 0 1 " + n(cx - ra * px) + " " + n(cy - ra * py);
+  return pfad(d, "sy dk");
+}
+function leuchte(x, y, o){ o = o || {}; var s = o.s || 10; return pfad("M" + n(x - s) + " " + n(y - s) + " L" + n(x + s) + " " + n(y + s) + " M" + n(x + s) + " " + n(y - s) + " L" + n(x - s) + " " + n(y + s), "sy dk"); }
+function dose(x, y, o){ o = o || {}; var s = o.s || 11; return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + kreis(x, y, o.punkt || 3.6, "sy-f"); }
+/* Zuleitung nach UV: Kasten mit Pfeilspitze, spitze nach rechts (1) oder links (-1); (x,y) ist der Anschlusspunkt der Leitung */
+function uv(x, y, richtung, label){
+  var w = 26, h = 8, k = richtung, x1 = x + k * w, d = "M" + n(x) + " " + n(y - h) + " H" + n(x1) + " V" + n(y + h) + " H" + n(x) + " Z M" + n(x1) + " " + n(y - h) + " L" + n(x1 + k * 9) + " " + n(y) + " L" + n(x1) + " " + n(y + h);
+  return pfad(d, "sy sy-bg") + text(x + k * w / 2, y + 4, label || "UV", "sy-t", "middle");
+}
+function ventilator(x, y, o){
+  o = o || {}; var s = o.s || 12, a = s * 0.62, b = s * 0.36;
+  return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + unendlich(x, y, a, b);
+}
+function unendlich(x, y, a, b){
+  return pfad("M" + n(x) + " " + n(y) + " C" + n(x + a * 0.5) + " " + n(y - b * 1.5) + " " + n(x + a * 1.4) + " " + n(y - b * 1.2) + " " + n(x + a * 1.4) + " " + n(y)
+    + " C" + n(x + a * 1.4) + " " + n(y + b * 1.2) + " " + n(x + a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y)
+    + " C" + n(x - a * 0.5) + " " + n(y - b * 1.5) + " " + n(x - a * 1.4) + " " + n(y - b * 1.2) + " " + n(x - a * 1.4) + " " + n(y)
+    + " C" + n(x - a * 1.4) + " " + n(y + b * 1.2) + " " + n(x - a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y), "sy dk");
+}
+/* Markierung der Drahtzahl: kurzer Querstrich über die Leitung */
+function marke(x, y, senkrechteLeitung, l){ l = l || 7; return pfad(senkrechteLeitung ? "M" + n(x - l) + " " + n(y) + " H" + n(x + l) : "M" + n(x) + " " + n(y - l) + " V" + n(y + l), "sy dn"); }
+
+/* ===== Stromlaufschema nach Theoriebuch (schwarz gezeichnet) ===== */
+function lampeT(x, y, o){
+  o = o || {}; var r = o.r || 11, d = r * 0.707, h = "";
+  h += "<circle class=\"sy-s\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"" + (o.an ? " style=\"fill:var(--lampe-an)\"" : " style=\"fill:var(--surface)\"") + "/>";
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy-s");
+  if (o.name) h += text(x - r - 5, y + 5, o.name, "sy-ts", "end", " style=\"font-size:13px\"");
+  if (o.x12 !== false){ h += text(x - 3, y - r - 2, "X1", "sy-ts", "end", " style=\"font-size:8px\"") + text(x - 3, y + r + 9, "X2", "sy-ts", "end", " style=\"font-size:8px\""); }
+  if (o.buchstabe) h += text(x + r * 0.6, y - r - 1, o.buchstabe, "sy-ts", "start", " style=\"font-size:12px\"");
+  return h;
+}
+/* Neutralleiter-Kennzeichen: Schrägstrich mit Punkt */
+function nMarke(x, y){ return pfad("M" + n(x - 4) + " " + n(y + 5) + " L" + n(x + 3) + " " + n(y - 7), "w t-n", " style=\"stroke-width:2\"") + kreis(x + 3.4, y - 8, 2, "sy-fs"); }
+/* Verbindung Antrieb zu Schaltstück: gestrichelt mit Kerbe (v oder ^) */
+function gestaenge(x0, x1, y, auf){
+  var m = x0 + (x1 - x0) * 0.42, k = auf ? -1 : 1;
+  return pfad("M" + n(x0) + " " + n(y) + " H" + n(m - 6), "sy-s dn sy-d") + pfad("M" + n(m - 6) + " " + n(y) + " H" + n(m - 4) + " L" + n(m) + " " + n(y + k * 7) + " L" + n(m + 4) + " " + n(y) + " H" + n(m + 6), "sy-s dn") + pfad("M" + n(m + 6) + " " + n(y) + " H" + n(x1), "sy-s dn sy-d");
+}
+/* Antrieb: "klammer" [ (Schema 0), "balken" | mit Ansatz (Schema 1 und 3), "dreh" (Schema 2) */
+function antriebT(art, x, y, h){
+  h = h || 9;
+  if (art === "klammer") return pfad("M" + n(x + 5) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 5), "sy-s");
+  if (art === "dreh") return pfad("M" + n(x - 6) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 6), "sy-s");
+  return pfad("M" + n(x) + " " + n(y - h) + " V" + n(y + h) + " M" + n(x) + " " + n(y) + " H" + n(x + 4), "sy-s");
+}
+
+/* ===== Wirkschaltschema nach Arbeitsblatt (dunkelblau gezeichnet) ===== */
+function klemme(x, y, o){
+  o = o || {}; var r = o.r || 5.5, k = r * 0.72, s = o.steigend ? -1 : 1;
+  return kreis(x, y, r, "sy dk sy-bg") + pfad("M" + n(x - k) + " " + n(y - s * k) + " L" + n(x + k) + " " + n(y + s * k), "sy dk");
+}
+/* Anschlussklemme im Ersatzschaltbild: offener Ring */
+function ring(x, y, r){ return "<circle class=\"sy sy-bg\" style=\"stroke-width:3\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + (r || 5) + "\"/>"; }
+/* Leuchte im Wirkschaltschema: strichpunktierter Kasten, Kreuz und Schutzleiteranschluss rechts. (x,y) ist die Mitte des Kreuzes. */
+function leuchteW(x, y, o){
+  o = o || {}; var s = o.s || 36, x0 = x - 0.407 * s, y0 = y - 0.49 * s, x1 = x0 + s, y1 = y0 + s, mx = x0 + s / 2, my = y0 + s / 2, g = 0.09 * s, d = 0.31 * s, h = "";
+  if (o.an) h += "<rect x=\"" + n(x0) + "\" y=\"" + n(y0) + "\" width=\"" + s + "\" height=\"" + s + "\" style=\"fill:var(--lampe-an);opacity:.75\"/>";
+  h += pfad("M" + n(mx - g) + " " + n(y0) + " H" + n(x0) + " V" + n(my - g) + " M" + n(x0) + " " + n(my + g) + " V" + n(y1) + " H" + n(mx - g)
+    + " M" + n(mx + g) + " " + n(y1) + " H" + n(x1) + " V" + n(my + g) + " M" + n(x1) + " " + n(my - g) + " V" + n(y0) + " H" + n(mx + g), "sy dk", " style=\"stroke-linecap:butt\"");
+  [[mx, y0], [mx, y1], [x0, my]].forEach(function(p){ h += kreis(p[0], p[1], 1.2, "sy-f"); });
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy dk");
+  /* Schutzleiteranschluss: Erdungszeichen, Strich, Klemme auf dem rechten Rand */
+  var kx = x1 - 0.035 * s, ky = y, kr = 0.058 * s, ex = kx - 0.17 * s;
+  h += pfad("M" + n(kx - kr) + " " + n(ky) + " H" + n(ex) + " M" + n(ex) + " " + n(ky - 0.067 * s) + " V" + n(ky + 0.067 * s) + " M" + n(ex - 0.035 * s) + " " + n(ky - 0.042 * s) + " V" + n(ky + 0.042 * s) + " M" + n(ex - 0.07 * s) + " " + n(ky - 0.02 * s) + " V" + n(ky + 0.02 * s), "sy dn");
+  h += kreis(kx, ky, kr, "sy dn sy-bg") + pfad("M" + n(kx - kr * 0.7) + " " + n(ky - kr * 0.7) + " L" + n(kx + kr * 0.7) + " " + n(ky + kr * 0.7), "sy dn");
+  return {svg:h, pe:[kx + kr, ky], oben:[x, y0], unten:[x, y1], x0:x0, y0:y0, x1:x1, y1:y1};
+}
+/* Antrieb im Wirkschaltschema: Querbalken oben, gestrichelte Verbindung, bei rastenden Schaltern mit Zickzack */
+function antriebW(x, yBalken, yUnten, rastend, o){
+  o = o || {}; var b = o.b || 8, h = pfad("M" + n(x - b) + " " + n(yBalken) + " H" + n(x + b), "sy dk");
+  if (!rastend) return h + pfad("M" + n(x) + " " + n(yBalken + 3) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+  var m = yBalken + (yUnten - yBalken) * 0.5;
+  return h + pfad("M" + n(x) + " " + n(yBalken + 2) + " V" + n(m - 5), "sy dk sy-d", " style=\"stroke-linecap:butt\"") + pfad("M" + n(x) + " " + n(m - 5) + " L" + n(x - 5) + " " + n(m) + " L" + n(x) + " " + n(m + 5), "sy dk") + pfad("M" + n(x) + " " + n(m + 6) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+}
+/* Widerstand im Ersatzschaltbild: Rechteck mit Bezeichnung */
+function widerstand(x, y, o){
+  o = o || {}; var w = o.w || 46, h = o.h || 17;
+  return "<rect class=\"sy sy-bg" + (o.cls ? " " + o.cls : "") + "\" style=\"stroke-width:3\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - h / 2) + "\" width=\"" + w + "\" height=\"" + h + "\"/>"
+    + (o.name ? "<text class=\"sy-t\" x=\"" + n(x) + "\" y=\"" + n(y + 4.5) + "\" text-anchor=\"middle\" style=\"font-size:12px\">R<tspan dy=\"3\" style=\"font-size:8.5px\">" + o.name + "</tspan></text>" : "");
+}
+/* ===== Schaltschema nach Arbeitsblatt ID5, Übungen 14 und 29 (dunkelblau gezeichnet) ===== */
+/* Sammelschienen, z. B. L1, L2, L3, N. Gibt die Höhe jeder Schiene zurück. */
+function schienen(x0, x1, y0, dy, namen, fs){
+  var h = "", ys = {}; fs = fs || 10.5;
+  namen.forEach(function(nm, i){ var y = y0 + i * dy; ys[nm] = y; h += pfad("M" + n(x0) + " " + n(y) + " H" + n(x1), "sy dk") + text(x0 - 3, y + fs * 0.35, nm, "sy-t", "end", " style=\"font-size:" + fs + "px\""); });
+  return {svg:h, y:ys};
+}
+/* Leitungsschutzschalter wie im Arbeitsblatt: pole = [{x, von}] (von = Höhe der Schiene), nPol = {x, von} für den Neutralleitertrenner oder null.
+   yo = oberes Ende der Schaltstücke, yu = Drehpunkt, bis = unteres Ende der Leitung. Das erste Schaltstück trägt die Auslöser. */
+function ls(pole, nPol, yo, yu, bis){
+  var dy = yu - yo, dx = dy * 0.5, s = dy / 138, h = "", d = "";
+  pole.forEach(function(p){ d += "M" + n(p.x) + " " + n(p.von) + " V" + n(yo) + " M" + n(p.x - dx) + " " + n(yo) + " L" + n(p.x) + " " + n(yu) + " V" + n(bis) + " "; });
+  h += pfad(d, "sy dk");
+  /* Auslöser am ersten Schaltstück: obere Linie mit rechteckigem Absatz (thermisch), untere Linie mit Pfeil (magnetisch) */
+  var p0 = pole[0], ux = -0.88, uy = 0.47, vx = -0.47, vy = -0.88;
+  function aufBlatt(t){ return [p0.x - dx + dx * t, yo + dy * t]; }
+  var a = aufBlatt(0.31), b = aufBlatt(0.53), q = [a[0], a[1]], dd = "M" + n(q[0]) + " " + n(q[1]);
+  [[53, 0], [0, 28], [28, 0], [0, -28], [45, 0]].forEach(function(st){ q = [q[0] + (st[0] * ux + st[1] * vx) * s, q[1] + (st[0] * uy + st[1] * vy) * s]; dd += " L" + n(q[0]) + " " + n(q[1]); });
+  h += pfad(dd, "sy");
+  var e = [b[0] + 108 * ux * s, b[1] + 108 * uy * s], sp = [b[0] + 124 * ux * s, b[1] + 124 * uy * s];
+  h += pfad("M" + n(b[0]) + " " + n(b[1]) + " L" + n(e[0]) + " " + n(e[1]), "sy");
+  h += "<path class=\"sy-f\" d=\"M" + n(sp[0]) + " " + n(sp[1]) + " L" + n(e[0] + 9 * vx * s) + " " + n(e[1] + 9 * vy * s) + " L" + n(e[0] - 9 * vx * s) + " " + n(e[1] - 9 * vy * s) + " Z\"/>";
+  /* mechanische Verbindung der Schaltstücke: gestrichelt */
+  if (pole.length > 1){ var l = pole[pole.length - 1]; h += pfad("M" + n(p0.x - dx + dx * 0.52 + 2) + " " + n(yo + dy * 0.52) + " H" + n(l.x - dx + dx * 0.52 - 1), "sy dn sy-d"); }
+  if (nPol){
+    var bb = dy * 0.26;
+    h += pfad("M" + n(nPol.x) + " " + n(nPol.von) + " V" + n(yo) + " M" + n(nPol.x - bb) + " " + n(yo) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yo + dy * 0.1) + " V" + n(yu - dy * 0.08)
+      + " M" + n(nPol.x - bb) + " " + n(yu) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yu) + " V" + n(bis), "sy dk");
+  }
+  return h;
+}
+/* Klemmenleiste: Kästchen mit hochgestellter Beschriftung. Gibt die Mitte jeder Klemme zurück. */
+function klemmenleiste(x, y, namen, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 35, h = "", xs = {};
+  namen.forEach(function(nm, i){
+    var x0 = x + i * b, cx = x0 + b / 2; xs[nm] = cx;
+    h += "<rect class=\"sy dk sy-bg\" x=\"" + n(x0) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>";
+    h += text(cx + 3.4, y + hh - 4, nm, "sy-t", "start", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(cx + 3.4) + " " + n(y + hh - 4) + ")\"");
+  });
+  return {svg:h, x:xs, oben:y, unten:y + hh};
+}
+/* Verbraucher als Widerstand, stehend, Beschriftung hochgestellt. (x, y) ist der obere Anschluss. */
+function widerstandW(x, y, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 52;
+  return "<rect class=\"sy dk sy-bg" + (o.cls ? " " + o.cls : "") + "\" x=\"" + n(x - b / 2) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>"
+    + text(x + 3.4, y + hh / 2, o.name || "", "sy-t", "middle", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(x + 3.4) + " " + n(y + hh / 2) + ")\"");
+}
+/* Strompfeil wie im Arbeitsblatt: rotes Dreieck auf dem Leiter, Wert daneben. richtung 1 = nach unten, -1 = nach oben */
+function stromW(x, y, richtung, label, anker){
+  var k = richtung || 1, h = "<path class=\"w-i\" d=\"M" + n(x - 4.2) + " " + n(y - 3.6 * k) + " H" + n(x + 4.2) + " L" + n(x) + " " + n(y + 4.6 * k) + " Z\"/>";
+  if (label) h += text(anker === "start" ? x + 6 : x - 6, y + 3, label, "w-it", anker === "start" ? "start" : "end");
+  return h;
+}
+
+/* ===== Messschaltung nach Theoriebuch ET4.1 und ET4.5 (schwarz, Spannung blau, Strom rot) ===== */
+/* Messgerät: Kreis mit Buchstabe. art "i" = Ampèremeter (rot), "u" = Voltmeter (blau) */
+function messT(x, y, art, r){
+  r = r || 9; var c = art === "u" ? "et-u" : "et-i";
+  return "<circle class=\"" + c + "s\" style=\"fill:var(--surface)\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>" + text(x, y + 4, art === "u" ? "V" : "A", c + "t", "middle", art === "u" ? " style=\"font-weight:700\"" : "");
+}
+/* Pfeil mit gefüllter Spitze von (x1,y1) nach (x2,y2) */
+function pfeilT(x1, y1, x2, y2, art, nurSpitze){
+  var c = art === "u" ? "et-u" : "et-i", L = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)), ux = (x2 - x1) / L, uy = (y2 - y1) / L, sl = 8, sb = 3;
+  var bx = x2 - ux * sl, by = y2 - uy * sl;
+  return (nurSpitze ? "" : pfad("M" + n(x1) + " " + n(y1) + " L" + n(bx) + " " + n(by), c + "s"))
+    + "<path class=\"" + c + "f\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(bx - uy * sb) + " " + n(by + ux * sb) + " L" + n(bx + uy * sb) + " " + n(by - ux * sb) + " Z\"/>";
+}
+/* Gleichspannungsquelle: langer dünner Strich (+), kurzer dicker Strich (−). (x, y) ist die Mitte zwischen den Strichen. */
+function quelleT(x, y){
+  return pfad("M" + n(x - 8) + " " + n(y - 2.5) + " H" + n(x + 8), "sy-s dn") + pfad("M" + n(x - 4) + " " + n(y + 2.5) + " H" + n(x + 4), "sy-s", " style=\"stroke-width:3;stroke-linecap:butt\"")
+    + text(x - 4, y - 5.5, "+", "et-it", "middle", " style=\"font-weight:700\"") + text(x - 4, y + 12, "−", "et-ut", "middle", " style=\"font-weight:700\"");
+}
+return {pfad:pfad, kreis:kreis, text:text, schalter:schalter, steckdose:steckdose, leuchte:leuchte, dose:dose, uv:uv, ventilator:ventilator, unendlich:unendlich, marke:marke,
+        lampeT:lampeT, nMarke:nMarke, gestaenge:gestaenge, antriebT:antriebT, klemme:klemme, ring:ring, leuchteW:leuchteW, antriebW:antriebW, widerstand:widerstand,
+        schienen:schienen, ls:ls, klemmenleiste:klemmenleiste, widerstandW:widerstandW, stromW:stromW, messT:messT, pfeilT:pfeilT, quelleT:quelleT, n:n};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, fmt = BAP.fmt, round = BAP.round, W = WSP;
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+/* Leitungen in den Bildpunkten der Arbeitsblatt-Zeichnung von Übung 13 */
+var F = 0.3714;
+function k(d){ return d.replace(/-?\d+(\.\d+)?/g, function(m){ return String(Math.round(Number(m) * F * 100) / 100); }); }
+function v(x){ return x * F; }
+function tsd(s){ return String(s).replace(/\B(?=(\d{3})+(?!\d))/g, AP); }
+function lx(x){ return tsd(fmt(x)) + NB + "lx"; }
+/* Anzeige des Schaltwerts: STANDARD auf ganze Lux, HIGH auf 10 Lux gerundet */
+function rund(x, hoch){ return hoch ? Math.round(x / 10) * 10 : (x < 10 ? Math.round(x * 2) / 2 : Math.round(x)); }
+var MODI = {OFF:"OFF", S:"STANDARD", H:"HIGH", ON:"ON"};
+
+/* ---------- Logik ---------- */
+/* m: Wahlschalter, p: Einstellrad 0 bis 1, e: Beleuchtungsstärke am Sensor in Lux */
+function schaltwert(m, p){ return m === "S" ? W.potiWert(p, false) : m === "H" ? W.potiWert(p, true) : null; }
+function kontakt(m, p, e){ return m === "ON" ? true : m === "OFF" ? false : e < schaltwert(m, p); }
+
+/* ================= Wirkschaltschema Übung 13 ================= */
+function schema(z, neutral){
+  var an = !neutral && z.f && z.zu, h = "", d = function(p, art, a){ return W.draht(k(p), art, a); };
+  h += d("M57 94.5 H111 M223 94.5 H304.5 V315.5 H166 V648.5 H360.5 V593", "l", an) + d("M304.5 315.5 V371", "l", false);
+  h += d("M304.5 593 V732 H748.5 V565.5", "t", an);
+  h += d("M57 177.5 H111 M223 177.5 H748.5 V565.5", "n", an) + d("M360.5 177.5 V371", "n", false);
+  h += d("M58 260 H110.5 V759.5 H803.5 V567", "pe");
+  /* Leitung zum Lichtsensor (im Arbeitsblatt schwarz) */
+  h += W.P(k("M609.5 260 H582 V315.5 H609.5 V620.5 H554.5 V593 M665 260 H692.5 V315.5 H665 V676.5 H498.5 V593"), "sl");
+  h += W.ldr(v(637.25), v(260), false) + W.T(v(637.25), v(238), "B13", "middle", 9.5);
+  h += W.nMarke(v(697), v(177.5)) + W.peMarke(v(698), v(759.5));
+  h += W.anschluss(v(42), v(94.5), "L") + W.anschluss(v(42), v(177.5), "N") + W.anschluss(v(42), v(260), "PE");
+  h += W.ls2(v(111), v(94.5), v(177.5), {zu:z.f, name:"F1"});
+  h += W.kasten(F, {x0:276.5, y0:371, x1:581.5, y1:593, yo:398.5, yu:565.5, oben:[["A1", 304.5], ["A2", 360.5]], unten:[["14", 304.5], ["11", 360.5], ["12", 415.5], ["B1", 498.5], ["B2", 554.5]], hell:an ? ["11", "14"] : [], name:"Q11", nx:228, ny:481});
+  h += W.ldr(v(429), v(469.5), true);
+  h += W.leuchte(v(748.5), v(565.5), {an:an, name:"E15"});
+  return h;
+}
+function bild(z){ return "<svg class=\"q-schema\" viewBox=\"0 0 310 290\" role=\"img\" aria-label=\"Wirkschaltschema Übung 13: Dämmerungsschalter Q11 mit den Klemmen A1, A2, 14, 11, 12, B1 und B2, Lichtsensor B13 und Leuchte E15\">" + schema(z, true) + "</svg>"; }
+function raeder(m, p){ return W.wahl(72, 41, m) + W.poti(196, 33, (m === "S" || m === "H") ? p : null); }
+function radBild(m, p, alt){ return "<svg class=\"q-schema\" viewBox=\"8 0 228 84\" role=\"img\" aria-label=\"" + alt + "\">" + raeder(m, p) + "</svg>"; }
+
+/* ================= ERKUNDEN ================= */
+var st = {w:750, m:"S", p:0.5, l:78, f:true};
+var LOES = {750:["H", null], 40:["S", null], 30:["S", null]};
+function lux(){ var e = Math.pow(10, st.l / 25); return e < 10 ? Math.round(e * 2) / 2 : round(e, 2); }
+function render(){
+  var m = st.m, hoch = m === "H", sw = schaltwert(m, st.p), e = lux(), zu = kontakt(m, st.p, e), h = "";
+  [750, 40, 30].forEach(function(w){ $("w-" + w).setAttribute("aria-pressed", String(st.w === w)); });
+  ["OFF", "S", "H", "ON"].forEach(function(x){ $("m-" + x).setAttribute("aria-pressed", String(x === m)); });
+  Array.prototype.forEach.call($("stellungen").children, function(tr){ tr.className = tr.getAttribute("data-m") === m ? "akt" : ""; });
+  $("rad").disabled = sw === null;
+  $("rad-v").textContent = sw === null ? (m === "ON" ? "Dauerlicht" : "Licht aus") : "≈ " + lx(rund(sw, hoch));
+  $("raeder").innerHTML = raeder(m, st.p);
+  var u = $("urteil"), t;
+  if (m === "OFF"){ u.className = "urteil bad"; t = "Stellung OFF: Das Licht bleibt ständig aus. Der Kundenwunsch (" + lx(st.w) + ") ist so nicht erfüllt."; }
+  else if (m === "ON"){ u.className = "urteil bad"; t = "Stellung ON: Dauerlicht. Der Kundenwunsch (" + lx(st.w) + ") ist so nicht erfüllt."; }
+  else {
+    var lo = hoch ? 30 : 1, hi = hoch ? 1000 : 80;
+    if (st.w < lo || st.w > hi){ u.className = "urteil bad"; t = "Im Bereich " + MODI[m] + " lässt sich der Schaltwert nur von " + lo + " bis " + lx(hi) + " einstellen. Für " + lx(st.w) + " braucht es den anderen Bereich."; }
+    else if (Math.abs(sw - st.w) <= st.w * 0.12 + 0.5){ u.className = "urteil ok"; t = "Passt: Der Schaltwert liegt bei " + lx(st.w) + "." + (st.w <= 80 && hoch ? " Das Arbeitsblatt wählt für " + lx(st.w) + " den Bereich STANDARD." : ""); }
+    else { u.className = "urteil bad"; t = "Der Schaltwert ist " + (sw < st.w ? "zu tief" : "zu hoch") + ": eingestellt sind etwa " + lx(rund(sw, hoch)) + ", gewünscht sind " + lx(st.w) + "."; }
+  }
+  u.textContent = t;
+  $("rad-note").innerHTML = hoch
+    ? "Im Bereich HIGH nennt die Skala nur die Endwerte (30) und (1000). Die Werte dazwischen schätzt das Tool gleichmässig verteilt. Am Gerät wird der Schaltwert bei der Inbetriebnahme mit einer Testmessung geprüft."
+    : "Im Bereich STANDARD gelten die Marken 1, 10, 20, 40 und 80. Zwischen zwei Marken schätzt das Tool den Wert geradlinig.";
+  $("licht-v").textContent = lx(e);
+  $("licht").setAttribute("aria-valuetext", lx(e));
+  $("schema").innerHTML = schema({f:st.f, zu:zu}, false);
+  $("legende").innerHTML = [["l", "Aussenleiter L"], ["t", "Lampendraht Ld"], ["n", "Neutralleiter N"], ["pe", "Schutzleiter PE"]].map(function(l){ return "<span class=\"" + l[0] + "\"><i></i>" + l[1] + "</span>"; }).join("");
+  $("bedienen").innerHTML = "<button class=\"opt txt\" type=\"button\" id=\"ls\" aria-pressed=\"" + !st.f + "\">F1 " + (st.f ? "ausschalten" : "einschalten") + "</button>";
+  if (!st.f) h += "<p class=\"an\">F1 ist ausgeschaltet: Die ganze Anlage ist spannungslos.</p>";
+  h += "<p>Lichtsensor B13 misst " + lx(e) + ". " + (sw === null ? "Wahlschalter auf " + MODI[m] + ": Die Messung hat keinen Einfluss." : "Eingestellter Schaltwert: etwa " + lx(rund(sw, hoch)) + " (" + MODI[m] + ").") + "</p>";
+  h += "<p" + (zu && st.f ? " class=\"an\"" : "") + ">Dämmerungsschalter Q11: Der Kontakt zwischen den Klemmen 11 und 14 ist " + (zu ? "geschlossen" : "geöffnet") + (sw === null ? "." : zu ? ", weil die Beleuchtungsstärke unter dem Schaltwert liegt." : ", weil die Beleuchtungsstärke nicht unter dem Schaltwert liegt.") + "</p>";
+  h += "<p" + (zu && st.f ? " class=\"an\"" : "") + ">Leuchte E15: " + (zu && st.f ? "eingeschaltet." : "aus.") + "</p>";
+  $("zustand").innerHTML = h;
+}
+function init(){
+  $("wunsch").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-w]"); if (!b) return; st.w = Number(b.getAttribute("data-w")); render(); });
+  $("wahl").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-m]"); if (!b) return; st.m = b.getAttribute("data-m"); render(); });
+  $("rad").addEventListener("input", function(){ st.p = Number($("rad").value) / 100; render(); });
+  $("licht").addEventListener("input", function(){ st.l = Number($("licht").value); render(); });
+  $("loesung").addEventListener("click", function(){
+    st.m = LOES[st.w][0]; st.p = Math.round(W.potiStellung(st.w, st.m === "H") * 100) / 100; $("rad").value = Math.round(st.p * 100); render();
+  });
+  $("bedienen").addEventListener("click", function(ev){ var b = ev.target.closest("button"); if (!b) return; st.f = !st.f; render(); $("ls").focus(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 10 bis 13 und 15, Theoriebuch AAD28.13) ================= */
+var STELL_O = ["OFF", "STANDARD (1 … 80 lx)", "HIGH (30 … 1000 lx)", "ON"];
+function qBereich(){
+  var x = Math.random(), t, c, s;
+  if (x < 0.4){ var a = pick([2, 5, 10, 15, 20, 25]); t = "Die Beleuchtung soll einschalten, wenn die Beleuchtungsstärke unter " + lx(a) + " sinkt."; c = 1; s = lx(a) + " liegt nur im Bereich STANDARD (1 bis 80 lx). Der Bereich HIGH beginnt erst bei 30 lx."; }
+  else if (x < 0.8){ var b = pick([100, 150, 200, 300, 500, 750, 1000]); t = "Die Beleuchtung soll einschalten, wenn die Beleuchtungsstärke unter " + lx(b) + " sinkt."; c = 2; s = lx(b) + " liegt nur im Bereich HIGH (30 bis 1000 lx). Der Bereich STANDARD endet bei 80 lx." + (b === 750 ? " So ist es in Übung 13 eingestellt." : ""); }
+  else if (x < 0.9){ t = pick(["Für Reinigungsarbeiten am Tag soll die Schaufensterbeleuchtung dauernd brennen, unabhängig von der Helligkeit.", "Die neue Beleuchtung soll bei Tageslicht geprüft werden: Sie muss dauernd eingeschaltet sein."]); c = 3; s = "ON bedeutet Dauerlicht ein."; }
+  else { t = pick(["Der Laden ist drei Wochen geschlossen. Die Schaufensterbeleuchtung soll auch in der Nacht ständig aus bleiben.", "Während eines Umbaus soll die Beleuchtung ständig aus bleiben, auch wenn es dunkel wird."]); c = 0; s = "OFF bedeutet: Licht ständig aus."; }
+  return {
+    text: "Dämmerungsschalter Finder Typ 11.41: " + t + " In welche Stellung gehört der Wahlschalter?" + radBild("", null, "Wahlschalter mit den Stellungen STANDARD, HIGH, OFF und ON, daneben das Einstellrad mit den Marken 1, 10, 20, 40 und 80"),
+    parts: [{label:"Wahlschalter", options:STELL_O, correct:STELL_O[c], mono:false}],
+    hint: "STANDARD: Schaltwert von 1 bis 80 lx. HIGH: Schaltwert von 30 bis 1000 lx. OFF: Licht ständig aus. ON: Dauerlicht.",
+    solution: "<p><b>" + STELL_O[c] + "</b></p><p>" + s + "</p>"
+  };
+}
+var MARKEN = ["auf der Marke 1", "zwischen den Marken 1 und 10", "auf der Marke 10", "zwischen den Marken 10 und 20", "auf der Marke 20", "zwischen den Marken 20 und 40", "auf der Marke 40", "zwischen den Marken 40 und 80", "auf der Marke 80"];
+var MW = [[1, 0], [5, 1], [10, 2], [15, 3], [20, 4], [25, 5], [30, 5], [35, 5], [40, 6], [50, 7], [60, 7], [70, 7], [80, 8]];
+function qMarke(){
+  var q = pick(MW), c = q[1], idx = [c], cand = shuffle([c - 2, c - 1, c + 1, c + 2, c + 3, c - 3].filter(function(i){ return i >= 0 && i < MARKEN.length; }));
+  while (idx.length < 4) idx.push(cand.shift());
+  idx.sort(function(a, b){ return a - b; });
+  return {
+    text: "Der Wahlschalter steht auf STANDARD (1 … 80 lx). Der Schaltwert soll " + lx(q[0]) + " betragen" + (q[0] === 30 ? " (wie in Übung 15)" : "") + ". Wohin gehört der Pfeil des Einstellrads?" + radBild("S", null, "Wahlschalter auf STANDARD, Einstellrad mit den Marken 1, 10, 20, 40 und 80 ohne Pfeil"),
+    parts: [{label:"Einstellrad", options:idx.map(function(i){ return MARKEN[i]; }), correct:MARKEN[c], mono:false}],
+    hint: "Im Bereich STANDARD gelten die Zahlen ohne Klammern: 1, 10, 20, 40 und 80.",
+    solution: "<p><b>" + MARKEN[c] + "</b></p>" + radBild("S", W.potiStellung(q[0], false), "Wahlschalter auf STANDARD, Einstellrad mit dem Pfeil auf " + q[0] + " Lux")
+  };
+}
+var ABL = [["S", 10, 10], ["S", 20, 20], ["S", 40, 40], ["S", 80, 80], ["S", 1, 1], ["H", 30, 1], ["H", 1000, 80], ["S", 30, 30], ["S", 60, 60], ["S", 15, 15]];
+function qAblesen(){
+  var q = pick(ABL), hoch = q[0] === "H", p = hoch ? (q[2] === 1 ? 0 : 1) : W.potiStellung(q[2], false), c = q[1];
+  var cands = hoch ? [1, 80, 30, 1000, 10, 40, 500] : [1, 10, 20, 40, 80, 30, 1000, 15, 60, 500];
+  var o = [c]; shuffle(cands).forEach(function(x){ if (o.length < 4 && o.indexOf(x) < 0) o.push(x); });
+  /* die Verwechslung mit dem anderen Bereich soll immer zur Auswahl stehen */
+  var verw = hoch ? q[2] : (q[2] === 1 ? 30 : q[2] === 80 ? 1000 : null);
+  if (verw !== null && o.indexOf(verw) < 0) o[3] = verw;
+  o.sort(function(a, b){ return a - b; });
+  return {
+    text: "Auf welchen Schaltwert ist dieser Dämmerungsschalter eingestellt?" + radBild(q[0], p, "Wahlschalter auf " + MODI[q[0]] + ", Einstellrad mit Pfeil"),
+    parts: [{label:"Schaltwert", options:o, correct:c, mono:true, show:lx}],
+    hint: "Lesen Sie zuerst den Wahlschalter ab: Bei STANDARD gelten die Zahlen ohne Klammern, bei HIGH die Zahlen in Klammern.",
+    solution: "<p><b>" + lx(c) + "</b></p><p>Wahlschalter auf " + MODI[q[0]] + (hoch ? ": Es gelten die Zahlen in Klammern, (30) am Anfang und (1000) am Ende der Skala." : ": Es gelten die Zahlen ohne Klammern.") + "</p>"
+  };
+}
+var JN = ["Ja, die Beleuchtung ist eingeschaltet.", "Nein, die Beleuchtung ist ausgeschaltet."];
+function qSchaltet(){
+  var x = Math.random(), m, sw, e, an, s;
+  if (x < 0.8){
+    var hoch = Math.random() < 0.45; m = hoch ? "H" : "S"; sw = pick(hoch ? [100, 200, 300, 500, 750] : [10, 20, 30, 40, 80]);
+    an = Math.random() < 0.5; e = an ? sw * pick([0.2, 0.4, 0.5, 0.75]) : sw * pick([1.5, 2, 4, 10]); e = e < 10 ? Math.round(e * 2) / 2 : round(e, 2);
+    s = lx(e) + " ist " + (an ? "kleiner" : "grösser") + " als der Schaltwert " + lx(sw) + ". " + (an ? "Die Beleuchtungsstärke liegt unter dem Schaltwert: Der Kontakt 11–14 ist geschlossen." : "Die Beleuchtungsstärke liegt nicht unter dem Schaltwert: Der Kontakt 11–14 ist geöffnet.");
+  } else {
+    m = pick(["ON", "OFF"]); an = m === "ON"; e = pick([2, 20, 500, 5000]); sw = null;
+    s = m === "ON" ? "In der Stellung ON brennt das Licht dauernd, unabhängig von der Messung." : "In der Stellung OFF bleibt das Licht ständig aus, unabhängig von der Messung.";
+  }
+  return {
+    text: "Schaufenster (Übung 13): Der Wahlschalter des Dämmerungsschalters steht auf " + MODI[m] + (sw === null ? "" : ", der Schaltwert ist auf " + lx(sw) + " eingestellt") + ". Der Lichtsensor B13 misst seit einigen Minuten " + lx(e) + ". Ist die Beleuchtung eingeschaltet?",
+    parts: [{label:"Beleuchtung", options:JN, correct:JN[an ? 0 : 1], mono:false}],
+    hint: "Ein Dämmerungsschalter schaltet ein, wenn die gemessene Beleuchtungsstärke unter den eingestellten Schaltwert sinkt.",
+    solution: "<p><b>" + JN[an ? 0 : 1] + "</b></p><p>" + s + "</p>"
+  };
+}
+var KL_O = ["A1", "A2", "11", "12", "14", "B1 und B2"];
+var KLEMMEN = [
+  {t:"den Aussenleiter für die Speisung des Geräts", c:"A1"},
+  {t:"den Neutralleiter für die Speisung des Geräts", c:"A2"},
+  {t:"den Aussenleiter, der über den Kontakt geschaltet wird", c:"11"},
+  {t:"den Lampendraht zur Leuchte E15", c:"14"},
+  {t:"den Lichtsensor B13", c:"B1 und B2"}
+];
+function qKlemme(){
+  var q = pick(KLEMMEN);
+  return {
+    text: "Schaufenster (Übung 13): An welche Klemme des Dämmerungsschalters Finder Typ 11.41 schliesst die Lösung des Arbeitsblatts " + q.t + " an?" + bild({f:true, zu:false}),
+    parts: [{label:"Klemme", options:KL_O, correct:q.c, mono:true}],
+    hint: "Verfolgen Sie im Wirkschaltschema die Farbe des Drahtes: dunkelrot Aussenleiter, blau Neutralleiter, rot Lampendraht, schwarz die Leitung zum Sensor.",
+    solution: "<p><b>" + q.c + "</b></p><p>Im Arbeitsblatt: A1 Aussenleiter und A2 Neutralleiter (Speisung), 11 Aussenleiter zum Kontakt, 14 Lampendraht, B1 und B2 Lichtsensor. Die Klemme 12 ist nicht angeschlossen.</p>"
+  };
+}
+function qWeg(){
+  var i = ["Aussenleiter L", "Leitungsschutzschalter F1", "Dämmerungsschalter Q11, Klemme 11", "Dämmerungsschalter Q11, Klemme 14", "Lampendraht Ld", "Leuchte E15", "Neutralleiter N"];
+  return { text:"Schaufenster (Übung 13): Es ist dunkel, die Leuchte E15 brennt. Ordnen Sie den Weg des Stromes vom Aussenleiter über die Leuchte zum Neutralleiter.", parts:[{type:"order", label:"Weg des Stromes", items:i}], hint:"Der Aussenleiter wird an der Klemme 11 eingespeist und verlässt den Kontakt an der Klemme 14.", solution:"<p><b>" + i.join(" → ") + "</b></p><p>Der Kontakt des Dämmerungsschalters verbindet die Klemmen 11 und 14.</p>" };
+}
+var MONT = {
+  gut:["An der Aussenwand, wo er das natürliche Umgebungslicht erfasst", "Im Aussenbereich, abgewandt von der geschalteten Beleuchtung"],
+  schlecht:["Direkt unter der geschalteten Leuchte", "Im Schaufenster neben den Spots", "Im Lichtkegel eines Scheinwerfers", "In der Unterverteilung neben dem Schaltgerät", "Hinter einer Leuchtreklame, die ihn anstrahlt"]
+};
+function qMontage(){
+  if (Math.random() < 0.55){
+    var g = pick(MONT.gut), o = shuffle([g].concat(shuffle(MONT.schlecht).slice(0, 3)));
+    return { text:"Wo wird der Lichtsensor eines Dämmerungsschalters für die Schaufensterbeleuchtung montiert?", parts:[{label:"Montageort", options:o, correct:g, mono:false}], hint:"Der Sensor soll die Helligkeit der Umgebung messen, nicht das Licht der Anlage.", solution:"<p><b>" + g + "</b></p><p>Übung 12: Der Lichtsensor muss das natürliche Umgebungslicht erfassen und darf nicht von der geschalteten Beleuchtung oder anderen Lichtquellen angestrahlt werden.</p>" };
+  }
+  var c = "Der Lichtsensor wird von der geschalteten Beleuchtung angestrahlt.";
+  return { text:"Eine Aussenbeleuchtung mit Dämmerungsschalter schaltet am Abend ein, kurz danach wieder aus und wieder ein. Was ist die wahrscheinlichste Ursache?", parts:[{label:"Ursache", options:shuffle([c, "Der Wahlschalter steht auf ON.", "Der Wahlschalter steht auf OFF.", "Der Neutralleiter der Leuchte fehlt."]), correct:c, mono:false}], hint:"Was misst der Sensor, sobald das Licht brennt?", solution:"<p><b>" + c + "</b></p><p>Sobald das Licht brennt, misst der Sensor eine höhere Beleuchtungsstärke und schaltet wieder aus. Deshalb darf der Montageort des Sensors nicht durch Fremdlicht beeinflusst werden (Theoriebuch AAD28.13).</p>" };
+}
+var WISSEN = [
+  {t:"Aus welchen zwei Hauptbestandteilen besteht ein Dämmerungsschalter?", o:["Aus einer Schalteinheit und einem Lichtsensor zur Messung der Beleuchtungsstärke", "Aus einer Schaltuhr und einer Minuterie", "Aus einem Taster und einer Spule", "Aus einem Bewegungsmelder und einem Schütz"], s:"Übung 10 und Theoriebuch AAD28.13."},
+  {t:"Unter welcher Bedingung schaltet ein Dämmerungsschalter die Beleuchtung ein?", o:["Wenn die gemessene Beleuchtungsstärke unter den eingestellten Schaltwert sinkt", "Wenn die gemessene Beleuchtungsstärke über den eingestellten Schaltwert steigt", "Wenn die eingestellte Uhrzeit erreicht ist", "Wenn sich eine Person im Erfassungsbereich bewegt"], s:"Übung 11."},
+  {t:"In welcher Einheit wird der Schaltwert eines Dämmerungsschalters eingestellt?", o:["Lux (lx)", "Lumen (lm)", "Watt (W)", "Sekunden (s)"], s:"Der Sensor misst die Beleuchtungsstärke. Ihre Einheit ist das Lux."},
+  {t:"Weshalb reicht bei einer Schaufensterbeleuchtung selten eine Schaltuhr allein?", o:["Weil es je nach Jahreszeit zu ganz verschiedenen Uhrzeiten dunkel wird", "Weil Schaltuhren keine Gangreserve haben", "Weil Schaltuhren nur Kleinspannung schalten", "Weil eine Schaltuhr nur einmal pro Tag schalten kann"], s:"Theoriebuch AAD28.13: Im Sommer genügt es, die Beleuchtung erst um 21:00 Uhr einzuschalten, während im Winter das Licht bereits ab 16:30 Uhr benötigt wird."},
+  {t:"Wofür eignen sich Dämmerungsschalter mit zwei Kanälen?", o:["Zur gleichzeitigen Steuerung unterschiedlicher Anwendungen über nur einen Sensor", "Zum Anschluss von zwei Sensoren an einer Leuchte", "Zum Schalten von Drehstrom", "Zum Messen von Strom und Spannung"], s:"Theoriebuch AAD28.13."},
+  {t:"Wie können Schalteinheit und lichtempfindliches Element eines Dämmerungsschalters gebaut sein?", o:["Je nach Modell kompakt in einem Gehäuse, oder das lichtempfindliche Element wird separat montiert", "Immer kompakt in einem Gehäuse", "Immer getrennt, der Sensor in der Verteilung", "Der Sensor ist immer in der Leuchte eingebaut"], s:"Theoriebuch AAD28.13, Aufbau. In Übung 13 ist der Sensor B13 separat an den Klemmen B1 und B2 angeschlossen."},
+  {t:"Wie lang darf die Leitung zum Lichtsensor des Finder Typ 11.41 laut Hersteller höchstens sein?", o:["50 m", "5 m", "500 m", "Die Länge ist nicht begrenzt."], s:"Bedienungsanleitung Finder: Leitung zum Sensor höchstens 50 m."},
+  {t:"Der Finder Typ 11.41 schaltet laut Hersteller verzögert. Wie gross sind die Verzögerungen?", o:["Einschalten 15 s, Ausschalten 30 s", "Einschalten 30 min, Ausschalten 15 min", "Keine Verzögerung", "Einschalten 1 s, Ausschalten 1 h"], s:"Bedienungsanleitung Finder. So lösen kurze Änderungen der Helligkeit keine Schaltung aus."}
+];
+function qWissen(){
+  var q = pick(WISSEN);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Lesen Sie im Theoriebuch AAD28.13 den Abschnitt Dämmerungsschalter.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+var ANW = {gut:["Schaufensterbeleuchtung", "Treppenhausbeleuchtung", "Aussenbeleuchtung"], falsch:["Backofen", "Wassererwärmer", "Waschmaschine", "Kochfeld"]};
+function qAnwendung(){
+  var g = shuffle(ANW.gut).slice(0, pick([2, 3])), f = shuffle(ANW.falsch).slice(0, 5 - g.length), o = shuffle(g.concat(f)), c = o.filter(function(x){ return g.indexOf(x) >= 0; });
+  return { text:"Welche dieser Anwendungen nennt das Theoriebuch für Dämmerungsschalter?", parts:[{type:"multi", label:"Anwendungen", options:o, correct:c, mono:false}], hint:"Ein Dämmerungsschalter schaltet Licht abhängig von der Helligkeit der Umgebung.", solution:"<p><b>" + c.join(", ") + "</b></p><p>Theoriebuch AAD28.13: Schaufensterbeleuchtung, Treppenhausbeleuchtung, Aussenbeleuchtung.</p>" };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.17) return qBereich();
+  if (x < 0.31) return qMarke();
+  if (x < 0.45) return qAblesen();
+  if (x < 0.6) return qSchaltet();
+  if (x < 0.69) return qKlemme();
+  if (x < 0.74) return qWeg();
+  if (x < 0.83) return qMontage();
+  if (x < 0.95) return qWissen();
+  return qAnwendung();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qBereich, qMarke, qAblesen, qSchaltet, qKlemme, qMontage, qWissen, pick([qWeg, qAnwendung, qWissen])]); }});
+})();
+</script>
+</body>
+</html>

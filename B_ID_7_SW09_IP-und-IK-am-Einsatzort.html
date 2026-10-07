@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA2 IP und IK am Einsatzort wählen BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+:root{--ip-1:#B45309;--ip-2:#1D4ED8;--ik:#7C3AED}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--ip-1:#F5B55E;--ip-2:#8FB4FF;--ik:#C4A5FF} }
+:root[data-theme="dark"]{--ip-1:#F5B55E;--ip-2:#8FB4FF;--ik:#C4A5FF}
+.bedarf{font-family:var(--mono);font-size:1.7rem;font-weight:700;line-height:1.15;color:var(--accent)}
+.bedarf .ik{color:var(--ik)}
+.deut{display:flex;flex-direction:column;gap:6px}
+.deut p{border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.deut p.d1{border-color:var(--ip-1)} .deut p.d2{border-color:var(--ip-2)} .deut p.dk{border-color:var(--ik)}
+.tab-k{width:100%;border-collapse:collapse;font-size:.92rem}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k td.kb{font-weight:700;font-family:var(--mono);white-space:nowrap}
+.tab-k tr.akt td{background:var(--accent-soft)}
+.tab-k td.ok{color:var(--ok);font-weight:700} .tab-k td.bad{color:var(--bad);font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.symliste{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+@media (max-width:520px){.symliste{grid-template-columns:1fr}}
+.symliste div{display:grid;grid-template-columns:46px 1fr;gap:8px;align-items:center;font-size:.92rem}
+.symliste svg{width:46px;height:46px}
+.sb{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linejoin:miter;stroke-linecap:butt}
+.sb.dn{stroke-width:1.7}
+.sf{fill:var(--ink);stroke:none}
+.st{fill:var(--ink);font-family:var(--sans);font-weight:700}
+.q-sym{display:block;width:74px;height:74px;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.q-reihe{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.q-reihe figure{margin:0;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);display:flex;align-items:center;gap:8px}
+.q-reihe figcaption{font-weight:700;font-family:var(--mono)}
+.q-reihe svg{width:100%;max-width:120px;height:auto}
+.ik-b{fill:var(--z0)} .ik-b.akt{fill:var(--ik)} .ik-b.wb{fill:var(--z1)} .ik-b.mb{fill:var(--z2)}
+.ik-t{fill:var(--ink);font-family:var(--mono);font-size:8px}
+.ik-t.k{fill:var(--muted);font-family:var(--sans)}
+.wert{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--ik);font-variant-numeric:tabular-nums}
+.prod{display:flex;flex-direction:column;gap:8px}
+.prod > div{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.prod .nr{font-size:.85rem;color:var(--muted);grid-column:1 / -1}
+.prod .code{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.prod .erg{grid-column:1 / -1;font-weight:700}
+.prod .erg.ok{color:var(--ok)} .prod .erg.bad{color:var(--bad)}
+.prod > div.ok{border-color:var(--ok);background:var(--ok-soft)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 2</p>
+    <h1>IP und IK am Einsatzort wählen BAP</h1>
+    <p class="lead">Staub, Wasserstrahl, Balltreffer: Leiten Sie aus den Bedingungen am Einsatzort die nötige IP-Schutzart und den IK-Code ab, deuten Sie die Symbole auf den Betriebsmitteln und wählen Sie das passende Produkt.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Einsatzort beurteilen</h2>
+        <fieldset>
+          <legend>Situation aus dem Arbeitsblatt laden</legend>
+          <div class="opts" id="orte">
+            <button class="opt txt" type="button" data-o="weg" id="o-weg">Zugangsweg von Frau Bachmann (Übung 37)</button>
+            <button class="opt txt" type="button" data-o="schreinerei" id="o-schreinerei">Schreinerei (Übung 36)</button>
+            <button class="opt txt" type="button" data-o="wohnen" id="o-wohnen">Wohnzimmer</button>
+          </div>
+        </fieldset>
+        <p class="note" id="ort-text"></p>
+        <fieldset>
+          <legend>Fremdkörper und Staub</legend>
+          <div class="opts" id="g-staub"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Wasser</legend>
+          <div class="opts" id="g-wasser"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Mechanische Beanspruchung</legend>
+          <div class="opts" id="g-mech"></div>
+        </fieldset>
+        <p class="label">Das Betriebsmittel braucht mindestens</p>
+        <p class="bedarf" id="bedarf" aria-live="polite"></p>
+        <div class="deut" id="deutung"></div>
+        <p class="label">Diese Symbole müssen auf dem Betriebsmittel vorhanden sein</p>
+        <div class="symliste" id="noetig"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Welches Produkt passt?</h2>
+        <div id="produkte"></div>
+        <p class="note">Schutzarten und IK-Code der vier Produkte aus den Lösungen der Übungen 35 und 36 (Datenblätter Feller). Ein Produkt passt, wenn beide Kennziffern und der IK-Code mindestens so hoch sind wie verlangt. Fehlt die Angabe zum IK-Code, ist die Stossfestigkeit nicht nachgewiesen.</p>
+      </div>
+
+      <div class="panel">
+        <h2>IK-Code: Stossfestigkeit</h2>
+        <div>
+          <div class="slider-head"><label class="label" for="ik">IK-Code</label><span class="wert" id="ik-v"></span></div>
+          <input type="range" id="ik" min="0" max="10" step="1" value="7" aria-describedby="ik-v">
+        </div>
+        <svg class="bild" id="ik-bild" viewBox="0 0 320 118" role="img" aria-label="Schlagenergie in Joule für die IK-Codes IK00 bis IK10"></svg>
+        <p class="note" id="ik-note"></p>
+        <p class="note">Die Schlagenergien stammen aus der Norm EN 62262 (im Internet recherchiert). Aus dem Arbeitsblatt stammen die beiden Anforderungen: Wohnbereich mindestens IK02, mittlere Beanspruchung mindestens IK07. Die vollständige Tabelle 3 aus dem NIN-Abschnitt 5.1.2 liegt diesem Tool nicht zugrunde.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Symbole auf Betriebsmitteln</h2>
+        <div class="symliste" id="symbole"></div>
+        <p class="note">Symbole und Bedeutungen aus dem Arbeitsblatt, Übungen 31 und 37.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Bei der Planung und Installation elektrischer Anlagen ist es entscheidend, die Beanspruchungen der Betriebsmittel am vorgesehenen Einsatzort zu berücksichtigen (Theoriebuch NIN33.3).</p>
+          <p>Der IK-Code beschreibt die mechanische Widerstandsfähigkeit (Stossfestigkeit) eines Gehäuses gegen äussere Einwirkungen.</p>
+          <p>Betriebsmittel im Wohnbereich müssen mindestens die Stossfestigkeit IK02 aufweisen. IK02 entspricht einer Schlagenergie von 0,2 J.</p>
+          <p>Eine mittlere mechanische Beanspruchung entspricht mindestens IK07.</p>
+          <p>Eine normale Haushaltssteckdose hat die Schutzart IP20.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie den Zugangsweg von Frau Bachmann. Welche Angabe im Text führt zur zweiten Kennziffer 5, welche zum IK-Code?</li>
+          <li>Übung 37 nennt als Lösung «IP55 oder IP65». Worin unterscheiden sich die Symbole der beiden Schutzarten?</li>
+          <li>Laden Sie die Schreinerei. Weshalb scheidet der Schalter 1 aus, obwohl er ein Schalter Schema 3 ist?</li>
+          <li>Um welchen Faktor ist die Schlagenergie bei IK07 grösser als bei IK02?</li>
+          <li>Was ist der Unterschied zwischen den beiden NUP-Steckdosen aus Übung 35?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Regeln der Technik NIN33.3 und NIN33.4, Schutzart nach IP-System.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 2 IP-Schutz und IK-Code: Übungen 31 bis 37 (ID7.13 bis ID7.15)</li><li>Theoriebuch Regeln der Technik, Kapitel 33 Schutz gegen elektrischen Schlag: NIN33.3 und NIN33.4 (Schutzart nach IP-System)</li><li>IK-Code: Schlagenergien IK01 bis IK10 nach EN 62262 (Recherche, nicht aus dem Theoriebuch). Aus dem Arbeitsblatt stammen: Wohnbereich mindestens IK02 (0,2 J), mittlere Beanspruchung mindestens IK07.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, fmt = BAP.fmt;
+var NB = String.fromCharCode(160);
+
+/* ---------- Tabellen ---------- */
+var D1 = ["kein Schutz (blanke Teile)", "Schutz vor Fremdkörpern ≥ 50 mm (Hand)", "Schutz vor Fremdkörpern ≥ 12 mm (Finger)", "Schutz vor Fremdkörpern ≥ 2,5 mm (Schraubenzieher)", "Schutz vor Fremdkörpern ≥ 1 mm (Draht)", "staubgeschützt: wenig Staub kann eindringen", "staubdicht: kein Staub"];
+var D2 = ["kein Schutz", "tropfwassersicher (senkrechte Tropfen)", "tropfwassersicher (Tropfen bis 15°)", "Schutz gegen Sprühwasser (Tropfen bis 60°)", "spritzwassersicher (allseitig)", "strahlwassersicher (Bespritzen mit Düse)", "Schutz vor Schwallwasser (Welle)", "wasserdicht (zeitweiliges Eintauchen)", "druckwasserdicht (dauerndes Eintauchen)"];
+/* Schlagenergie in Joule nach EN 62262 (Recherche) */
+var IKJ = [0, 0.14, 0.2, 0.35, 0.5, 0.7, 1, 2, 5, 10, 20];
+function ik(k){ return "IK" + (k < 10 ? "0" : "") + k; }
+function joule(k){ return k === 0 ? "kein Schutz" : fmt(IKJ[k]) + NB + "J"; }
+function ip(a, b){ return "IP" + a + b; }
+
+/* ---------- Symbole wie im Arbeitsblatt (Übungen 31 und 37) ---------- */
+function n(x){ return Math.round(x * 100) / 100; }
+function tropfen(x, y, s){ return "<path class=\"sf\" d=\"M" + n(x) + " " + n(y - s) + " C" + n(x + s * 0.2) + " " + n(y - s * 0.3) + " " + n(x + s * 0.72) + " " + n(y + s * 0.1) + " " + n(x + s * 0.72) + " " + n(y + s * 0.5) + " A" + n(s * 0.72) + " " + n(s * 0.72) + " 0 0 1 " + n(x - s * 0.72) + " " + n(y + s * 0.5) + " C" + n(x - s * 0.72) + " " + n(y + s * 0.1) + " " + n(x - s * 0.2) + " " + n(y - s * 0.3) + " " + n(x) + " " + n(y - s) + " Z\"/>"; }
+function dreieck(x, y, r){ return "<path class=\"sb\" d=\"M" + n(x) + " " + n(y - r) + " L" + n(x + r * 0.95) + " " + n(y + r * 0.72) + " H" + n(x - r * 0.95) + " Z\"/>"; }
+function gitter(x, y, rahmen){
+  /* Gitter aus je fünf Linien in beiden Diagonalrichtungen; mit Rahmen (staubdicht) ist es von einem auf der Spitze stehenden Quadrat umschlossen */
+  var q = Math.SQRT1_2, L = rahmen ? 12.4 : 13.2, s = rahmen ? L / 3 : 5, d = "", i;
+  for (i = -2; i <= 2; i++){
+    var cx = x + i * s * q, cy = y - i * s * q, ex = x + i * s * q, ey = y + i * s * q;
+    d += "M" + n(cx - L * q) + " " + n(cy - L * q) + " L" + n(cx + L * q) + " " + n(cy + L * q) + " M" + n(ex - L * q) + " " + n(ey + L * q) + " L" + n(ex + L * q) + " " + n(ey - L * q) + " ";
+  }
+  var h = "<path class=\"sb dn\" d=\"" + d + "\"/>", r = L * Math.SQRT2;
+  if (rahmen) h += "<path class=\"sb\" d=\"M" + n(x) + " " + n(y - r) + " L" + n(x + r) + " " + n(y) + " L" + n(x) + " " + n(y + r) + " L" + n(x - r) + " " + n(y) + " Z\"/>";
+  return h;
+}
+var SYMB = {
+  korr:{t:"Korrosionssicher", f:function(){ return dreieck(0, 2, 18) + "<text class=\"st\" x=\"0\" y=\"11.5\" text-anchor=\"middle\" style=\"font-size:13px\">C</text>"; }},
+  tropf:{t:"Tropfwassersicher", f:function(){ return tropfen(0, 2, 12); }},
+  ex:{t:"Explosionsgeschützt", f:function(){ return "<circle class=\"sb\" cx=\"0\" cy=\"0\" r=\"17\"/><text class=\"st\" x=\"0\" y=\"5.5\" text-anchor=\"middle\" style=\"font-size:15px\">Ex</text>"; }},
+  kalt:{t:"Kältebeständig", f:function(){ return "<circle class=\"sb\" cx=\"0\" cy=\"0\" r=\"17\"/><path class=\"sb dn\" d=\"M-12 0 H12 M-6 -10.4 L6 10.4 M6 -10.4 L-6 10.4\"/>"; }},
+  staubg:{t:"Staubgeschützt", f:function(){ return gitter(0, 0, false); }},
+  staubd:{t:"Staubdicht", f:function(){ return gitter(0, 0, true); }},
+  waerme:{t:"Wärmebeständig", f:function(){ var h = "<circle class=\"sb dn\" cx=\"0\" cy=\"0\" r=\"6.2\"/>", d = ""; for (var i = 0; i < 8; i++){ var a = i * Math.PI / 4; d += "M" + n(Math.cos(a) * 8.6) + " " + n(Math.sin(a) * 8.6) + " L" + n(Math.cos(a) * 14.5) + " " + n(Math.sin(a) * 14.5) + " "; } return h + "<path class=\"sb dn\" d=\"" + d + "\"/>"; }},
+  druck:{t:"Druckwasserdicht (5 bar)", f:function(){ return tropfen(-11.5, 0, 10.5) + tropfen(2.5, 0, 10.5) + "<text class=\"st\" x=\"16.5\" y=\"9.5\" text-anchor=\"middle\" style=\"font-size:11px;font-weight:600\">5</text>"; }},
+  iso:{t:"Schutzisoliert", f:function(){ return "<rect class=\"sb\" x=\"-17\" y=\"-17\" width=\"34\" height=\"34\"/><rect class=\"sb\" x=\"-9.5\" y=\"-9.5\" width=\"19\" height=\"19\"/>"; }},
+  strahl:{t:"Strahlwassersicher", f:function(){ return "<g transform=\"scale(.62)\">" + dreieck(-18.5, 2, 18) + tropfen(-18.5, 6, 8.5) + dreieck(18.5, 2, 18) + tropfen(18.5, 6, 8.5) + "</g>"; }}
+};
+function symSvg(k, cls){ return "<svg" + (cls ? " class=\"" + cls + "\"" : "") + " viewBox=\"-23 -23 46 46\" role=\"img\" aria-label=\"Symbol auf einem Betriebsmittel\">" + SYMB[k].f() + "</svg>"; }
+/* Kombination für IP55 bzw. IP65 wie in der Lösung von Übung 37 b */
+function kombi(ks, alt){ return "<svg viewBox=\"0 0 " + (ks.length * 46) + " 46\" role=\"img\" aria-label=\"" + alt + "\">" + ks.map(function(k, i){ return "<g transform=\"translate(" + (23 + i * 46) + " 23)\">" + SYMB[k].f() + "</g>"; }).join("") + "</svg>"; }
+
+/* ---------- Produkte aus den Übungen 35 und 36 ---------- */
+var PROD = [
+  {n:"Steckdose 1", nr:"Feller 87003.NUP.Q.61", a:2, b:1, k:null, z:"bei geschlossener Klappe"},
+  {n:"Steckdose 2", nr:"Feller 87003.N.CO.W.61.48", a:5, b:5, k:null, z:"mit zusätzlicher Dichtung"},
+  {n:"Schalter 1 (Schema 3)", nr:"Feller 7563.GX.54.A.61", a:2, b:0, k:null, z:""},
+  {n:"Schalter 2 (Schema 3)", nr:"Feller 7563.NAP.Q.61", a:5, b:5, k:7, z:""}
+];
+/* passt das Produkt? true, false oder null (IK nicht angegeben) */
+function passt(p, a, b, k){
+  if (p.a < a || p.b < b) return false;
+  if (p.k === null) return null;
+  return p.k >= k;
+}
+
+/* ================= ERKUNDEN ================= */
+var STAUB = [[2, "keine besondere (fingergeschützt genügt)"], [5, "Staub: staubgeschützt"], [6, "viel Staub: staubdicht"]];
+var WASSER = [[0, "trocken"], [1, "Tropfwasser von oben"], [4, "Spritzwasser aus allen Richtungen"], [5, "Wasserstrahl (Schlauch, Düse)"]];
+var MECH = [[2, "Wohnbereich"], [7, "mittlere Beanspruchung (z. B. Balltreffer)"]];
+var ORTE = {
+  weg:{a:5, b:5, k:7, t:"Übung 37: Der Zugangsweg ist Staub, Regen und Spritzwasser ausgesetzt. Er wird regelmässig mit einem Wasserstrahl aus dem Gartenschlauch gereinigt. Leuchten und Taster sollen auch bei gelegentlichen Balltreffern keinen Schaden nehmen (mittlere mechanische Beanspruchung). Lösung des Arbeitsblatts: IP55 oder IP65, mindestens IK07."},
+  schreinerei:{a:5, b:5, k:7, t:"Übung 36: In einer Schreinerei soll ein AP-Schalter (Sch 3) montiert werden. Für den Einsatzort gelten die Anforderungen Schutzart IP55 und Stossfestigkeit IK07."},
+  wohnen:{a:2, b:0, k:2, t:"Trockener Wohnraum: Eine normale Haushaltssteckdose hat die Schutzart IP20 (Übung 34). Betriebsmittel im Wohnbereich müssen mindestens die Stossfestigkeit IK02 aufweisen (Übung 33)."}
+};
+var st = {o:"weg", a:5, b:5, k:7, ik:7};
+function knopf(grp, liste, akt){ return liste.map(function(x){ return "<button class=\"opt txt\" type=\"button\" data-g=\"" + grp + "\" data-w=\"" + x[0] + "\" id=\"" + grp + "-" + x[0] + "\" aria-pressed=\"" + (akt === x[0]) + "\">" + x[1] + "</button>"; }).join(""); }
+function ikBild(akt){
+  var h = "", x0 = 10, w = 300, bw = w / 11, y0 = 86, maxH = 62;
+  for (var k = 0; k <= 10; k++){
+    /* Balkenhöhe logarithmisch, damit 0,14 J und 20 J auf ein Bild passen */
+    var hh = k === 0 ? 1.5 : 8 + (Math.log10(IKJ[k]) - Math.log10(0.14)) / (Math.log10(20) - Math.log10(0.14)) * (maxH - 8);
+    var cls = "ik-b" + (k === akt ? " akt" : k === 2 ? " wb" : k === 7 ? " mb" : "");
+    h += "<rect class=\"" + cls + "\" x=\"" + n(x0 + k * bw + 2) + "\" y=\"" + n(y0 - hh) + "\" width=\"" + n(bw - 4) + "\" height=\"" + n(hh) + "\" rx=\"1.5\"/>";
+    h += "<text class=\"ik-t\" x=\"" + n(x0 + k * bw + bw / 2) + "\" y=\"" + (y0 + 10) + "\" text-anchor=\"middle\">" + (k < 10 ? "0" : "") + k + "</text>";
+    h += "<text class=\"ik-t\" x=\"" + n(x0 + k * bw + bw / 2) + "\" y=\"" + n(y0 - hh - 3) + "\" text-anchor=\"middle\">" + (k === 0 ? "–" : fmt(IKJ[k])) + "</text>";
+  }
+  h += "<text class=\"ik-t k\" x=\"" + x0 + "\" y=\"" + (y0 + 22) + "\">IK-Code, darüber die Schlagenergie in J (Balkenhöhe nicht linear)</text>";
+  return h;
+}
+function render(){
+  var a = st.a, b = st.b, k = st.k, h = "";
+  ["weg", "schreinerei", "wohnen"].forEach(function(o){ $("o-" + o).setAttribute("aria-pressed", String(st.o === o)); });
+  $("ort-text").textContent = st.o ? ORTE[st.o].t : "Eigene Einstellung: Wählen Sie die Bedingungen am Einsatzort.";
+  $("g-staub").innerHTML = knopf("a", STAUB, a); $("g-wasser").innerHTML = knopf("b", WASSER, b); $("g-mech").innerHTML = knopf("k", MECH, k);
+  $("bedarf").innerHTML = ip(a, b) + " <span class=\"ik\">" + ik(k) + "</span>";
+  h += "<p class=\"d1\"><b>1. Kennziffer " + a + ":</b> " + D1[a] + "</p><p class=\"d2\"><b>2. Kennziffer " + b + ":</b> " + D2[b] + "</p><p class=\"dk\"><b>" + ik(k) + ":</b> " + (k === 2 ? "Mindest-Stossfestigkeit im Wohnbereich, Schlagenergie 0,2" + NB + "J" : "mittlere mechanische Beanspruchung, Schlagenergie " + joule(7)) + "</p>";
+  if (a === 5 && b === 5) h += "<p>Auch IP65 erfüllt diese Anforderung: Staubdicht ist mehr als staubgeschützt. Übung 37 nennt deshalb «IP55 oder IP65».</p>";
+  $("deutung").innerHTML = h;
+  var sy = [];
+  if (a === 5) sy.push("staubg"); if (a === 6) sy.push("staubd"); if (b === 1) sy.push("tropf"); if (b === 5) sy.push("strahl");
+  $("noetig").innerHTML = sy.length ? sy.map(function(x){ return "<div>" + symSvg(x) + "<span>" + SYMB[x].t + "</span></div>"; }).join("") : "<div style=\"grid-template-columns:1fr\"><span>" + (b === 4 ? "Für Spritzwasser zeigt das Arbeitsblatt kein Symbol." : "Für diese Anforderungen zeigt das Arbeitsblatt kein Symbol.") + "</span></div>";
+  var t = "<p class=\"label\">Verlangt: " + ip(a, b) + " und " + ik(k) + "</p><div class=\"prod\">";
+  PROD.forEach(function(p){
+    var r = passt(p, a, b, k), grund = p.a < a ? "1. Kennziffer zu tief" : p.b < b ? "2. Kennziffer zu tief" : r === null ? "IK-Code nicht angegeben" : r ? "" : "IK-Code zu tief";
+    t += "<div" + (r === true ? " class=\"ok\"" : "") + "><b>" + p.n + "</b><span class=\"code\">" + ip(p.a, p.b) + " · " + (p.k === null ? "IK keine Angabe" : ik(p.k)) + "</span><span class=\"nr\">" + p.nr + (p.z ? ", " + p.z : "") + "</span><span class=\"erg " + (r === true ? "ok" : "bad") + "\">" + (r === true ? "✓ geeignet" : "✗ nicht geeignet: " + grund) + "</span></div>";
+  });
+  $("produkte").innerHTML = t + "</div>";
+  $("ik-v").textContent = ik(st.ik) + " · " + joule(st.ik);
+  $("ik").setAttribute("aria-valuetext", ik(st.ik) + ", " + joule(st.ik));
+  $("ik-bild").innerHTML = ikBild(st.ik);
+  $("ik-note").innerHTML = st.ik === 0 ? "IK00: keine Stossfestigkeit nachgewiesen."
+    : ik(st.ik) + " entspricht einer Schlagenergie von " + joule(st.ik) + (st.ik > 2 ? ". Das ist " + fmt(Math.round(IKJ[st.ik] / 0.2 * 100) / 100) + "-mal so viel wie bei IK02, der Mindest-Stossfestigkeit im Wohnbereich." : st.ik === 2 ? ". Das ist die Mindest-Stossfestigkeit für Betriebsmittel im Wohnbereich." : ". Das ist weniger als die Mindest-Stossfestigkeit im Wohnbereich (IK02).") + (st.ik === 7 ? " Eine mittlere mechanische Beanspruchung entspricht mindestens IK07." : "");
+}
+function init(){
+  $("symbole").innerHTML = ["korr", "staubg", "tropf", "waerme", "ex", "druck", "kalt", "iso", "strahl", "staubd"].map(function(x){ return "<div>" + symSvg(x) + "<span>" + SYMB[x].t + "</span></div>"; }).join("");
+  $("orte").addEventListener("click", function(ev){ var bt = ev.target.closest("button[data-o]"); if (!bt) return; var o = ORTE[bt.getAttribute("data-o")]; st.o = bt.getAttribute("data-o"); st.a = o.a; st.b = o.b; st.k = o.k; render(); });
+  ["g-staub", "g-wasser", "g-mech"].forEach(function(id){
+    $(id).addEventListener("click", function(ev){ var bt = ev.target.closest("button[data-g]"); if (!bt) return; st[bt.getAttribute("data-g")] = Number(bt.getAttribute("data-w")); st.o = ""; render(); var f = $(bt.id); if (f) f.focus(); });
+  });
+  $("ik").addEventListener("input", function(){ st.ik = Number($("ik").value); render(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 31 bis 37) ================= */
+var SYM_Q = ["korr", "tropf", "ex", "kalt", "staubg", "waerme", "druck", "iso"];
+function qSymbol(){
+  var k = pick(SYM_Q.concat(["staubd", "strahl"])), o = [SYMB[k].t];
+  shuffle(Object.keys(SYMB).filter(function(x){ return x !== k; })).slice(0, 3).forEach(function(x){ o.push(SYMB[x].t); });
+  return {
+    text: "Was bedeutet dieses Symbol auf einem Betriebsmittel?" + symSvg(k, "q-sym"),
+    parts: [{label:"Bedeutung", options:shuffle(o), correct:SYMB[k].t, mono:false}],
+    hint: "Tropfen stehen für Wasser, das Gitter für Staub. Buchstaben im Symbol sind Abkürzungen.",
+    solution: "<p><b>" + SYMB[k].t + "</b></p><p>Arbeitsblatt, Übungen 31 und 37.</p>"
+  };
+}
+function qSymbolWahl(){
+  var ziel = pick(["IP55", "IP65"]);
+  var kom = shuffle([["staubg", "strahl", "Gitter ohne Rahmen, zwei Dreiecke mit Tropfen", "IP55"], ["staubd", "strahl", "Gitter mit Rahmen, zwei Dreiecke mit Tropfen", "IP65"], ["staubg", "tropf", "Gitter ohne Rahmen, ein Tropfen", ""], ["staubd", "druck", "Gitter mit Rahmen, zwei Tropfen mit der Zahl 5", ""]]);
+  var bst = ["A", "B", "C", "D"], c = bst[kom.map(function(x){ return x[3]; }).indexOf(ziel)];
+  return {
+    text: "Ein Betriebsmittel hat die Schutzart " + ziel + ". Welche Symbole müssen gemäss dieser Schutzart darauf vorhanden sein?<span class=\"q-reihe\">" + kom.map(function(x, i){ return "<figure><figcaption>" + bst[i] + "</figcaption>" + kombi([x[0], x[1]], x[2]) + "</figure>"; }).join("") + "</span>",
+    parts: [{label:"Symbole", options:bst, correct:c, mono:true}],
+    hint: "Erste Kennziffer 5: staubgeschützt (Gitter ohne Rahmen). Erste Kennziffer 6: staubdicht (Gitter mit Rahmen). Zweite Kennziffer 5: strahlwassersicher (zwei Dreiecke mit Tropfen).",
+    solution: "<p><b>" + c + "</b></p><p>" + ziel + ": " + (ziel === "IP55" ? "staubgeschützt (Gitter ohne Rahmen)" : "staubdicht (Gitter mit Rahmen)") + " und strahlwassersicher (zwei Dreiecke mit je einem Tropfen). So zeigt es die Lösung von Übung 37 b.</p>"
+  };
+}
+var IKW = [
+  {t:"Wofür steht der IK-Code?", o:["Er beschreibt die mechanische Widerstandsfähigkeit (Stossfestigkeit) eines Gehäuses gegen äussere Einwirkungen.", "Er beschreibt den Schutz gegen das Eindringen von Wasser.", "Er beschreibt die Isolationsklasse der Leiter.", "Er beschreibt den Kurzschlussstrom am Einbauort."], s:"Übung 32."},
+  {t:"Welche Mindest-Stossfestigkeit müssen Betriebsmittel im Wohnbereich aufweisen?", o:["IK02", "IK00", "IK07", "IK10"], s:"Übung 33 a."},
+  {t:"Welcher Schlagenergie entspricht die Stossfestigkeit IK02?", o:["0,2 J", "2 J", "20 J", "0,02 J"], s:"Übung 33 b."},
+  {t:"Rolf Richter stuft Balltreffer als mittlere mechanische Beanspruchung ein. Welcher IK-Code ist dafür mindestens nötig?", o:["IK07", "IK02", "IK04", "IK10"], s:"Übung 37 c: Eine mittlere Beanspruchung entspricht mindestens IK07."},
+  {t:"Welchen IP-Schutz hat eine normale Haushaltssteckdose?", o:["IP20", "IP21", "IP44", "IP55"], s:"Übung 34."},
+  {t:"Welcher der beiden Codes beschreibt den Schutz gegen Schläge und Stösse?", o:["Der IK-Code", "Die erste Kennziffer des IP-Codes", "Die zweite Kennziffer des IP-Codes", "Der Zusatzbuchstabe A bis D des IP-Codes"], s:"Der IP-Code beschreibt den Schutz gegen Fremdkörper, Berührung und Wasser, der IK-Code die Stossfestigkeit."}
+];
+function qIK(){
+  var q = pick(IKW);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"IP: Eindringen von Fremdkörpern und Wasser. IK: Stossfestigkeit des Gehäuses.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+function qIKVergleich(){
+  var verlangt = pick([2, 7]), k = pick([0, 1, 2, 4, 5, 6, 7, 8, 10].filter(function(x){ return x !== verlangt; })), ok = k >= verlangt;
+  var o = ["Ja, " + ik(k) + " ist mindestens so hoch wie " + ik(verlangt) + ".", "Nein, " + ik(k) + " ist tiefer als " + ik(verlangt) + "."];
+  return {
+    text: (verlangt === 2 ? "Für den Wohnbereich ist mindestens IK02 verlangt." : "Für einen Einsatzort mit mittlerer mechanischer Beanspruchung ist mindestens IK07 verlangt.") + " Ein Taster hat laut Datenblatt den IK-Code " + ik(k) + ". Genügt seine Stossfestigkeit?",
+    parts: [{label:"Stossfestigkeit", options:o, correct:o[ok ? 0 : 1], mono:false}],
+    hint: "Je höher die Zahl des IK-Codes, desto grösser die Schlagenergie, die das Gehäuse aushält.",
+    solution: "<p><b>" + o[ok ? 0 : 1] + "</b></p><p>" + ik(k) + ": " + joule(k) + ". " + ik(verlangt) + ": " + joule(verlangt) + " (Schlagenergien nach EN 62262).</p>"
+  };
+}
+var EIGN = ["Nur Produkt 1", "Nur Produkt 2", "Beide Produkte", "Keines der beiden Produkte"];
+function qProdukt(){
+  var a, b, k, p1, p2, t;
+  if (Math.random() < 0.35){
+    a = 5; b = 5; k = 7; p1 = {a:2, b:0, k:null}; p2 = {a:5, b:5, k:7};
+    t = "In einer Schreinerei soll ein AP-Schalter (Sch 3) montiert werden. Für den Einsatzort gelten die Anforderungen IP55 und IK07.";
+  } else {
+    var anf = pick([[5, 5, 7], [4, 4, 7], [5, 4, 2], [2, 1, 2], [6, 5, 7], [4, 4, 2]]); a = anf[0]; b = anf[1]; k = anf[2];
+    var mk = function(){ return {a:pick([2, 4, 5, 6]), b:pick([0, 1, 4, 5, 7]), k:pick([null, 2, 4, 7, 8])}; };
+    p1 = mk(); p2 = mk();
+    t = "Für einen Einsatzort gelten die Anforderungen " + ip(a, b) + " und " + ik(k) + ".";
+  }
+  var r1 = passt(p1, a, b, k) === true, r2 = passt(p2, a, b, k) === true, c = r1 && r2 ? 2 : r1 ? 0 : r2 ? 1 : 3;
+  var zeile = function(nr, p){ var r = passt(p, a, b, k); return "Produkt " + nr + " (" + ip(p.a, p.b) + ", " + (p.k === null ? "IK keine Angabe" : ik(p.k)) + "): " + (r === true ? "geeignet" : "nicht geeignet, " + (p.a < a ? "die erste Kennziffer ist zu tief" : p.b < b ? "die zweite Kennziffer ist zu tief" : r === null ? "die Stossfestigkeit ist nicht nachgewiesen" : "der IK-Code ist zu tief")) + "."; };
+  return {
+    text: t + " Zur Auswahl stehen: Produkt 1 mit " + ip(p1.a, p1.b) + " und " + (p1.k === null ? "ohne Angabe zum IK-Code" : ik(p1.k)) + "; Produkt 2 mit " + ip(p2.a, p2.b) + " und " + (p2.k === null ? "ohne Angabe zum IK-Code" : ik(p2.k)) + ". Welches Produkt ist geeignet?",
+    parts: [{label:"Geeignet", options:EIGN, correct:EIGN[c], mono:false}],
+    hint: "Vergleichen Sie einzeln: erste Kennziffer, zweite Kennziffer, IK-Code. Jeder Wert muss mindestens so hoch sein wie verlangt.",
+    solution: "<p><b>" + EIGN[c] + "</b></p><p>" + zeile(1, p1) + "<br>" + zeile(2, p2) + "</p>"
+  };
+}
+var ABL = [
+  {t:"Der Zugangsweg ist Staub, Regen und Spritzwasser ausgesetzt. Zudem wird er regelmässig mit einem Wasserstrahl aus dem Gartenschlauch gereinigt.", c:"IP55 oder IP65", f:["IP20", "IP21", "IP44"], s:"Staub: mindestens staubgeschützt (5X) oder staubdicht (6X). Wasserstrahl: strahlwassersicher (X5). Übung 37 a."},
+  {t:"Eine Steckdose wird in einem trockenen Wohnzimmer montiert. Sie muss fingergeschützt sein, Wasser kommt nicht vor.", c:"IP20", f:["IP00", "IP44", "IP55 oder IP65"], s:"Fingergeschützt: 2X. Kein Wasserschutz nötig: X0. So ist eine normale Haushaltssteckdose gebaut (Übung 34)."},
+  {t:"Eine Steckdose soll fingergeschützt sein und senkrecht fallendes Tropfwasser aushalten.", c:"IP21", f:["IP12", "IP20", "IP55 oder IP65"], s:"Fingergeschützt: 2X. Tropfwassersicher: X1. Wie die Steckdose 1 in Übung 35 bei geschlossener Klappe."},
+  {t:"Ein Schalter in einer Werkstatt ist Staub in schädigender Menge und Strahlwasser aus allen Richtungen ausgesetzt.", c:"IP55 oder IP65", f:["IP21", "IP44", "IP20"], s:"Staubgeschützt (5X) und strahlwassersicher (X5), wie die Steckdose 2 in Übung 35 und der Schalter 2 in Übung 36."}
+];
+function qAbleiten(){
+  var q = pick(ABL), mittel = Math.random() < 0.5;
+  var o2 = ["IK02", "IK07"];
+  return {
+    text: q.t + " " + (mittel ? "Die mechanische Beanspruchung wird als mittel eingestuft (zum Beispiel gelegentliche Balltreffer)." : "Der Einsatzort liegt im Wohnbereich, eine besondere mechanische Beanspruchung gibt es nicht.") + " Welche IP-Schutzart und welcher IK-Code sind mindestens nötig?",
+    parts: [{label:"IP-Schutzart", options:shuffle([q.c].concat(q.f)), correct:q.c, mono:true}, {label:"IK-Code", options:o2, correct:mittel ? "IK07" : "IK02", mono:true}],
+    hint: "Suchen Sie im Text die Angaben zu Staub, zu Wasser und zu Schlägen. Jede Angabe bestimmt eine Kennziffer oder den IK-Code.",
+    solution: "<p><b>" + q.c + ", " + (mittel ? "IK07" : "IK02") + "</b></p><p>" + q.s + "<br>" + (mittel ? "Eine mittlere Beanspruchung entspricht mindestens IK07 (Übung 37 c)." : "Betriebsmittel im Wohnbereich müssen mindestens IK02 aufweisen (Übung 33).") + "</p>"
+  };
+}
+var STECK = [
+  {t:"Übung 35: Die Steckdose 1 (Feller 87003.NUP.Q.61) hat bei geschlossener Klappe die Schutzart IP21. Wovor ist sie geschützt?", o:["Vor festen Fremdkörpern grösser als 12,5 mm und vor senkrecht fallendem Tropfwasser", "Vor Staub in schädigender Menge und vor Strahlwasser aus allen Richtungen", "Vor Staub und vor dauerndem Eintauchen", "Sie hat keinen Schutz"], s:"Lösung von Übung 35. Das Theoriebuch nennt für die erste Kennziffer 2 den Wert 12 mm."},
+  {t:"Übung 35: Die Steckdose 2 (Feller 87003.N.CO.W.61.48) hat dank zusätzlicher Dichtung die Schutzart IP55. Wovor ist sie geschützt?", o:["Vor Staub in schädigender Menge und vor Strahlwasser aus allen Richtungen", "Nur vor festen Fremdkörpern grösser als 12,5 mm und vor Tropfwasser", "Vor Staub und vor dauerndem Eintauchen", "Nur vor dem Berühren mit dem Finger"], s:"Lösung von Übung 35."},
+  {t:"Welche der beiden NUP-Steckdosen aus Übung 35 eignet sich für einen Platz, der mit dem Gartenschlauch abgespritzt wird?", o:["Die Steckdose 2 mit IP55", "Die Steckdose 1 mit IP21", "Beide", "Keine der beiden"], s:"Strahlwasser verlangt die zweite Kennziffer 5. IP21 schützt nur gegen senkrecht fallendes Tropfwasser."},
+  {t:"Übung 36: Weshalb wird in der Schreinerei der Schalter 2 (IP55, IK07) gewählt und nicht der Schalter 1 (IP20, IK keine Angabe)?", o:["Nur der Schalter 2 erfüllt die verlangte Schutzart IP55 und die Stossfestigkeit IK07.", "Der Schalter 1 ist kein Schalter Schema 3.", "Der Schalter 1 ist zu teuer.", "Der Schalter 2 hat die tiefere Schutzart."], s:"Verlangt sind IP55 und IK07. Der Schalter 1 hat IP20 und keine Angabe zum IK-Code."}
+];
+function qSteckdose(){
+  var q = pick(STECK);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Lesen Sie den IP-Code Ziffer für Ziffer: erste Ziffer Fremdkörper und Staub, zweite Ziffer Wasser.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+function qEnergie(){
+  var k = pick([2, 2, 7, 5, 8, 10, 4]), c = IKJ[k], o = [c];
+  shuffle(IKJ.filter(function(x){ return x > 0 && x !== c; })).slice(0, 3).forEach(function(x){ o.push(x); });
+  o.sort(function(x, y){ return x - y; });
+  return {
+    text: "Welcher Schlagenergie entspricht die Stossfestigkeit " + ik(k) + "?",
+    parts: [{label:"Schlagenergie", options:o, correct:c, mono:true, show:function(x){ return fmt(x) + NB + "J"; }}],
+    hint: "IK02 entspricht 0,2 J. Die Werte steigen mit dem Code, aber nicht gleichmässig.",
+    solution: "<p><b>" + joule(k) + "</b></p><p>" + (k === 2 ? "Übung 33 b." : "Schlagenergien nach EN 62262: IK02 0,2 J, IK04 0,5 J, IK05 0,7 J, IK07 2 J, IK08 5 J, IK10 20 J.") + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.2) return qSymbol();
+  if (x < 0.28) return qSymbolWahl();
+  if (x < 0.42) return qIK();
+  if (x < 0.52) return qIKVergleich();
+  if (x < 0.68) return qProdukt();
+  if (x < 0.82) return qAbleiten();
+  if (x < 0.92) return qSteckdose();
+  return qEnergie();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qSymbol, qSymbol, qSymbolWahl, qIK, pick([qIKVergleich, qEnergie]), qProdukt, qAbleiten, qSteckdose]); }});
+})();
+</script>
+</body>
+</html>

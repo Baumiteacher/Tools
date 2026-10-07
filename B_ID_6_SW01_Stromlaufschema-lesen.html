@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_6 TA1 Stromlaufschema lesen: Strompfad und Kontakttabelle BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Stromlaufschema nach Arbeitsblatt 2. Semester (ID6 bis ID8): schwarz gezeichnet, stromführende Leiter rot hervorgehoben */
+:root{ --sl-an:#D8261C; --sl-gelb:#F6D13A; --sl-q:#2446B8 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sl-an:#FF7F75; --sl-gelb:#F6D13A; --sl-q:#A3B6FF } }
+:root[data-theme="dark"]{ --sl-an:#FF7F75; --sl-gelb:#F6D13A; --sl-q:#A3B6FF }
+.sl{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sl.dn{stroke-width:1}
+.sl.dk{stroke-width:2.8;stroke-linecap:butt}
+.sl.an{stroke:var(--sl-an);stroke-width:2.6}
+.sl.hell{stroke:var(--sl-q);stroke-width:2.6}
+.sl-d{stroke-dasharray:4 3;stroke-linecap:butt}
+.sl-f{fill:var(--ink);stroke:none}
+.sl-bg{fill:var(--surface)}
+.sl-erregt{fill:var(--accent-soft)}
+.sl-gl{fill:var(--sl-gelb);stroke:none;opacity:.9}
+.sl-t{fill:var(--ink);font-family:var(--sans);font-size:10px}
+.sl-t.q{fill:var(--sl-q);font-weight:700}
+.sl-t.b{font-weight:700}
+.sl-hl{fill:var(--accent-soft);stroke:var(--sl-q);stroke-width:1}
+
+[hidden]{display:none!important}
+.bild{width:100%;height:auto;display:block}
+.zustand{font-weight:600}
+.erkl{border-left:4px solid var(--accent);padding:2px 0 2px 12px;min-height:3em}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k td.kb{font-weight:700;width:5.5em}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.q-schema{display:block;width:100%;max-width:420px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_6 Apparate und Leitungen, einfache Verbraucherinstallation · Teilauftrag 1</p>
+    <h1>Stromlaufschema lesen: Strompfad und Kontakttabelle BAP</h1>
+    <p class="lead">Im Stromlaufschema hat jedes Betriebsmittel einen Namen aus Kennbuchstabe, Seite und Strompfad. Bedienen Sie das Schema und lesen Sie die Kontakttabellen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Schema</legend>
+          <div class="opts" id="wahl"></div>
+        </fieldset>
+        <p class="note" id="wahl-note"></p>
+      </div>
+
+      <div class="panel">
+        <h2 id="s-titel"></h2>
+        <svg class="bild" id="schema" viewBox="0 0 340 236" role="img" aria-label="Stromlaufschema mit Strompfadleiste und Kontakttabellen"></svg>
+        <fieldset>
+          <legend>Bedienen</legend>
+          <div class="opts" id="bedienen"></div>
+        </fieldset>
+        <p class="zustand" id="zustand" aria-live="polite"></p>
+        <fieldset>
+          <legend>Betriebsmittel erklären</legend>
+          <div class="opts" id="bm"></div>
+        </fieldset>
+        <p class="erkl" id="erkl" aria-live="polite"></p>
+      </div>
+
+      <div class="plain">
+        <h2>So wird beschriftet</h2>
+        <div class="merke">
+          <p><b>Betriebsmittel:</b> Kennbuchstabe, dann Seite, dann Strompfad. Der Taster auf Seite 2 im Strompfad 1 heisst S21.</p>
+          <p><b>Mehrere gleiche Betriebsmittel im selben Strompfad</b> erhalten einen Punkt und eine Laufnummer: S11.1 und S11.2 (AAD29.8).</p>
+          <p><b>Kontakte</b> tragen den Namen ihrer Spule. Die Anschlüsse stehen links vom Kontakt: 13 und 14 für einen Schliesser, 21 und 22 für einen Öffner (AAD29.3).</p>
+          <p><b>Kontakttabelle</b> unter der Spule: In der Spalte S stehen die Schliesser, in der Spalte Ö die Öffner. Die Zahl nennt Seite und Strompfad, in dem der Kontakt liegt. 23 heisst: Seite 2, Strompfad 3.</p>
+        </div>
+        <div class="scroll">
+          <table class="tab-k">
+            <thead><tr><th>Kennbuchstabe</th><th>Betriebsmittel (AAD27.1)</th></tr></thead>
+            <tbody>
+              <tr><td class="kb">S</td><td>Taster, Steuerschalter, Wahlschalter</td></tr>
+              <tr><td class="kb">Q</td><td>Schaltgeräte. Im Arbeitsblatt: Schütz, Schrittschalter und Minuterie</td></tr>
+              <tr><td class="kb">E</td><td>Leuchte, Heizung</td></tr>
+              <tr><td class="kb">P</td><td>Meldeleuchte, Messgerät</td></tr>
+              <tr><td class="kb">F</td><td>Sicherung, LS-Schalter, RCD</td></tr>
+              <tr><td class="kb">T</td><td>Transformator</td></tr>
+              <tr><td class="kb">X</td><td>Klemme, Steckdose</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Die Spalte H der Kontakttabelle ist in den Übungen 6 und 7 leer. Das Tool liest sie als «Hauptkontakte»; diese Bedeutung steht nicht ausdrücklich in den Unterlagen.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Schema aus Übung 6: Welche Lampe leuchtet, bevor ein Taster gedrückt wird? Warum?</li>
+          <li>Drücken Sie S21 zweimal. Was macht der Schrittschalter Q21 bei jedem Impuls?</li>
+          <li>Wo liegen die beiden Kontakte von Q21? Vergleichen Sie mit der Kontakttabelle.</li>
+          <li>Beispiel mit zwei Seiten: Welche Einträge der Kontakttabelle von Q11 verweisen auf die Seite 2?</li>
+          <li>Wie müsste eine Signallampe heissen, die auf Seite 3 im Strompfad 4 gezeichnet ist?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Schemazeichnen AAD27.1 (Kennbuchstaben), AAD29.3 (Kontaktbezeichnung) und AAD29.8 (Strompfadnummern).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Schemazeichnen, Kapitel 27 Schaltplanunterlagen: AAD27.1 (Kennbuchstaben), AAD27.3 (Darstellung in Grundstellung)</li><li>Theoriebuch Schemazeichnen, Kapitel 29 Anlagensteuerungen: AAD29.3 (Kontaktbezeichnung), AAD29.8 (Strompfadnummern und Betriebsmittelbezeichnung)</li><li>Arbeitsblätter ID6 Apparate und Leitungen, Teilauftrag 1: Übungen 6 und 7 (ID6.5 und ID6.6)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Stromlaufschema-Bibliothek: Schaltzeichen wie in den Arbeitsblättern 2. Semester (ID6 Übungen 1 bis 7 und folgende) */
+var SLP = (function(){
+"use strict";
+var K = 26, DX = 10.6;
+function n(x){ return Math.round(x * 100) / 100; }
+function P(d, cls, extra){ return "<path class=\"" + (cls || "sl") + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function T(x, y, t, anker, gr, cls){
+  if (t === undefined || t === null || t === "") return "";
+  var c = "sl-t" + (t === "?" ? " q" : "") + (cls ? " " + cls : "");
+  return "<text class=\"" + c + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (gr ? " style=\"font-size:" + gr + "px\"" : "") + ">" + t + "</text>";
+}
+function kl(o){ return "sl" + (o.an ? " an" : "") + (o.hell ? " hell" : ""); }
+/* Hervorhebung hinter einem Schaltzeichen */
+function marke(x, y, w, h){ return "<rect class=\"sl-hl\" x=\"" + n(x) + "\" y=\"" + n(y) + "\" width=\"" + n(w) + "\" height=\"" + n(h) + "\" rx=\"4\"/>"; }
+
+/* Antrieb links vom Schaltstück. xm, ym = Mitte des Schaltstücks. Gibt das Zeichen und die Stelle für den Namen zurück. */
+function antrieb(art, xm, ym, c, xmin){
+  var h = "", xb;
+  if (art === "taster" || art === "schalter"){
+    xb = Math.min(xm - 21, (xmin === undefined ? xm : xmin) - 14);
+    h += P("M" + n(xb + 5) + " " + n(ym - 5) + " H" + n(xb) + " V" + n(ym + 5) + " H" + n(xb + 5), c);
+    if (art === "schalter"){
+      /* rastend: Kerbe in der Wirkverbindung */
+      var k = xb + 9.5;
+      h += P("M" + n(xb + 1) + " " + n(ym) + " H" + n(k - 3), c + " dn") + P("M" + n(k - 3) + " " + n(ym) + " L" + n(k) + " " + n(ym + 2.8) + " L" + n(k + 3) + " " + n(ym), c + " dn") + P("M" + n(k + 4.5) + " " + n(ym) + " H" + n(xm - 1), c + " dn sl-d");
+    } else h += P("M" + n(xb + 1) + " " + n(ym) + " H" + n(xm - 1), c + " dn sl-d");
+    return {svg:h, xn:xb - 3};
+  }
+  if (art === "zeit"){
+    /* abfallverzögert: Halbkreis mit Doppellinie zum Schaltstück */
+    xb = Math.min(xm - 19, (xmin === undefined ? xm : xmin) - 12);
+    h += P("M" + n(xb) + " " + n(ym - 5.5) + " A5.5 5.5 0 0 1 " + n(xb) + " " + n(ym + 5.5), c);
+    h += P("M" + n(xb + 4.9) + " " + n(ym - 2.5) + " H" + n(xm - 0.6) + " M" + n(xb + 4.9) + " " + n(ym + 2.5) + " H" + n(xm + 0.6), c + " dn");
+    return {svg:h, xn:xb - 3};
+  }
+  return {svg:"", xn:(xmin === undefined ? xm : xmin) - 5};
+}
+/* Schliesser: oberer Anschluss (x, y), unterer Anschluss (x, y + K). o: zu, n1, n2, name, antrieb, an, hell */
+function schliesser(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x : x - DX, xm = (x + xt) / 2, ym = y + K / 2;
+  if (o.hell) h += marke(x - DX - 4, y, DX + 8, K);
+  var a = antrieb(o.antrieb, xm, ym, c, x - DX);
+  h += a.svg + P("M" + n(x) + " " + n(y + K) + " L" + n(xt) + " " + n(y + (o.zu ? 0 : 0.8)), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - 3, y + K + 10, o.n2, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Öffner: Querstrich am oberen Anschluss nach rechts, Schaltstück liegt daran an. o.zu = betätigt (geöffnet) */
+function oeffner(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x + 0.74 * K : x + 0.43 * K, yt = o.zu ? y + 0.2 * K : y - 0.08 * K, xm = (x + xt) / 2, ym = y + K / 2;
+  if (o.hell) h += marke(x - 2, y - 4, 0.48 * K + 6, K + 4);
+  var a = antrieb(o.antrieb, xm, ym, c, x);
+  h += a.svg + P("M" + n(x) + " " + n(y) + " H" + n(x + 0.48 * K), c) + P("M" + n(x) + " " + n(y + K) + " L" + n(xt) + " " + n(yt), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - 3, y + K + 10, o.n2, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Wechsler: gemeinsamer Anschluss oben (x, y); unten links (x − K/2, y + K) die Öffnerseite, unten rechts (x + K/2, y + K) die Schliesserseite */
+function wechsler(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x + K / 2 : x - 0.38 * K, yt = o.zu ? y + K : y + 1.09 * K, xm = (x + xt) / 2, ym = y + K * 0.5;
+  if (o.hell) h += marke(x - K / 2 - 2, y, K + 4, K + 3);
+  var a = antrieb(o.antrieb, xm, ym, c, x - 0.2 * K);
+  h += a.svg + P("M" + n(x - K / 2) + " " + n(y + K) + " H" + n(x), c) + P("M" + n(x) + " " + n(y) + " L" + n(xt) + " " + n(yt), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - K / 2 - 2.5, y + K + 11, o.n2, "end") + T(x + K / 2 - 2.5, y + K + 11, o.n3, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Spule: Mitte (x, y). art "" Schütz oder Relais, "schritt" Schrittschalter, "min" Minuterie (abfallverzögert). Anschlüsse bei y − 7,5 und y + 7,5 */
+function spule(x, y, o){
+  o = o || {}; var w = 30, hh = 15, h = "";
+  h += "<rect class=\"sl " + (o.erregt ? "sl-erregt" : "sl-bg") + (o.hell ? " hell" : "") + "\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - hh / 2) + "\" width=\"" + w + "\" height=\"" + hh + "\"/>";
+  if (o.art === "schritt") h += P("M" + n(x - 8) + " " + n(y + 3) + " H" + n(x - 0.5) + " V" + n(y - 3) + " H" + n(x + 8), "sl dn");
+  if (o.art === "min") h += "<rect class=\"sl-f\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - hh / 2) + "\" width=\"" + n(w * 0.31) + "\" height=\"" + hh + "\"/>";
+  h += T(x - 3, y - hh / 2 - 2.5, o.a1 === undefined ? "A1" : o.a1, "end", 8.5) + T(x - 3, y + hh / 2 + 8.5, o.a2 === undefined ? "A2" : o.a2, "end", 8.5) + T(x - w / 2 - 3, y + 3.5, o.name, "end");
+  return h;
+}
+/* Leuchte E: Kreuz auf dem Leiter */
+function lampeE(x, y, o){
+  o = o || {}; var a = 8, h = "";
+  if (o.an) h += "<circle class=\"sl-gl\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"11\"/>";
+  h += P("M" + n(x - a) + " " + n(y - a) + " L" + n(x + a) + " " + n(y + a) + " M" + n(x + a) + " " + n(y - a) + " L" + n(x - a) + " " + n(y + a), "sl");
+  if (o.x12 !== false) h += T(x - 4, y - 10, "X1", "end", 8.5) + T(x - 4, y + 17, "X2", "end", 8.5);
+  return h + T(x - 10, y + 3.5, o.name, "end");
+}
+/* Signallampe P: Kreis mit Kreuz */
+function lampeP(x, y, o){
+  o = o || {}; var r = 8.5, d = r * 0.707, h = "";
+  h += "<circle class=\"sl " + (o.an ? "" : "sl-bg") + "\"" + (o.an ? " style=\"fill:var(--sl-gelb)\"" : "") + " cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>";
+  h += P("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sl dn");
+  if (o.x12 !== false) h += T(x - 4, y - r - 2.5, "X1", "end", 8.5) + T(x - 4, y + r + 9, "X2", "end", 8.5);
+  return h + T(x - r - 3, y + 3.5, o.name, "end");
+}
+/* Strompfadleiste: dünne Linie mit Strichen und Nummern */
+function kopf(x0, x1, y, xs){
+  var h = P("M" + n(x0) + " " + n(y) + " H" + n(x1), "sl dn");
+  xs.forEach(function(x, i){ h += P("M" + n(x) + " " + n(y) + " v9", "sl dn") + T(x - 2.5, y + 9, String(i + 1), "end", 9); });
+  return h;
+}
+/* Sammelleiter mit Pfeilspitzen an beiden Enden */
+function schiene(x0, x1, y, label, an){
+  var c = "sl" + (an ? " an" : "");
+  return P("M" + n(x0) + " " + n(y) + " H" + n(x1) + " M" + n(x0 + 5) + " " + n(y - 3.5) + " L" + n(x0) + " " + n(y) + " L" + n(x0 + 5) + " " + n(y + 3.5) + " M" + n(x1 - 5) + " " + n(y - 3.5) + " L" + n(x1) + " " + n(y) + " L" + n(x1 - 5) + " " + n(y + 3.5), c) + T(x0 + 9, y - 3.5, label, "start", 9);
+}
+/* Kennzeichen des Neutralleiters: Schrägstrich mit Punkt */
+function nMarke(x, y){ return P("M" + n(x - 3.5) + " " + n(y + 6) + " L" + n(x + 3) + " " + n(y - 6), "sl") + "<circle class=\"sl-f\" cx=\"" + n(x + 3.4) + "\" cy=\"" + n(y - 7) + "\" r=\"1.7\"/>"; }
+/* Kontakttabelle unter der Spule: H Hauptkontakte, S Schliesser, Ö Öffner */
+function ktab(x, y, o){
+  o = o || {}; var cw = 19, h = "", z = Math.max((o.H || []).length, (o.S || []).length, (o.O || []).length, 1);
+  h += P("M" + n(x - cw * 1.5) + " " + n(y + 11) + " H" + n(x + cw * 1.5) + " M" + n(x - cw / 2) + " " + n(y) + " V" + n(y + 15 + z * 11) + " M" + n(x + cw / 2) + " " + n(y) + " V" + n(y + 15 + z * 11), "sl dn");
+  [["H", -1, o.H], ["S", 0, o.S], ["Ö", 1, o.O]].forEach(function(s){
+    h += T(x + s[1] * cw, y + 8, s[0], "middle", 9, "b");
+    (s[2] || []).forEach(function(e, i){ h += T(x + s[1] * cw, y + 21 + i * 11, e, "middle", 9.5); });
+  });
+  return h;
+}
+function leiter(d, an){ return P(d, "sl" + (an ? " an" : "")); }
+function punkt(x, y, an){ return "<circle class=\"sl-f\"" + (an ? " style=\"fill:var(--sl-an)\"" : "") + " cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"1.9\"/>"; }
+return {K:K, DX:DX, n:n, P:P, T:T, marke:marke, schliesser:schliesser, oeffner:oeffner, wechsler:wechsler, spule:spule, lampeE:lampeE, lampeP:lampeP, kopf:kopf, schiene:schiene, nMarke:nMarke, ktab:ktab, leiter:leiter, punkt:punkt};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, L = SLP, K = SLP.K;
+var BIS = "–";
+
+/* ===== Schemas: jeder Strompfad hat einen Kontakt und darunter eine Last ===== */
+/* A: Übung 6 (Seite 2 von 2). B1, B2: eigenes Beispiel mit zwei Seiten */
+var SEITEN = {
+  A:{bsp:"A", nr:2, von:2, sp:"230 V / F2", titel:"Schema aus Übung 6", pfade:[
+    {p:1, k:{art:"s", bm:"S21", n:["3", "4"], antrieb:"taster"}, last:{typ:"spule", art:"schritt", bm:"Q21"}},
+    {p:3, k:{art:"s", bm:"Q21", n:["13", "14"]}, last:{typ:"E", bm:"E23"}},
+    {p:5, k:{art:"s", bm:"S25", n:["3", "4"], antrieb:"taster"}, last:{typ:"spule", art:"min", bm:"Q25"}},
+    {p:7, k:{art:"o", bm:"Q21", n:["21", "22"]}, last:{typ:"P", bm:"P27"}},
+    {p:9, k:{art:"s", bm:"Q25", n:["17", "18"], antrieb:"zeit"}, last:{typ:"E", bm:"E29"}}]},
+  B1:{bsp:"B", nr:1, von:2, sp:"230 V / F1", titel:"Beispiel mit zwei Seiten: Seite 1", pfade:[
+    {p:1, k:{art:"s", bm:"S11", n:["3", "4"], antrieb:"taster"}, last:{typ:"spule", art:"schritt", bm:"Q11"}},
+    {p:3, k:{art:"s", bm:"Q11", n:["13", "14"]}, last:{typ:"E", bm:"E13"}},
+    {p:5, k:{art:"s", bm:"S15", n:["3", "4"], antrieb:"schalter"}, last:{typ:"spule", art:"", bm:"Q15"}},
+    {p:7, k:{art:"s", bm:"Q15", n:["13", "14"]}, last:{typ:"E", bm:"E17"}},
+    {p:9, k:{art:"o", bm:"Q15", n:["21", "22"]}, last:{typ:"P", bm:"P19"}}]},
+  B2:{bsp:"B", nr:2, von:2, sp:"230 V / F1", titel:"Beispiel mit zwei Seiten: Seite 2", pfade:[
+    {p:1, k:{art:"s", bm:"Q11", n:["23", "24"]}, last:{typ:"P", bm:"P21"}},
+    {p:3, k:{art:"o", bm:"Q11", n:["31", "32"]}, last:{typ:"P", bm:"P23"}},
+    {p:5, k:{art:"s", bm:"Q15", n:["33", "34"]}, last:{typ:"E", bm:"E25"}}]}
+};
+var REIHE = ["A", "B1", "B2"];
+function seitenVon(bsp){ return REIHE.filter(function(id){ return SEITEN[id].bsp === bsp; }).map(function(id){ return SEITEN[id]; }); }
+/* Kontakttabelle einer Spule über alle Seiten des Beispiels */
+function tabelle(bsp, bm){
+  var t = {S:[], O:[]};
+  seitenVon(bsp).forEach(function(s){ s.pfade.forEach(function(b){ if (b.k.bm === bm) t[b.k.art === "o" ? "O" : "S"].push(String(s.nr) + b.p); }); });
+  return t;
+}
+function spulen(s){ return s.pfade.filter(function(b){ return b.last.typ === "spule"; }).map(function(b){ return b.last.bm; }); }
+function alleSpulen(bsp){ var out = []; seitenVon(bsp).forEach(function(s){ out = out.concat(spulen(s)); }); return out; }
+function artVon(bsp, bm){ var a = null; seitenVon(bsp).forEach(function(s){ s.pfade.forEach(function(b){ if (b.last.bm === bm) a = b.last; if (b.k.bm === bm && bm.charAt(0) === "S") a = b.k; }); }); return a; }
+
+/* ===== Zustand und Logik ===== */
+function neu(){ return {on:{}}; }
+function zu(k, z){ var bet = !!z.on[k.bm]; return k.art === "o" ? !bet : bet; }
+
+/* ===== Zeichnen ===== */
+var XS = [], i;
+for (i = 0; i < 9; i++) XS.push(52 + 32 * i);
+var YR = 30, YK = 46, YL = 150, YN = 180;
+function zeichne(s, z, o){
+  o = o || {}; var fr = o.frage || {}, h = "";
+  h += L.kopf(10, 332, 10, XS) + L.schiene(8, 334, YR, s.sp) + L.schiene(8, 334, YN) + L.nMarke(22, YN);
+  s.pfade.forEach(function(b){
+    var x = XS[b.p - 1], k = b.k, live = zu(k, z), ko, lo, hellK = o.hellBm === k.bm || o.hellPfad === b.p, hellL = o.hellBm === b.last.bm;
+    ko = {zu:!!z.on[k.bm], an:live, hell:hellK, antrieb:k.antrieb, name:fr["bm:" + b.p] ? "?" : k.bm, n1:fr["n:" + b.p] ? "?" : k.n[0], n2:fr["n:" + b.p] ? "?" : k.n[1]};
+    h += L.leiter("M" + x + " " + YR + " V" + YK, live);
+    if (hellL) h += L.marke(x - 19, YL - 13, 38, 26);
+    if (b.last.typ === "spule"){
+      h += L.leiter("M" + x + " " + (YK + K) + " V" + (YL - 7.5) + " M" + x + " " + (YL + 7.5) + " V" + YN, live);
+      h += L.spule(x, YL, {art:b.last.art, name:fr["last:" + b.p] ? "?" : b.last.bm, erregt:!!z.on[b.last.bm]});
+      var t = tabelle(s.bsp, b.last.bm);
+      if (fr["tab:" + b.last.bm]) t = {S:["?"], O:["?"]};
+      h += L.ktab(x, 190, t);
+    } else if (b.last.typ === "E"){
+      h += L.leiter("M" + x + " " + (YK + K) + " V" + YN, live) + L.lampeE(x, YL, {name:fr["last:" + b.p] ? "?" : b.last.bm, an:live});
+    } else {
+      h += L.leiter("M" + x + " " + (YK + K) + " V" + (YL - 8.5) + " M" + x + " " + (YL + 8.5) + " V" + YN, live) + L.lampeP(x, YL, {name:fr["last:" + b.p] ? "?" : b.last.bm, an:live});
+    }
+    h += k.art === "o" ? L.oeffner(x, YK, ko) : L.schliesser(x, YK, ko);
+  });
+  h += L.T(332, 231, "S" + s.nr + "/" + s.von, "end", 9);
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {s:"A", z:{A:neu(), B:neu()}, sel:null, timer:{}};
+var MIN_S = 6;
+function zustand(){ return st.z[SEITEN[st.s].bsp]; }
+/* Spulen nachführen: Schütz folgt dem Kontakt, Schrittschalter wechselt bei jedem Impuls, Minuterie hält nach dem Loslassen noch MIN_S Sekunden */
+function auswerten(bsp, flanke){
+  var z = st.z[bsp];
+  seitenVon(bsp).forEach(function(s){ s.pfade.forEach(function(b){
+    if (b.last.typ !== "spule") return;
+    var live = zu(b.k, z), bm = b.last.bm;
+    if (b.last.art === "") z.on[bm] = live;
+    else if (b.last.art === "schritt"){ if (live && flanke === b.k.bm) z.on[bm] = !z.on[bm]; }
+    else if (b.last.art === "min"){
+      if (live){ z.on[bm] = true; clearTimeout(st.timer[bm]); }
+      else if (z.on[bm] && flanke === "los:" + b.k.bm){
+        clearTimeout(st.timer[bm]);
+        st.timer[bm] = setTimeout(function(){ z.on[bm] = false; render(); }, MIN_S * 1000);
+      }
+    }
+  }); });
+}
+function bediene(bm){
+  var s = SEITEN[st.s], z = zustand(), a = artVon(s.bsp, bm);
+  if (a.antrieb === "schalter"){ z.on[bm] = !z.on[bm]; auswerten(s.bsp, bm); render(); return; }
+  if (z.on[bm]) return;
+  z.on[bm] = true; auswerten(s.bsp, bm); render();
+  setTimeout(function(){ z.on[bm] = false; auswerten(s.bsp, "los:" + bm); render(); }, 700);
+}
+var KB = {S:"S steht für Taster und Schalter", Q:"Q steht für ein Schaltgerät", E:"E steht für eine Leuchte", P:"P steht für eine Meldeleuchte"};
+function erklaere(bm){
+  var s = SEITEN[st.s], buch = bm.charAt(0), seite = bm.charAt(1), pfad = bm.charAt(2), t = "<b>" + bm + ":</b> " + KB[buch] + ". Die 1. Ziffer nennt die Seite " + seite + ", die 2. Ziffer den Strompfad " + pfad + ".";
+  if (buch === "Q"){
+    var tb = tabelle(s.bsp, bm), art = artVon(s.bsp, bm).art;
+    t += " " + (art === "schritt" ? "Die Spule ist ein Schrittschalter (Stufe im Rechteck)." : (art === "min" ? "Die Spule ist eine Minuterie (abfallverzögert, schwarzes Feld)." : "Die Spule gehört zu einem Schütz."));
+    t += " Kontakttabelle: " + (tb.S.length ? "Schliesser in " + tb.S.map(function(e){ return "Seite " + e.charAt(0) + ", Strompfad " + e.charAt(1); }).join(" und ") + ". " : "kein Schliesser. ")
+      + (tb.O.length ? "Öffner in " + tb.O.map(function(e){ return "Seite " + e.charAt(0) + ", Strompfad " + e.charAt(1); }).join(" und ") + "." : "Kein Öffner.");
+  }
+  return t;
+}
+function render(){
+  var s = SEITEN[st.s], z = zustand(), tasten = [], namen = [], leuchten = [];
+  $("wahl").innerHTML = REIHE.map(function(id){ return "<button class=\"opt txt\" type=\"button\" id=\"w-" + id + "\" data-s=\"" + id + "\" aria-pressed=\"" + (id === st.s) + "\">" + SEITEN[id].titel + "</button>"; }).join("");
+  $("wahl-note").textContent = s.bsp === "A" ? "Das Schema ist wie in Übung 6 gezeichnet. Es ist die Seite 2 von 2 der Unterlagen." : "Eigenes Beispiel zum Üben der Verweise zwischen zwei Seiten. Die Zustände gelten für beide Seiten.";
+  $("s-titel").textContent = s.titel;
+  $("schema").innerHTML = zeichne(s, z, {hellBm:st.sel});
+  seitenVon(s.bsp).forEach(function(pg){ pg.pfade.forEach(function(b){ if (b.k.bm.charAt(0) === "S") tasten.push(b.k); }); });
+  $("bedienen").innerHTML = tasten.map(function(k){
+    return "<button class=\"opt txt\" type=\"button\" id=\"b-" + k.bm + "\" data-bm=\"" + k.bm + "\" aria-pressed=\"" + (k.antrieb === "schalter" ? String(!!z.on[k.bm]) : "false") + "\">" + (k.antrieb === "schalter" ? "Schalter " + k.bm + (z.on[k.bm] ? " ausschalten" : " einschalten") : "Taster " + k.bm + " drücken") + "</button>";
+  }).join("") + "<button class=\"opt txt\" type=\"button\" id=\"b-reset\" data-reset=\"1\">Grundstellung</button>";
+  s.pfade.forEach(function(b){ if (namen.indexOf(b.k.bm) < 0) namen.push(b.k.bm); if (namen.indexOf(b.last.bm) < 0) namen.push(b.last.bm); if (b.last.typ !== "spule" && zu(b.k, z)) leuchten.push(b.last.bm); });
+  $("zustand").textContent = (leuchten.length ? "Es leuchtet: " + leuchten.join(", ") + "." : "Auf dieser Seite leuchtet keine Lampe.")
+    + alleSpulen(s.bsp).map(function(q){ return " " + q + (z.on[q] ? " ist angezogen." : " ist abgefallen."); }).join("")
+    + (s.bsp === "A" ? " Die Minuterie hält im Tool " + MIN_S + " Sekunden." : "");
+  if (st.sel && namen.indexOf(st.sel) < 0) st.sel = null;
+  $("bm").innerHTML = namen.map(function(nm){ return "<button class=\"opt\" type=\"button\" id=\"bm-" + nm + "\" data-nm=\"" + nm + "\" aria-pressed=\"" + (nm === st.sel) + "\">" + nm + "</button>"; }).join("");
+  $("erkl").innerHTML = st.sel ? erklaere(st.sel) : "Wählen Sie ein Betriebsmittel. Es wird im Schema hervorgehoben und erklärt.";
+}
+function init(){
+  $("wahl").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-s]"); if (!b) return; st.s = b.getAttribute("data-s"); st.sel = null; render(); var f = $("w-" + st.s); if (f) f.focus(); });
+  $("bedienen").addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    if (b.getAttribute("data-reset")){ var bsp = SEITEN[st.s].bsp; Object.keys(st.timer).forEach(function(k){ clearTimeout(st.timer[k]); }); st.z[bsp] = neu(); render(); return; }
+    bediene(b.getAttribute("data-bm"));
+  });
+  $("bm").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-nm]"); if (!b) return; var nm = b.getAttribute("data-nm"); st.sel = st.sel === nm ? null : nm; render(); var f = $("bm-" + nm); if (f) f.focus(); });
+  render();
+}
+
+/* ================= AUFGABEN ================= */
+function vier(richtig, andere){
+  var out = [richtig], seen = {}; seen[richtig] = 1;
+  andere.forEach(function(x){ if (out.length < 4 && !seen[x]){ seen[x] = 1; out.push(x); } });
+  return shuffle(out);
+}
+function bild(s, z, o){ return "<svg class=\"q-schema\" viewBox=\"0 0 340 236\" role=\"img\" aria-label=\"Stromlaufschema zur Aufgabe\">" + zeichne(s, z || neu(), o) + "</svg>"; }
+var TYPEN = [["S", "ein Taster", "er"], ["Q", "die Spule eines Schützes", "sie"], ["E", "eine Leuchte", "sie"], ["P", "eine Signallampe", "sie"]];
+function qBmk(){
+  var t = pick(TYPEN), s = pick([1, 2, 3]), p, c;
+  do { p = pick([1, 2, 3, 4, 5, 6, 7, 8, 9]); } while (p === s);
+  c = t[0] + s + p;
+  var ander = pick(TYPEN.filter(function(x){ return x !== t; }))[0];
+  return {
+    text: "Auf Seite " + s + " eines Stromlaufschemas steht im Strompfad " + p + " " + t[1] + ". Wie wird " + t[2] + " bezeichnet?",
+    parts: [{label:"Bezeichnung", options:vier(c, shuffle([t[0] + p + s, ander + s + p, t[0] + p, ander + p + s])), correct:c, mono:true}],
+    hint: "Reihenfolge: Kennbuchstabe, Seite, Strompfad.",
+    solution: "<p><b>" + c + "</b></p><p>" + t[0] + " ist der Kennbuchstabe, " + s + " die Seite, " + p + " der Strompfad.</p>"
+  };
+}
+function qWo(){
+  var bst = pick(["S", "Q", "E", "P"]), s = pick([1, 2, 3]), p, bm, c;
+  do { p = pick([1, 2, 3, 4, 5, 6, 7, 8, 9]); } while (p === s);
+  bm = bst + s + p; c = "Seite " + s + ", Strompfad " + p;
+  return {
+    text: "In einer Kontakttabelle oder in einer Stückliste steht das Betriebsmittel " + bm + ". Wo ist es im Stromlaufschema gezeichnet?",
+    parts: [{label:"Ort im Schema", options:vier(c, ["Seite " + p + ", Strompfad " + s, "Seite 1, Strompfad " + s + p, "Seite " + s + ", Klemme " + p]), correct:c}],
+    hint: "Die erste Ziffer nach dem Kennbuchstaben ist die Seite, die zweite der Strompfad.",
+    solution: "<p><b>" + c + "</b></p>"
+  };
+}
+function qTab(){
+  var id = pick(["A", "B1"]), s = SEITEN[id], q = pick(spulen(s)), t = tabelle(s.bsp, q), fr = {};
+  fr["tab:" + q] = true;
+  function txt(a){ return a.length ? a.join(" und ") : "kein Eintrag"; }
+  var cS = txt(t.S), cO = txt(t.O), kn = [];
+  seitenVon(s.bsp).forEach(function(pg){ pg.pfade.forEach(function(b){ if (b.k.bm === q) kn.push(b.k.n[0] + BIS + b.k.n[1]); }); });
+  var falschS = [txt(t.S.map(function(e){ return e.charAt(1) + e.charAt(0); })), kn[0], txt(t.O), "kein Eintrag", q.slice(1)];
+  var falschO = [txt(t.O.map(function(e){ return e.charAt(1) + e.charAt(0); })), kn[kn.length - 1], txt(t.S), "kein Eintrag", q.slice(1)];
+  return {
+    text: (s.bsp === "B" ? "Dieses Schema hat zwei Seiten. Auf Seite 2 liegen im Strompfad 1 ein Schliesser von Q11 (23" + BIS + "24), im Strompfad 3 ein Öffner von Q11 (31" + BIS + "32) und im Strompfad 5 ein Schliesser von Q15 (33" + BIS + "34). " : "") + "Füllen Sie die Kontakttabelle von " + q + " aus." + bild(s, null, {frage:fr, hellBm:q}),
+    parts: [{label:"Spalte S (Schliesser)", options:vier(cS, shuffle(falschS)), correct:cS, mono:true}, {label:"Spalte Ö (Öffner)", options:vier(cO, shuffle(falschO)), correct:cO, mono:true}],
+    hint: "Suchen Sie alle Kontakte mit dem Namen " + q + ". Tragen Sie für jeden Kontakt Seite und Strompfad ein.",
+    solution: "<p>Spalte S: <b>" + cS + "</b> · Spalte Ö: <b>" + cO + "</b></p><p>Jede Zahl nennt Seite und Strompfad eines Kontakts von " + q + ".</p>"
+  };
+}
+function qTabDeuten(){
+  var s = pick([1, 2, 3]), p, q = pick(["Q11", "Q21", "Q15", "Q32"]), art = pick(["S", "Ö"]), c;
+  do { p = pick([1, 2, 3, 4, 5, 6, 7, 8, 9]); } while (p === s);
+  var name = art === "S" ? "Schliesser" : "Öffner";
+  c = "Ein " + name + " von " + q + " liegt auf Seite " + s + " im Strompfad " + p + ".";
+  return {
+    text: "In der Kontakttabelle von " + q + " steht in der Spalte " + art + " die Zahl " + s + p + ". Was bedeutet das?",
+    parts: [{label:"Bedeutung", options:vier(c, ["Ein " + name + " von " + q + " liegt auf Seite " + p + " im Strompfad " + s + ".", "Der " + name + " von " + q + " hat die Anschlüsse " + s + p + " und " + s + (p + 1) + ".", q + " hat " + s + p + " " + name + "."]), correct:c}],
+    hint: "Die Kontakttabelle sagt, wo die Kontakte einer Spule im Schema zu finden sind.",
+    solution: "<p><b>" + c + "</b></p>"
+  };
+}
+function qGleich(){
+  var s = pick([1, 2]), p = pick([1, 3, 5]), c = "S" + s + p + ".1 und S" + s + p + ".2";
+  return {
+    text: "Auf Seite " + s + " sitzen im Strompfad " + p + " zwei Taster untereinander: oben der Aus-Taster, unten der Ein-Taster. Wie werden sie bezeichnet?",
+    parts: [{label:"Bezeichnung", options:vier(c, ["S" + s + p + " und S" + s + (p + 1), "S" + p + s + ".1 und S" + p + s + ".2", "S1 und S2", "S" + s + p + "a und S" + s + p + "b"]), correct:c, mono:true}],
+    hint: "Mehrere gleiche Betriebsmittel im selben Strompfad erhalten nach einem Punkt eine Laufnummer.",
+    solution: "<p><b>" + c + "</b></p><p>Beide Taster liegen im selben Strompfad. Sie werden mit .1 und .2 unterschieden (AAD29.8, Arbeitsblatt Übung 7).</p>"
+  };
+}
+function qKontakt(){
+  var id = pick(["A", "B1"]), s = SEITEN[id], kand = s.pfade.filter(function(b){ return b.k.bm.charAt(0) === "Q"; }), b = pick(kand), fr = {};
+  fr["bm:" + b.p] = true; fr["n:" + b.p] = true;
+  var c1 = b.k.bm, c2 = b.k.art === "o" ? "Öffner" : "Schliesser", q = spulen(s);
+  return {
+    text: "Zu welcher Spule gehört der hervorgehobene Kontakt im Strompfad " + b.p + "? Nutzen Sie die Kontakttabellen." + bild(s, null, {frage:fr, hellPfad:b.p}),
+    parts: [{label:"Spule", options:q.concat(["S" + s.nr + "1"]).sort(), correct:c1, mono:true}, {label:"Kontaktart", options:["Schliesser", "Öffner"], correct:c2}],
+    hint: "Suchen Sie in den Kontakttabellen die Zahl " + s.nr + b.p + ". Die Spalte zeigt die Kontaktart.",
+    solution: "<p><b>" + c1 + ", " + c2 + "</b></p><p>In der Kontakttabelle von " + c1 + " steht " + s.nr + b.p + " in der Spalte " + (b.k.art === "o" ? "Ö" : "S") + ". Die Anschlüsse sind " + b.k.n[0] + " und " + b.k.n[1] + ".</p>"
+  };
+}
+var FKT = [
+  {t:"Die Spannung liegt an, noch kein Taster wurde gedrückt.", c:["P27"], e:"Q21 ist abgefallen. Der Öffner 21" + BIS + "22 ist geschlossen, also leuchtet P27."},
+  {t:"Der Taster S21 wurde einmal gedrückt und wieder losgelassen.", c:["E23"], e:"Der Schrittschalter Q21 hat umgeschaltet: Der Schliesser 13" + BIS + "14 ist geschlossen (E23 leuchtet), der Öffner 21" + BIS + "22 ist offen (P27 ist dunkel)."},
+  {t:"Der Taster S21 wurde zweimal gedrückt.", c:["P27"], e:"Der zweite Impuls schaltet Q21 wieder aus. Es gilt wieder die Grundstellung."},
+  {t:"Der Taster S25 wurde soeben gedrückt, S21 noch nie.", c:["P27", "E29"], e:"Die Minuterie Q25 zieht an und schliesst 17" + BIS + "18: E29 leuchtet für die eingestellte Zeit. P27 leuchtet weiter, weil Q21 abgefallen ist."},
+  {t:"S21 wurde einmal gedrückt, danach S25. Die Zeit der Minuterie läuft noch.", c:["E23", "E29"], e:"Q21 ist angezogen (E23 leuchtet, P27 dunkel). Q25 ist angezogen (E29 leuchtet)."}
+];
+function qFunktion(){
+  var f = pick(FKT);
+  return {
+    text: "Schema aus Übung 6. " + f.t + " Welche Lampen leuchten?" + bild(SEITEN.A, null, {}),
+    parts: [{label:"Leuchtende Lampen", type:"multi", options:["E23", "P27", "E29"], correct:f.c, mono:true}],
+    hint: "Q21 ist ein Schrittschalter: Jeder Impuls wechselt den Zustand. Achten Sie auf den Öffner im Strompfad 7.",
+    solution: "<p><b>" + f.c.join(", ") + "</b></p><p>" + f.e + "</p>"
+  };
+}
+var BUCH = [["einem Taster", "S"], ["einer Leuchte", "E"], ["einer Meldeleuchte (Signallampe)", "P"], ["einer Sicherung oder einem LS-Schalter", "F"], ["einem Transformator", "T"], ["einer Klemme", "X"]];
+function qBuchstabe(){
+  var b = pick(BUCH), rest = shuffle(BUCH.filter(function(x){ return x !== b; }).map(function(x){ return x[1]; }));
+  return {
+    text: "Welcher Kennbuchstabe gehört zu " + b[0] + "?",
+    parts: [{label:"Kennbuchstabe", options:vier(b[1], rest), correct:b[1], mono:true}],
+    hint: "Die Tabelle der Kennbuchstaben steht im Theoriebuch auf AAD27.1.",
+    solution: "<p><b>" + b[1] + "</b></p><p>Der Kennbuchstabe gibt Auskunft über die Art und Funktion des Betriebsmittels (AAD27.1).</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.18) return qBmk();
+  if (x < 0.30) return qWo();
+  if (x < 0.46) return qTab();
+  if (x < 0.56) return qTabDeuten();
+  if (x < 0.64) return qGleich();
+  if (x < 0.78) return qKontakt();
+  if (x < 0.92) return qFunktion();
+  return qBuchstabe();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qBmk, qWo, qTab, qTabDeuten, qGleich, qKontakt, qFunktion, qBuchstabe]); }});
+})();
+
+</script>
+</body>
+</html>

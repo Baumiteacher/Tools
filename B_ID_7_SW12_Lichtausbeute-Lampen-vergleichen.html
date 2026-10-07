@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA4 Lichtausbeute: Lampen vergleichen BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.rechnung .zw{font-weight:700;color:var(--muted);font-size:.86rem;line-height:1.3;margin-top:4px}
+.r-slider{display:grid;grid-template-columns:8.8em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.nw{white-space:nowrap}
+.urteil{font-weight:700;border-left:4px solid var(--accent);padding:2px 0 2px 10px}
+.luecke{display:inline-block;min-width:4.5em;border-bottom:2px solid var(--accent);text-align:center;font-weight:700;color:var(--accent)}
+:root{--c-phi:#C98A00;--c-eta:#0B8A45}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--c-phi:#F2C14A;--c-eta:#5FD990} }
+:root[data-theme="dark"]{--c-phi:#F2C14A;--c-eta:#5FD990}
+.lampen{display:flex;flex-direction:column;gap:12px}
+.lampe{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.lampe.best{border-color:var(--c-eta);box-shadow:inset 0 0 0 1px var(--c-eta)}
+.lampe h3{margin:0;font-size:1rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lampe .punkt{width:12px;height:12px;border-radius:50%;flex:none;border:1px solid var(--line)}
+.lampe .daten{font-size:.88rem;color:var(--muted)}
+.zeile{display:grid;grid-template-columns:5.6em 1fr 6.2em;gap:8px;align-items:center;font-size:.86rem;font-variant-numeric:tabular-nums}
+.zeile .bk{height:12px;border-radius:6px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.zeile .bk span{display:block;height:100%}
+.zeile .bk.phi span{background:var(--c-phi)} .zeile .bk.eta span{background:var(--c-eta)}
+.zeile b{text-align:right;font-weight:700}
+.marke{font-size:.75rem;font-weight:700;border-radius:999px;padding:1px 8px;border:1px solid var(--line)}
+.marke.eta{border-color:var(--c-eta);color:var(--c-eta)} .marke.phi{border-color:var(--c-phi);color:var(--c-phi)}
+.kl{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.5em;padding:0 .35em;border-radius:4px;font-weight:700;color:#111;font-size:.9rem}
+.kl-A{background:#00A651;color:#fff} .kl-B{background:#4CB848} .kl-C{background:#BFD730} .kl-D{background:#FFF200} .kl-E{background:#FDB913} .kl-F{background:#F37021} .kl-G{background:#ED1C24;color:#fff}
+.skala{display:flex;flex-direction:column;gap:4px}
+.skala .st{display:grid;grid-template-columns:7.6em 1fr;gap:8px;align-items:start;font-size:.86rem;font-variant-numeric:tabular-nums;min-width:0}
+.skala .balk{height:1.5em;border-radius:4px 0 0 4px;display:flex;align-items:center;padding-left:8px;font-weight:700;color:#111;clip-path:polygon(0 0,calc(100% - .75em) 0,100% 50%,calc(100% - .75em) 100%,0 100%)}
+.skala .balk.kl-A,.skala .balk.kl-G{color:#fff}
+.skala .wer{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;min-width:0}
+.skala .wer span{font-size:.75rem;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:0 7px}
+.skala .wer span.ber{font-size:.86rem;font-weight:400;border:0;padding:0;margin-right:4px}
+.q-tab{border-collapse:collapse;font-size:.86rem;margin-top:8px;font-variant-numeric:tabular-nums}
+.q-tab td{border:1px solid var(--line);padding:2px 7px;text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 4</p>
+    <h1>Lichtausbeute: Lampen vergleichen BAP</h1>
+    <p class="lead">Wie viele Lumen erzeugt eine Lampe aus jedem Watt? Berechnen Sie die Lichtausbeute, vergleichen Sie Leuchtmittel und begründen Sie Ihre Empfehlung mit Zahlen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Lampen wählen</legend>
+          <div class="opts" id="satz">
+            <button class="opt txt" type="button" data-s="u49" aria-pressed="true">Übung 49: zwei LED-Lampen</button>
+            <button class="opt txt" type="button" data-s="u46" aria-pressed="false">Übung 46: drei Leuchtmittel</button>
+            <button class="opt txt" type="button" data-s="tb" aria-pressed="false">Tabelle im Theoriebuch</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Eigene Lampe dazu einstellen</legend>
+          <div class="plain">
+            <label class="r-slider" for="s-phi"><span class="num" id="v-s-phi"></span><input type="range" id="s-phi" min="100" max="6000" step="20" value="800"></label>
+            <label class="r-slider" for="s-p"><span class="num" id="v-s-p"></span><input type="range" id="s-p" min="1" max="100" step="0.5" value="60"></label>
+          </div>
+          <p class="note">Voreinstellung der eigenen Lampe: 60 W und 800 lm. Auf den Verpackungen von Übung 49 steht, dass die LED-Lampen eine 60-W-Lampe ersetzen.</p>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Vergleich</h2>
+        <div class="lampen" id="lampen"></div>
+        <p class="urteil" id="fazit"></p>
+        <p class="note">Gelb: Lichtstrom <i>Φ</i> (wie viel Licht). Grün: Lichtausbeute <i>η</i><sub>L</sub> (wie viel Licht pro Watt). Die Balken sind auf den grössten Wert der Auswahl bezogen.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Energieeffizienzklasse ohne Korrekturfaktoren</h2>
+        <div class="skala" id="skala"></div>
+        <p class="note" id="k-note"></p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Der Lichtstrom <i>Φ</i> beschreibt die gesamte von einer Lichtquelle in alle Richtungen abgestrahlte Lichtleistung. Einheit: Lumen (lm). Der Wert steht auf der Verpackung (Theoriebuch ET10.2).</p>
+          <p id="merk-formel"></p>
+          <p>Die Lichtausbeute gibt an, wie viele Lumen jedes Watt erzeugt. Sie dient zum Vergleich der Energieeffizienz verschiedener Lichtquellen (Übung 45).</p>
+          <p>Um die Energieeffizienz einer Lampe zu berechnen, teilt man den abgegebenen Lichtstrom durch die aufgenommene elektrische Leistung. Diese einfache Berechnung gilt für Leuchtmittel ohne Korrekturfaktoren (Übung 44).</p>
+          <p>Die Energieetikette hat eine Skala von A bis G und nennt den Energieverbrauch in kWh pro 1000 Stunden (Theoriebuch ET10.8).</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Übung 49: Welche Lampe erzeugt mehr Licht, und welche arbeitet energieeffizienter?</li>
+          <li>Welche Lampe empfehlen Sie Frau Bachmann? Begründen Sie mit den zwei Lichtausbeuten.</li>
+          <li>Stellen Sie die eigene Lampe auf 60 W und 800 lm. Wie viel mal grösser ist die Lichtausbeute der LED-Lampen von Übung 49?</li>
+          <li>Übung 46: Welches Leuchtmittel hat die grösste Lichtausbeute, obwohl es am wenigsten Licht abgibt?</li>
+          <li>Theoriebuch: Wie viele Watt braucht die LED-Lampe 3 für 3375 lm, und wie viele Glühlampen zu 100 W wären für gleich viel Licht nötig?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET10.2 (Lichtstrom, Lichtausbeute) und ET10.8 (Energieetikette).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 4 Energielabel: Übungen 44 bis 47 und 49 (ID7.18 und ID7.19)</li><li>Theoriebuch Elektrotechnik, Kapitel 10 Lichttechnik: ET10.2 (Lichtstrom, Lichtausbeute, Tabelle der Lampen) und ET10.8 (Energieverbrauch und Energieetikette). Die Kopfzeile des Kapitels trägt die Seitennummern 9.2 und 9.8; das Arbeitsblatt nennt für die Energieetikette die Seite ET10.9.</li><li>Klassengrenzen A bis G in Lumen pro Watt und Faktor 1,176 für gebündeltes Licht: EU-Verordnung zur Energieverbrauchskennzeichnung von Lichtquellen (Nummer 2015 aus dem Jahr 2019), Anhang II (Recherche, nicht aus dem Theoriebuch). Das Tool rechnet die Klasse ohne Korrekturfaktoren.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = String.fromCharCode(160), MAL = " · ";
+var LMW = F("lm", "W"), ETA = "<i>η</i><sub>L</sub>", PHI = "<i>Φ</i>";
+function num(x, sig){ return fmt(round(x, sig || 3)); }
+function gl(x, sig){ return Math.abs(round(x, sig || 3) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+function lm(x){ return num(x, 4) + NB + "lm"; }
+function wt(x){ return num(x, 4) + NB + "W"; }
+function eta(x){ return "<span class=\"nw\">" + num(x) + NB + LMW + "</span>"; }
+function kwh(x){ return num(x, 4) + NB + "kWh"; }
+/* Klassengrenzen der EU-Verordnung Nummer 2015 aus dem Jahr 2019, Anhang II, in lm pro W; hier ohne Korrekturfaktoren angewendet */
+var KL = [["A", 210], ["B", 185], ["C", 160], ["D", 135], ["E", 110], ["F", 85], ["G", 0]];
+function klasse(e){ for (var i = 0; i < KL.length; i++) if (e >= KL[i][1]) return KL[i][0]; return "G"; }
+function bereich(i){ return i === 0 ? "ab 210" : i === KL.length - 1 ? "unter 85" : KL[i][1] + " bis unter " + KL[i - 1][1]; }
+function chip(k){ return "<span class=\"kl kl-" + k + "\">" + k + "</span>"; }
+function wegEta(phi, p){ var e = phi / p; return ETA + " = " + F(PHI, "<i>P</i>") + " = " + F(lm(phi), wt(p)) + " <span class=\"nw\">" + gl(e) + " <b>" + num(e) + NB + LMW + "</b></span>"; }
+window.__t = {klasse:klasse};
+
+/* ================= ERKUNDEN ================= */
+var SATZ = {
+  u49:[{n:"Violette Lampe", s:"Die violette Lampe", d:"LED, ersetzt 60 W", phi:840, p:7, f:"#8E2A8B"}, {n:"Grüne Lampe", s:"Die grüne Lampe", d:"LED, ersetzt 60 W", phi:600, p:4, f:"#3FA535"}],
+  u46:[{n:"Leuchtmittel 1", d:"LED-Spot, 230 V", phi:376, p:2.1, f:"#9AA6B2", u47:"A"}, {n:"Leuchtmittel 2", d:"LED-Streifen, 24 V", phi:2380, p:17, f:"#E8B923", u47:"D"}, {n:"Leuchtmittel 3", d:"LED-Strahler, 230 V", phi:5000, p:50, f:"#2B2B2B", u47:"E"}],
+  tb:[{n:"Glühlampe 230 V", s:"Die Glühlampe", d:"früher", phi:1380, p:100, f:"#F6D13A"}, {n:"LED-Lampe 1", s:"Die LED-Lampe 1", d:"", phi:800, p:6, f:"#7FB0DD"}, {n:"LED-Lampe 2", s:"Die LED-Lampe 2", d:"", phi:1521, p:10.5, f:"#4F86B8"}, {n:"LED-Lampe 3", s:"Die LED-Lampe 3", d:"", phi:3375, p:15, f:"#2B3E66"}]
+};
+var st = {satz:"u49", phi:800, p:60};
+function liste(){ return SATZ[st.satz].concat([{n:"Eigene Lampe", s:"Die eigene Lampe", d:"einstellbar", phi:st.phi, p:st.p, f:"transparent", eigen:true}]); }
+function render(){
+  var L = liste(), maxPhi = 0, maxEta = 0, h = "", r = "", bestE = null, bestP = null;
+  L.forEach(function(l){ l.eta = l.phi / l.p; l.kl = klasse(l.eta); if (l.phi > maxPhi){ maxPhi = l.phi; bestP = l; } if (l.eta > maxEta){ maxEta = l.eta; bestE = l; } });
+  Array.prototype.forEach.call($("satz").querySelectorAll("button"), function(b){ b.setAttribute("aria-pressed", String(b.getAttribute("data-s") === st.satz)); });
+  $("v-s-phi").innerHTML = PHI + " = " + lm(st.phi); $("v-s-p").innerHTML = "<i>P</i> = " + wt(st.p);
+  L.forEach(function(l){
+    h += "<div class=\"lampe" + (l === bestE ? " best" : "") + "\"><h3><span class=\"punkt\" style=\"background:" + l.f + "\"></span>" + l.n + " " + chip(l.kl) + (l === bestE ? " <span class=\"marke eta\">grösste Lichtausbeute</span>" : "") + (l === bestP ? " <span class=\"marke phi\">am meisten Licht</span>" : "") + "</h3>";
+    h += "<p class=\"daten\">" + (l.d ? l.d + " · " : "") + "Leistung " + wt(l.p) + " · Energie in 1000 h: " + kwh(l.p) + "</p>";
+    h += "<div class=\"zeile\"><span>" + PHI + "</span><span class=\"bk phi\"><span style=\"width:" + (l.phi / maxPhi * 100).toFixed(1) + "%\"></span></span><b>" + lm(l.phi) + "</b></div>";
+    h += "<div class=\"zeile\"><span>" + ETA + "</span><span class=\"bk eta\"><span style=\"width:" + (l.eta / maxEta * 100).toFixed(1) + "%\"></span></span><b>" + num(l.eta) + NB + LMW + "</b></div></div>";
+    r += "<span class=\"zw\">" + l.n + "</span><span>" + wegEta(l.phi, l.p) + "</span>";
+  });
+  $("lampen").innerHTML = h; $("rechnung").innerHTML = r;
+  $("fazit").innerHTML = bestE === bestP ? (bestE.s || bestE.n) + " erzeugt am meisten Licht (" + lm(bestE.phi) + ") und erreicht mit " + eta(bestE.eta) + " auch die grösste Lichtausbeute."
+    : (bestP.s || bestP.n) + " erzeugt am meisten Licht (" + lm(bestP.phi) + "). " + (bestE.s || bestE.n) + " erreicht jedoch mit " + eta(bestE.eta) + " die grösste Lichtausbeute und arbeitet somit am energieeffizientesten.";
+  $("skala").innerHTML = KL.map(function(k, i){
+    var wer = L.filter(function(l){ return l.kl === k[0]; }).map(function(l){ return "<span>" + l.n + ": " + num(l.eta) + "</span>"; }).join("");
+    return "<div class=\"st\"><span class=\"balk kl-" + k[0] + "\" style=\"width:" + (3 + i * 0.7) + "em\">" + k[0] + "</span><span class=\"wer\"><span class=\"ber\">" + bereich(i) + "</span>" + wer + "</span></div>";
+  }).join("");
+  $("k-note").innerHTML = "Zahlen: Lichtausbeute in " + LMW + ". Klassengrenzen der EU-Verordnung zur Energieetikette von Lichtquellen, hier ohne Korrekturfaktoren angewendet."
+    + (st.satz === "u46" ? " Das Berechnungstool von Übung 47 rechnet mit Korrekturfaktoren und erhält A, D und E. Beispiel: Für gebündeltes Licht gilt der Faktor 1,176. Leuchtmittel 1: 179" + MAL + "1,176 ≈ 211, das ergibt Klasse A. Leuchtmittel 3: 100" + MAL + "1,176 ≈ 118, das ergibt Klasse E." : " Die Klasse auf einer echten Energieetikette kann abweichen, weil dort Korrekturfaktoren dazukommen (Übung 47).");
+}
+function init(){
+  $("merk-formel").innerHTML = "Lichtausbeute: " + ETA + " = " + F(PHI, "<i>P</i>") + " mit " + ETA + " in " + LMW + ", " + PHI + " in lm und <i>P</i> in W (Theoriebuch ET10.2).";
+  $("satz").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-s]"); if (!b) return; st.satz = b.getAttribute("data-s"); render(); });
+  $("s-phi").addEventListener("input", function(){ st.phi = Number($("s-phi").value); render(); });
+  $("s-p").addEventListener("input", function(){ st.p = Number($("s-p").value); render(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 44 bis 47 und 49) ================= */
+function optionen(c, cands, show){
+  var out = [c], seen = {}; seen[show(c)] = 1;
+  shuffle(cands).concat([c * 2, c / 2, c * 1.5, c * 4, c / 4, c * 10]).forEach(function(x){ if (out.length < 4 && x > 0 && isFinite(x)){ var t = show(x); if (!seen[t]){ seen[t] = 1; out.push(x); } } });
+  return out.sort(function(a, b){ return a - b; });
+}
+/* Leuchtmittel mit glatten Werten: [Leistung in W, Lichtausbeute in lm pro W] */
+var ARTEN = [["LED-Spot", [2.1, 3, 4.5, 5], [80, 90, 100, 120, 179]], ["LED-Lampe", [4, 6, 7, 8.5, 10.5, 13], [100, 120, 133, 150, 160, 200]], ["LED-Streifen", [12, 17, 24], [100, 125, 140]], ["LED-Strahler", [20, 30, 50, 100], [100, 110, 120, 150]], ["Halogenlampe", [28, 42, 53, 70], [12, 15, 18, 20]], ["Glühlampe", [40, 60, 75, 100], [10, 12, 13.8]]];
+function leuchtmittel(){ var a = pick(ARTEN), p = pick(a[1]), e = pick(a[2]), phi = Math.round(p * e); return {art:a[0], p:p, phi:phi, eta:phi / p}; }
+function artikel(a){ return a === "Halogenlampe" || a === "Glühlampe" || a === "LED-Lampe" ? "Eine " + a : "Ein " + a; }
+function qEta(){
+  var l = leuchtmittel();
+  return {
+    text: artikel(l.art) + " hat die Leistung " + wt(l.p) + " und den Lichtstrom " + lm(l.phi) + ". Berechnen Sie die Lichtausbeute mit der allgemeinen Formel.",
+    parts: [{label:"Lichtausbeute " + ETA, options:optionen(l.eta, [l.p / l.phi * 1000, l.phi * l.p / 100, l.eta * 1.2, l.eta / 1.25, l.eta + 15], eta), correct:l.eta, mono:true, show:eta}],
+    hint: "Lichtstrom durch Leistung: " + ETA + " = " + F(PHI, "<i>P</i>") + ".",
+    solution: "<p>" + wegEta(l.phi, l.p) + "</p>"
+  };
+}
+var FARBEN = [["violette", "grüne"], ["blaue", "rote"], ["gelbe", "weisse"], ["erste", "zweite"]];
+var MEHR = "erzeugt mehr Licht", EFF = "arbeitet energieeffizienter";
+function qVergleich(){
+  var f = pick(FARBEN), a, b, k = 0;
+  do {
+    var pa = pick([5, 6, 7, 8, 9, 10]), ea = pick([90, 100, 110, 120, 130]), pb = pick([3, 4, 4.5, 5, 6]), eb = pick([120, 140, 150, 160, 180, 200]);
+    a = {p:pa, phi:pa * ea, eta:ea}; b = {p:pb, phi:Math.round(pb * eb), eta:Math.round(pb * eb) / pb}; k++;
+  } while ((Math.abs(a.eta - b.eta) < 8 || a.phi === b.phi) && k < 100);
+  if (Math.random() < 0.5){ var t = a; a = b; b = t; }
+  var nA = "Die " + f[0] + " Lampe", nB = "Die " + f[1] + " Lampe", best = a.eta > b.eta ? nA : nB, hell = a.phi > b.phi ? nA : nB;
+  return {
+    text: "Frau Bachmann vergleicht im Onlineshop zwei LED-Lampen. " + nA + ": " + wt(a.p) + ", " + lm(a.phi) + ". " + nB + ": " + wt(b.p) + ", " + lm(b.phi) + ". Berechnen Sie die zwei Lichtausbeuten und beurteilen Sie.",
+    parts: [
+      {label:ETA + " der " + f[0] + "n Lampe", options:optionen(a.eta, [b.eta, a.phi / b.p, a.eta * 1.25, a.eta / 1.2], eta), correct:a.eta, mono:true, show:eta},
+      {label:ETA + " der " + f[1] + "n Lampe", options:optionen(b.eta, [a.eta, b.phi / a.p, b.eta * 1.25, b.eta / 1.2], eta), correct:b.eta, mono:true, show:eta},
+      {label:"Welche Lampe erzeugt mehr Licht?", options:[nA, nB], correct:hell, mono:false},
+      {label:"Welche Lampe arbeitet energieeffizienter?", options:[nA, nB], correct:best, mono:false}
+    ],
+    hint: "Mehr Licht bedeutet: grösserer Lichtstrom in Lumen. Energieeffizienter bedeutet: grössere Lichtausbeute in Lumen pro Watt.",
+    solution: "<p>" + nA + ": " + wegEta(a.phi, a.p) + "</p><p>" + nB + ": " + wegEta(b.phi, b.p) + "</p><p><b>" + hell + "</b> erzeugt mehr Licht (" + lm(Math.max(a.phi, b.phi)) + " statt " + lm(Math.min(a.phi, b.phi)) + "). <b>" + best + "</b> hat die höhere Lichtausbeute und arbeitet somit energieeffizienter.</p>"
+  };
+}
+function qPhi(){
+  var p = pick([4, 6, 8, 10, 12, 15, 20, 30]), e = pick([100, 110, 120, 125, 140, 150, 160, 200]), phi = p * e;
+  return {
+    text: "Ein LED-Leuchtmittel nimmt " + wt(p) + " auf und hat eine Lichtausbeute von " + eta(e) + ". Welchen Lichtstrom gibt es ab?",
+    parts: [{label:"Lichtstrom " + PHI, options:optionen(phi, [e / p, e + p, phi / 10, phi * 1.2, e], lm), correct:phi, mono:true, show:lm}],
+    hint: "Formel nach dem Lichtstrom umstellen: " + PHI + " = " + ETA + MAL + "<i>P</i>.",
+    solution: "<p>" + PHI + " = " + ETA + MAL + "<i>P</i> = " + eta(e) + MAL + wt(p) + " = <b>" + lm(phi) + "</b></p>"
+  };
+}
+function qP(){
+  var p = pick([4, 5, 6, 8, 10, 12, 15, 20, 25, 40]), e = pick([100, 120, 125, 140, 150, 160, 200]), phi = p * e;
+  return {
+    text: "Ein Raum braucht ein Leuchtmittel mit einem Lichtstrom von " + lm(phi) + ". Das gewählte LED-Leuchtmittel hat eine Lichtausbeute von " + eta(e) + ". Welche Leistung nimmt es auf?",
+    parts: [{label:"Leistung <i>P</i>", options:optionen(p, [e / (phi / 100), p * 1.5, p + 3, phi / 1000 * e / 10, p / 2], wt), correct:p, mono:true, show:wt}],
+    hint: "Formel nach der Leistung umstellen: <i>P</i> = " + F(PHI, ETA) + ".",
+    solution: "<p><i>P</i> = " + F(PHI, ETA) + " = " + F(lm(phi), eta(e)) + " = <b>" + wt(p) + "</b></p>"
+  };
+}
+var BEGR = ["Lichtstrom", "Leistung", "Spannung", "Beleuchtungsstärke"];
+var LUECKEN = [
+  {a:"Um die Energieeffizienz einer Lampe zu berechnen, teilt man den abgegebenen ", b:" durch die aufgenommene elektrische Leistung.", c:"Lichtstrom"},
+  {a:"Um die Energieeffizienz einer Lampe zu berechnen, teilt man den abgegebenen Lichtstrom durch die aufgenommene elektrische ", b:".", c:"Leistung"},
+  {a:"Die Lichtausbeute beschreibt das Verhältnis von ", b:" (lm) zur aufgenommenen Leistung (W).", c:"Lichtstrom"},
+  {a:"Die Lichtausbeute beschreibt das Verhältnis von Lichtstrom (lm) zur aufgenommenen ", b:" (W).", c:"Leistung"}
+];
+function qLuecke(){
+  var q = pick(LUECKEN);
+  return {
+    text: "Ergänzen Sie den Satz mit dem passenden Fachbegriff:<br>" + q.a + "<span class=\"luecke\">?</span>" + q.b,
+    parts: [{label:"Fachbegriff", options:BEGR, correct:q.c, mono:false}],
+    hint: "Die Einheit der Lichtausbeute ist Lumen pro Watt: Oben steht, was in Lumen gemessen wird, unten, was in Watt gemessen wird.",
+    solution: "<p>" + q.a + "<b>" + q.c + "</b>" + q.b + "</p><p>Übungen 44 und 45.</p>"
+  };
+}
+var WISSEN = [
+  ["Wie ist die Lichtausbeute definiert?", ["Als Verhältnis von Lichtstrom (lm) zur aufgenommenen Leistung (W)", "Als Verhältnis von aufgenommener Leistung (W) zum Lichtstrom (lm)", "Als Produkt aus Lichtstrom und Leistung", "Als Verhältnis von Spannung zu Strom"], "Übung 45 a."],
+  ["Weshalb ist die Kenntnis der Lichtausbeute bei der Auswahl von Leuchtmitteln wichtig?", ["Sie dient zum Vergleich der Energieeffizienz verschiedener Lichtquellen.", "Sie gibt an, wie lange ein Leuchtmittel hält.", "Sie gibt die Lichtfarbe eines Leuchtmittels an.", "Sie bestimmt den Sockel des Leuchtmittels."], "Übung 45 b."],
+  ["Was beschreibt der Lichtstrom?", ["Die gesamte von einer Lichtquelle in alle Richtungen abgestrahlte Lichtleistung", "Den Strom, der durch die Lampe fliesst", "Die Helligkeit auf der Arbeitsfläche", "Die aufgenommene elektrische Leistung"], "Theoriebuch ET10.2, Lichtstrom."],
+  ["In welcher Einheit wird der Lichtstrom angegeben?", ["Lumen (lm)", "Lux (lx)", "Watt (W)", "Candela (cd)"], "Theoriebuch ET10.2."],
+  ["In welcher Einheit wird die Lichtausbeute angegeben?", ["Lumen pro Watt", "Watt pro Lumen", "Lumen", "Lux pro Watt"], "Theoriebuch ET10.2: Die Lichtausbeute gibt an, wie viele Lumen jedes Watt erzeugt."],
+  ["Wo finden Sie den Lichtstrom einer LED-Lampe am einfachsten?", ["Auf der Verpackung: Dort ist der Wert in Lumen angegeben.", "Auf dem Sicherungsautomaten", "Im Installationsplan", "Er lässt sich nur im Labor messen."], "Theoriebuch ET10.2."],
+  ["Weshalb wird die zugeführte elektrische Energie nicht vollständig in sichtbares Licht umgewandelt?", ["Ein erheblicher Anteil wird als Wärme abgegeben.", "Ein Teil fliesst über den Schutzleiter ab.", "Die Spannung ist zu klein.", "Der Lichtstrom wird in der Leitung gespeichert."], "Theoriebuch ET10.2, Lichtausbeute."],
+  ["Welche Skala hat die Energieetikette für Lichtquellen seit dem 1. September 2021?", ["A bis G", "A+++ bis D", "1 bis 10", "A++ bis E"], "Theoriebuch ET10.8."],
+  ["Welche Angabe zum Verbrauch steht auf der Energieetikette einer Lichtquelle?", ["Der Energieverbrauch in kWh pro 1000 Stunden", "Der Energieverbrauch in kWh pro Jahr", "Die Stromstärke in Ampere", "Der Lichtstrom pro Quadratmeter"], "Theoriebuch ET10.8."],
+  ["Für welche Leuchtmittel gilt die einfache Berechnung «Lichtstrom durch Leistung» als Mass für die Energieeffizienz?", ["Für Leuchtmittel ohne Korrekturfaktoren", "Nur für Glühlampen", "Nur für Leuchtmittel mit 24 V", "Nur für gebündeltes Licht"], "Übung 44."],
+  ["Was berücksichtigt das Berechnungstool für das Energielabel zusätzlich zur Lichtausbeute?", ["Korrekturfaktoren, zum Beispiel für gebündeltes oder ungebündeltes Licht und für Verluste von Transformatoren oder LED-Treibern", "Den Preis des Leuchtmittels", "Die Länge der Zuleitung", "Die Farbe der Verpackung"], "Übung 47, Hinweis."]
+];
+function qWissen(){ var q = pick(WISSEN); return { text:q[0], parts:[{label:"Antwort", options:shuffle(q[1]), correct:q[1][0], mono:false}], hint:"Lesen Sie die Merksätze zu Lichtstrom, Lichtausbeute und Energieetikette.", solution:"<p><b>" + q[1][0] + "</b></p><p>" + q[2] + "</p>" }; }
+function tabelle(){ return "<table class=\"q-tab\"><tr>" + KL.map(function(k){ return "<td>" + chip(k[0]) + "</td>"; }).join("") + "</tr><tr>" + KL.map(function(k, i){ return "<td>" + (i === 0 ? "ab 210" : i === KL.length - 1 ? "unter 85" : "ab " + k[1]) + "</td>"; }).join("") + "</tr></table>"; }
+function qKlasse(){
+  var l, k = 0;
+  do { l = leuchtmittel(); k++; } while (KL.some(function(q){ return Math.abs(l.eta - q[1]) < 2 && q[1] > 0; }) && k < 50);
+  var c = klasse(l.eta);
+  return {
+    text: artikel(l.art) + " hat die Leistung " + wt(l.p) + " und den Lichtstrom " + lm(l.phi) + ". Berechnen Sie die Lichtausbeute und bestimmen Sie die Energieeffizienzklasse ohne Korrekturfaktoren. Klassengrenzen in Lumen pro Watt:" + tabelle(),
+    parts: [{label:"Lichtausbeute " + ETA, options:optionen(l.eta, [l.eta * 1.2, l.eta / 1.25, l.eta + 15, l.p / l.phi * 1000], eta), correct:l.eta, mono:true, show:eta}, {label:"Klasse ohne Korrekturfaktoren", options:["A", "B", "C", "D", "E", "F", "G"], correct:c, mono:true}],
+    hint: "Zuerst " + ETA + " = " + F(PHI, "<i>P</i>") + " berechnen, dann in der Tabelle die Klasse suchen, deren Grenze gerade noch erreicht wird.",
+    solution: "<p>" + wegEta(l.phi, l.p) + "</p><p>Klasse <b>" + c + "</b> (" + bereich(KL.map(function(q){ return q[0]; }).indexOf(c)) + " " + LMW + "). Auf einer echten Energieetikette kommen Korrekturfaktoren dazu (Übung 47).</p>"
+  };
+}
+function qOrdnen(){
+  var pool = shuffle([["Glühlampe 100 W, 1380 lm", 13.8], ["LED-Lampe 6 W, 800 lm", 800 / 6], ["LED-Lampe 10,5 W, 1521 lm", 1521 / 10.5], ["LED-Lampe 15 W, 3375 lm", 225], ["LED-Lampe 7 W, 840 lm", 120], ["LED-Lampe 4 W, 600 lm", 150], ["LED-Spot 2,1 W, 376 lm", 376 / 2.1], ["LED-Strahler 50 W, 5000 lm", 100], ["LED-Streifen 17 W, 2380 lm", 140]]).slice(0, 4);
+  var sortiert = pool.slice().sort(function(a, b){ return b[1] - a[1]; });
+  return {
+    text: "Ordnen Sie die vier Leuchtmittel nach ihrer Lichtausbeute: zuoberst das energieeffizienteste.",
+    parts: [{type:"order", label:"Reihenfolge von der grössten zur kleinsten Lichtausbeute", items:sortiert.map(function(x){ return x[0]; })}],
+    hint: "Berechnen Sie für jedes Leuchtmittel Lichtstrom durch Leistung. Viel Licht allein bedeutet noch keine grosse Lichtausbeute.",
+    solution: "<p>" + sortiert.map(function(x){ return x[0] + ": <b>" + num(x[1]) + NB + LMW + "</b>"; }).join("<br>") + "</p>"
+  };
+}
+function qEnergie(){
+  var alt = pick([[60, 7], [60, 4], [100, 10.5], [100, 15], [75, 8.5], [40, 4.5]]), t = pick([1000, 2000, 5000]), wa = alt[0] * t / 1000, wn = alt[1] * t / 1000, d = wa - wn;
+  return {
+    text: "Eine LED-Lampe mit " + wt(alt[1]) + " ersetzt eine Lampe mit " + wt(alt[0]) + ". Wie viel elektrische Energie spart die LED-Lampe in " + fmt(t) + " Betriebsstunden?",
+    parts: [{label:"Eingesparte Energie", options:optionen(d, [wa, wn, d / 10, d * 10, (alt[0] - alt[1])], kwh), correct:d, mono:true, show:kwh}],
+    hint: "Energie ist Leistung mal Zeit: <i>W</i> = <i>P</i>" + MAL + "<i>t</i>. 1000 W während einer Stunde ergeben 1 kWh.",
+    solution: "<p>Leistungsunterschied: " + wt(alt[0]) + " − " + wt(alt[1]) + " = " + wt(alt[0] - alt[1]) + "</p><p><i>W</i> = <i>P</i>" + MAL + "<i>t</i> = " + wt(alt[0] - alt[1]) + MAL + fmt(t) + NB + "h = " + num((alt[0] - alt[1]) * t, 6) + NB + "Wh = <b>" + kwh(d) + "</b></p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.2) return qEta();
+  if (x < 0.36) return qVergleich();
+  if (x < 0.46) return qPhi();
+  if (x < 0.56) return qP();
+  if (x < 0.63) return qLuecke();
+  if (x < 0.76) return qWissen();
+  if (x < 0.86) return qKlasse();
+  if (x < 0.93) return qOrdnen();
+  return qEnergie();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qEta, qVergleich, qPhi, qP, pick([qLuecke, qEnergie]), qWissen, qKlasse, qOrdnen]); }});
+})();
+</script>
+</body>
+</html>

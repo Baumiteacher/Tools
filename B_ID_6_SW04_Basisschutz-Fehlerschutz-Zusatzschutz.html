@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_6 TA7 Basisschutz, Fehlerschutz, Zusatzschutz BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+.weg{display:flex;flex-direction:column;gap:0}
+.schritt{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.schritt .kopf{display:flex;gap:8px;align-items:baseline}
+.schritt .nr{font-family:var(--mono);font-weight:700;color:var(--accent)}
+.schritt .frage{font-weight:600}
+.schritt .art{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pfeil{align-self:center;color:var(--muted);font-size:.8rem;padding:3px 0;display:flex;flex-direction:column;align-items:center;line-height:1}
+.pfeil::after{content:"↓";font-size:1.1rem}
+.ergebnis{border-radius:10px;padding:12px;border:2px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.ergebnis.ok{border-color:var(--ok);background:var(--ok-soft)}
+.ergebnis.bad{border-color:var(--bad);background:var(--bad-soft)}
+.ergebnis b{font-size:1.05rem}
+.karte{display:flex;flex-direction:column;gap:8px}
+.karte h3{font-size:1rem;margin:0}
+.karte ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_6 Apparate und Leitungen, einfache Verbraucherinstallation · Teilauftrag 7</p>
+    <h1>Basisschutz, Fehlerschutz, Zusatzschutz BAP</h1>
+    <p class="lead">Gehen Sie den Grundsatz des Personenschutzes Schritt für Schritt durch und ordnen Sie die Schutzmassnahmen den drei Schutzarten zu.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Grundsatz des Personenschutzes (NIN33.1)</h2>
+        <p class="note">Beantworten Sie die Fragen von oben nach unten. Der Weg zeigt, ob der Personenschutz erfüllt ist.</p>
+        <div class="weg" id="weg" aria-live="polite"></div>
+        <div class="opts"><button class="opt txt" type="button" id="neu">Neu beginnen</button></div>
+      </div>
+
+      <div class="panel">
+        <h2>Die drei Schutzarten</h2>
+        <div class="seg" id="arten">
+          <button class="opt txt" type="button" data-s="b" id="s-b" aria-pressed="true">Basisschutz</button>
+          <button class="opt txt" type="button" data-s="f" id="s-f" aria-pressed="false">Fehlerschutz</button>
+          <button class="opt txt" type="button" data-s="z" id="s-z" aria-pressed="false">Zusatzschutz</button>
+        </div>
+        <div class="karte" id="karte" aria-live="polite"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Ziel der Schutzmassnahmen: Weder im Normalbetrieb noch im Fehlerfall dürfen gefährliche Berührungsspannungen oder Berührungsströme auftreten (Übung 60, NIN33.1).</p>
+          <p>Der Schutz gegen elektrischen Schlag besteht aus drei Schutzarten: Basisschutz, Fehlerschutz, Zusatzschutz (Übung 61).</p>
+          <p>Bei Drähten und Kabeln erfolgt der Schutz gegen direktes Berühren durch die Isolierung, nicht durch Abdeckungen oder Umhüllungen (Übung 64).</p>
+          <p>Wer beim Auswechseln einer Lampe den Finger in die Fassung steckt, berührt absichtlich. Das gilt nicht als zufälliges Berühren (Übung 65, NIN33.3).</p>
+          <p>Ein RCD mit <i>I</i><sub>ΔN</sub> ≤ 30&nbsp;mA muss vorgesehen werden bei Steckdosenkreisen mit einem Bemessungsstrom ≤ 32&nbsp;A und bei Beleuchtungsanlagen in Wohnbauten (Übung 69).</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Wählen Sie eine Betriebsspannung über 50&nbsp;V. Welche Frage entscheidet, ob der Basisschutz erfüllt ist?</li>
+          <li>Innerhalb welcher Zeit muss ein Endstromkreis mit Steckdosen bis 63&nbsp;A abgeschaltet werden?</li>
+          <li>Bei welchen Stromkreisen genügt eine Abschaltung innerhalb von 5&nbsp;s?</li>
+          <li>Welche vier Massnahmen gehören zum Basisschutz? Welche zwei davon sind nur in Anlagen für Elektrofachkräfte und instruierte Personen zulässig?</li>
+          <li>Nennen Sie zwei Beispiele für die Umsetzung des Zusatzschutzes.</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Regeln der Technik NIN33.1 bis NIN33.6, Schutz gegen elektrischen Schlag.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID6 Apparate und Leitungen, Teilauftrag 7 Giovanni helfen: Übungen 60 bis 69 (ID6.32 bis ID6.34)</li><li>Theoriebuch Regeln der Technik, Kapitel 33 Schutz gegen elektrischen Schlag: NIN33.1 (Ziel, Grundsatz des Personenschutzes), NIN33.2 bis NIN33.5 (Basisschutz), NIN33.5 und NIN33.6 (Fehlerschutz). Die Kopfzeile des Kapitel-PDF trägt die Kapitelnummer 31; das Tool zitiert wie das Arbeitsblatt.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = String.fromCharCode(160);
+function ix(s, i){ return "<i>" + s + "</i><sub>" + i + "</sub>"; }
+
+/* ================= GRUNDSATZ DES PERSONENSCHUTZES (Theoriebuch NIN33.1) ================= */
+/* Gibt zurück: {ok:true|false|null, grund, grenze} */
+function beurteile(a){
+  if (a.u === "klein") return {ok:true, grund:"Die Betriebsspannung der Anlage beträgt höchstens 50" + NB + "V."};
+  if (a.u !== "gross") return {ok:null};
+  if (a.ber === "ja") return {ok:false, grund:"Spannungsführende Teile müssen vor zufälliger Berührung geschützt werden. Der Basisschutz fehlt."};
+  if (a.ber !== "nein") return {ok:null};
+  if (a.ib === "ja") return {ok:true, grund:"Der Berührungsstrom ist nicht grösser als 0,5" + NB + "mA."};
+  if (a.ib !== "nein") return {ok:null};
+  if (a.ub === "ja") return {ok:true, grund:"Die Berührungsspannung ist nicht grösser als 50" + NB + "V."};
+  if (a.ub !== "nein") return {ok:null};
+  if (!a.kreis) return {ok:null};
+  var grenze = a.kreis === "end" ? 0.4 : 5;
+  if (a.t === null || a.t === undefined) return {ok:null, grenze:grenze};
+  return a.t < grenze
+    ? {ok:true, grenze:grenze, grund:"Die automatische Abschaltung erfolgt innerhalb von " + String(grenze).replace(".", ",") + NB + "s."}
+    : {ok:false, grenze:grenze, grund:"Die automatische Abschaltung muss innerhalb von " + String(grenze).replace(".", ",") + NB + "s erfolgen. Sie dauert zu lange."};
+}
+window.__t = {beurteile:beurteile};
+
+var a0 = function(){ return {u:null, ber:null, ib:null, ub:null, kreis:null, t:null}; };
+var st = {a:a0(), s:"b"};
+var REIHE = ["u", "ber", "ib", "ub", "kreis", "t"];
+var SCHRITTE = {
+  u:{art:"Ausgangslage", frage:"Wie gross ist die Betriebsspannung <i>U</i> der Anlage?", o:[["klein", "<i>U</i> ≤ 50" + NB + "V"], ["gross", "<i>U</i> &gt; 50" + NB + "V, zum Beispiel 230" + NB + "V"]]},
+  ber:{art:"Basisschutz", frage:"Ist eine zufällige Berührung spannungsführender Teile möglich?", o:[["ja", "Ja"], ["nein", "Nein"]]},
+  ib:{art:"Fehlerschutz", frage:"Im Fehlerfall: Ist der Berührungsstrom " + ix("I", "B") + " ≤ 0,5" + NB + "mA?", o:[["ja", "Ja"], ["nein", "Nein"]]},
+  ub:{art:"Fehlerschutz", frage:"Ist die Berührungsspannung " + ix("U", "B") + " ≤ 50" + NB + "V?", o:[["ja", "Ja"], ["nein", "Nein"]]},
+  kreis:{art:"Fehlerschutz: automatische Abschaltung", frage:"Um welchen Stromkreis handelt es sich?", o:[["end", "Endstromkreis mit " + ix("I", "N") + " ≤ 32" + NB + "A oder Endstromkreis mit Steckdosen mit " + ix("I", "N") + " ≤ 63" + NB + "A"], ["gross", "Endstromkreis ohne Steckdosen mit " + ix("I", "N") + " &gt; 32" + NB + "A oder Steckdosenstromkreis mit " + ix("I", "N") + " &gt; 63" + NB + "A"]]},
+  t:{art:"Fehlerschutz: automatische Abschaltung", frage:"Nach welcher Zeit schaltet die Schutzeinrichtung automatisch ab?", o:[[0.1, "0,1" + NB + "s"], [0.3, "0,3" + NB + "s"], [1, "1" + NB + "s"], [4, "4" + NB + "s"], [10, "10" + NB + "s"]]}
+};
+/* Sichtbare Schritte: bis zur ersten offenen oder entscheidenden Antwort */
+function sichtbar(a){
+  var l = ["u"];
+  if (a.u === "gross"){ l.push("ber");
+    if (a.ber === "nein"){ l.push("ib");
+      if (a.ib === "nein"){ l.push("ub");
+        if (a.ub === "nein"){ l.push("kreis"); if (a.kreis) l.push("t"); } } } }
+  return l;
+}
+function renderWeg(){
+  var a = st.a, l = sichtbar(a), e = beurteile(a), h = "";
+  l.forEach(function(k, i){
+    var s = SCHRITTE[k];
+    if (i) h += "<div class=\"pfeil\" aria-hidden=\"true\"></div>";
+    h += "<div class=\"schritt\"><div class=\"kopf\"><span class=\"nr\">" + (i + 1) + "</span><span class=\"art\">" + s.art + "</span></div><p class=\"frage\">" + s.frage + (k === "t" && e.grenze ? " Grenze: " + String(e.grenze).replace(".", ",") + NB + "s." : "") + "</p><div class=\"opts\">"
+      + s.o.map(function(o, j){ return "<button class=\"opt txt\" type=\"button\" id=\"w-" + k + "-" + j + "\" data-k=\"" + k + "\" data-j=\"" + j + "\" aria-pressed=\"" + (a[k] === o[0]) + "\">" + o[1] + "</button>"; }).join("") + "</div></div>";
+  });
+  if (e.ok !== null){
+    h += "<div class=\"pfeil\" aria-hidden=\"true\"></div><div class=\"ergebnis " + (e.ok ? "ok" : "bad") + "\"><b>" + (e.ok ? "Personenschutz erfüllt" : "Personenschutz nicht erfüllt") + "</b><span>" + e.grund + "</span></div>";
+  }
+  $("weg").innerHTML = h;
+}
+var KARTEN = {
+  b:"<h3>Basisschutz: Schutz gegen direktes Berühren</h3><p>Der Basisschutz schützt vor dem direkten Berühren aktiver Teile. Er stellt sicher, dass aktive Teile im Normalbetrieb nicht unbeabsichtigt berührt werden können.</p><ul><li><b>Isolierung aktiver Teile</b> (Basisisolierung): Kabel und Aderleitungen. Farben, Lacke und Isolierband gelten nicht als Basisschutz.</li><li><b>Abdeckungen oder Umhüllungen:</b> Schalter, Steckdosen, Verteilungen, Gehäuse von Handgeräten wie die Bohrmaschine. Schutzart IP2X oder IPXXB.</li><li><b>Schutz durch Hindernisse:</b> Schutzgitter, Wände, Geländer.</li><li><b>Anordnung ausserhalb des Handbereichs:</b> zum Beispiel bei Freileitungen.</li></ul><p class=\"note\">Hindernisse und die Anordnung ausserhalb des Handbereichs dürfen nur in Anlagen angewendet werden, die ausschliesslich für Elektrofachkräfte oder instruierte Personen zugänglich sind (NIN33.5).</p>",
+  f:"<h3>Fehlerschutz: Schutz gegen indirektes Berühren</h3><p>Schutz gegen elektrischen Schlag bei einem Fehler, zum Beispiel wenn das metallene Gehäuse einer Leuchte unter Spannung steht. Der Fehlerschutz stellt im Fehlerfall sicher:</p><ul><li>Es treten keine gefährlichen Berührungsströme auf.</li><li>Es entstehen keine gefährlichen Berührungsspannungen.</li><li>Die Anlage wird in ausreichend kurzer Zeit automatisch abgeschaltet.</li></ul><p>Der Fehlerschutz kann auf mehrere Arten erfolgen (NIN33.6):</p><ul><li>Schutz durch automatische Abschaltung (Schutzklasse 1)</li><li>Schutz-Potenzialausgleich</li><li>Schutzisolierung (Schutzklasse 2)</li><li>Schutztrennung</li><li>Schutz durch Kleinspannungen SELV und PELV (Schutzklasse 3)</li><li>Schutz durch Shutdown-Funktion</li></ul>",
+  z:"<h3>Zusatzschutz</h3><p>Der Zusatzschutz ist eine ergänzende Schutzmassnahme zum Basisschutz, zum Fehlerschutz oder zu beiden.</p><ul><li>Fehlerstromschutzschalter (RCD)</li><li>Zusätzlicher Schutz-Potenzialausgleich</li></ul><p>Ein RCD mit " + ix("I", "ΔN") + " ≤ 30" + NB + "mA muss gemäss NIN zum Beispiel vorgesehen werden bei Steckdosenkreisen mit einem Bemessungsstrom ≤ 32" + NB + "A und bei Beleuchtungsanlagen in Wohnbauten (Übung 69).</p><p class=\"note\">Ein absichtliches Berühren lässt sich nicht in jedem Fall ausschliessen. Der RCD erhöht die Sicherheit, indem er im Fehlerfall den Stromkreis zuverlässig abschaltet (NIN33.5).</p>"
+};
+function renderKarte(){
+  ["b", "f", "z"].forEach(function(k){ $("s-" + k).setAttribute("aria-pressed", String(k === st.s)); });
+  $("karte").innerHTML = KARTEN[st.s];
+}
+function init(){
+  $("weg").addEventListener("click", function(ev){
+    var b = ev.target.closest("button[data-k]"); if (!b) return;
+    var k = b.getAttribute("data-k"), j = Number(b.getAttribute("data-j")), i = REIHE.indexOf(k);
+    st.a[k] = SCHRITTE[k].o[j][0];
+    REIHE.slice(i + 1).forEach(function(x){ st.a[x] = null; });
+    renderWeg(); var f = $("w-" + k + "-" + j); if (f) f.focus();
+  });
+  $("neu").addEventListener("click", function(){ st.a = a0(); renderWeg(); });
+  $("arten").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-s]"); if (!b) return; st.s = b.getAttribute("data-s"); renderKarte(); });
+  renderWeg(); renderKarte();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID6 Übungen 60 bis 69, Theoriebuch NIN33.1 bis NIN33.6) ================= */
+var ARTEN = ["Basisschutz", "Fehlerschutz", "Zusatzschutz"];
+var MASSN = [
+  ["Isolierung aktiver Teile", 0], ["Abdeckungen oder Umhüllungen", 0], ["Schutz durch Hindernisse", 0], ["Anordnung ausserhalb des Handbereichs", 0],
+  ["Schutz durch automatische Abschaltung (Schutzklasse 1)", 1], ["Schutzisolierung (Schutzklasse 2)", 1], ["Schutztrennung", 1], ["Schutz durch Kleinspannungen SELV und PELV (Schutzklasse 3)", 1],
+  ["Fehlerstromschutzschalter (RCD) als ergänzende Schutzmassnahme", 2], ["Zusätzlicher Schutz-Potenzialausgleich", 2]
+];
+function qZuordnen(){
+  var m = pick(MASSN);
+  return {
+    text: "Zu welcher Schutzart gehört die Massnahme «" + m[0] + "»?",
+    parts: [{label:"Schutzart", options:ARTEN.slice(), correct:ARTEN[m[1]]}],
+    hint: "Basisschutz: Schutz gegen direktes Berühren. Fehlerschutz: Schutz bei einem Fehler. Zusatzschutz: ergänzende Schutzmassnahme.",
+    solution: "<p><b>" + ARTEN[m[1]] + "</b></p><p>" + ["Basisschutz: Isolierung aktiver Teile, Abdeckungen oder Umhüllungen, Schutz durch Hindernisse, Anordnung ausserhalb des Handbereichs.", "Fehlerschutz: automatische Abschaltung, Schutz-Potenzialausgleich, Schutzisolierung, Schutztrennung, Kleinspannungen SELV und PELV, Shutdown-Funktion.", "Zusatzschutz: Fehlerstromschutzschalter (RCD) und zusätzlicher Schutz-Potenzialausgleich."][m[1]] + "</p>"
+  };
+}
+function qMulti(){
+  var v = pick([
+    {t:"Welche Massnahmen gehören zum Basisschutz?", c:[0, 1, 2, 3], f:[4, 5, 8]},
+    {t:"Welche Massnahmen gehören zum Fehlerschutz?", c:[4, 5, 6, 7], f:[0, 1, 9]},
+    {t:"Welche zwei Massnahmen sind Beispiele für die Umsetzung des Zusatzschutzes?", c:[8, 9], f:[0, 4, 5, 6]}
+  ]);
+  var c = shuffle(v.c).slice(0, Math.min(3, v.c.length)).map(function(i){ return MASSN[i][0]; }), f = shuffle(v.f).slice(0, 3).map(function(i){ return MASSN[i][0]; });
+  return {
+    text: v.t + " Wählen Sie alle richtigen Antworten.",
+    parts: [{type:"multi", label:"Massnahmen", options:shuffle(c.concat(f)), correct:c}],
+    hint: "Basisschutz: gegen direktes Berühren im Normalbetrieb. Fehlerschutz: im Fehlerfall. Zusatzschutz: ergänzend.",
+    solution: "<p><b>" + c.join(" · ") + "</b></p>"
+  };
+}
+/* Fälle für den Grundsatz des Personenschutzes */
+var FAELLE = [
+  {t:"Eine Klingelanlage wird mit 12" + NB + "V betrieben.", a:{u:"klein"}},
+  {t:"Eine Leuchte wird mit 24" + NB + "V betrieben.", a:{u:"klein"}},
+  {t:"In einem Stromkreis mit 230" + NB + "V fehlt die Abdeckung einer Steckdose. Die spannungsführenden Teile können zufällig berührt werden.", a:{u:"gross", ber:"ja"}},
+  {t:"In einer 230-V-Anlage sind alle spannungsführenden Teile gegen zufällige Berührung geschützt. Im Fehlerfall fliesst ein Berührungsstrom von 0,3" + NB + "mA.", a:{u:"gross", ber:"nein", ib:"ja"}},
+  {t:"In einer 230-V-Anlage sind alle spannungsführenden Teile gegen zufällige Berührung geschützt. Im Fehlerfall ist der Berührungsstrom grösser als 0,5" + NB + "mA, die Berührungsspannung beträgt 35" + NB + "V.", a:{u:"gross", ber:"nein", ib:"nein", ub:"ja"}},
+  {t:"Endstromkreis mit Steckdosen, 230" + NB + "V, " + ix("I", "N") + " = 13" + NB + "A. Im Fehlerfall werden die Grenzwerte für Berührungsstrom und Berührungsspannung überschritten. Die Schutzeinrichtung schaltet nach 0,2" + NB + "s ab.", a:{u:"gross", ber:"nein", ib:"nein", ub:"nein", kreis:"end", t:0.2}},
+  {t:"Endstromkreis mit Steckdosen, 230" + NB + "V, " + ix("I", "N") + " = 16" + NB + "A. Im Fehlerfall werden die Grenzwerte für Berührungsstrom und Berührungsspannung überschritten. Die Schutzeinrichtung schaltet nach 2" + NB + "s ab.", a:{u:"gross", ber:"nein", ib:"nein", ub:"nein", kreis:"end", t:2}},
+  {t:"Endstromkreis ohne Steckdosen mit " + ix("I", "N") + " = 40" + NB + "A. Im Fehlerfall werden die Grenzwerte für Berührungsstrom und Berührungsspannung überschritten. Die Schutzeinrichtung schaltet nach 3" + NB + "s ab.", a:{u:"gross", ber:"nein", ib:"nein", ub:"nein", kreis:"gross", t:3}},
+  {t:"Endstromkreis ohne Steckdosen mit " + ix("I", "N") + " = 50" + NB + "A. Im Fehlerfall werden die Grenzwerte für Berührungsstrom und Berührungsspannung überschritten. Die Schutzeinrichtung schaltet nach 8" + NB + "s ab.", a:{u:"gross", ber:"nein", ib:"nein", ub:"nein", kreis:"gross", t:8}},
+  {t:"Endstromkreis für eine Leuchte, 230" + NB + "V, " + ix("I", "N") + " = 10" + NB + "A. Im Fehlerfall werden die Grenzwerte für Berührungsstrom und Berührungsspannung überschritten. Die Schutzeinrichtung schaltet nach 1" + NB + "s ab.", a:{u:"gross", ber:"nein", ib:"nein", ub:"nein", kreis:"end", t:1}}
+];
+var URTEIL = ["Der Personenschutz ist erfüllt.", "Der Personenschutz ist nicht erfüllt."];
+function qFall(){
+  var k = pick(FAELLE), e = beurteile(k.a);
+  return {
+    text: k.t + " Ist der Personenschutz nach dem Grundsatz im Theoriebuch erfüllt?",
+    parts: [{label:"Beurteilung", options:URTEIL.slice(), correct:URTEIL[e.ok ? 0 : 1]}],
+    hint: "Gehen Sie den Weg durch: Betriebsspannung, zufällige Berührung, Berührungsstrom, Berührungsspannung, Abschaltzeit (0,4" + NB + "s oder 5" + NB + "s).",
+    solution: "<p><b>" + URTEIL[e.ok ? 0 : 1] + "</b></p><p>" + e.grund + "</p>"
+  };
+}
+var ZEITEN = [
+  {t:"einem Endstromkreis mit " + ix("I", "N") + " ≤ 32" + NB + "A", c:"0,4 s"}, {t:"einem Endstromkreis mit Steckdosen mit " + ix("I", "N") + " ≤ 63" + NB + "A", c:"0,4 s"},
+  {t:"einem Steckdosenstromkreis mit " + ix("I", "N") + " &gt; 63" + NB + "A", c:"5 s"}, {t:"einem Endstromkreis ohne Steckdosen mit " + ix("I", "N") + " &gt; 32" + NB + "A", c:"5 s"}
+];
+function qZeit(){
+  var k = pick(ZEITEN);
+  return {
+    text: "Innerhalb welcher Zeit muss die automatische Abschaltung bei " + k.t + " erfolgen?",
+    parts: [{label:"Abschaltzeit", options:["0,1 s", "0,4 s", "5 s", "30 s"].map(function(x){ return x.replace(" ", NB); }), correct:k.c.replace(" ", NB), mono:true}],
+    hint: "Das Theoriebuch nennt auf NIN33.1 zwei Abschaltzeiten: 0,4" + NB + "s und 5" + NB + "s.",
+    solution: "<p><b>" + k.c.replace(" ", NB) + "</b></p><p>0,4" + NB + "s bei Endstromkreisen mit " + ix("I", "N") + " ≤ 32" + NB + "A und Endstromkreisen mit Steckdosen mit " + ix("I", "N") + " ≤ 63" + NB + "A. 5" + NB + "s bei Steckdosenstromkreisen mit " + ix("I", "N") + " &gt; 63" + NB + "A und bei Endstromkreisen ohne Steckdosen mit " + ix("I", "N") + " &gt; 32" + NB + "A.</p>"
+  };
+}
+var FAKTEN = [
+  {t:"Was ist das Ziel von Schutzmassnahmen gegen den elektrischen Schlag?", o:["Weder im Normalbetrieb noch im Fehlerfall dürfen gefährliche Berührungsspannungen oder Berührungsströme auftreten.", "Die Anlage soll möglichst wenig Energie verbrauchen.", "Im Fehlerfall soll die Anlage weiterlaufen.", "Die Leitungen sollen möglichst kurz sein."], s:"Übung 60, NIN33.1."},
+  {t:"Aus welchen drei Schutzarten besteht der Schutz gegen elektrischen Schlag?", o:["Basisschutz, Fehlerschutz, Zusatzschutz", "Überlastschutz, Kurzschlussschutz, Blitzschutz", "Schutzklasse 1, 2 und 3", "Isolierung, Erdung, Abschaltung"], s:"Übung 61."},
+  {t:"Wovor schützt der Basisschutz?", o:["Vor dem direkten Berühren aktiver Teile", "Vor einem elektrischen Schlag bei einem Isolationsfehler", "Vor Überlast der Leitung", "Vor Blitzeinschlag"], s:"Übung 62. Der Basisschutz gilt unter normalen Bedingungen."},
+  {t:"Wie erfolgt bei Drähten und Kabeln der Schutz gegen das direkte Berühren der Kupferleiter?", o:["Durch die Isolierung", "Durch Abdeckungen oder Umhüllungen", "Durch Hindernisse", "Durch den Schutzleiter"], s:"Übung 64: Nicht durch Abdeckungen oder Umhüllungen, sondern durch die Isolierung."},
+  {t:"Eine Person steckt beim Auswechseln einer Lampe den Finger in die Fassung. Handelt es sich um zufälliges Berühren?", o:["Nein, dies gilt als absichtliches Berühren.", "Ja, dies gilt als zufälliges Berühren.", "Ja, weil die Fassung keine Abdeckung hat.", "Das hängt von der Lampenleistung ab."], s:"Übung 65. Lampenfassungen sind eine Ausnahme: Die Schutzabdeckung darf zum Wechseln des Leuchtmittels entfernt werden (NIN33.3)."},
+  {t:"Was wird unter Zusatzschutz verstanden?", o:["Eine ergänzende Schutzmassnahme zum Basisschutz, zum Fehlerschutz oder zu beiden", "Ein Ersatz für den Basisschutz", "Ein zweiter Leitungsschutzschalter in Serie", "Ein Schutz, der nur in Industrieanlagen verlangt wird"], s:"Übung 67."},
+  {t:"Welche Schutzart wird durch die Schutzarten IP2X oder IPXXB gewährleistet?", o:["Vollständiger Schutz gegen direktes Berühren durch Abdeckungen und Umhüllungen", "Schutz gegen Überlast", "Schutz durch automatische Abschaltung", "Schutz gegen Blitzschlag"], s:"Aktive Teile können mit dem Prüffinger nicht berührt werden (NIN33.2)."},
+  {t:"Womit dürfen Abdeckungen oder Umhüllungen entfernt werden können?", o:["Nur mit einem Schlüssel oder Werkzeug", "Von Hand, ohne Hilfsmittel", "Gar nicht, sie müssen verklebt sein", "Nur mit einer Bewilligung des Netzbetreibers"], s:"Abdeckungen müssen sicher befestigt sein und dürfen nicht einfach entfernt werden können (NIN33.3)."},
+  {t:"Welche Aussage über Isolierband trifft gemäss Theoriebuch zu?", o:["Mit Isolierband kann kein zuverlässiger Basisschutz gewährleistet werden.", "Isolierband erfüllt die Anforderungen der Basisisolierung.", "Isolierband ersetzt den Schutzleiter.", "Isolierband gilt als Schutzisolierung der Schutzklasse 2."], s:"Auch Farben, Lacke oder ähnliche Beschichtungen gelten nicht als Basisschutz (NIN33.2)."},
+  {t:"Was muss mit dem Gehäuse eines Betriebsmittels der Schutzklasse 1 geschehen, damit der Schutz durch automatische Abschaltung wirksam ist?", o:["Es muss mit dem Schutzleiter verbunden werden.", "Es muss mit dem Neutralleiter verbunden werden.", "Es muss lackiert werden.", "Es darf nicht geerdet werden."], s:"Durch die Erdverbindung kann bei einem Körperschluss ein hoher Fehlerstrom fliessen. Die Schutzeinrichtung löst schneller aus und die Berührungsspannung wird reduziert (NIN33.6)."},
+  {t:"Welcher Grenzwert gilt gemäss Theoriebuch für die Berührungsspannung " + ix("U", "B") + "?", o:["50" + NB + "V", "12" + NB + "V", "120" + NB + "V", "230" + NB + "V"], s:"Berührungsstrom " + ix("I", "B") + " ≤ 0,5" + NB + "mA oder Berührungsspannung " + ix("U", "B") + " ≤ 50" + NB + "V (NIN33.1)."},
+  {t:"Welcher Grenzwert gilt gemäss Theoriebuch für den Berührungsstrom " + ix("I", "B") + "?", o:["0,5" + NB + "mA", "30" + NB + "mA", "0,5" + NB + "A", "10" + NB + "mA"], s:"Berührungsstrom " + ix("I", "B") + " ≤ 0,5" + NB + "mA oder Berührungsspannung " + ix("U", "B") + " ≤ 50" + NB + "V (NIN33.1). 30" + NB + "mA ist der Auslösestrom des RCD für den Zusatzschutz."}
+];
+function qFakt(){
+  var f = pick(FAKTEN);
+  return { text:f.t, parts:[{label:"Antwort", options:shuffle(f.o), correct:f.o[0]}], hint:"Lesen Sie im Theoriebuch auf NIN33.1 bis NIN33.6 und im Arbeitsblatt bei den Übungen 60 bis 68 nach.", solution:"<p><b>" + f.o[0] + "</b></p><p>" + f.s + "</p>" };
+}
+function qFehlerschutz(){
+  var c = ["Es treten keine gefährlichen Berührungsströme auf.", "Es entstehen keine gefährlichen Berührungsspannungen.", "Die Anlage wird in ausreichend kurzer Zeit automatisch abgeschaltet."];
+  var f = shuffle(["Aktive Teile können im Normalbetrieb nicht berührt werden.", "Die Anlage bleibt im Fehlerfall in Betrieb.", "Der Energieverbrauch der Anlage sinkt.", "Die Leitungen werden nicht warm."]).slice(0, 3);
+  return {
+    text: "Was stellt der Fehlerschutz im Fehlerfall sicher? Wählen Sie die drei richtigen Antworten.",
+    parts: [{type:"multi", label:"Fehlerschutz", options:shuffle(c.concat(f)), correct:c}],
+    hint: "Der Fehlerschutz wirkt, wenn zum Beispiel das metallene Gehäuse einer Leuchte unter Spannung steht.",
+    solution: "<p><b>" + c.join(" ") + "</b></p><p>Übung 66. Dass aktive Teile im Normalbetrieb nicht berührt werden können, ist Aufgabe des Basisschutzes.</p>"
+  };
+}
+function qRcd(){
+  var c = ["Bei Steckdosenkreisen mit einem Bemessungsstrom ≤ 32" + NB + "A", "Bei Beleuchtungsanlagen in Wohnbauten"];
+  var f = shuffle(["In der Anschlussleitung vor dem Anschlussüberstromunterbrecher", "Nur bei Stromkreisen mit Kleinspannung bis 50" + NB + "V", "Nur bei Motoren ohne Steckdose mit über 63" + NB + "A"]).slice(0, 2);
+  return {
+    text: "Wo muss gemäss Übung 69 ein RCD mit einem Auslösestrom von " + ix("I", "ΔN") + " ≤ 30" + NB + "mA vorgesehen werden? Wählen Sie die zwei richtigen Antworten.",
+    parts: [{type:"multi", label:"Einsatz des RCD", options:shuffle(c.concat(f)), correct:c}],
+    hint: "Die Lösung von Übung 69 nennt zwei Beispiele: eines mit Steckdosen, eines mit Beleuchtung.",
+    solution: "<p><b>" + c.join(" · ") + "</b></p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.20) return qZuordnen();
+  if (x < 0.30) return qMulti();
+  if (x < 0.50) return qFall();
+  if (x < 0.60) return qZeit();
+  if (x < 0.86) return qFakt();
+  if (x < 0.93) return qFehlerschutz();
+  return qRcd();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qZuordnen, qZuordnen, qMulti, qFall, qFall, qZeit, qFakt, pick([qFehlerschutz, qRcd])]); }});
+})();
+
+</script>
+</body>
+</html>

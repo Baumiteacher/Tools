@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_6 TA7 Leitungs- und Sicherungsabschnitte BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+[hidden]{display:none!important}
+:root{ --ab-box:#E8F2C0; --ab-rand:#A8D030; --ab-ink:#17212B }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ab-box:#2D3A1E; --ab-rand:#8DB52A; --ab-ink:#E6ECF2 } }
+:root[data-theme="dark"]{ --ab-box:#2D3A1E; --ab-rand:#8DB52A; --ab-ink:#E6ECF2 }
+.bild{width:100%;height:auto;display:block}
+.ab{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter}
+.ab.an{stroke:var(--accent);stroke-width:3.2;stroke-linecap:round}
+.ab-bg{fill:var(--surface)}
+.ab-f{fill:var(--ink);stroke:none}
+.ab-box{fill:var(--ab-box);stroke:var(--ab-rand);stroke-width:1.2}
+.ab-box.an{stroke:var(--accent);stroke-width:3}
+.ab-t{fill:var(--ink);font-family:var(--sans);font-size:8.5px}
+.ab-nr{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.ab-nr.an{fill:var(--accent);font-weight:700;font-size:13px}
+.ab-pf{fill:none;stroke:var(--ink);stroke-width:1}
+.ab-pf.an{stroke:var(--accent);stroke-width:2}
+.ab-hit{fill:transparent;stroke:none;cursor:pointer}
+.nrn .opt{min-width:2.6em;text-align:center}
+.name{font-size:1.15rem;font-weight:700}
+.art{font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.tab-k{width:100%;border-collapse:collapse;font-size:.92rem}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k td.nr{font-weight:700;width:2em}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.q-schema{display:block;width:100%;max-width:340px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_6 Apparate und Leitungen, einfache Verbraucherinstallation · Teilauftrag 7</p>
+    <h1>Leitungs- und Sicherungsabschnitte BAP</h1>
+    <p class="lead">Giovanni Rosso möchte Störungen genau beschreiben können. Tippen Sie im einpoligen Prinzipschema auf eine Nummer und benennen Sie den Leitungs- oder Sicherungsabschnitt.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Elektrische Anlage</legend>
+          <div class="seg" id="wahl">
+            <button class="opt txt" type="button" data-a="mfh" id="a-mfh" aria-pressed="true">Mehrfamilienhaus (Übung 57)</button>
+            <button class="opt txt" type="button" data-a="efh" id="a-efh" aria-pressed="false">Einfamilienhaus (Übung 58)</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="panel">
+        <h2 id="s-titel"></h2>
+        <svg class="bild" id="schema" viewBox="0 0 340 300" role="img" aria-label="Einpoliges Prinzipschema einer elektrischen Anlage mit nummerierten Leitungs- und Sicherungsabschnitten"></svg>
+        <fieldset>
+          <legend>Abschnitt wählen</legend>
+          <div class="opts nrn" id="nummern"></div>
+        </fieldset>
+        <div class="plain" aria-live="polite">
+          <p class="art" id="art"></p>
+          <p class="name" id="name"></p>
+          <p id="beschr"></p>
+        </div>
+        <p class="note">Einpoliges Prinzipschema wie im Arbeitsblatt. Grün hinterlegt sind die Sicherungsabschnitte, die Pfeile bezeichnen die Leitungsabschnitte. Die Beschreibungen folgen dem Schema; die Definitionen stehen in der NIN (F1.4).</p>
+      </div>
+
+      <div class="panel">
+        <h2>Übersicht zur Selbstkontrolle</h2>
+        <div class="opts"><button class="opt txt" type="button" id="zeig" aria-pressed="false">Alle Namen zeigen</button></div>
+        <div class="scroll" id="tab-wrap" hidden>
+          <table class="tab-k">
+            <thead><tr><th>Nr.</th><th>Abschnitt</th><th>Art</th></tr></thead>
+            <tbody id="tab"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Vom Netz zum Verbraucher</h2>
+        <div class="merke">
+          <p><b>Mehrfamilienhaus:</b> Anschlussleitung → Anschlussüberstromunterbrecher → Hausleitung → Bezügerüberstrom-Schutzeinrichtung → Bezügerleitungen → Überstrom-Schutzeinrichtung für Endstromkreise → Endstromkreise.</p>
+          <p><b>Einfamilienhaus:</b> Anschlussleitung → Anschlussüberstromunterbrecher → Bezügerleitung → Überstrom-Schutzeinrichtung für Endstromkreise → Endstromkreise.</p>
+          <p>Ungenaue Angaben wie «Beim grauen Kasten hat es geblitzt» oder «Die Sicherung beim grossen Verteiler ist kaputt» erschweren die Fehlersuche und kosten Zeit.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Benennen Sie alle Abschnitte zuerst auf dem Arbeitsblatt. Kontrollieren Sie dann Nummer für Nummer.</li>
+          <li>Welche Abschnitte sind Leitungen, welche sind Überstrom-Schutzeinrichtungen?</li>
+          <li>Welche zwei Abschnitte des Mehrfamilienhauses gibt es im Einfamilienhaus von Übung 58 nicht?</li>
+          <li>Wie würden Sie die Aussage «Die Sicherung beim grossen Verteiler ist kaputt» genauer formulieren?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Die Begriffe stehen im Arbeitsblatt bei den Übungen 57 und 58. Weitere Informationen: NIN F1.4 bis F1.4.5.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID6 Apparate und Leitungen, Teilauftrag 7 Giovanni helfen: Übungen 57 und 58 (ID6.31 und ID6.32), mit Verweis auf NIN F1.4 bis F1.4.5</li><li>Die Begriffe der Leitungs- und Sicherungsabschnitte stehen nur im Arbeitsblatt, nicht in den Kapiteln des Theoriebuchs. Die Beschreibungen im Tool folgen dem Prinzipschema des Arbeitsblatts.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+function n(x){ return Math.round(x * 100) / 100; }
+
+/* ================= Zeichnen: Masse in Bildpunkten der Vorlage (Arbeitsblatt), f rechnet auf die Zeichenfläche um ================= */
+function conv(f, d){
+  return d.replace(/([MLHV])\s*(-?[\d.]+)(?:\s+(-?[\d.]+))?/g, function(m, c, a, b){
+    if (c === "H") return "H" + n(f(Number(a), 0)[0]);
+    if (c === "V") return "V" + n(f(0, Number(a))[1]);
+    var q = f(Number(a), Number(b)); return c + n(q[0]) + " " + n(q[1]);
+  });
+}
+function Zeichner(f, k){
+  var z = {};
+  z.p = function(d, cls){ return "<path class=\"" + (cls || "ab") + "\" d=\"" + conv(f, d) + "\"/>"; };
+  z.r = function(x1, y1, x2, y2, cls, extra){ var a = f(x1, y1), b = f(x2, y2); return "<rect class=\"" + (cls || "ab ab-bg") + "\" x=\"" + n(a[0]) + "\" y=\"" + n(a[1]) + "\" width=\"" + n(b[0] - a[0]) + "\" height=\"" + n(b[1] - a[1]) + "\"" + (extra || "") + "/>"; };
+  z.t = function(x, y, t, cls, anker){ var a = f(x, y); return "<text class=\"" + (cls || "ab-t") + "\" x=\"" + n(a[0]) + "\" y=\"" + n(a[1]) + "\" text-anchor=\"" + (anker || "middle") + "\">" + t + "</text>"; };
+  z.c = function(x, y, r, cls){ var a = f(x, y); return "<circle class=\"" + (cls || "ab ab-bg") + "\" cx=\"" + n(a[0]) + "\" cy=\"" + n(a[1]) + "\" r=\"" + n(r * k) + "\"/>"; };
+  /* Sicherung: Rechteck auf der Leitung */
+  z.sich = function(x1, y, x2, h){ return z.r(x1, y - h / 2, x2, y + h / 2) + z.p("M" + x1 + " " + y + " H" + x2); };
+  /* Zähler: Rechteck mit Kopfstreifen, kWh und Wellenzeichen */
+  z.zaehler = function(x1, y1, x2, y2){
+    var hh = y2 - y1, m = (x1 + x2) / 2, w = (x2 - x1) * 0.16, yw = y1 + hh * 0.8;
+    return z.r(x1, y1, x2, y2) + z.p("M" + x1 + " " + (y1 + hh * 0.22) + " H" + x2) + z.t(m, y1 + hh * 0.62, "kWh")
+      + "<path class=\"ab\" d=\"" + (function(){ var a = f(m - w, yw), b = f(m, yw), c = f(m + w, yw), r = n((c[0] - a[0]) / 4); return "M" + n(a[0]) + " " + n(a[1]) + " A" + r + " " + r + " 0 0 1 " + n(b[0]) + " " + n(b[1]) + " A" + r + " " + r + " 0 0 0 " + n(c[0]) + " " + n(c[1]); })() + "\"/>";
+  };
+  z.kasten = function(x1, y1, x2, y2, t){ return z.r(x1, y1, x2, y2) + z.t((x1 + x2) / 2, (y1 + y2) / 2 + 4 / k * 0.75, t); };
+  /* Steckdose: Bogen, Wölbung zur Leitung hin. (x, y) = Ende der Leitung */
+  z.steckd = function(x, y, r){ var a = f(x + r, y - r), b = f(x + r, y + r), rr = n(r * k); return "<path class=\"ab\" d=\"M" + n(a[0]) + " " + n(a[1]) + " A" + rr + " " + rr + " 0 0 0 " + n(b[0]) + " " + n(b[1]) + "\"/>"; };
+  z.lampe = function(x, y, s){ return z.p("M" + (x - s) + " " + (y - s) + " L" + (x + s) + " " + (y + s) + " M" + (x + s) + " " + (y - s) + " L" + (x - s) + " " + (y + s)); };
+  z.kochfeld = function(x1, y1, x2, y2){
+    var h = z.r(x1, y1, x2, y2), dx = (x2 - x1) / 4, dy = (y2 - y1) / 4, mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function(q){ h += z.c(mx + q[0] * dx, my + q[1] * dy, (x2 - x1) * 0.11); });
+    return h;
+  };
+  /* Wassererwärmer: stehender Zylinder */
+  z.zylinder = function(x1, y1, x2, y2){
+    var a = f(x1, y1), b = f(x2, y2), rx = n((b[0] - a[0]) / 2), ry = n(rx * 0.42);
+    return "<path class=\"ab ab-bg\" d=\"M" + n(a[0]) + " " + n(a[1]) + " V" + n(b[1]) + " A" + rx + " " + ry + " 0 0 0 " + n(b[0]) + " " + n(b[1]) + " V" + n(a[1]) + " A" + rx + " " + ry + " 0 0 0 " + n(a[0]) + " " + n(a[1]) + " A" + rx + " " + ry + " 0 0 0 " + n(b[0]) + " " + n(a[1]) + "\"/>";
+  };
+  z.motor = function(cx, cy, r){ return z.p("M" + (cx - 33) + " " + (cy + 37) + " L" + (cx - 22) + " " + (cy + 25) + " H" + (cx + 22) + " L" + (cx + 33) + " " + (cy + 37) + " H" + (cx - 33)) + z.c(cx, cy, r) + z.t(cx, cy + 4 / k * 0.85, "M", "ab-t", "middle"); };
+  /* Anschlussüberstromunterbrecher: Rechteck mit Sicherung und Trichter */
+  z.anschluss = function(x1, y1, x2, y2, s1, s2, ys1, ys2, tip){
+    var m = (x1 + x2) / 2;
+    return z.p("M" + x1 + " " + y2 + " V" + y1 + " H" + x2 + " V" + y2 + " M" + x1 + " " + y2 + " L" + m + " " + tip + " L" + x2 + " " + y2 + " M" + x1 + " " + y2 + " H" + x2) + z.r(s1, ys1, s2, ys2, "ab") + z.p("M" + m + " " + y1 + " V" + tip);
+  };
+  /* Masspfeil: Strich am Anfang, offene Pfeilspitze am Ende */
+  z.strich = function(x, y, quer, cls){ return quer === "v" ? z.p("M" + x + " " + (y - 10 / (k / 0.36)) + " V" + (y + 10 / (k / 0.36)), cls) : z.p("M" + (x - 10 / (k / 0.36)) + " " + y + " H" + (x + 10 / (k / 0.36)), cls); };
+  z.spitze = function(x, y, r, cls){
+    var a = f(x, y), l = 4.2, d = r === "r" ? [[-l, -l * 0.75], [-l, l * 0.75]] : [[-l * 0.75, l], [l * 0.75, l]];
+    return "<path class=\"" + cls + "\" d=\"M" + n(a[0] + d[0][0]) + " " + n(a[1] + d[0][1]) + " L" + n(a[0]) + " " + n(a[1]) + " L" + n(a[0] + d[1][0]) + " " + n(a[1] + d[1][1]) + "\"/>";
+  };
+  return z;
+}
+
+var MFH = {
+  titel:"Mehrfamilienhaus", vb:"0 0 340 300", k:0.36, f:function(x, y){ return [(x - 30) * 0.36 + 8, (y - 30) * 0.36 + 8]; },
+  boxen:{6:[30, 560, 190, 700], 4:[278, 138, 540, 748], 2:[590, 68, 772, 782]},
+  nr:{2:[647, 96], 4:[400, 292], 6:[157, 608]},
+  leit:{
+    7:["M85 818 V678"],
+    5:["M85 572 V467 H305", "M260 186 V677", "M260 186 H305", "M260 677 H305"],
+    3:["M508 186 H612", "M508 467 H645", "M508 677 H612"],
+    1:["M750 117 H820", "M750 202 H820", "M745 271 H868", "M750 398 H820", "M750 482 H820", "M745 550 H868", "M745 677 H875", "M745 747 H828"]
+  },
+  mass:{
+    1:{d:"M787 47 H930", s:[787, 47, "v"], e:[930, 47, "r"], lab:[857, 38]},
+    3:{d:"M232 398 H612", s:[232, 398, "v"], e:[612, 398, "r"], lab:[400, 389]},
+    5:{d:"M50 540 V398 H232", s:[50, 540, "h"], e:[232, 398, "r"], lab:[120, 389]},
+    7:{d:"M50 818 V712", s:[50, 818, "h"], e:[50, 712, "u"], lab:[36, 772]}
+  },
+  treffer:{1:[780, 20, 940, 800], 3:[540, 150, 590, 700], 5:[40, 370, 270, 550], 7:[20, 705, 110, 825]},
+  innen:function(z){
+    var h = "";
+    [186, 467, 677].forEach(function(y){ h += z.p("M358 " + y + " H435") + z.sich(305, y, 358, 28) + z.zaehler(435, y - 40, 508, y + 43); });
+    h += z.p("M612 117 V271 M612 117 H682 M612 202 H682 M612 271 H692 M645 398 V550 M645 398 H682 M645 482 H682 M645 550 H692 M612 677 V747 M612 677 H692 M612 747 H692");
+    [117, 202, 398, 482].forEach(function(y){ h += z.kasten(682, y - 35, 750, y + 35, "FI-LS"); });
+    [271, 550, 677, 747].forEach(function(y){ h += z.sich(692, y, 745, 26); });
+    h += z.anschluss(50, 572, 120, 640, 72, 98, 580, 632, 678);
+    return h;
+  },
+  lasten:function(z){
+    var h = "";
+    [117, 202, 398, 482].forEach(function(y){ h += z.steckd(820, y, 19) + z.lampe(892, y, 20); });
+    h += z.kochfeld(868, 246, 918, 294) + z.kochfeld(868, 525, 918, 573) + z.zylinder(875, 640, 903, 682) + z.motor(852, 728, 24);
+    return h;
+  },
+  namen:{1:"Endstromkreise", 2:"Überstrom-Schutzeinrichtung für Endstromkreise", 3:"Bezügerleitungen", 4:"Bezügerüberstrom-Schutzeinrichtung", 5:"Hausleitung", 6:"Anschlussüberstromunterbrecher", 7:"Anschlussleitung"},
+  text:{
+    1:"Leitungen von den Überstrom-Schutzeinrichtungen der Verteilung bis zu den Steckdosen, Leuchten und fest angeschlossenen Verbrauchern.",
+    2:"Überstrom-Schutzeinrichtungen in der Verteilung, an denen die Endstromkreise beginnen. Im Schema: FI-LS und Sicherungen.",
+    3:"Leitungen von der Bezügerüberstrom-Schutzeinrichtung zur Verteilung des jeweiligen Bezügers.",
+    4:"Überstrom-Schutzeinrichtung jedes Bezügers. Im Schema sitzt sie zusammen mit dem Zähler (kWh) im gleichen Abschnitt.",
+    5:"Leitung vom Anschlussüberstromunterbrecher zu den Bezügerüberstrom-Schutzeinrichtungen.",
+    6:"Erste Überstrom-Schutzeinrichtung der Anlage, am Ende der Anschlussleitung.",
+    7:"Leitung vom Netz bis zum Anschlussüberstromunterbrecher."
+  }
+};
+var EFH = {
+  titel:"Einfamilienhaus", vb:"0 0 340 226", k:0.29, f:function(x, y){ return [(x - 20) * 0.29 + 8, (y + 40) * 0.29 + 8]; },
+  boxen:{4:[55, 368, 248, 538], 2:[498, 50, 835, 662]},
+  nr:{2:[665, 92], 4:[190, 470]},
+  leit:{
+    5:["M122 680 V510"],
+    3:["M122 385 V190", "M122 93 V50 H458 V635", "M458 218 H540", "M458 428 H540", "M458 553 H550"],
+    1:["M826 133 H912", "M826 218 H912", "M826 302 H876", "M625 428 H890", "M617 553 H890", "M940 428 H1000", "M946 218 H976"]
+  },
+  mass:{
+    1:{d:"M876 93 H1085", s:[876, 93, "v"], e:[1085, 93, "r"], lab:[978, 80]},
+    3:{d:"M38 345 V10 H415", s:[38, 345, "h"], e:[415, 10, "r"], lab:[205, -3]},
+    5:{d:"M38 680 V528", s:[38, 680, "h"], e:[38, 528, "u"], lab:[20, 612]}
+  },
+  treffer:{1:[850, 60, 1100, 600], 3:[25, -35, 480, 360], 5:[10, 520, 110, 690]},
+  innen:function(z){
+    var h = z.zaehler(80, 93, 165, 190) + z.anschluss(80, 385, 165, 468, 105, 140, 393, 460, 510);
+    h += z.kasten(540, 175, 625, 262, "RCD") + z.p("M625 218 H667 M667 133 V302 M667 133 H760 M667 218 H760 M667 302 H760");
+    [133, 218, 302].forEach(function(y){ h += z.sich(760, y, 826, 34); });
+    h += z.kasten(540, 385, 625, 470, "FI-LS") + z.sich(550, 553, 617, 33);
+    return h;
+  },
+  lasten:function(z){
+    var h = z.steckd(912, 133, 23) + z.lampe(985, 133, 23) + z.steckd(912, 218, 23) + z.steckd(976, 218, 23) + z.lampe(1042, 218, 23);
+    h += z.lampe(916, 302, 23) + z.lampe(976, 302, 23) + z.lampe(1036, 302, 23) + z.lampe(916, 428, 23) + z.steckd(1000, 428, 23) + z.kochfeld(890, 522, 948, 583);
+    return h;
+  },
+  namen:{1:"Endstromkreise", 2:"Überstrom-Schutzeinrichtung für Endstromkreise", 3:"Bezügerleitung", 4:"Anschlussüberstromunterbrecher", 5:"Anschlussleitung"},
+  text:{
+    1:"Leitungen von den Überstrom-Schutzeinrichtungen der Verteilung bis zu den Steckdosen, Leuchten und fest angeschlossenen Verbrauchern.",
+    2:"Überstrom-Schutzeinrichtungen in der Verteilung, an denen die Endstromkreise beginnen. Im Schema: RCD mit drei Sicherungen, ein FI-LS und eine Sicherung.",
+    3:"Leitung vom Anschlussüberstromunterbrecher über den Zähler (kWh) zur Verteilung. Eine Hausleitung und eine eigene Bezügerüberstrom-Schutzeinrichtung gibt es in diesem Schema nicht.",
+    4:"Erste Überstrom-Schutzeinrichtung der Anlage, am Ende der Anschlussleitung.",
+    5:"Leitung vom Netz bis zum Anschlussüberstromunterbrecher."
+  }
+};
+var ANLAGEN = {mfh:MFH, efh:EFH};
+function istLeitung(a, id){ return !!a.leit[id]; }
+function ids(a){ return Object.keys(a.namen).map(Number); }
+window.__t = {ANLAGEN:ANLAGEN};
+
+function zeichne(a, an, hit){
+  var z = Zeichner(a.f, a.k), h = "";
+  Object.keys(a.boxen).forEach(function(id){ var b = a.boxen[id]; h += z.r(b[0], b[1], b[2], b[3], "ab-box" + (Number(id) === an ? " an" : "")); });
+  Object.keys(a.leit).forEach(function(id){ a.leit[id].forEach(function(d){ h += z.p(d, "ab" + (Number(id) === an ? " an" : "")); }); });
+  h += a.innen(z) + a.lasten(z);
+  Object.keys(a.mass).forEach(function(id){
+    var m = a.mass[id], on = Number(id) === an, c = "ab-pf" + (on ? " an" : "");
+    h += z.p(m.d, c) + z.strich(m.s[0], m.s[1], m.s[2], c) + z.spitze(m.e[0], m.e[1], m.e[2], c) + z.t(m.lab[0], m.lab[1], id, "ab-nr" + (on ? " an" : ""));
+  });
+  Object.keys(a.nr).forEach(function(id){ h += z.t(a.nr[id][0], a.nr[id][1], id, "ab-nr" + (Number(id) === an ? " an" : "")); });
+  if (hit){
+    Object.keys(a.boxen).forEach(function(id){ var b = a.boxen[id]; h += z.r(b[0], b[1], b[2], b[3], "ab-hit", " data-id=\"" + id + "\""); });
+    Object.keys(a.treffer).forEach(function(id){ var b = a.treffer[id]; h += z.r(b[0], b[1], b[2], b[3], "ab-hit", " data-id=\"" + id + "\""); });
+  }
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {a:"mfh", id:0, zeig:false};
+function render(){
+  var a = ANLAGEN[st.a], sv = $("schema");
+  $("a-mfh").setAttribute("aria-pressed", String(st.a === "mfh")); $("a-efh").setAttribute("aria-pressed", String(st.a === "efh"));
+  $("s-titel").textContent = "Einpoliges Prinzipschema: " + a.titel;
+  sv.setAttribute("viewBox", a.vb); sv.innerHTML = zeichne(a, st.id, true);
+  $("nummern").innerHTML = ids(a).map(function(i){ return "<button class=\"opt\" type=\"button\" id=\"nr-" + i + "\" data-id=\"" + i + "\" aria-pressed=\"" + (i === st.id) + "\">" + i + "</button>"; }).join("");
+  if (st.id){
+    $("art").textContent = "Nummer " + st.id + " · " + (istLeitung(a, st.id) ? "Leitungsabschnitt" : "Sicherungsabschnitt");
+    $("name").textContent = a.namen[st.id]; $("beschr").textContent = a.text[st.id];
+  } else { $("art").textContent = ""; $("name").textContent = "Wählen Sie eine Nummer."; $("beschr").textContent = "Überlegen Sie zuerst selbst, wie der Abschnitt heisst."; }
+  $("zeig").setAttribute("aria-pressed", String(st.zeig)); $("zeig").textContent = st.zeig ? "Namen verbergen" : "Alle Namen zeigen";
+  $("tab-wrap").hidden = !st.zeig;
+  $("tab").innerHTML = ids(a).map(function(i){ return "<tr><td class=\"nr\">" + i + "</td><td>" + a.namen[i] + "</td><td>" + (istLeitung(a, i) ? "Leitung" : "Sicherung") + "</td></tr>"; }).join("");
+}
+function init(){
+  $("wahl").addEventListener("click", function(e){ var b = e.target.closest("button[data-a]"); if (!b) return; st.a = b.getAttribute("data-a"); st.id = 0; render(); });
+  $("schema").addEventListener("click", function(e){ var b = e.target.closest("[data-id]"); if (!b) return; st.id = Number(b.getAttribute("data-id")); render(); });
+  $("nummern").addEventListener("click", function(e){ var b = e.target.closest("button[data-id]"); if (!b) return; st.id = Number(b.getAttribute("data-id")); render(); var f = $("nr-" + st.id); if (f) f.focus(); });
+  $("zeig").addEventListener("click", function(){ st.zeig = !st.zeig; render(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID6 Übungen 57 und 58) ================= */
+var ALLE_NAMEN = ["Endstromkreise", "Überstrom-Schutzeinrichtung für Endstromkreise", "Bezügerleitung", "Bezügerüberstrom-Schutzeinrichtung", "Hausleitung", "Anschlussüberstromunterbrecher", "Anschlussleitung"];
+function einzahl(s){ return s === "Bezügerleitungen" ? "Bezügerleitung" : s; }
+function qNummer(){
+  var ak = pick(["mfh", "mfh", "efh"]), a = ANLAGEN[ak], id = pick(ids(a)), c = einzahl(a.namen[id]);
+  var gleich = ALLE_NAMEN.filter(function(x){ return x !== c && (ALLE_NAMEN.indexOf(x) % 2 === ALLE_NAMEN.indexOf(c) % 2); }), rest = ALLE_NAMEN.filter(function(x){ return x !== c && gleich.indexOf(x) < 0; });
+  var falsch = shuffle(gleich).slice(0, 2).concat(shuffle(rest).slice(0, 1));
+  return {
+    text: "Einpoliges Prinzipschema eines " + (ak === "mfh" ? "Mehrfamilienhauses (Übung 57)" : "Einfamilienhauses (Übung 58)") + ". Wie heisst der hervorgehobene Abschnitt mit der Nummer " + id + "?"
+      + "<svg class=\"q-schema\" viewBox=\"" + a.vb + "\" role=\"img\" aria-label=\"Einpoliges Prinzipschema, hervorgehoben ist der Abschnitt " + id + "\">" + zeichne(a, id, false) + "</svg>",
+    parts: [{label:"Abschnitt", options:shuffle([c].concat(falsch)), correct:c}],
+    hint: "Grün hinterlegt sind die Sicherungsabschnitte, die Pfeile bezeichnen Leitungsabschnitte. Gehen Sie vom Netz (unten links) zum Verbraucher (rechts).",
+    solution: "<p><b>" + a.namen[id] + "</b> (" + (istLeitung(a, id) ? "Leitungsabschnitt" : "Sicherungsabschnitt") + ")</p><p>" + a.text[id] + "</p>"
+  };
+}
+function qArt(){
+  var nm = pick(ALLE_NAMEN), leitung = ["Endstromkreise", "Bezügerleitung", "Hausleitung", "Anschlussleitung"].indexOf(nm) >= 0;
+  return {
+    text: "Gehört «" + nm + "» zu den Leitungsabschnitten oder zu den Sicherungsabschnitten?",
+    parts: [{label:"Art des Abschnitts", options:["Leitungsabschnitt", "Sicherungsabschnitt", "Weder noch: Es ist ein Verbraucher."], correct:leitung ? "Leitungsabschnitt" : "Sicherungsabschnitt"}],
+    hint: "Leitungsabschnitte: Anschlussleitung, Hausleitung, Bezügerleitung, Endstromkreise. Dazwischen sitzen die Überstrom-Schutzeinrichtungen.",
+    solution: "<p><b>" + (leitung ? "Leitungsabschnitt" : "Sicherungsabschnitt") + "</b></p><p>Leitungsabschnitte: Anschlussleitung, Hausleitung, Bezügerleitung, Endstromkreise. Sicherungsabschnitte: Anschlussüberstromunterbrecher, Bezügerüberstrom-Schutzeinrichtung, Überstrom-Schutzeinrichtung für Endstromkreise.</p>"
+  };
+}
+function qOrder(){
+  var v = pick([
+    {t:"Mehrfamilienhaus: Ordnen Sie die Leitungsabschnitte vom Netz bis zum Verbraucher.", items:["Anschlussleitung", "Hausleitung", "Bezügerleitung", "Endstromkreis"]},
+    {t:"Mehrfamilienhaus: Ordnen Sie die Sicherungsabschnitte vom Netz bis zum Verbraucher.", items:["Anschlussüberstromunterbrecher", "Bezügerüberstrom-Schutzeinrichtung", "Überstrom-Schutzeinrichtung für Endstromkreise"]},
+    {t:"Einfamilienhaus (Übung 58): Ordnen Sie alle Abschnitte vom Netz bis zum Verbraucher.", items:["Anschlussleitung", "Anschlussüberstromunterbrecher", "Bezügerleitung", "Überstrom-Schutzeinrichtung für Endstromkreise", "Endstromkreis"]},
+    {t:"Mehrfamilienhaus: Ordnen Sie den Weg vom Netz bis zur Verteilung des Bezügers.", items:["Anschlussleitung", "Anschlussüberstromunterbrecher", "Hausleitung", "Bezügerüberstrom-Schutzeinrichtung", "Bezügerleitung"]}
+  ]);
+  return {
+    text: v.t,
+    parts: [{type:"order", label:"Reihenfolge vom Netz zum Verbraucher", items:v.items}],
+    hint: "Die Anschlussleitung kommt vom Netz. Die Endstromkreise führen zu den Steckdosen und Verbrauchern.",
+    solution: "<p><b>" + v.items.join(" → ") + "</b></p>"
+  };
+}
+var ZWISCHEN = [
+  {t:"Welcher Leitungsabschnitt liegt im Mehrfamilienhaus zwischen dem Anschlussüberstromunterbrecher und den Bezügerüberstrom-Schutzeinrichtungen?", c:"Hausleitung"},
+  {t:"Welcher Leitungsabschnitt liegt im Mehrfamilienhaus zwischen der Bezügerüberstrom-Schutzeinrichtung und der Überstrom-Schutzeinrichtung für Endstromkreise?", c:"Bezügerleitung"},
+  {t:"Welcher Leitungsabschnitt endet am Anschlussüberstromunterbrecher?", c:"Anschlussleitung"},
+  {t:"Welche Leitungen beginnen an der Überstrom-Schutzeinrichtung in der Verteilung und führen zu den Steckdosen und Leuchten?", c:"Endstromkreise"},
+  {t:"Welcher Leitungsabschnitt liegt im Einfamilienhaus von Übung 58 zwischen dem Anschlussüberstromunterbrecher und der Verteilung?", c:"Bezügerleitung"}
+];
+var LEITUNGEN = ["Anschlussleitung", "Hausleitung", "Bezügerleitung", "Endstromkreise"];
+function qZwischen(){
+  var k = pick(ZWISCHEN);
+  return { text:k.t, parts:[{label:"Leitungsabschnitt", options:LEITUNGEN.slice(), correct:k.c}], hint:"Vom Netz zum Verbraucher: Anschlussleitung, Hausleitung, Bezügerleitung, Endstromkreise.", solution:"<p><b>" + k.c + "</b></p>" };
+}
+var SICHERUNGEN = ["Anschlussüberstromunterbrecher", "Bezügerüberstrom-Schutzeinrichtung", "Überstrom-Schutzeinrichtung für Endstromkreise"];
+var FALL = [
+  {t:"In einer Wohnung des Mehrfamilienhauses hat der FI-LS der Steckdosen im Wohnzimmer ausgelöst. Zu welchem Sicherungsabschnitt gehört er?", c:2, s:"Der FI-LS sitzt in der Verteilung der Wohnung. Dort beginnen die Endstromkreise."},
+  {t:"Die ganze Wohnung im 1. Stock ist ohne Strom, die anderen Wohnungen sind nicht betroffen. Die Sicherung beim Zähler dieser Wohnung hat angesprochen. Zu welchem Sicherungsabschnitt gehört sie?", c:1, s:"Jeder Bezüger hat eine eigene Bezügerüberstrom-Schutzeinrichtung. Im Schema von Übung 57 liegt sie im gleichen Abschnitt wie der Zähler."},
+  {t:"Das ganze Mehrfamilienhaus ist ohne Strom. Die Sicherung am Ende der Anschlussleitung hat angesprochen. Wie heisst dieser Sicherungsabschnitt?", c:0, s:"Der Anschlussüberstromunterbrecher ist die erste Überstrom-Schutzeinrichtung der Anlage."},
+  {t:"Im Mehrfamilienhaus hat die Sicherung des Motors im allgemeinen Teil der Anlage angesprochen. Zu welchem Sicherungsabschnitt gehört sie?", c:2, s:"Die Sicherung sitzt in der Verteilung, an der die Endstromkreise beginnen (im Schema Abschnitt 2 unten)."}
+];
+function qFall(){
+  var k = pick(FALL);
+  return { text:k.t, parts:[{label:"Sicherungsabschnitt", options:SICHERUNGEN.slice(), correct:SICHERUNGEN[k.c]}], hint:"Überlegen Sie, wie viel von der Anlage ausfällt: nur ein Stromkreis, eine ganze Wohnung oder das ganze Haus.", solution:"<p><b>" + SICHERUNGEN[k.c] + "</b></p><p>" + k.s + "</p>" };
+}
+function qEfh(){
+  var c = ["Hausleitung", "Bezügerüberstrom-Schutzeinrichtung"];
+  return {
+    text: "Vergleichen Sie die beiden Prinzipschemas. Welche Abschnitte des Mehrfamilienhauses (Übung 57) kommen im Einfamilienhaus (Übung 58) nicht vor? Wählen Sie alle richtigen Antworten.",
+    parts: [{type:"multi", label:"Fehlende Abschnitte", options:shuffle(["Hausleitung", "Bezügerüberstrom-Schutzeinrichtung", "Anschlussleitung", "Anschlussüberstromunterbrecher", "Bezügerleitung", "Endstromkreise"]), correct:c}],
+    hint: "Das Mehrfamilienhaus hat sieben nummerierte Abschnitte, das Einfamilienhaus fünf.",
+    solution: "<p><b>" + c.join(" und ") + "</b></p><p>Im Einfamilienhaus führt die Bezügerleitung direkt vom Anschlussüberstromunterbrecher über den Zähler zur Verteilung.</p>"
+  };
+}
+var KONZEPT = [
+  {t:"Weshalb soll Giovanni die Abschnitte einer elektrischen Anlage korrekt benennen können?", o:["Weil ungenaue Angaben die Fehlersuche erschweren und Zeit kosten", "Weil er die Sicherungen selbst reparieren muss", "Weil er sonst keinen Strom beziehen darf", "Weil die Abschnitte auf jeder Steckdose angeschrieben sind"], c:"Weil ungenaue Angaben die Fehlersuche erschweren und Zeit kosten", s:"Aussagen wie «Beim grauen Kasten hat es geblitzt» helfen bei der Fehlersuche nicht."},
+  {t:"Wie viele Leitungsabschnitte zeigt das Prinzipschema des Mehrfamilienhauses in Übung 57?", o:["Vier", "Drei", "Fünf", "Sieben"], c:"Vier", s:"Endstromkreise, Bezügerleitungen, Hausleitung und Anschlussleitung. Dazu kommen drei Sicherungsabschnitte."},
+  {t:"Welches Betriebsmittel steht im Prinzipschema von Übung 57 im gleichen grün hinterlegten Feld wie die Bezügerüberstrom-Schutzeinrichtung?", o:["Der Zähler (kWh)", "Der FI-LS", "Der Motor", "Das Kochfeld"], c:"Der Zähler (kWh)", s:"Abschnitt 4 enthält pro Bezüger eine Sicherung und einen Zähler."},
+  {t:"Was bedeutet «einpoliges Prinzipschema»?", o:["Jede Leitung ist nur mit einem Strich gezeichnet, unabhängig von der Anzahl Leiter.", "Die Anlage hat nur einen Aussenleiter.", "Es sind nur die Neutralleiter gezeichnet.", "Es zeigt nur einen einzigen Stromkreis."], c:"Jede Leitung ist nur mit einem Strich gezeichnet, unabhängig von der Anzahl Leiter.", s:"So bleibt der Aufbau der Anlage vom Netz bis zu den Verbrauchern übersichtlich."}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return { text:k.t, parts:[{label:"Antwort", options:shuffle(k.o), correct:k.c}], hint:"Sehen Sie sich das Prinzipschema im Arbeitsblatt bei Übung 57 an.", solution:"<p><b>" + k.c + "</b></p><p>" + k.s + "</p>" };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.34) return qNummer();
+  if (x < 0.46) return qArt();
+  if (x < 0.58) return qOrder();
+  if (x < 0.72) return qZwischen();
+  if (x < 0.86) return qFall();
+  if (x < 0.92) return qEfh();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qNummer, qNummer, qNummer, qArt, qOrder, qZwischen, qFall, pick([qEfh, qKonzept])]); }});
+})();
+
+</script>
+</body>
+</html>

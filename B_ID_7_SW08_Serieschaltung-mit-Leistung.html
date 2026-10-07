@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA6 Serieschaltung mit Leistung: Vorwiderstand und zwei Lampen BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Schaltzeichen nach Theoriebuch (AAD28, AAD30.1) und Arbeitsblättern (ID4, ID5) */
+:root{ --sym:#2B3E66; --w-l:#7F4F3F; --w-n:#4F86B8; --w-ld:#F26B21; --w-ld2:#9B59C6; --w-k:#F26B21; --w-pe1:#7AC943; --w-pe2:#F7DC3B;
+  --t-l:#993300; --t-ld:#800080; --t-ldb:#FF6600; --t-n:#0000FF; --t-k:#FF00FF; --plan:#4F86B8; --lampe-an:#F6D13A;
+  --w-l2:#141414; --w-l2h:transparent; --w-l3:#8C8C8C; --w-i:#F03A17; --et-u:#0000FF; --et-i:#E60000 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 } }
+:root[data-theme="dark"]{ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 }
+.sy{fill:none;stroke:var(--sym);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy.dn{stroke-width:1.3}
+.sy.dk{stroke-width:2.6}
+.sy-s{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy-s.dn{stroke-width:1.2}
+.sy-f{fill:var(--sym);stroke:none}
+.sy-fs{fill:var(--ink);stroke:none}
+.sy-bg{fill:var(--surface)}
+.sy-d{stroke-dasharray:3.5 3}
+.sy-t{fill:var(--sym);font-family:var(--sans);font-size:11px}
+.sy-ts{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.w{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.w.live{stroke-width:5}
+.w-l{stroke:var(--w-l)} .w-n{stroke:var(--w-n)} .w-ld{stroke:var(--w-ld)} .w-ld2{stroke:var(--w-ld2)} .w-k{stroke:var(--w-k)}
+.w-pe1{stroke:var(--w-pe1)} .w-pe2{stroke:var(--w-pe2);stroke-dasharray:6 6;stroke-linecap:butt}
+.t-l{stroke:var(--t-l)} .t-ld{stroke:var(--t-ld)} .t-ldb{stroke:var(--t-ldb)} .t-n{stroke:var(--t-n)} .t-k{stroke:var(--t-k)} .t-s{stroke:var(--ink)}
+.plan{fill:none;stroke:var(--plan);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.plan.an{stroke-width:5.5}
+.plan.fehler{stroke:var(--bad)}
+/* Aussenleiter L2 (schwarz) und L3 (grau), Strompfeile des Arbeitsblatts, Messschaltung des Theoriebuchs */
+.w-l2{stroke:var(--w-l2)} .w-l2h{stroke:var(--w-l2h);stroke-width:4.8} .w-l3{stroke:var(--w-l3)}
+.w-i{fill:var(--w-i);stroke:none}
+.w-it{fill:var(--w-i);font-family:var(--sans);font-size:9px}
+.et-us{fill:none;stroke:var(--et-u);stroke-width:1.5;stroke-linecap:round}
+.et-is{fill:none;stroke:var(--et-i);stroke-width:1.5;stroke-linecap:round}
+.et-uf{fill:var(--et-u);stroke:none} .et-if{fill:var(--et-i);stroke:none}
+.et-ut{fill:var(--et-u);font-family:var(--sans);font-size:11px} .et-it{fill:var(--et-i);font-family:var(--sans);font-size:11px}
+
+[hidden]{display:none!important}
+:root{--c-p:#0B8A45}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--c-p:#5FD990} }
+:root[data-theme="dark"]{--c-p:#5FD990}
+.schaltung{width:100%;height:auto;display:block}
+.sk-p{fill:var(--c-p);font-family:var(--sans);font-size:11px}
+.sk-b{fill:var(--ink);font-family:var(--sans);font-size:11px;font-weight:700}
+.messwerte{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.92rem;display:flex;flex-wrap:wrap;gap:4px 14px}
+.messwerte b{font-weight:700}
+.mw-u{color:var(--et-u)} .mw-i{color:var(--et-i)} .mw-p{color:var(--c-p)}
+.teiler{display:flex;height:38px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.teiler .zone{flex-direction:column;line-height:1.1;font-size:.7rem}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.rechnung .zw{font-weight:700;color:var(--muted);font-size:.86rem;line-height:1.3;margin-top:4px}
+.r-slider{display:grid;grid-template-columns:8.2em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.q-schema{display:block;width:100%;max-width:340px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.nw{white-space:nowrap}
+.urteil{font-weight:700;border-left:4px solid var(--accent);padding:2px 0 2px 10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 6</p>
+    <h1>Serieschaltung mit Leistung: Vorwiderstand und zwei Lampen BAP</h1>
+    <p class="lead">Gleicher Strom, geteilte Spannung: Berechnen Sie Widerstände, Teilspannungen und Leistungen einer Serieschaltung und finden Sie heraus, welche von zwei Lampen heller brennt.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Schaltung</legend>
+          <div class="opts" id="typ">
+            <button class="opt txt" type="button" data-typ="A" id="typ-A" aria-pressed="true">Zwei Widerstände (wie Übung 54)</button>
+            <button class="opt txt" type="button" data-typ="B" id="typ-B" aria-pressed="false">Lampe mit Vorwiderstand (wie Übung 55)</button>
+            <button class="opt txt" type="button" data-typ="C" id="typ-C" aria-pressed="false">Zwei Lampen in Serie (wie Übung 56)</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Werte einstellen</legend>
+          <div class="plain" id="regler"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Skizze mit allen Werten</h2>
+        <svg class="schaltung" id="schaltung" viewBox="0 0 340 112" role="img" aria-label="Serieschaltung mit zwei Verbrauchern: Strom I, Teilspannungen U1 und U2, Gesamtspannung U und Leistungen"></svg>
+        <p class="messwerte" id="messwerte"></p>
+        <p class="note">Darstellung wie im Arbeitsblatt, Übung 54: Strom rot, Spannungen blau. Die Leistungen (grün) und die Gesamtspannung zeigt das Tool zusätzlich.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>So verteilen sich Spannung und Leistung</h2>
+        <div class="plain">
+          <p class="label">Teilspannungen</p>
+          <div class="teiler" id="teiler-u"></div>
+          <p class="label">Teilleistungen</p>
+          <div class="teiler" id="teiler-p"></div>
+        </div>
+        <p class="urteil" id="urteil"></p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch ET4.1 bis ET4.4)</h2>
+        <div class="merke">
+          <p>In einer Serieschaltung fliesst überall der gleiche Strom, da der Stromkreis nicht verzweigt ist.</p>
+          <p>In der Serieschaltung ist die Summe der Teilspannungen an den Verbrauchern genauso gross wie die angelegte Gesamtspannung.</p>
+          <p>Bei der Serieschaltung ist der Gesamtwiderstand gleich der Summe der Einzelwiderstände.</p>
+          <p>Bei Serieschaltungen liegt am grössten Widerstand stets die grösste Spannung.</p>
+          <p id="merk-formeln"></p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie Übung 54. Lösen Sie die Aufgabe zuerst auf dem Arbeitsblatt und vergleichen Sie dann.</li>
+          <li>Laden Sie Übung 55. Der Vorwiderstand nimmt fast so viel Leistung auf wie die Lampe. Was geschieht mit dieser Leistung?</li>
+          <li>Laden Sie Übung 56. Welche Lampe hat den grösseren Widerstand, welche erhält die grössere Spannung?</li>
+          <li>Zwei Lampen in Serie: Wählen Sie zwei gleiche Lampen. Welchen Teil ihrer Bemessungsleistung nimmt jede noch auf?</li>
+          <li>Zwei Lampen in Serie: Vergleichen Sie die Gesamtleistung mit den Bemessungsleistungen. Weshalb ist sie kleiner als die Leistung der schwächeren Lampe allein?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET4.1 bis ET4.4 (Serieschaltung) und ET2.15 bis ET2.17 (Leistung).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 6 Repetition Serieschaltung mit Leistung: Übungen 53 bis 56 (ID7.21 und ID7.22)</li><li>Theoriebuch Elektrotechnik, Kapitel 4 Grundschaltungen der Elektrotechnik: ET4.1 bis ET4.4 (Serieschaltung, Spannungsteilung)</li><li>Theoriebuch Elektrotechnik, Kapitel 2 Grundbegriffe der Elektrotechnik: ET2.15 bis ET2.17 (elektrische Leistung, erweitertes ohmsches Gesetz). Das Arbeitsblatt nennt dafür die Seiten ET2.19 bis 2.22.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Schaltzeichen-Bibliothek: Formen aus Theoriebuch AAD28.2 bis AAD28.5, AAD30.1 und den Arbeitsblättern ID4 und ID5 übernommen */
+var SYM = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function pfad(d, cls, extra){ return "<path class=\"" + cls + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function kreis(x, y, r, cls){ return "<circle class=\"" + cls + "\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>"; }
+function text(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+
+/* ===== Installationsplan und Prinzipschema (AAD30.1, AAD28.2 bis AAD28.5) ===== */
+function fahne(x, y, r, grad, uhr, len, hk){
+  var a = grad * Math.PI / 180, b = a + (uhr ? 1 : -1) * Math.PI / 2;
+  var x1 = x + (r + len) * Math.cos(a), y1 = y + (r + len) * Math.sin(a);
+  return "M" + n(x + r * Math.cos(a)) + " " + n(y + r * Math.sin(a)) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * Math.cos(b)) + " " + n(y1 + hk * Math.sin(b));
+}
+/* Schalter im Plan: typ 0, 1, 2, 3 oder 6 */
+function schalter(x, y, typ, o){
+  o = o || {}; var r = o.r || 9, len = o.len || 15, hk = o.hk || 7, d = "";
+  if (String(typ) === "2"){
+    /* Sch 2 gemäss Vorgabe BAP (Bildschirmfoto vom 5.10.): zwei parallele Striche nach rechts oben, jeder mit einem Haken nach rechts unten */
+    var c = Math.SQRT1_2, ab = 0.28 * r, T = [(r + len) * 1.12, (r + len) * 1.12 * 0.84];
+    [-1, 1].forEach(function(seite, k){
+      var ox = seite * ab * c, oy = seite * ab * c, a0 = Math.sqrt(r * r - ab * ab);
+      var x0 = x + ox + a0 * c, y0 = y + oy - a0 * c, x1 = x + ox + T[k] * c, y1 = y + oy - T[k] * c;
+      d += "M" + n(x0) + " " + n(y0) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * c) + " " + n(y1 + hk * c) + " ";
+    });
+    return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+  }
+  /* "2p" und "2u": die beiden Formen aus dem Theoriebuch AAD28.4 (Prinzipschema und Abbildung UP-Installation), in den Tools nicht mehr verwendet */
+  var f = {0:[[-45, 1]], 1:[[-45, 1], [-135, 0]], "2p":[[-45, 1], [-135, 1]], "2u":[[-45, 0], [-135, 0]], 3:[[-45, 1], [135, 1]], 6:[[-45, 1], [-135, 0], [135, 1], [45, 0]]}[typ];
+  f.forEach(function(e){ d += fahne(x, y, r, e[0], e[1], len, hk) + " "; });
+  return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+}
+/* Steckdose Typ 13 im Plan: Stiel ab (x,y) in Richtung grad, Querstrich, Bogen */
+function steckdose(x, y, grad, o){
+  o = o || {}; var s = o.stiel === undefined ? 10 : o.stiel, b = o.b || 9, ra = o.ra || 7.5;
+  var a = grad * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+  var ex = x + s * dx, ey = y + s * dy, cx = ex + ra * dx, cy = ey + ra * dy;
+  var d = "M" + n(x) + " " + n(y) + " L" + n(ex) + " " + n(ey) + " M" + n(ex + b * px) + " " + n(ey + b * py) + " L" + n(ex - b * px) + " " + n(ey - b * py)
+        + " M" + n(cx + ra * px) + " " + n(cy + ra * py) + " A" + ra + " " + ra + " 0 0 1 " + n(cx - ra * px) + " " + n(cy - ra * py);
+  return pfad(d, "sy dk");
+}
+function leuchte(x, y, o){ o = o || {}; var s = o.s || 10; return pfad("M" + n(x - s) + " " + n(y - s) + " L" + n(x + s) + " " + n(y + s) + " M" + n(x + s) + " " + n(y - s) + " L" + n(x - s) + " " + n(y + s), "sy dk"); }
+function dose(x, y, o){ o = o || {}; var s = o.s || 11; return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + kreis(x, y, o.punkt || 3.6, "sy-f"); }
+/* Zuleitung nach UV: Kasten mit Pfeilspitze, spitze nach rechts (1) oder links (-1); (x,y) ist der Anschlusspunkt der Leitung */
+function uv(x, y, richtung, label){
+  var w = 26, h = 8, k = richtung, x1 = x + k * w, d = "M" + n(x) + " " + n(y - h) + " H" + n(x1) + " V" + n(y + h) + " H" + n(x) + " Z M" + n(x1) + " " + n(y - h) + " L" + n(x1 + k * 9) + " " + n(y) + " L" + n(x1) + " " + n(y + h);
+  return pfad(d, "sy sy-bg") + text(x + k * w / 2, y + 4, label || "UV", "sy-t", "middle");
+}
+function ventilator(x, y, o){
+  o = o || {}; var s = o.s || 12, a = s * 0.62, b = s * 0.36;
+  return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + unendlich(x, y, a, b);
+}
+function unendlich(x, y, a, b){
+  return pfad("M" + n(x) + " " + n(y) + " C" + n(x + a * 0.5) + " " + n(y - b * 1.5) + " " + n(x + a * 1.4) + " " + n(y - b * 1.2) + " " + n(x + a * 1.4) + " " + n(y)
+    + " C" + n(x + a * 1.4) + " " + n(y + b * 1.2) + " " + n(x + a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y)
+    + " C" + n(x - a * 0.5) + " " + n(y - b * 1.5) + " " + n(x - a * 1.4) + " " + n(y - b * 1.2) + " " + n(x - a * 1.4) + " " + n(y)
+    + " C" + n(x - a * 1.4) + " " + n(y + b * 1.2) + " " + n(x - a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y), "sy dk");
+}
+/* Markierung der Drahtzahl: kurzer Querstrich über die Leitung */
+function marke(x, y, senkrechteLeitung, l){ l = l || 7; return pfad(senkrechteLeitung ? "M" + n(x - l) + " " + n(y) + " H" + n(x + l) : "M" + n(x) + " " + n(y - l) + " V" + n(y + l), "sy dn"); }
+
+/* ===== Stromlaufschema nach Theoriebuch (schwarz gezeichnet) ===== */
+function lampeT(x, y, o){
+  o = o || {}; var r = o.r || 11, d = r * 0.707, h = "";
+  h += "<circle class=\"sy-s\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"" + (o.an ? " style=\"fill:var(--lampe-an)\"" : " style=\"fill:var(--surface)\"") + "/>";
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy-s");
+  if (o.name) h += text(x - r - 5, y + 5, o.name, "sy-ts", "end", " style=\"font-size:13px\"");
+  if (o.x12 !== false){ h += text(x - 3, y - r - 2, "X1", "sy-ts", "end", " style=\"font-size:8px\"") + text(x - 3, y + r + 9, "X2", "sy-ts", "end", " style=\"font-size:8px\""); }
+  if (o.buchstabe) h += text(x + r * 0.6, y - r - 1, o.buchstabe, "sy-ts", "start", " style=\"font-size:12px\"");
+  return h;
+}
+/* Neutralleiter-Kennzeichen: Schrägstrich mit Punkt */
+function nMarke(x, y){ return pfad("M" + n(x - 4) + " " + n(y + 5) + " L" + n(x + 3) + " " + n(y - 7), "w t-n", " style=\"stroke-width:2\"") + kreis(x + 3.4, y - 8, 2, "sy-fs"); }
+/* Verbindung Antrieb zu Schaltstück: gestrichelt mit Kerbe (v oder ^) */
+function gestaenge(x0, x1, y, auf){
+  var m = x0 + (x1 - x0) * 0.42, k = auf ? -1 : 1;
+  return pfad("M" + n(x0) + " " + n(y) + " H" + n(m - 6), "sy-s dn sy-d") + pfad("M" + n(m - 6) + " " + n(y) + " H" + n(m - 4) + " L" + n(m) + " " + n(y + k * 7) + " L" + n(m + 4) + " " + n(y) + " H" + n(m + 6), "sy-s dn") + pfad("M" + n(m + 6) + " " + n(y) + " H" + n(x1), "sy-s dn sy-d");
+}
+/* Antrieb: "klammer" [ (Schema 0), "balken" | mit Ansatz (Schema 1 und 3), "dreh" (Schema 2) */
+function antriebT(art, x, y, h){
+  h = h || 9;
+  if (art === "klammer") return pfad("M" + n(x + 5) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 5), "sy-s");
+  if (art === "dreh") return pfad("M" + n(x - 6) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 6), "sy-s");
+  return pfad("M" + n(x) + " " + n(y - h) + " V" + n(y + h) + " M" + n(x) + " " + n(y) + " H" + n(x + 4), "sy-s");
+}
+
+/* ===== Wirkschaltschema nach Arbeitsblatt (dunkelblau gezeichnet) ===== */
+function klemme(x, y, o){
+  o = o || {}; var r = o.r || 5.5, k = r * 0.72, s = o.steigend ? -1 : 1;
+  return kreis(x, y, r, "sy dk sy-bg") + pfad("M" + n(x - k) + " " + n(y - s * k) + " L" + n(x + k) + " " + n(y + s * k), "sy dk");
+}
+/* Anschlussklemme im Ersatzschaltbild: offener Ring */
+function ring(x, y, r){ return "<circle class=\"sy sy-bg\" style=\"stroke-width:3\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + (r || 5) + "\"/>"; }
+/* Leuchte im Wirkschaltschema: strichpunktierter Kasten, Kreuz und Schutzleiteranschluss rechts. (x,y) ist die Mitte des Kreuzes. */
+function leuchteW(x, y, o){
+  o = o || {}; var s = o.s || 36, x0 = x - 0.407 * s, y0 = y - 0.49 * s, x1 = x0 + s, y1 = y0 + s, mx = x0 + s / 2, my = y0 + s / 2, g = 0.09 * s, d = 0.31 * s, h = "";
+  if (o.an) h += "<rect x=\"" + n(x0) + "\" y=\"" + n(y0) + "\" width=\"" + s + "\" height=\"" + s + "\" style=\"fill:var(--lampe-an);opacity:.75\"/>";
+  h += pfad("M" + n(mx - g) + " " + n(y0) + " H" + n(x0) + " V" + n(my - g) + " M" + n(x0) + " " + n(my + g) + " V" + n(y1) + " H" + n(mx - g)
+    + " M" + n(mx + g) + " " + n(y1) + " H" + n(x1) + " V" + n(my + g) + " M" + n(x1) + " " + n(my - g) + " V" + n(y0) + " H" + n(mx + g), "sy dk", " style=\"stroke-linecap:butt\"");
+  [[mx, y0], [mx, y1], [x0, my]].forEach(function(p){ h += kreis(p[0], p[1], 1.2, "sy-f"); });
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy dk");
+  /* Schutzleiteranschluss: Erdungszeichen, Strich, Klemme auf dem rechten Rand */
+  var kx = x1 - 0.035 * s, ky = y, kr = 0.058 * s, ex = kx - 0.17 * s;
+  h += pfad("M" + n(kx - kr) + " " + n(ky) + " H" + n(ex) + " M" + n(ex) + " " + n(ky - 0.067 * s) + " V" + n(ky + 0.067 * s) + " M" + n(ex - 0.035 * s) + " " + n(ky - 0.042 * s) + " V" + n(ky + 0.042 * s) + " M" + n(ex - 0.07 * s) + " " + n(ky - 0.02 * s) + " V" + n(ky + 0.02 * s), "sy dn");
+  h += kreis(kx, ky, kr, "sy dn sy-bg") + pfad("M" + n(kx - kr * 0.7) + " " + n(ky - kr * 0.7) + " L" + n(kx + kr * 0.7) + " " + n(ky + kr * 0.7), "sy dn");
+  return {svg:h, pe:[kx + kr, ky], oben:[x, y0], unten:[x, y1], x0:x0, y0:y0, x1:x1, y1:y1};
+}
+/* Antrieb im Wirkschaltschema: Querbalken oben, gestrichelte Verbindung, bei rastenden Schaltern mit Zickzack */
+function antriebW(x, yBalken, yUnten, rastend, o){
+  o = o || {}; var b = o.b || 8, h = pfad("M" + n(x - b) + " " + n(yBalken) + " H" + n(x + b), "sy dk");
+  if (!rastend) return h + pfad("M" + n(x) + " " + n(yBalken + 3) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+  var m = yBalken + (yUnten - yBalken) * 0.5;
+  return h + pfad("M" + n(x) + " " + n(yBalken + 2) + " V" + n(m - 5), "sy dk sy-d", " style=\"stroke-linecap:butt\"") + pfad("M" + n(x) + " " + n(m - 5) + " L" + n(x - 5) + " " + n(m) + " L" + n(x) + " " + n(m + 5), "sy dk") + pfad("M" + n(x) + " " + n(m + 6) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+}
+/* Widerstand im Ersatzschaltbild: Rechteck mit Bezeichnung */
+function widerstand(x, y, o){
+  o = o || {}; var w = o.w || 46, h = o.h || 17;
+  return "<rect class=\"sy sy-bg" + (o.cls ? " " + o.cls : "") + "\" style=\"stroke-width:3\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - h / 2) + "\" width=\"" + w + "\" height=\"" + h + "\"/>"
+    + (o.name ? "<text class=\"sy-t\" x=\"" + n(x) + "\" y=\"" + n(y + 4.5) + "\" text-anchor=\"middle\" style=\"font-size:12px\">R<tspan dy=\"3\" style=\"font-size:8.5px\">" + o.name + "</tspan></text>" : "");
+}
+/* ===== Schaltschema nach Arbeitsblatt ID5, Übungen 14 und 29 (dunkelblau gezeichnet) ===== */
+/* Sammelschienen, z. B. L1, L2, L3, N. Gibt die Höhe jeder Schiene zurück. */
+function schienen(x0, x1, y0, dy, namen, fs){
+  var h = "", ys = {}; fs = fs || 10.5;
+  namen.forEach(function(nm, i){ var y = y0 + i * dy; ys[nm] = y; h += pfad("M" + n(x0) + " " + n(y) + " H" + n(x1), "sy dk") + text(x0 - 3, y + fs * 0.35, nm, "sy-t", "end", " style=\"font-size:" + fs + "px\""); });
+  return {svg:h, y:ys};
+}
+/* Leitungsschutzschalter wie im Arbeitsblatt: pole = [{x, von}] (von = Höhe der Schiene), nPol = {x, von} für den Neutralleitertrenner oder null.
+   yo = oberes Ende der Schaltstücke, yu = Drehpunkt, bis = unteres Ende der Leitung. Das erste Schaltstück trägt die Auslöser. */
+function ls(pole, nPol, yo, yu, bis){
+  var dy = yu - yo, dx = dy * 0.5, s = dy / 138, h = "", d = "";
+  pole.forEach(function(p){ d += "M" + n(p.x) + " " + n(p.von) + " V" + n(yo) + " M" + n(p.x - dx) + " " + n(yo) + " L" + n(p.x) + " " + n(yu) + " V" + n(bis) + " "; });
+  h += pfad(d, "sy dk");
+  /* Auslöser am ersten Schaltstück: obere Linie mit rechteckigem Absatz (thermisch), untere Linie mit Pfeil (magnetisch) */
+  var p0 = pole[0], ux = -0.88, uy = 0.47, vx = -0.47, vy = -0.88;
+  function aufBlatt(t){ return [p0.x - dx + dx * t, yo + dy * t]; }
+  var a = aufBlatt(0.31), b = aufBlatt(0.53), q = [a[0], a[1]], dd = "M" + n(q[0]) + " " + n(q[1]);
+  [[53, 0], [0, 28], [28, 0], [0, -28], [45, 0]].forEach(function(st){ q = [q[0] + (st[0] * ux + st[1] * vx) * s, q[1] + (st[0] * uy + st[1] * vy) * s]; dd += " L" + n(q[0]) + " " + n(q[1]); });
+  h += pfad(dd, "sy");
+  var e = [b[0] + 108 * ux * s, b[1] + 108 * uy * s], sp = [b[0] + 124 * ux * s, b[1] + 124 * uy * s];
+  h += pfad("M" + n(b[0]) + " " + n(b[1]) + " L" + n(e[0]) + " " + n(e[1]), "sy");
+  h += "<path class=\"sy-f\" d=\"M" + n(sp[0]) + " " + n(sp[1]) + " L" + n(e[0] + 9 * vx * s) + " " + n(e[1] + 9 * vy * s) + " L" + n(e[0] - 9 * vx * s) + " " + n(e[1] - 9 * vy * s) + " Z\"/>";
+  /* mechanische Verbindung der Schaltstücke: gestrichelt */
+  if (pole.length > 1){ var l = pole[pole.length - 1]; h += pfad("M" + n(p0.x - dx + dx * 0.52 + 2) + " " + n(yo + dy * 0.52) + " H" + n(l.x - dx + dx * 0.52 - 1), "sy dn sy-d"); }
+  if (nPol){
+    var bb = dy * 0.26;
+    h += pfad("M" + n(nPol.x) + " " + n(nPol.von) + " V" + n(yo) + " M" + n(nPol.x - bb) + " " + n(yo) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yo + dy * 0.1) + " V" + n(yu - dy * 0.08)
+      + " M" + n(nPol.x - bb) + " " + n(yu) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yu) + " V" + n(bis), "sy dk");
+  }
+  return h;
+}
+/* Klemmenleiste: Kästchen mit hochgestellter Beschriftung. Gibt die Mitte jeder Klemme zurück. */
+function klemmenleiste(x, y, namen, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 35, h = "", xs = {};
+  namen.forEach(function(nm, i){
+    var x0 = x + i * b, cx = x0 + b / 2; xs[nm] = cx;
+    h += "<rect class=\"sy dk sy-bg\" x=\"" + n(x0) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>";
+    h += text(cx + 3.4, y + hh - 4, nm, "sy-t", "start", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(cx + 3.4) + " " + n(y + hh - 4) + ")\"");
+  });
+  return {svg:h, x:xs, oben:y, unten:y + hh};
+}
+/* Verbraucher als Widerstand, stehend, Beschriftung hochgestellt. (x, y) ist der obere Anschluss. */
+function widerstandW(x, y, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 52;
+  return "<rect class=\"sy dk sy-bg" + (o.cls ? " " + o.cls : "") + "\" x=\"" + n(x - b / 2) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>"
+    + text(x + 3.4, y + hh / 2, o.name || "", "sy-t", "middle", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(x + 3.4) + " " + n(y + hh / 2) + ")\"");
+}
+/* Strompfeil wie im Arbeitsblatt: rotes Dreieck auf dem Leiter, Wert daneben. richtung 1 = nach unten, -1 = nach oben */
+function stromW(x, y, richtung, label, anker){
+  var k = richtung || 1, h = "<path class=\"w-i\" d=\"M" + n(x - 4.2) + " " + n(y - 3.6 * k) + " H" + n(x + 4.2) + " L" + n(x) + " " + n(y + 4.6 * k) + " Z\"/>";
+  if (label) h += text(anker === "start" ? x + 6 : x - 6, y + 3, label, "w-it", anker === "start" ? "start" : "end");
+  return h;
+}
+
+/* ===== Messschaltung nach Theoriebuch ET4.1 und ET4.5 (schwarz, Spannung blau, Strom rot) ===== */
+/* Messgerät: Kreis mit Buchstabe. art "i" = Ampèremeter (rot), "u" = Voltmeter (blau) */
+function messT(x, y, art, r){
+  r = r || 9; var c = art === "u" ? "et-u" : "et-i";
+  return "<circle class=\"" + c + "s\" style=\"fill:var(--surface)\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>" + text(x, y + 4, art === "u" ? "V" : "A", c + "t", "middle", art === "u" ? " style=\"font-weight:700\"" : "");
+}
+/* Pfeil mit gefüllter Spitze von (x1,y1) nach (x2,y2) */
+function pfeilT(x1, y1, x2, y2, art, nurSpitze){
+  var c = art === "u" ? "et-u" : "et-i", L = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)), ux = (x2 - x1) / L, uy = (y2 - y1) / L, sl = 8, sb = 3;
+  var bx = x2 - ux * sl, by = y2 - uy * sl;
+  return (nurSpitze ? "" : pfad("M" + n(x1) + " " + n(y1) + " L" + n(bx) + " " + n(by), c + "s"))
+    + "<path class=\"" + c + "f\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(bx - uy * sb) + " " + n(by + ux * sb) + " L" + n(bx + uy * sb) + " " + n(by - ux * sb) + " Z\"/>";
+}
+/* Gleichspannungsquelle: langer dünner Strich (+), kurzer dicker Strich (−). (x, y) ist die Mitte zwischen den Strichen. */
+function quelleT(x, y){
+  return pfad("M" + n(x - 8) + " " + n(y - 2.5) + " H" + n(x + 8), "sy-s dn") + pfad("M" + n(x - 4) + " " + n(y + 2.5) + " H" + n(x + 4), "sy-s", " style=\"stroke-width:3;stroke-linecap:butt\"")
+    + text(x - 4, y - 5.5, "+", "et-it", "middle", " style=\"font-weight:700\"") + text(x - 4, y + 12, "−", "et-ut", "middle", " style=\"font-weight:700\"");
+}
+return {pfad:pfad, kreis:kreis, text:text, schalter:schalter, steckdose:steckdose, leuchte:leuchte, dose:dose, uv:uv, ventilator:ventilator, unendlich:unendlich, marke:marke,
+        lampeT:lampeT, nMarke:nMarke, gestaenge:gestaenge, antriebT:antriebT, klemme:klemme, ring:ring, leuchteW:leuchteW, antriebW:antriebW, widerstand:widerstand,
+        schienen:schienen, ls:ls, klemmenleiste:klemmenleiste, widerstandW:widerstandW, stromW:stromW, messT:messT, pfeilT:pfeilT, quelleT:quelleT, n:n};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac, S = SYM;
+var NB = String.fromCharCode(160), MAL = " · ", MINUS = " − ";
+function V(x){ return BAP.unit(x, "V", 3); }
+function A(x){ var a = Math.abs(x); return a >= 1 || a === 0 ? BAP.unit(x, "A", 3) : BAP.unit(x * 1000, "mA", 3); }
+function O(x){ return BAP.ohm(x, 4); }
+function W(x){ var a = Math.abs(x); return a >= 1000 ? BAP.unit(x / 1000, "kW", 3) : (a > 0 && a < 1) ? BAP.unit(x * 1000, "mW", 3) : BAP.unit(x, "W", 3); }
+/* «=» bei genauem, «≈» bei gerundetem Wert */
+function gl(x, sig){ return Math.abs(round(x, sig || 3) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+function gz(){ for (var i = 0; i < arguments.length; i++) if (gl(arguments[i]) === "≈") return "≈"; return "="; }
+function ix(sym, idx){ return "<i>" + sym + "</i>" + (idx ? "<sub>" + idx + "</sub>" : ""); }
+var R_ = function(k){ return ix("R", k); }, U_ = function(k){ return ix("U", k); }, P_ = function(k){ return ix("P", k); };
+function hoch2(t){ return t + "<sup>2</sup>"; }
+
+/* Gesetze der Serieschaltung (ET4.1 bis ET4.4) */
+function ausUI(U1, U2, I){ var R1 = U1 / I, R2 = U2 / I; return {R1:R1, R2:R2, R:R1 + R2, U1:U1, U2:U2, U:U1 + U2, I:I, P1:U1 * I, P2:U2 * I, P:(U1 + U2) * I}; }
+function vorwiderstand(PL, UL, U){ var I = PL / UL, UV = U - UL, RV = UV / I; return {I:I, UV:UV, RV:RV, PV:I * I * RV, RL:UL / I, U:U, UL:UL, PL:PL, P:U * I}; }
+function lampen(P1N, P2N, U){
+  var R1 = U * U / P1N, R2 = U * U / P2N, I = U / (R1 + R2), U1 = R1 * I, U2 = R2 * I;
+  return {R1:R1, R2:R2, R:R1 + R2, I:I, U1:U1, U2:U2, U:U, P1:U1 * U1 / R1, P2:U2 * U2 / R2, P:U * I};
+}
+window.__t = {ausUI:ausUI, vorwiderstand:vorwiderstand, lampen:lampen};
+
+/* ================= SKIZZE wie im Arbeitsblatt (Übung 54) ================= */
+function lab(sym, idx, rest, cls){ return sym + (idx ? "<tspan dy=\"2.5\" style=\"font-size:7.5px\">" + idx + "</tspan><tspan dy=\"-2.5\">" + (rest || "") + "</tspan>" : (rest || "")); }
+function tx(x, y, t, cls){ return "<text class=\"" + cls + "\" x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\">" + t + "</text>"; }
+/* o: {e:[{typ:"R"|"L", name, idx, u, p, hell}, {...}], I, U} – Texte u, p, I, U sind fertig formatierte Werte oder leer */
+function skizze(o){
+  var y = 34, xs = [104, 236], h = "", dr = " style=\"stroke-width:1.5\"";
+  h += S.pfad("M16 " + y + " H324", "sy-s", dr);
+  o.e.forEach(function(e, k){
+    var x = xs[k];
+    if (e.typ === "L"){
+      h += "<circle cx=\"" + x + "\" cy=\"" + y + "\" r=\"12\" style=\"fill:var(--surface)\"/>";
+      if (e.hell > 0) h += "<circle cx=\"" + x + "\" cy=\"" + y + "\" r=\"12\" style=\"fill:var(--lampe-an);fill-opacity:" + Math.min(1, Math.max(0.12, e.hell)).toFixed(2) + "\"/>";
+      h += "<circle class=\"sy-s\" cx=\"" + x + "\" cy=\"" + y + "\" r=\"12\"" + dr + "/>" + S.pfad("M" + (x - 8.5) + " " + (y - 8.5) + " L" + (x + 8.5) + " " + (y + 8.5) + " M" + (x + 8.5) + " " + (y - 8.5) + " L" + (x - 8.5) + " " + (y + 8.5), "sy-s", dr);
+      h += tx(x, y - 17, lab(e.name, e.idx), "sk-b");
+    } else {
+      h += "<rect class=\"sy-s\" x=\"" + (x - 28) + "\" y=\"" + (y - 10) + "\" width=\"56\" height=\"20\" style=\"fill:var(--surface);stroke-width:1.5\"/>" + tx(x, y + 4, lab(e.name, e.idx), "sk-b");
+    }
+    h += S.pfeilT(x - 40, 68, x + 40, 68, "u") + tx(x, 62, lab("U", e.idx, e.u ? " = " + e.u : ""), "et-ut");
+    if (e.p) h += tx(x, 82, lab("P", e.idx, " = " + e.p), "sk-p");
+  });
+  h += S.pfeilT(150, y, 190, y, "i") + tx(170, y - 8, "I" + (o.I ? " = " + o.I : ""), "et-it");
+  if (o.U !== undefined) h += S.pfeilT(64, 104, 276, 104, "u") + tx(170, 99, "U" + (o.U ? " = " + o.U : ""), "et-ut");
+  return h;
+}
+function qSkizze(o, alt){ return "<svg class=\"q-schema\" viewBox=\"0 0 340 112\" role=\"img\" aria-label=\"" + alt + "\">" + skizze(o) + "</svg>"; }
+
+/* ================= ERKUNDEN ================= */
+var PN = [15, 25, 40, 60, 75, 100, 150, 200];
+var st = {typ:"A", U1:15, U2:135, I:5, PL:150, UL:125, P1N:60, P2N:100};
+function slider(id, min, max, step, val){ return "<label class=\"r-slider\" for=\"" + id + "\"><span class=\"num\" id=\"v-" + id + "\"></span><input type=\"range\" id=\"" + id + "\" min=\"" + min + "\" max=\"" + max + "\" step=\"" + step + "\" value=\"" + val + "\"></label>"; }
+function wahl(id, label, akt){ return "<div><p class=\"label\">" + label + "</p><div class=\"opts\" id=\"" + id + "\">" + PN.map(function(p){ return "<button class=\"opt\" type=\"button\" data-p=\"" + p + "\" id=\"" + id + "-" + p + "\" aria-pressed=\"" + (akt === p) + "\">" + p + "</button>"; }).join("") + "</div></div>"; }
+function regler(){
+  var h = "";
+  if (st.typ === "A") h = slider("s-u1", 1, 230, 1, st.U1) + slider("s-u2", 1, 230, 1, st.U2) + slider("s-i", 1, 1000, 1, st.I) + "<div class=\"opts\"><button class=\"opt txt\" type=\"button\" id=\"lade\">Übung 54 laden</button></div>";
+  else if (st.typ === "B") h = slider("s-pl", 10, 500, 5, st.PL) + slider("s-ul", 12, 220, 1, st.UL) + "<p class=\"note\">Netzspannung <i>U</i> = 230" + NB + "V</p><div class=\"opts\"><button class=\"opt txt\" type=\"button\" id=\"lade\">Übung 55 laden</button></div>";
+  else h = wahl("w1", "Bemessungsleistung der Lampe 1 in W (bei 230" + NB + "V)", st.P1N) + wahl("w2", "Bemessungsleistung der Lampe 2 in W (bei 230" + NB + "V)", st.P2N) + "<div class=\"opts\"><button class=\"opt txt\" type=\"button\" id=\"lade\">Übung 56 laden</button></div>";
+  $("regler").innerHTML = h;
+}
+function teiler(id, a, b, la, lb, f){
+  var s = a + b;
+  $(id).innerHTML = [[la, a, "z1"], [lb, b, "z2"]].map(function(z){ return "<div class=\"zone " + z[2] + "\" style=\"width:" + (z[1] / s * 100).toFixed(2) + "%\"><span>" + z[0] + "</span><span>" + f(z[1]) + "</span></div>"; }).join("");
+}
+function render(){
+  var t = st.typ, h = "", e, sk, mw;
+  ["A", "B", "C"].forEach(function(x){ $("typ-" + x).setAttribute("aria-pressed", String(x === t)); });
+  if (t === "A"){
+    e = ausUI(st.U1, st.U2, st.I / 1000);
+    $("v-s-u1").innerHTML = U_(1) + " = " + V(st.U1); $("v-s-u2").innerHTML = U_(2) + " = " + V(st.U2); $("v-s-i").innerHTML = "<i>I</i> = " + A(e.I);
+    sk = {e:[{typ:"R", name:"R", idx:"1", u:V(e.U1), p:W(e.P1)}, {typ:"R", name:"R", idx:"2", u:V(e.U2), p:W(e.P2)}], I:A(e.I), U:V(e.U)};
+    h += "<span class=\"zw\">Gegeben: " + U_(1) + " = " + V(e.U1) + ", " + U_(2) + " = " + V(e.U2) + ", <i>I</i> = " + A(e.I) + "</span>";
+    h += "<span>" + R_(1) + " = " + F(U_(1), "<i>I</i>") + " = " + F(V(e.U1), A(e.I)) + " <span class=\"nw\">" + gl(e.R1, 4) + " <b>" + O(e.R1) + "</b></span></span>";
+    h += "<span>" + R_(2) + " = " + F(U_(2), "<i>I</i>") + " = " + F(V(e.U2), A(e.I)) + " <span class=\"nw\">" + gl(e.R2, 4) + " <b>" + O(e.R2) + "</b></span></span>";
+    h += "<span><i>R</i> = " + R_(1) + " + " + R_(2) + " " + gz(e.R1, e.R2) + " " + O(e.R1) + " + " + O(e.R2) + " " + gl(e.R, 4) + " <b>" + O(e.R) + "</b></span>";
+    h += "<span class=\"zw\">Zusätzlich: Gesamtspannung und Leistungen</span>";
+    h += "<span><i>U</i> = " + U_(1) + " + " + U_(2) + " = " + V(e.U1) + " + " + V(e.U2) + " = <b>" + V(e.U) + "</b></span>";
+    h += "<span>" + P_(1) + " = " + U_(1) + MAL + "<i>I</i> = " + V(e.U1) + MAL + A(e.I) + " " + gl(e.P1) + " <b>" + W(e.P1) + "</b>, " + P_(2) + " = " + U_(2) + MAL + "<i>I</i> " + gl(e.P2) + " <b>" + W(e.P2) + "</b></span>";
+    teiler("teiler-u", e.U1, e.U2, "U1", "U2", V); teiler("teiler-p", e.P1, e.P2, "P1", "P2", W);
+    $("urteil").innerHTML = e.R1 === e.R2 ? "Beide Widerstände sind gleich gross: Spannung und Leistung teilen sich je zur Hälfte auf." : "Am grösseren Widerstand " + (e.R1 > e.R2 ? R_(1) : R_(2)) + " liegt die grössere Spannung, und er nimmt die grössere Leistung auf.";
+    mw = [["u", "<i>U</i>", V(e.U), gl(e.U)], ["i", "<i>I</i>", A(e.I), "="], ["p", "<i>P</i>", W(e.P), gl(e.P)]];
+  } else if (t === "B"){
+    e = vorwiderstand(st.PL, st.UL, 230);
+    $("v-s-pl").innerHTML = ix("P", "L") + " = " + W(st.PL); $("v-s-ul").innerHTML = ix("U", "L") + " = " + V(st.UL);
+    sk = {e:[{typ:"R", name:"R", idx:"V", u:V(e.UV), p:W(e.PV)}, {typ:"L", name:"Lampe", idx:"", u:V(e.UL), p:W(e.PL), hell:1}], I:A(e.I), U:V(e.U)};
+    sk.e[1].idx = "L"; sk.e[1].name = "E";
+    h += "<span class=\"zw\">Gegeben: " + ix("P", "L") + " = " + W(e.PL) + ", " + ix("U", "L") + " = " + V(e.UL) + ", <i>U</i> = " + V(e.U) + "</span>";
+    h += "<span><i>I</i> = " + F(ix("P", "L"), ix("U", "L")) + " = " + F(W(e.PL), V(e.UL)) + " " + gl(e.I) + " <b>" + A(e.I) + "</b></span>";
+    h += "<span>" + ix("U", "V") + " = <i>U</i>" + MINUS + ix("U", "L") + " = " + V(e.U) + MINUS + V(e.UL) + " = <b>" + V(e.UV) + "</b></span>";
+    h += "<span>" + ix("R", "V") + " = " + F(ix("U", "V"), "<i>I</i>") + " = " + F(V(e.UV), A(e.I)) + " <span class=\"nw\">" + gz(e.I, e.RV) + " <b>" + O(e.RV) + "</b></span></span>";
+    h += "<span>" + ix("P", "V") + " = " + hoch2("<i>I</i>") + MAL + ix("R", "V") + " = " + hoch2("(" + A(e.I) + ")") + MAL + O(e.RV) + " <span class=\"nw\">" + gz(e.I, e.RV, e.PV) + " <b>" + W(e.PV) + "</b></span></span>";
+    h += "<span>Kontrolle: " + ix("P", "V") + " = " + ix("U", "V") + MAL + "<i>I</i> = " + V(e.UV) + MAL + A(e.I) + " " + gz(e.I, e.PV) + " " + W(e.PV) + "</span>";
+    teiler("teiler-u", e.UV, e.UL, "UV", "UL", V); teiler("teiler-p", e.PV, e.PL, "PV", "PL", W);
+    $("urteil").innerHTML = "Der Vorwiderstand setzt " + W(e.PV) + " in Wärme um. Das sind " + fmt(round(e.PV / e.P * 100, 3)) + NB + "% der gesamten Leistung von " + W(e.P) + ".";
+    mw = [["u", ix("U", "V"), V(e.UV), "="], ["i", "<i>I</i>", A(e.I), gl(e.I)], ["p", ix("P", "V"), W(e.PV), gl(e.PV)]];
+  } else {
+    e = lampen(st.P1N, st.P2N, 230);
+    PN.forEach(function(p){ $("w1-" + p).setAttribute("aria-pressed", String(st.P1N === p)); $("w2-" + p).setAttribute("aria-pressed", String(st.P2N === p)); });
+    sk = {e:[{typ:"L", name:"E", idx:"1", u:V(e.U1), p:W(e.P1), hell:e.P1 / st.P1N}, {typ:"L", name:"E", idx:"2", u:V(e.U2), p:W(e.P2), hell:e.P2 / st.P2N}], I:A(e.I), U:V(e.U)};
+    h += "<span class=\"zw\">Gegeben: Lampe 1 mit 230" + NB + "V und " + W(st.P1N) + ", Lampe 2 mit 230" + NB + "V und " + W(st.P2N) + ", in Serie an <i>U</i> = 230" + NB + "V</span>";
+    h += "<span>a) " + R_(1) + " = " + F(hoch2("<i>U</i>"), P_(1)) + " = " + F(hoch2("(230" + NB + "V)"), W(st.P1N)) + " <span class=\"nw\">" + gl(e.R1, 4) + " <b>" + O(e.R1) + "</b></span></span>";
+    h += "<span>" + R_(2) + " = " + F(hoch2("<i>U</i>"), P_(2)) + " = " + F(hoch2("(230" + NB + "V)"), W(st.P2N)) + " <span class=\"nw\">" + gl(e.R2, 4) + " <b>" + O(e.R2) + "</b></span></span>";
+    h += "<span>b) <i>I</i> = " + F("<i>U</i>", R_(1) + " + " + R_(2)) + " = " + F("230" + NB + "V", O(e.R1) + " + " + O(e.R2)) + " <span class=\"nw\">" + gl(e.I) + " <b>" + A(e.I) + "</b></span></span>";
+    h += "<span>c) " + U_(1) + " = " + R_(1) + MAL + "<i>I</i> " + gz(e.R1, e.I) + " " + O(e.R1) + MAL + A(e.I) + " " + gl(e.U1) + " <b>" + V(e.U1) + "</b></span>";
+    h += "<span>" + U_(2) + " = " + R_(2) + MAL + "<i>I</i> " + gz(e.R2, e.I) + " " + O(e.R2) + MAL + A(e.I) + " " + gl(e.U2) + " <b>" + V(e.U2) + "</b></span>";
+    h += "<span>d) " + P_(1) + " = " + F(hoch2(U_(1)), R_(1)) + " " + gz(e.U1, e.R1) + " " + F(hoch2("(" + V(e.U1) + ")"), O(e.R1)) + " <span class=\"nw\">" + gl(e.P1) + " <b>" + W(e.P1) + "</b></span></span>";
+    h += "<span>" + P_(2) + " = " + F(hoch2(U_(2)), R_(2)) + " " + gz(e.U2, e.R2) + " " + F(hoch2("(" + V(e.U2) + ")"), O(e.R2)) + " <span class=\"nw\">" + gl(e.P2) + " <b>" + W(e.P2) + "</b></span></span>";
+    teiler("teiler-u", e.U1, e.U2, "U1", "U2", V); teiler("teiler-p", e.P1, e.P2, "P1", "P2", W);
+    $("urteil").innerHTML = st.P1N === st.P2N ? "e) Beide Lampen sind gleich: Sie brennen gleich hell, jede mit einem Viertel ihrer Bemessungsleistung."
+      : "e) Heller brennt die Lampe mit " + W(Math.min(st.P1N, st.P2N)) + " Bemessungsleistung: Sie hat den grösseren Widerstand, erhält die grössere Spannung und nimmt die grössere Leistung auf.";
+    mw = [["u", "<i>U</i>", V(e.U), "="], ["i", "<i>I</i>", A(e.I), gl(e.I)], ["p", "<i>P</i>", W(e.P), gl(e.P)]];
+  }
+  $("schaltung").innerHTML = skizze(sk);
+  $("messwerte").innerHTML = mw.map(function(m){ return "<span class=\"mw-" + m[0] + "\">" + m[1] + " " + m[3] + " <b>" + m[2] + "</b></span>"; }).join("");
+  $("rechnung").innerHTML = h;
+}
+function init(){
+  $("merk-formeln").innerHTML = "Leistung: <i>P</i> = <i>U</i>" + MAL + "<i>I</i>, <i>P</i> = " + hoch2("<i>I</i>") + MAL + "<i>R</i>, <i>P</i> = " + F(hoch2("<i>U</i>"), "<i>R</i>") + ". Auch bei der Serieschaltung ergibt die Summe der Einzelleistungen die Gesamtleistung (ET2.16).";
+  $("typ").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-typ]"); if (!b) return; st.typ = b.getAttribute("data-typ"); regler(); render(); });
+  $("regler").addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    if (b.id === "lade"){
+      if (st.typ === "A"){ st.U1 = 15; st.U2 = 135; st.I = 5; } else if (st.typ === "B"){ st.PL = 150; st.UL = 125; } else { st.P1N = 60; st.P2N = 100; }
+      regler(); render(); $("lade").focus(); return;
+    }
+    if (b.hasAttribute("data-p")){ if (b.parentNode.id === "w1") st.P1N = Number(b.getAttribute("data-p")); else st.P2N = Number(b.getAttribute("data-p")); render(); }
+  });
+  $("regler").addEventListener("input", function(ev){
+    var e = ev.target, v = Number(e.value);
+    if (e.id === "s-u1") st.U1 = v; else if (e.id === "s-u2") st.U2 = v; else if (e.id === "s-i") st.I = v; else if (e.id === "s-pl") st.PL = v; else if (e.id === "s-ul") st.UL = v;
+    render();
+  });
+  regler(); render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 53 bis 56) ================= */
+function optionen(c, cands, show){
+  var out = [c], seen = {}; seen[show(c)] = 1;
+  shuffle(cands).concat([c * 2, c / 2, c * 3, c * 1.5, c / 4, c * 10]).forEach(function(x){
+    if (out.length < 4 && x > 0 && isFinite(x) && x < c * 50 && x > c / 50){ var t = show(x); if (!seen[t]){ seen[t] = 1; out.push(x); } }
+  });
+  return out.sort(function(a, b){ return a - b; });
+}
+/* [U1, U2, I in A]. Erste Zeile: Übung 54 */
+var DA = [[15, 135, 0.005], [24, 96, 0.02], [60, 170, 0.5], [12, 36, 0.004], [9, 15, 0.03], [100, 130, 2], [46, 184, 0.1], [5, 7, 0.001], [30, 200, 0.25], [80, 150, 0.4]];
+function qWiderstaende(){
+  var d = pick(DA), e = ausUI(d[0], d[1], d[2]), was = pick(["R1R", "R2R", "R"]);
+  var sk = qSkizze({e:[{typ:"R", name:"R", idx:"1", u:V(e.U1)}, {typ:"R", name:"R", idx:"2", u:V(e.U2)}], I:A(e.I)}, "Serieschaltung der Widerstände R1 und R2 mit dem Strom I und den Teilspannungen U1 und U2");
+  var sol = "<p>" + R_(1) + " = " + F(U_(1), "<i>I</i>") + " = " + F(V(e.U1), A(e.I)) + " " + gl(e.R1, 4) + " <b>" + O(e.R1) + "</b></p><p>" + R_(2) + " = " + F(U_(2), "<i>I</i>") + " = " + F(V(e.U2), A(e.I)) + " " + gl(e.R2, 4) + " <b>" + O(e.R2) + "</b></p><p><i>R</i> = " + R_(1) + " + " + R_(2) + " = " + O(e.R1) + " + " + O(e.R2) + " = <b>" + O(e.R) + "</b></p>";
+  var parts = [];
+  if (was !== "R") parts.push(was === "R1R" ? {label:R_(1), options:optionen(e.R1, [e.R2, e.R, e.U1 * e.I, e.R1 / 1000, e.R1 * 1000], O), correct:e.R1, mono:true, show:O} : {label:R_(2), options:optionen(e.R2, [e.R1, e.R, e.U2 * e.I, e.R2 / 1000, e.R2 * 1000], O), correct:e.R2, mono:true, show:O});
+  parts.push({label:"Gesamtwiderstand <i>R</i>", options:optionen(e.R, [e.R1, e.R2, e.R1 * e.R2 / e.R, Math.abs(e.R2 - e.R1), e.R * 1000, e.R / 1000], O), correct:e.R, mono:true, show:O});
+  return {
+    text: "Bestimmen Sie in der Serieschaltung " + (was === "R" ? "den Gesamtwiderstand <i>R</i>" : (was === "R1R" ? R_(1) : R_(2)) + " und den Gesamtwiderstand <i>R</i>") + "." + sk,
+    parts: parts,
+    hint: "Durch beide Widerstände fliesst derselbe Strom. Jeder Widerstand ergibt sich aus seiner Teilspannung und dem Strom. Achten Sie auf mA.",
+    solution: sol
+  };
+}
+/* [PL, UL, U]. Erste Zeile: Übung 55 */
+var DB = [[150, 125, 230], [50, 100, 230], [60, 120, 230], [100, 50, 230], [75, 150, 230], [200, 100, 230], [20, 100, 230], [36, 12, 24], [100, 110, 230], [24, 12, 48]];
+var GERAET = ["Eine Projektionslampe", "Eine Halogenlampe", "Eine Signallampe", "Ein Heizelement"];
+function wegB(e){
+  return "<p><i>I</i> = " + F(ix("P", "L"), ix("U", "L")) + " = " + F(W(e.PL), V(e.UL)) + " " + gl(e.I) + " " + A(e.I) + "</p><p>" + ix("U", "V") + " = <i>U</i>" + MINUS + ix("U", "L") + " = " + V(e.U) + MINUS + V(e.UL) + " = " + V(e.UV) + "</p><p>" + ix("R", "V") + " = " + F(ix("U", "V"), "<i>I</i>") + " = " + F(V(e.UV), A(e.I)) + " " + gz(e.I, e.RV) + " <b>" + O(e.RV) + "</b></p><p>" + ix("P", "V") + " = " + hoch2("<i>I</i>") + MAL + ix("R", "V") + " = " + hoch2("(" + A(e.I) + ")") + MAL + O(e.RV) + " " + gz(e.I, e.RV, e.PV) + " <b>" + W(e.PV) + "</b></p>";
+}
+function qVorwiderstand(){
+  var d = pick(DB), e = vorwiderstand(d[0], d[1], d[2]), g = d[0] === 150 ? GERAET[0] : pick(GERAET);
+  return {
+    text: g + " mit einer Bemessungsleistung von " + W(e.PL) + " und einer Bemessungsspannung von " + V(e.UL) + " wird über einen Vorwiderstand an einer Spannung von " + V(e.U) + " betrieben. Berechnen Sie den Widerstandswert " + ix("R", "V") + " und die Verlustleistung des Vorwiderstands.",
+    parts: [{label:"Vorwiderstand " + ix("R", "V"), options:optionen(e.RV, [e.RL, e.U / e.I, e.UL / e.I * 2, e.UV * e.I, e.RV + e.RL], O), correct:e.RV, mono:true, show:O},
+            {label:"Verlustleistung " + ix("P", "V"), options:optionen(e.PV, [e.PL, e.P, e.UV * e.UV / e.RL, e.PL - e.PV, e.PV + 20], W), correct:e.PV, mono:true, show:W}],
+    hint: "Berechnen Sie zuerst den Strom aus den Bemessungsdaten des Verbrauchers. Am Vorwiderstand liegt der Rest der Spannung.",
+    solution: wegB(e)
+  };
+}
+function qVorStrom(){
+  var d = pick(DB), e = vorwiderstand(d[0], d[1], d[2]);
+  return {
+    text: "Eine Lampe mit den Bemessungsdaten " + V(e.UL) + " und " + W(e.PL) + " wird über einen Vorwiderstand an " + V(e.U) + " betrieben. Wie gross sind der Strom in der Schaltung und die Spannung am Vorwiderstand?",
+    parts: [{label:"Strom <i>I</i>", options:optionen(e.I, [e.P / e.UL, e.PL / e.U, e.UL / e.PL, e.PL / e.UV], A), correct:e.I, mono:true, show:A},
+            {label:"Spannung " + ix("U", "V"), options:optionen(e.UV, [e.UL, e.U, e.U + e.UL, e.UV / 2, e.UV + 10], V), correct:e.UV, mono:true, show:V}],
+    hint: "<i>I</i> = " + F(ix("P", "L"), ix("U", "L")) + ". Die Summe der Teilspannungen ist so gross wie die Gesamtspannung.",
+    solution: "<p><i>I</i> = " + F(ix("P", "L"), ix("U", "L")) + " = " + F(W(e.PL), V(e.UL)) + " " + gl(e.I) + " <b>" + A(e.I) + "</b></p><p>" + ix("U", "V") + " = <i>U</i>" + MINUS + ix("U", "L") + " = " + V(e.U) + MINUS + V(e.UL) + " = <b>" + V(e.UV) + "</b></p>"
+  };
+}
+var PAARE = [[60, 100], [40, 100], [25, 75], [40, 60], [100, 200], [60, 150], [25, 100], [75, 100], [100, 60], [100, 40], [150, 60], [200, 100]];
+function wegC(a, b, e){
+  return "<p>" + R_(1) + " = " + F(hoch2("<i>U</i>"), P_(1)) + " = " + F(hoch2("(230" + NB + "V)"), W(a)) + " " + gl(e.R1, 4) + " " + O(e.R1) + ", " + R_(2) + " = " + F(hoch2("(230" + NB + "V)"), W(b)) + " " + gl(e.R2, 4) + " " + O(e.R2) + "</p><p><i>I</i> = " + F("<i>U</i>", R_(1) + " + " + R_(2)) + " = " + F("230" + NB + "V", O(e.R1) + " + " + O(e.R2)) + " " + gl(e.I) + " " + A(e.I) + "</p><p>" + U_(1) + " = " + R_(1) + MAL + "<i>I</i> " + gl(e.U1) + " " + V(e.U1) + ", " + U_(2) + " = " + R_(2) + MAL + "<i>I</i> " + gl(e.U2) + " " + V(e.U2) + "</p><p>" + P_(1) + " = " + F(hoch2(U_(1)), R_(1)) + " " + gl(e.P1) + " " + W(e.P1) + ", " + P_(2) + " = " + F(hoch2(U_(2)), R_(2)) + " " + gl(e.P2) + " " + W(e.P2) + "</p>";
+}
+function qLampen(){
+  var p = pick(PAARE), e = lampen(p[0], p[1], 230), was = pick(["RI", "U", "P"]), parts;
+  var kopf = "Zwei alte Glühlampen mit den Bemessungsdaten 230" + NB + "V, " + W(p[0]) + " (Lampe 1) und 230" + NB + "V, " + W(p[1]) + " (Lampe 2) werden in Serie an 230" + NB + "V angeschlossen. Die Widerstände gelten als konstant. ";
+  if (was === "RI") parts = [{label:"Widerstand " + R_(1), options:optionen(e.R1, [e.R2, e.R, 230 / p[0], p[0] * p[0] / 230], O), correct:e.R1, mono:true, show:O}, {label:"Strom <i>I</i>", options:optionen(e.I, [p[0] / 230, p[1] / 230, (p[0] + p[1]) / 230, 230 / e.R1], A), correct:e.I, mono:true, show:A}];
+  else if (was === "U") parts = [{label:"Teilspannung " + U_(1), options:optionen(e.U1, [e.U2, 115, 230, 230 * p[0] / (p[0] + p[1])], V), correct:e.U1, mono:true, show:V}, {label:"Teilspannung " + U_(2), options:optionen(e.U2, [e.U1, 115, 230, 230 * p[1] / (p[0] + p[1])], V), correct:e.U2, mono:true, show:V}];
+  else parts = [{label:"Leistung " + P_(1), options:optionen(e.P1, [e.P2, p[0], p[0] / 2, p[0] / 4, e.P], W), correct:e.P1, mono:true, show:W}, {label:"Leistung " + P_(2), options:optionen(e.P2, [e.P1, p[1], p[1] / 2, p[1] / 4, e.P], W), correct:e.P2, mono:true, show:W}];
+  return {
+    text: kopf + (was === "RI" ? "Berechnen Sie den Widerstand der Lampe 1 und die Stromaufnahme der Serieschaltung." : was === "U" ? "Berechnen Sie die Teilspannungen an den beiden Lampen." : "Berechnen Sie die Leistungen, die die beiden Lampen in dieser Schaltung aufnehmen."),
+    parts: parts,
+    hint: "Berechnen Sie zuerst die Lampenwiderstände aus den Bemessungsdaten: <i>R</i> = " + F(hoch2("<i>U</i>"), "<i>P</i>") + ". Dann den Strom der Serieschaltung, die Teilspannungen und die Leistungen.",
+    solution: wegC(p[0], p[1], e)
+  };
+}
+function qHeller(){
+  var p = pick(PAARE), e = lampen(p[0], p[1], 230), kl = Math.min(p[0], p[1]), gr = Math.max(p[0], p[1]);
+  var c = "Die Lampe mit " + W(kl) + ": Sie hat den grösseren Widerstand und erhält die grössere Spannung.";
+  var o = [c, "Die Lampe mit " + W(gr) + ": Sie hat die grössere Bemessungsleistung.", "Beide brennen gleich hell, weil derselbe Strom fliesst.", "Die Lampe mit " + W(gr) + ": Sie hat den grösseren Widerstand."];
+  return {
+    text: "Zwei alte Glühlampen mit den Bemessungsdaten 230" + NB + "V, " + W(p[0]) + " und 230" + NB + "V, " + W(p[1]) + " werden in Serie an 230" + NB + "V angeschlossen. Welche der beiden Lampen brennt in dieser Serieschaltung heller?",
+    parts: [{label:"Antwort", options:shuffle(o), correct:c, mono:false}],
+    hint: "Welche Lampe hat den grösseren Widerstand? Durch beide fliesst derselbe Strom: <i>P</i> = " + hoch2("<i>I</i>") + MAL + "<i>R</i>.",
+    solution: "<p><b>" + c + "</b></p>" + wegC(p[0], p[1], e)
+  };
+}
+var REGELN = [
+  {t:"Wie verhalten sich die Ströme in einer Serieschaltung?", o:["Durch alle Verbraucher fliesst derselbe Strom.", "Der Gesamtstrom ist die Summe der Teilströme.", "Durch den grössten Widerstand fliesst der grösste Strom.", "Der Strom wird nach jedem Verbraucher kleiner."], s:"Übung 53 a. Die Serieschaltung besteht aus einem einzigen Stromkreis (Theoriebuch ET4.1)."},
+  {t:"Wie verhalten sich die Spannungen in einer Serieschaltung?", o:["Die Gesamtspannung ist gleich der Summe der Teilspannungen an den einzelnen Verbrauchern.", "An allen Verbrauchern liegt die gleiche Spannung.", "Am kleinsten Widerstand liegt die grösste Spannung.", "Die Teilspannungen sind zusammen grösser als die Gesamtspannung."], s:"Übung 53 b und Theoriebuch ET4.1."},
+  {t:"An welchem Widerstand einer Serieschaltung liegt die grösste Teilspannung?", o:["Am grössten Widerstand", "Am kleinsten Widerstand", "Am ersten Widerstand nach der Spannungsquelle", "An allen gleich viel"], s:"Theoriebuch ET4.4: Bei Serieschaltungen liegt am grössten Widerstand stets die grösste Spannung."},
+  {t:"Wie berechnet man den Gesamtwiderstand einer Serieschaltung?", o:["Die Einzelwiderstände werden addiert.", "Er ist immer kleiner als der kleinste Einzelwiderstand.", "Die Einzelwiderstände werden multipliziert.", "Er ist gleich dem grössten Einzelwiderstand."], s:"Theoriebuch ET4.3: <i>R</i> = " + R_(1) + " + " + R_(2) + " + " + R_(3 ) + "."},
+  {t:"In einer Serieschaltung mit zwei Lampen brennt der Glühfaden einer Lampe durch. Was geschieht?", o:["Der ganze Stromkreis ist unterbrochen, auch die zweite Lampe erlischt.", "Die zweite Lampe brennt heller.", "Die zweite Lampe brennt unverändert weiter.", "Der Strom verdoppelt sich."], s:"Theoriebuch ET4.1: Fällt eine Lampe aus, so ist der ganze Stromkreis unterbrochen."},
+  {t:"Zwei Widerstände liegen in Serie. Welcher nimmt die grössere Leistung auf?", o:["Der grössere Widerstand, weil bei gleichem Strom an ihm die grössere Spannung liegt", "Der kleinere Widerstand, weil durch ihn der grössere Strom fliesst", "Beide gleich viel", "Derjenige, der näher bei der Spannungsquelle liegt"], s:"<i>P</i> = " + hoch2("<i>I</i>") + MAL + "<i>R</i>: Bei gleichem Strom ist die Leistung proportional zum Widerstand."},
+  {t:"Wozu dient der Vorwiderstand der Projektionslampe in Übung 55?", o:["Er nimmt die Spannung auf, die über der Bemessungsspannung der Lampe liegt.", "Er erhöht den Strom durch die Lampe.", "Er erhöht die Spannung an der Lampe.", "Er schützt die Lampe vor Kurzschluss im Netz."], s:"230" + NB + "V" + MINUS + "125" + NB + "V = 105" + NB + "V liegen am Vorwiderstand. Er setzt dabei 126" + NB + "W in Wärme um."},
+  {t:"Zwei gleiche Glühlampen für 230" + NB + "V werden in Serie an 230" + NB + "V angeschlossen. Welche Leistung nimmt jede Lampe auf (Widerstand konstant)?", o:["Einen Viertel ihrer Bemessungsleistung", "Die Hälfte ihrer Bemessungsleistung", "Ihre volle Bemessungsleistung", "Das Doppelte ihrer Bemessungsleistung"], s:"Jede Lampe erhält die halbe Spannung. Wegen <i>P</i> = " + F(hoch2("<i>U</i>"), "<i>R</i>") + " ergibt die halbe Spannung einen Viertel der Leistung."}
+];
+function qRegel(){
+  var q = pick(REGELN);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Denken Sie an die Gesetze der Serieschaltung: gleicher Strom, geteilte Spannung, Widerstände addieren.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+function qGesamt(){
+  var d = pick(DA), e = ausUI(d[0], d[1], d[2]), was = pick(["U", "P"]);
+  var sk = qSkizze({e:[{typ:"R", name:"R", idx:"1", u:V(e.U1)}, {typ:"R", name:"R", idx:"2", u:V(e.U2)}], I:A(e.I)}, "Serieschaltung der Widerstände R1 und R2 mit dem Strom I und den Teilspannungen U1 und U2");
+  if (was === "U") return {
+    text: "Wie gross ist die Gesamtspannung <i>U</i> dieser Serieschaltung?" + sk,
+    parts: [{label:"Gesamtspannung <i>U</i>", options:optionen(e.U, [e.U1, e.U2, Math.abs(e.U2 - e.U1), e.U1 * e.U2 / e.U, e.U * 2], V), correct:e.U, mono:true, show:V}],
+    hint: "Die Summe der Teilspannungen ist so gross wie die angelegte Gesamtspannung.",
+    solution: "<p><i>U</i> = " + U_(1) + " + " + U_(2) + " = " + V(e.U1) + " + " + V(e.U2) + " = <b>" + V(e.U) + "</b></p>"
+  };
+  return {
+    text: "Welche Leistungen nehmen " + R_(1) + " und die ganze Serieschaltung auf?" + sk,
+    parts: [{label:"Leistung " + P_(1), options:optionen(e.P1, [e.P2, e.P, e.U1 / e.I, e.P1 * 1000, e.P1 / 1000], W), correct:e.P1, mono:true, show:W}, {label:"Gesamtleistung <i>P</i>", options:optionen(e.P, [e.P1, e.P2, e.U / e.I, e.P * 1000, e.P / 1000], W), correct:e.P, mono:true, show:W}],
+    hint: "<i>P</i> = <i>U</i>" + MAL + "<i>I</i>. Für " + P_(1) + " gilt die Teilspannung " + U_(1) + ", für die Gesamtleistung die Gesamtspannung. Achten Sie auf mA.",
+    solution: "<p>" + P_(1) + " = " + U_(1) + MAL + "<i>I</i> = " + V(e.U1) + MAL + A(e.I) + " " + gl(e.P1) + " <b>" + W(e.P1) + "</b></p><p><i>P</i> = <i>U</i>" + MAL + "<i>I</i> = (" + V(e.U1) + " + " + V(e.U2) + ")" + MAL + A(e.I) + " " + gl(e.P) + " <b>" + W(e.P) + "</b></p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.16) return qWiderstaende();
+  if (x < 0.32) return qVorwiderstand();
+  if (x < 0.42) return qVorStrom();
+  if (x < 0.62) return qLampen();
+  if (x < 0.72) return qHeller();
+  if (x < 0.82) return qGesamt();
+  return qRegel();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qWiderstaende, qVorwiderstand, qVorStrom, qLampen, qLampen, qHeller, qGesamt, qRegel]); }});
+})();
+</script>
+</body>
+</html>

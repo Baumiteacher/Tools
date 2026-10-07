@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_6 TA6 Handtuchradiator am 13-A-FI-LS BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Schaltzeichen nach Theoriebuch (AAD28, AAD30.1) und Arbeitsblättern (ID4, ID5) */
+:root{ --sym:#2B3E66; --w-l:#7F4F3F; --w-n:#4F86B8; --w-ld:#F26B21; --w-ld2:#9B59C6; --w-k:#F26B21; --w-pe1:#7AC943; --w-pe2:#F7DC3B;
+  --t-l:#993300; --t-ld:#800080; --t-ldb:#FF6600; --t-n:#0000FF; --t-k:#FF00FF; --plan:#4F86B8; --lampe-an:#F6D13A;
+  --w-l2:#141414; --w-l2h:transparent; --w-l3:#8C8C8C; --w-i:#F03A17; --et-u:#0000FF; --et-i:#E60000 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 } }
+:root[data-theme="dark"]{ --sym:#C9D4EA; --w-l:#C08A6A; --w-n:#7FB0DD; --w-ld2:#C39BE3; --t-l:#D07A4A; --t-ld:#D58CE0; --t-n:#7C96FF; --t-k:#FF7BFF; --plan:#7FB0DD; --w-l2:#050505; --w-l2h:#C9D4EA; --w-l3:#A9A9A9; --w-i:#FF7A5C; --et-u:#8FA2FF; --et-i:#FF7068 }
+.sy{fill:none;stroke:var(--sym);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy.dn{stroke-width:1.3}
+.sy.dk{stroke-width:2.6}
+.sy-s{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sy-s.dn{stroke-width:1.2}
+.sy-f{fill:var(--sym);stroke:none}
+.sy-fs{fill:var(--ink);stroke:none}
+.sy-bg{fill:var(--surface)}
+.sy-d{stroke-dasharray:3.5 3}
+.sy-t{fill:var(--sym);font-family:var(--sans);font-size:11px}
+.sy-ts{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.w{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.w.live{stroke-width:5}
+.w-l{stroke:var(--w-l)} .w-n{stroke:var(--w-n)} .w-ld{stroke:var(--w-ld)} .w-ld2{stroke:var(--w-ld2)} .w-k{stroke:var(--w-k)}
+.w-pe1{stroke:var(--w-pe1)} .w-pe2{stroke:var(--w-pe2);stroke-dasharray:6 6;stroke-linecap:butt}
+.t-l{stroke:var(--t-l)} .t-ld{stroke:var(--t-ld)} .t-ldb{stroke:var(--t-ldb)} .t-n{stroke:var(--t-n)} .t-k{stroke:var(--t-k)} .t-s{stroke:var(--ink)}
+.plan{fill:none;stroke:var(--plan);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.plan.an{stroke-width:5.5}
+.plan.fehler{stroke:var(--bad)}
+/* Aussenleiter L2 (schwarz) und L3 (grau), Strompfeile des Arbeitsblatts, Messschaltung des Theoriebuchs */
+.w-l2{stroke:var(--w-l2)} .w-l2h{stroke:var(--w-l2h);stroke-width:4.8} .w-l3{stroke:var(--w-l3)}
+.w-i{fill:var(--w-i);stroke:none}
+.w-it{fill:var(--w-i);font-family:var(--sans);font-size:9px}
+.et-us{fill:none;stroke:var(--et-u);stroke-width:1.5;stroke-linecap:round}
+.et-is{fill:none;stroke:var(--et-i);stroke-width:1.5;stroke-linecap:round}
+.et-uf{fill:var(--et-u);stroke:none} .et-if{fill:var(--et-i);stroke:none}
+.et-ut{fill:var(--et-u);font-family:var(--sans);font-size:11px} .et-it{fill:var(--et-i);font-family:var(--sans);font-size:11px}
+
+[hidden]{display:none!important}
+:root{--b-wand:#E4F0F6; --b-rand:#7FA2B5; --b-boden:#C9B48C; --b-fuge:#A8946E; --b-rad:#C5D5DF; --b-rippe:#A3B8C6; --b-warm:#E8866A; --b-dose:#ECECEC; --b-dose2:#FBFBFB; --b-kabel:#5E5E5E}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--b-wand:#1E2B34; --b-rand:#4B6676; --b-boden:#5A4E38; --b-fuge:#44391F; --b-rad:#394A56; --b-rippe:#5B7080; --b-warm:#D8694C; --b-dose:#4A525A; --b-dose2:#606A73; --b-kabel:#AEB6BD} }
+:root[data-theme="dark"]{--b-wand:#1E2B34; --b-rand:#4B6676; --b-boden:#5A4E38; --b-fuge:#44391F; --b-rad:#394A56; --b-rippe:#5B7080; --b-warm:#D8694C; --b-dose:#4A525A; --b-dose2:#606A73; --b-kabel:#AEB6BD}
+.bild{width:100%;height:auto;display:block}
+.b-wand{fill:var(--b-wand);stroke:var(--b-rand);stroke-width:1.2}
+.b-boden{fill:var(--b-boden);stroke:none}
+.b-fuge{stroke:var(--b-fuge);stroke-width:.8;fill:none}
+.b-rad{fill:var(--b-rad);stroke:var(--b-rand);stroke-width:1.1}
+.b-rippe{fill:var(--b-rippe);stroke:var(--b-rand);stroke-width:.6}
+.an .b-rippe{fill:var(--b-warm)}
+.b-dose{fill:var(--b-dose);stroke:var(--b-rippe);stroke-width:1}
+.b-dose2{fill:var(--b-dose2);stroke:var(--b-rippe);stroke-width:.8}
+.b-kabel{fill:none;stroke:var(--b-kabel);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.b-kabel.dk{stroke:var(--ink);stroke-width:2.2}
+.b-ink{fill:var(--surface);stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round}
+.b-voll{fill:var(--ink);stroke:none}
+.b-schild{fill:var(--surface);stroke:var(--muted);stroke-width:.9}
+.b-t{fill:var(--ink);font-family:var(--sans);font-size:10.5px}
+.b-up{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-dasharray:5 3}
+.b-zu{fill:none;stroke:var(--ink);stroke-width:1.6}
+.aus{opacity:.3}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.nw{white-space:nowrap}
+.tab-k{width:100%;border-collapse:collapse;font-size:.92rem;overflow-wrap:normal;word-break:normal}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-k td.num{white-space:nowrap}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k tr.weg td{color:var(--muted)}
+.tab-k tr.summe td{font-weight:700;border-bottom:0}
+.urteil{border-radius:8px;padding:10px 12px;border:2px solid var(--line)}
+.urteil.ok{border-color:var(--ok);background:var(--ok-soft)}
+.urteil.mittel{border-color:#B58900;background:var(--z2);color:var(--zone-ink)}
+.urteil.bad{border-color:var(--bad);background:var(--bad-soft)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_6 Apparate und Leitungen, einfache Verbraucherinstallation · Teilauftrag 6</p>
+    <h1>Handtuchradiator am 13-A-FI-LS BAP</h1>
+    <p class="lead">Werni Meier möchte einen zweiten Handtuchradiator installieren. Schalten Sie die Geräte ein, berechnen Sie Gesamtleistung und Gesamtstrom und beurteilen Sie, ob der FI-LS mit 13 A Bemessungsstrom ausreicht.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Szenario aus Übung 51 laden</legend>
+          <div class="opts" id="szenario">
+            <button class="opt txt" type="button" id="sz-1" data-sz="1">Szenario 1: beide Radiatoren</button>
+            <button class="opt txt" type="button" id="sz-2" data-sz="2">Szenario 2: zusätzlich Haartrockner</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Geräte in Betrieb</legend>
+          <div class="opts" id="geraete"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Bemessungsleistung des neuen Radiators (650&nbsp;W: Arbeitsblatt, übrige Werte frei gewählt)</legend>
+          <div class="opts" id="neu"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Situation in der Wohnung 7</h2>
+        <svg class="bild" id="bild" viewBox="0 0 340 252" role="img" aria-label="Zwei Handtuchradiatoren an einer Anschlussdose und ein Haartrockner an einer Steckdose, alle am gleichen FI-LS mit 13 Ampère Bemessungsstrom"></svg>
+        <p class="note">Bild nach dem Arbeitsblatt (Übung 51). Der FI-LS ist als beschriftetes Kästchen gezeichnet, die gestrichelten Linien zeigen die Zuleitung in der Wand. Alle Geräte liegen parallel an 230&nbsp;V.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Geräteliste</h2>
+        <div class="scroll">
+          <table class="tab-k">
+            <thead><tr><th>Gerät</th><th>Leistung</th><th>Strom</th></tr></thead>
+            <tbody id="liste"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Reicht der FI-LS mit 13&nbsp;A?</h2>
+        <div id="lineal"></div>
+        <p class="note">Skala: Vielfaches des Bemessungsstromes <i>I</i><sub>Sich</sub> = 13&nbsp;A. Gelb: Der Strom liegt über dem Bemessungsstrom, aber unter dem 1,45-fachen. Das ist nur kurzfristig zulässig und nicht optimal.</p>
+        <div class="rechnung" id="schwellen"></div>
+        <p class="urteil" id="urteil"></p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Parallelgeschaltete Widerstände liegen an der gleichen Spannung (ET4.5). Alle Geräte einer Gruppe liegen an 230&nbsp;V.</p>
+          <p>Auch bei der Parallelschaltung ergibt die Summe der Einzelleistungen die Gesamtleistung (ET4.7).</p>
+          <p id="merk-formel"></p>
+          <p>Arbeitsblatt Übung 51: Die Sicherung kann kurzfristig mit dem 1,45-fachen Bemessungsstrom belastet werden.</p>
+          <p>Theoriebuch NIN33.13: Bis zum 1,13-fachen Bemessungsstrom darf der LS frühestens nach einer Stunde (3'600&nbsp;s) auslösen. Beim 1,45-fachen Bemessungsstrom muss die Auslösung innerhalb einer Stunde erfolgen.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie Szenario 1. Wie gross sind Gesamtleistung und Gesamtstrom? Reicht die Sicherung aus?</li>
+          <li>Laden Sie Szenario 2. Vergleichen Sie den Gesamtstrom mit <i>I</i><sub>max</sub>. Wie bewerten Sie die Situation aus Sicht der Betriebssicherheit?</li>
+          <li>Welche Geräte dürfen gleichzeitig laufen, ohne dass der Bemessungsstrom von 13&nbsp;A überschritten wird?</li>
+          <li>Wählen Sie für den neuen Radiator eine andere Leistung. Ab welcher Leistung wird in Szenario 2 der 1,45-fache Bemessungsstrom erreicht?</li>
+          <li>Schalten Sie nur den Haartrockner ein. Wie viel Strom bleibt bis zum Bemessungsstrom übrig?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET4.5 bis ET4.7 (Parallelschaltung) und ET2.16 (Formelrad), Regeln der Technik NIN33.13 (Auslösecharakteristik).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID6 Apparate und Leitungen, Teilauftrag 6 Parallelschaltung mit Leistung: Übung 51 (ID6.29)</li><li>Theoriebuch Elektrotechnik, Kapitel 4 Grundschaltungen der Elektrotechnik: ET4.5 bis ET4.7 (Parallelschaltung, Verhalten der Leistung)</li><li>Theoriebuch Elektrotechnik, Kapitel 2 Grundbegriffe der Elektrotechnik: ET2.15 und ET2.16 (Elektrische Leistung, Formelrad)</li><li>Theoriebuch Regeln der Technik, Kapitel 33 Schutz gegen elektrischen Schlag: NIN33.13 (Auslösecharakteristik, 1,13- und 1,45-facher Bemessungsstrom) und NIN33.17 (Bezeichnung FI-LS)</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Schaltzeichen-Bibliothek: Formen aus Theoriebuch AAD28.2 bis AAD28.5, AAD30.1 und den Arbeitsblättern ID4 und ID5 übernommen */
+var SYM = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function pfad(d, cls, extra){ return "<path class=\"" + cls + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function kreis(x, y, r, cls){ return "<circle class=\"" + cls + "\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>"; }
+function text(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+
+/* ===== Installationsplan und Prinzipschema (AAD30.1, AAD28.2 bis AAD28.5) ===== */
+function fahne(x, y, r, grad, uhr, len, hk){
+  var a = grad * Math.PI / 180, b = a + (uhr ? 1 : -1) * Math.PI / 2;
+  var x1 = x + (r + len) * Math.cos(a), y1 = y + (r + len) * Math.sin(a);
+  return "M" + n(x + r * Math.cos(a)) + " " + n(y + r * Math.sin(a)) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * Math.cos(b)) + " " + n(y1 + hk * Math.sin(b));
+}
+/* Schalter im Plan: typ 0, 1, 2, 3 oder 6 */
+function schalter(x, y, typ, o){
+  o = o || {}; var r = o.r || 9, len = o.len || 15, hk = o.hk || 7, d = "";
+  if (String(typ) === "2"){
+    /* Sch 2 gemäss Vorgabe BAP (Bildschirmfoto vom 5.10.): zwei parallele Striche nach rechts oben, jeder mit einem Haken nach rechts unten */
+    var c = Math.SQRT1_2, ab = 0.28 * r, T = [(r + len) * 1.12, (r + len) * 1.12 * 0.84];
+    [-1, 1].forEach(function(seite, k){
+      var ox = seite * ab * c, oy = seite * ab * c, a0 = Math.sqrt(r * r - ab * ab);
+      var x0 = x + ox + a0 * c, y0 = y + oy - a0 * c, x1 = x + ox + T[k] * c, y1 = y + oy - T[k] * c;
+      d += "M" + n(x0) + " " + n(y0) + " L" + n(x1) + " " + n(y1) + " L" + n(x1 + hk * c) + " " + n(y1 + hk * c) + " ";
+    });
+    return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+  }
+  /* "2p" und "2u": die beiden Formen aus dem Theoriebuch AAD28.4 (Prinzipschema und Abbildung UP-Installation), in den Tools nicht mehr verwendet */
+  var f = {0:[[-45, 1]], 1:[[-45, 1], [-135, 0]], "2p":[[-45, 1], [-135, 1]], "2u":[[-45, 0], [-135, 0]], 3:[[-45, 1], [135, 1]], 6:[[-45, 1], [-135, 0], [135, 1], [45, 0]]}[typ];
+  f.forEach(function(e){ d += fahne(x, y, r, e[0], e[1], len, hk) + " "; });
+  return kreis(x, y, r, "sy sy-bg") + pfad(d, "sy");
+}
+/* Steckdose Typ 13 im Plan: Stiel ab (x,y) in Richtung grad, Querstrich, Bogen */
+function steckdose(x, y, grad, o){
+  o = o || {}; var s = o.stiel === undefined ? 10 : o.stiel, b = o.b || 9, ra = o.ra || 7.5;
+  var a = grad * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+  var ex = x + s * dx, ey = y + s * dy, cx = ex + ra * dx, cy = ey + ra * dy;
+  var d = "M" + n(x) + " " + n(y) + " L" + n(ex) + " " + n(ey) + " M" + n(ex + b * px) + " " + n(ey + b * py) + " L" + n(ex - b * px) + " " + n(ey - b * py)
+        + " M" + n(cx + ra * px) + " " + n(cy + ra * py) + " A" + ra + " " + ra + " 0 0 1 " + n(cx - ra * px) + " " + n(cy - ra * py);
+  return pfad(d, "sy dk");
+}
+function leuchte(x, y, o){ o = o || {}; var s = o.s || 10; return pfad("M" + n(x - s) + " " + n(y - s) + " L" + n(x + s) + " " + n(y + s) + " M" + n(x + s) + " " + n(y - s) + " L" + n(x - s) + " " + n(y + s), "sy dk"); }
+function dose(x, y, o){ o = o || {}; var s = o.s || 11; return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + kreis(x, y, o.punkt || 3.6, "sy-f"); }
+/* Zuleitung nach UV: Kasten mit Pfeilspitze, spitze nach rechts (1) oder links (-1); (x,y) ist der Anschlusspunkt der Leitung */
+function uv(x, y, richtung, label){
+  var w = 26, h = 8, k = richtung, x1 = x + k * w, d = "M" + n(x) + " " + n(y - h) + " H" + n(x1) + " V" + n(y + h) + " H" + n(x) + " Z M" + n(x1) + " " + n(y - h) + " L" + n(x1 + k * 9) + " " + n(y) + " L" + n(x1) + " " + n(y + h);
+  return pfad(d, "sy sy-bg") + text(x + k * w / 2, y + 4, label || "UV", "sy-t", "middle");
+}
+function ventilator(x, y, o){
+  o = o || {}; var s = o.s || 12, a = s * 0.62, b = s * 0.36;
+  return "<rect class=\"sy dk sy-bg\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/>" + unendlich(x, y, a, b);
+}
+function unendlich(x, y, a, b){
+  return pfad("M" + n(x) + " " + n(y) + " C" + n(x + a * 0.5) + " " + n(y - b * 1.5) + " " + n(x + a * 1.4) + " " + n(y - b * 1.2) + " " + n(x + a * 1.4) + " " + n(y)
+    + " C" + n(x + a * 1.4) + " " + n(y + b * 1.2) + " " + n(x + a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y)
+    + " C" + n(x - a * 0.5) + " " + n(y - b * 1.5) + " " + n(x - a * 1.4) + " " + n(y - b * 1.2) + " " + n(x - a * 1.4) + " " + n(y)
+    + " C" + n(x - a * 1.4) + " " + n(y + b * 1.2) + " " + n(x - a * 0.5) + " " + n(y + b * 1.5) + " " + n(x) + " " + n(y), "sy dk");
+}
+/* Markierung der Drahtzahl: kurzer Querstrich über die Leitung */
+function marke(x, y, senkrechteLeitung, l){ l = l || 7; return pfad(senkrechteLeitung ? "M" + n(x - l) + " " + n(y) + " H" + n(x + l) : "M" + n(x) + " " + n(y - l) + " V" + n(y + l), "sy dn"); }
+
+/* ===== Stromlaufschema nach Theoriebuch (schwarz gezeichnet) ===== */
+function lampeT(x, y, o){
+  o = o || {}; var r = o.r || 11, d = r * 0.707, h = "";
+  h += "<circle class=\"sy-s\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"" + (o.an ? " style=\"fill:var(--lampe-an)\"" : " style=\"fill:var(--surface)\"") + "/>";
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy-s");
+  if (o.name) h += text(x - r - 5, y + 5, o.name, "sy-ts", "end", " style=\"font-size:13px\"");
+  if (o.x12 !== false){ h += text(x - 3, y - r - 2, "X1", "sy-ts", "end", " style=\"font-size:8px\"") + text(x - 3, y + r + 9, "X2", "sy-ts", "end", " style=\"font-size:8px\""); }
+  if (o.buchstabe) h += text(x + r * 0.6, y - r - 1, o.buchstabe, "sy-ts", "start", " style=\"font-size:12px\"");
+  return h;
+}
+/* Neutralleiter-Kennzeichen: Schrägstrich mit Punkt */
+function nMarke(x, y){ return pfad("M" + n(x - 4) + " " + n(y + 5) + " L" + n(x + 3) + " " + n(y - 7), "w t-n", " style=\"stroke-width:2\"") + kreis(x + 3.4, y - 8, 2, "sy-fs"); }
+/* Verbindung Antrieb zu Schaltstück: gestrichelt mit Kerbe (v oder ^) */
+function gestaenge(x0, x1, y, auf){
+  var m = x0 + (x1 - x0) * 0.42, k = auf ? -1 : 1;
+  return pfad("M" + n(x0) + " " + n(y) + " H" + n(m - 6), "sy-s dn sy-d") + pfad("M" + n(m - 6) + " " + n(y) + " H" + n(m - 4) + " L" + n(m) + " " + n(y + k * 7) + " L" + n(m + 4) + " " + n(y) + " H" + n(m + 6), "sy-s dn") + pfad("M" + n(m + 6) + " " + n(y) + " H" + n(x1), "sy-s dn sy-d");
+}
+/* Antrieb: "klammer" [ (Schema 0), "balken" | mit Ansatz (Schema 1 und 3), "dreh" (Schema 2) */
+function antriebT(art, x, y, h){
+  h = h || 9;
+  if (art === "klammer") return pfad("M" + n(x + 5) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 5), "sy-s");
+  if (art === "dreh") return pfad("M" + n(x - 6) + " " + n(y - h) + " H" + n(x) + " V" + n(y + h) + " H" + n(x + 6), "sy-s");
+  return pfad("M" + n(x) + " " + n(y - h) + " V" + n(y + h) + " M" + n(x) + " " + n(y) + " H" + n(x + 4), "sy-s");
+}
+
+/* ===== Wirkschaltschema nach Arbeitsblatt (dunkelblau gezeichnet) ===== */
+function klemme(x, y, o){
+  o = o || {}; var r = o.r || 5.5, k = r * 0.72, s = o.steigend ? -1 : 1;
+  return kreis(x, y, r, "sy dk sy-bg") + pfad("M" + n(x - k) + " " + n(y - s * k) + " L" + n(x + k) + " " + n(y + s * k), "sy dk");
+}
+/* Anschlussklemme im Ersatzschaltbild: offener Ring */
+function ring(x, y, r){ return "<circle class=\"sy sy-bg\" style=\"stroke-width:3\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + (r || 5) + "\"/>"; }
+/* Leuchte im Wirkschaltschema: strichpunktierter Kasten, Kreuz und Schutzleiteranschluss rechts. (x,y) ist die Mitte des Kreuzes. */
+function leuchteW(x, y, o){
+  o = o || {}; var s = o.s || 36, x0 = x - 0.407 * s, y0 = y - 0.49 * s, x1 = x0 + s, y1 = y0 + s, mx = x0 + s / 2, my = y0 + s / 2, g = 0.09 * s, d = 0.31 * s, h = "";
+  if (o.an) h += "<rect x=\"" + n(x0) + "\" y=\"" + n(y0) + "\" width=\"" + s + "\" height=\"" + s + "\" style=\"fill:var(--lampe-an);opacity:.75\"/>";
+  h += pfad("M" + n(mx - g) + " " + n(y0) + " H" + n(x0) + " V" + n(my - g) + " M" + n(x0) + " " + n(my + g) + " V" + n(y1) + " H" + n(mx - g)
+    + " M" + n(mx + g) + " " + n(y1) + " H" + n(x1) + " V" + n(my + g) + " M" + n(x1) + " " + n(my - g) + " V" + n(y0) + " H" + n(mx + g), "sy dk", " style=\"stroke-linecap:butt\"");
+  [[mx, y0], [mx, y1], [x0, my]].forEach(function(p){ h += kreis(p[0], p[1], 1.2, "sy-f"); });
+  h += pfad("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sy dk");
+  /* Schutzleiteranschluss: Erdungszeichen, Strich, Klemme auf dem rechten Rand */
+  var kx = x1 - 0.035 * s, ky = y, kr = 0.058 * s, ex = kx - 0.17 * s;
+  h += pfad("M" + n(kx - kr) + " " + n(ky) + " H" + n(ex) + " M" + n(ex) + " " + n(ky - 0.067 * s) + " V" + n(ky + 0.067 * s) + " M" + n(ex - 0.035 * s) + " " + n(ky - 0.042 * s) + " V" + n(ky + 0.042 * s) + " M" + n(ex - 0.07 * s) + " " + n(ky - 0.02 * s) + " V" + n(ky + 0.02 * s), "sy dn");
+  h += kreis(kx, ky, kr, "sy dn sy-bg") + pfad("M" + n(kx - kr * 0.7) + " " + n(ky - kr * 0.7) + " L" + n(kx + kr * 0.7) + " " + n(ky + kr * 0.7), "sy dn");
+  return {svg:h, pe:[kx + kr, ky], oben:[x, y0], unten:[x, y1], x0:x0, y0:y0, x1:x1, y1:y1};
+}
+/* Antrieb im Wirkschaltschema: Querbalken oben, gestrichelte Verbindung, bei rastenden Schaltern mit Zickzack */
+function antriebW(x, yBalken, yUnten, rastend, o){
+  o = o || {}; var b = o.b || 8, h = pfad("M" + n(x - b) + " " + n(yBalken) + " H" + n(x + b), "sy dk");
+  if (!rastend) return h + pfad("M" + n(x) + " " + n(yBalken + 3) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+  var m = yBalken + (yUnten - yBalken) * 0.5;
+  return h + pfad("M" + n(x) + " " + n(yBalken + 2) + " V" + n(m - 5), "sy dk sy-d", " style=\"stroke-linecap:butt\"") + pfad("M" + n(x) + " " + n(m - 5) + " L" + n(x - 5) + " " + n(m) + " L" + n(x) + " " + n(m + 5), "sy dk") + pfad("M" + n(x) + " " + n(m + 6) + " V" + n(yUnten), "sy dk sy-d", " style=\"stroke-linecap:butt\"");
+}
+/* Widerstand im Ersatzschaltbild: Rechteck mit Bezeichnung */
+function widerstand(x, y, o){
+  o = o || {}; var w = o.w || 46, h = o.h || 17;
+  return "<rect class=\"sy sy-bg" + (o.cls ? " " + o.cls : "") + "\" style=\"stroke-width:3\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - h / 2) + "\" width=\"" + w + "\" height=\"" + h + "\"/>"
+    + (o.name ? "<text class=\"sy-t\" x=\"" + n(x) + "\" y=\"" + n(y + 4.5) + "\" text-anchor=\"middle\" style=\"font-size:12px\">R<tspan dy=\"3\" style=\"font-size:8.5px\">" + o.name + "</tspan></text>" : "");
+}
+/* ===== Schaltschema nach Arbeitsblatt ID5, Übungen 14 und 29 (dunkelblau gezeichnet) ===== */
+/* Sammelschienen, z. B. L1, L2, L3, N. Gibt die Höhe jeder Schiene zurück. */
+function schienen(x0, x1, y0, dy, namen, fs){
+  var h = "", ys = {}; fs = fs || 10.5;
+  namen.forEach(function(nm, i){ var y = y0 + i * dy; ys[nm] = y; h += pfad("M" + n(x0) + " " + n(y) + " H" + n(x1), "sy dk") + text(x0 - 3, y + fs * 0.35, nm, "sy-t", "end", " style=\"font-size:" + fs + "px\""); });
+  return {svg:h, y:ys};
+}
+/* Leitungsschutzschalter wie im Arbeitsblatt: pole = [{x, von}] (von = Höhe der Schiene), nPol = {x, von} für den Neutralleitertrenner oder null.
+   yo = oberes Ende der Schaltstücke, yu = Drehpunkt, bis = unteres Ende der Leitung. Das erste Schaltstück trägt die Auslöser. */
+function ls(pole, nPol, yo, yu, bis){
+  var dy = yu - yo, dx = dy * 0.5, s = dy / 138, h = "", d = "";
+  pole.forEach(function(p){ d += "M" + n(p.x) + " " + n(p.von) + " V" + n(yo) + " M" + n(p.x - dx) + " " + n(yo) + " L" + n(p.x) + " " + n(yu) + " V" + n(bis) + " "; });
+  h += pfad(d, "sy dk");
+  /* Auslöser am ersten Schaltstück: obere Linie mit rechteckigem Absatz (thermisch), untere Linie mit Pfeil (magnetisch) */
+  var p0 = pole[0], ux = -0.88, uy = 0.47, vx = -0.47, vy = -0.88;
+  function aufBlatt(t){ return [p0.x - dx + dx * t, yo + dy * t]; }
+  var a = aufBlatt(0.31), b = aufBlatt(0.53), q = [a[0], a[1]], dd = "M" + n(q[0]) + " " + n(q[1]);
+  [[53, 0], [0, 28], [28, 0], [0, -28], [45, 0]].forEach(function(st){ q = [q[0] + (st[0] * ux + st[1] * vx) * s, q[1] + (st[0] * uy + st[1] * vy) * s]; dd += " L" + n(q[0]) + " " + n(q[1]); });
+  h += pfad(dd, "sy");
+  var e = [b[0] + 108 * ux * s, b[1] + 108 * uy * s], sp = [b[0] + 124 * ux * s, b[1] + 124 * uy * s];
+  h += pfad("M" + n(b[0]) + " " + n(b[1]) + " L" + n(e[0]) + " " + n(e[1]), "sy");
+  h += "<path class=\"sy-f\" d=\"M" + n(sp[0]) + " " + n(sp[1]) + " L" + n(e[0] + 9 * vx * s) + " " + n(e[1] + 9 * vy * s) + " L" + n(e[0] - 9 * vx * s) + " " + n(e[1] - 9 * vy * s) + " Z\"/>";
+  /* mechanische Verbindung der Schaltstücke: gestrichelt */
+  if (pole.length > 1){ var l = pole[pole.length - 1]; h += pfad("M" + n(p0.x - dx + dx * 0.52 + 2) + " " + n(yo + dy * 0.52) + " H" + n(l.x - dx + dx * 0.52 - 1), "sy dn sy-d"); }
+  if (nPol){
+    var bb = dy * 0.26;
+    h += pfad("M" + n(nPol.x) + " " + n(nPol.von) + " V" + n(yo) + " M" + n(nPol.x - bb) + " " + n(yo) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yo + dy * 0.1) + " V" + n(yu - dy * 0.08)
+      + " M" + n(nPol.x - bb) + " " + n(yu) + " H" + n(nPol.x + bb) + " M" + n(nPol.x) + " " + n(yu) + " V" + n(bis), "sy dk");
+  }
+  return h;
+}
+/* Klemmenleiste: Kästchen mit hochgestellter Beschriftung. Gibt die Mitte jeder Klemme zurück. */
+function klemmenleiste(x, y, namen, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 35, h = "", xs = {};
+  namen.forEach(function(nm, i){
+    var x0 = x + i * b, cx = x0 + b / 2; xs[nm] = cx;
+    h += "<rect class=\"sy dk sy-bg\" x=\"" + n(x0) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>";
+    h += text(cx + 3.4, y + hh - 4, nm, "sy-t", "start", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(cx + 3.4) + " " + n(y + hh - 4) + ")\"");
+  });
+  return {svg:h, x:xs, oben:y, unten:y + hh};
+}
+/* Verbraucher als Widerstand, stehend, Beschriftung hochgestellt. (x, y) ist der obere Anschluss. */
+function widerstandW(x, y, o){
+  o = o || {}; var b = o.b || 17.5, hh = o.h || 52;
+  return "<rect class=\"sy dk sy-bg" + (o.cls ? " " + o.cls : "") + "\" x=\"" + n(x - b / 2) + "\" y=\"" + n(y) + "\" width=\"" + n(b) + "\" height=\"" + n(hh) + "\"/>"
+    + text(x + 3.4, y + hh / 2, o.name || "", "sy-t", "middle", " style=\"font-size:9.5px\" transform=\"rotate(-90 " + n(x + 3.4) + " " + n(y + hh / 2) + ")\"");
+}
+/* Strompfeil wie im Arbeitsblatt: rotes Dreieck auf dem Leiter, Wert daneben. richtung 1 = nach unten, -1 = nach oben */
+function stromW(x, y, richtung, label, anker){
+  var k = richtung || 1, h = "<path class=\"w-i\" d=\"M" + n(x - 4.2) + " " + n(y - 3.6 * k) + " H" + n(x + 4.2) + " L" + n(x) + " " + n(y + 4.6 * k) + " Z\"/>";
+  if (label) h += text(anker === "start" ? x + 6 : x - 6, y + 3, label, "w-it", anker === "start" ? "start" : "end");
+  return h;
+}
+
+/* ===== Messschaltung nach Theoriebuch ET4.1 und ET4.5 (schwarz, Spannung blau, Strom rot) ===== */
+/* Messgerät: Kreis mit Buchstabe. art "i" = Ampèremeter (rot), "u" = Voltmeter (blau) */
+function messT(x, y, art, r){
+  r = r || 9; var c = art === "u" ? "et-u" : "et-i";
+  return "<circle class=\"" + c + "s\" style=\"fill:var(--surface)\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>" + text(x, y + 4, art === "u" ? "V" : "A", c + "t", "middle", art === "u" ? " style=\"font-weight:700\"" : "");
+}
+/* Pfeil mit gefüllter Spitze von (x1,y1) nach (x2,y2) */
+function pfeilT(x1, y1, x2, y2, art, nurSpitze){
+  var c = art === "u" ? "et-u" : "et-i", L = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)), ux = (x2 - x1) / L, uy = (y2 - y1) / L, sl = 8, sb = 3;
+  var bx = x2 - ux * sl, by = y2 - uy * sl;
+  return (nurSpitze ? "" : pfad("M" + n(x1) + " " + n(y1) + " L" + n(bx) + " " + n(by), c + "s"))
+    + "<path class=\"" + c + "f\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(bx - uy * sb) + " " + n(by + ux * sb) + " L" + n(bx + uy * sb) + " " + n(by - ux * sb) + " Z\"/>";
+}
+/* Gleichspannungsquelle: langer dünner Strich (+), kurzer dicker Strich (−). (x, y) ist die Mitte zwischen den Strichen. */
+function quelleT(x, y){
+  return pfad("M" + n(x - 8) + " " + n(y - 2.5) + " H" + n(x + 8), "sy-s dn") + pfad("M" + n(x - 4) + " " + n(y + 2.5) + " H" + n(x + 4), "sy-s", " style=\"stroke-width:3;stroke-linecap:butt\"")
+    + text(x - 4, y - 5.5, "+", "et-it", "middle", " style=\"font-weight:700\"") + text(x - 4, y + 12, "−", "et-ut", "middle", " style=\"font-weight:700\"");
+}
+return {pfad:pfad, kreis:kreis, text:text, schalter:schalter, steckdose:steckdose, leuchte:leuchte, dose:dose, uv:uv, ventilator:ventilator, unendlich:unendlich, marke:marke,
+        lampeT:lampeT, nMarke:nMarke, gestaenge:gestaenge, antriebT:antriebT, klemme:klemme, ring:ring, leuchteW:leuchteW, antriebW:antriebW, widerstand:widerstand,
+        schienen:schienen, ls:ls, klemmenleiste:klemmenleiste, widerstandW:widerstandW, stromW:stromW, messT:messT, pfeilT:pfeilT, quelleT:quelleT, n:n};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = String.fromCharCode(160);
+var U = 230, IN = 13, FAKTOR = 1.45;
+function sum(a){ return a.reduce(function(x, y){ return x + y; }, 0); }
+/* Schreibweise wie im Arbeitsblatt: 1100 W, 1,75 kW, 7,61 A */
+function Wp(x){ return fmt(round(x, 4)) + NB + "W"; }
+function kW(x){ return fmt(round(x / 1000, 4)) + NB + "kW"; }
+function Pw(x){ return x >= 1000 ? kW(x) : Wp(x); }
+/* kleiner Zuschlag, damit 18,85 A wie im Arbeitsblatt auf 18,9 A gerundet wird */
+function A3(x){ return fmt(round(x * (1 + 1e-12), 3)) + NB + "A"; }
+function A4(x){ return fmt(round(x, 4)) + NB + "A"; }
+function gl(x, sig){ return Math.abs(round(x, sig || 3) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+function ix(sym, idx){ return "<i>" + sym + "</i><sub>" + idx + "</sub>"; }
+
+/* Gesamtleistung und Gesamtstrom (Arbeitsblatt Übung 51) */
+function rechne(Ps, u){ var P = sum(Ps); return {P:P, I:P / (u || U), Ik:Ps.map(function(p){ return p / (u || U); })}; }
+/* 0: reicht aus, 1: über dem Bemessungsstrom, aber unter dem 1,45-fachen, 2: 1,45-facher Bemessungsstrom erreicht */
+function zone(I, In){ return I <= In ? 0 : I < FAKTOR * In ? 1 : 2; }
+window.__t = {rechne:rechne, zone:zone};
+
+/* ================= BILD nach Arbeitsblatt Übung 51 ================= */
+function sub(sym, idx, rest){ return sym + "<tspan dy=\"2.5\" style=\"font-size:7.5px\">" + idx + "</tspan><tspan dy=\"-2.5\">" + rest + "</tspan>"; }
+function schild(cx, y, t, w){ return "<rect class=\"b-schild\" x=\"" + (cx - w / 2) + "\" y=\"" + y + "\" width=\"" + w + "\" height=\"15\" rx=\"2.5\"/><text class=\"b-t\" x=\"" + cx + "\" y=\"" + (y + 11) + "\" text-anchor=\"middle\">" + t + "</text>"; }
+function radiator(x, y, w, h, n){
+  var g = "<rect class=\"b-rad\" x=\"" + x + "\" y=\"" + y + "\" width=\"" + w + "\" height=\"" + h + "\" rx=\"4\"/>", d = (h - 12) / n;
+  for (var i = 0; i < n; i++) g += "<rect class=\"b-rippe\" x=\"" + (x + 7) + "\" y=\"" + (y + 6 + i * d + (d - 4.4) / 2).toFixed(1) + "\" width=\"" + (w - 14) + "\" height=\"4.4\" rx=\"2.2\"/>";
+  return g;
+}
+function gruppe(an, inhalt){ return "<g class=\"" + (an ? "an" : "aus") + "\">" + inhalt + "</g>"; }
+function bild(an, p2, e){
+  var h = "";
+  h += "<rect class=\"b-wand\" x=\"4\" y=\"40\" width=\"332\" height=\"192\"/><rect class=\"b-boden\" x=\"4\" y=\"232\" width=\"332\" height=\"18\"/><path class=\"b-fuge\" d=\"M4 241 H336 M70 232 V241 M150 232 V241 M230 232 V241 M300 232 V241 M110 241 V250 M190 241 V250 M270 241 V250\"/>";
+  /* FI-LS und Zuleitung in der Wand */
+  h += "<path class=\"b-zu\" d=\"M70 20 H330\"/><path class=\"b-up\" d=\"M206 20 V150 M330 20 V168 H316\"/><circle class=\"b-voll\" cx=\"206\" cy=\"20\" r=\"2.3\"/>";
+  h += "<rect class=\"b-ink\" x=\"6\" y=\"5\" width=\"64\" height=\"30\" rx=\"3\"/><text class=\"b-t\" x=\"38\" y=\"17\" text-anchor=\"middle\" style=\"font-weight:700\">FI-LS</text><text class=\"b-t\" x=\"38\" y=\"30\" text-anchor=\"middle\">13" + NB + "A</text>";
+  if (e.I > 0) h += "<path class=\"w-i\" d=\"M84 15.8 V24.2 L92.4 20 Z\"/><text class=\"w-it\" x=\"98\" y=\"14\" style=\"font-size:11px\">" + sub("I", "ges", " " + gl(e.I) + " " + A3(e.I)) + "</text>";
+  /* Handtuchradiator 1 */
+  h += gruppe(an[0], schild(53, 45, sub("P", "1", " = " + Pw(1100)), 66) + radiator(22, 64, 62, 126, 11) + "<path class=\"b-kabel\" d=\"M53 190 V214 Q53 222 61 222 H206 Q214 222 214 214 V186 Q214 180 208 178\"/>");
+  /* Neuer Radiator */
+  h += gruppe(an[1], schild(141, 52, sub("P", "2", " = " + Pw(p2)), 66) + "<text class=\"b-t\" x=\"141\" y=\"80\" text-anchor=\"middle\">Neuer Radiator</text>" + radiator(112, 86, 58, 104, 8) + "<path class=\"b-kabel\" d=\"M141 190 V199 Q141 206 148 206 H199 Q206 206 206 199 V178\"/>");
+  /* Anschlussdose */
+  h += "<rect class=\"b-dose\" x=\"186\" y=\"150\" width=\"40\" height=\"40\" rx=\"4\"/><rect class=\"b-dose2\" x=\"191\" y=\"155\" width=\"30\" height=\"30\" rx=\"2\"/><circle class=\"b-ink\" cx=\"206\" cy=\"170\" r=\"11\" style=\"stroke-width:1.3\"/><circle class=\"b-voll\" cx=\"206\" cy=\"176\" r=\"3.6\"/>";
+  /* Steckdose T13 */
+  h += "<rect class=\"b-dose\" x=\"276\" y=\"148\" width=\"40\" height=\"40\" rx=\"4\"/><rect class=\"b-dose2\" x=\"281\" y=\"153\" width=\"30\" height=\"30\" rx=\"3\"/><circle class=\"b-voll\" cx=\"289\" cy=\"165\" r=\"2.2\"/><circle class=\"b-voll\" cx=\"303\" cy=\"165\" r=\"2.2\"/><circle class=\"b-voll\" cx=\"296\" cy=\"172\" r=\"2.2\"/>";
+  /* Haartrockner */
+  h += gruppe(an[2], schild(296, 45, sub("P", "3", " = " + Pw(2000)), 58)
+    + "<path class=\"b-kabel dk\" d=\"M290 122 V128 L270 138 V204 Q270 210 276 210 H290 Q296 210 296 204 V184\"/>"
+    + "<path class=\"b-ink\" d=\"M285 96 L288 122 H296 L297 96 Z\"/><path class=\"b-ink\" d=\"M280 70 H304 Q308 70 310 72 L320 69 V95 L310 92 Q308 96 302 96 H280 Q270 96 270 83 Q270 70 280 70 Z\"/><ellipse class=\"b-ink\" cx=\"288\" cy=\"83\" rx=\"10\" ry=\"7.5\" style=\"stroke-width:1.2\"/><path class=\"b-ink\" d=\"M310 72 V92\" style=\"stroke-width:1.2\"/>");
+  return h;
+}
+
+/* Lineal mit gleichmässiger Skala von 0 bis max */
+function lineal(max, bounds, zones, value, ticks){
+  function pos(v){ return Math.max(0, Math.min(100, v / max * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]), has = value !== null && value !== undefined;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i + 1] - edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t){ var p = pos(t.v); h += "<span" + (p < 6 ? " class=\"first\"" : p > 94 ? " class=\"last\"" : "") + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>"; });
+  return h + "</div></div>";
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {an:[true, true, false], p2:650};
+var NEU = [400, 650, 1000, 1500];
+function geraete(){ return [{k:"1", name:"Handtuch" + String.fromCharCode(173) + "radiator", P:1100}, {k:"2", name:"Neuer Radiator", P:st.p2}, {k:"3", name:"Haartrockner", P:2000}]; }
+function index(l){ return l.length === 3 ? "ges" : l.map(function(g){ return g.k; }).join(""); }
+var URTEIL = [
+  ["ok", "<b>Die Sicherung reicht aus.</b> Der Gesamtstrom ist nicht grösser als der Bemessungsstrom. Diese Geräte können gleichzeitig betrieben werden."],
+  ["mittel", "<b>Die Situation ist nicht optimal.</b> Der Gesamtstrom ist grösser als der Bemessungsstrom, aber kleiner als " + ix("I", "max") + ". Arbeitsblatt Übung 51: Die Sicherung hält dieser Belastung während einer Stunde stand. Es wird empfohlen, die Geräte nicht gleichzeitig zu betreiben."],
+  ["bad", "<b>Die Sicherung muss innerhalb einer Stunde auslösen.</b> Der Gesamtstrom erreicht das 1,45-fache des Bemessungsstromes (Theoriebuch NIN33.13). Diese Geräte dürfen nicht gleichzeitig betrieben werden."]
+];
+function render(){
+  var G = geraete(), l = G.filter(function(g, i){ return st.an[i]; }), e = rechne(l.map(function(g){ return g.P; })), id = index(l);
+  $("geraete").innerHTML = G.map(function(g, i){ return "<button class=\"opt txt\" type=\"button\" id=\"g-" + i + "\" data-i=\"" + i + "\" aria-pressed=\"" + st.an[i] + "\">" + g.name + " " + Pw(g.P) + "</button>"; }).join("");
+  $("neu").innerHTML = NEU.map(function(p){ return "<button class=\"opt txt\" type=\"button\" id=\"neu-" + p + "\" data-p=\"" + p + "\" aria-pressed=\"" + (st.p2 === p) + "\">" + Pw(p) + "</button>"; }).join("");
+  $("sz-1").setAttribute("aria-pressed", String(st.p2 === 650 && st.an[0] && st.an[1] && !st.an[2]));
+  $("sz-2").setAttribute("aria-pressed", String(st.p2 === 650 && st.an[0] && st.an[1] && st.an[2]));
+  $("bild").innerHTML = bild(st.an, st.p2, e);
+
+  var t = G.map(function(g, i){
+    return "<tr" + (st.an[i] ? "" : " class=\"weg\"") + "><td>" + g.name + "</td><td class=\"nw\">" + ix("P", g.k) + " = " + Pw(g.P) + "</td><td class=\"nw\">" + (st.an[i] ? ix("I", g.k) + " " + gl(g.P / U) + " " + A3(g.P / U) : "aus") + "</td></tr>";
+  }).join("");
+  if (l.length > 1) t += "<tr class=\"summe\"><td>Gesamt</td><td class=\"nw\">" + Pw(e.P) + "</td><td class=\"nw\">" + gl(e.I) + " " + A3(e.I) + "</td></tr>";
+  $("liste").innerHTML = t;
+
+  var h = "";
+  if (!l.length) h = "<span>Kein Gerät ist in Betrieb. Es fliesst kein Strom.</span>";
+  else {
+    h += "<span>Alle Geräte liegen parallel an <i>U</i> = 230" + NB + "V.</span>";
+    if (l.length > 1) h += "<span>" + ix("P", id) + " = " + l.map(function(g){ return ix("P", g.k); }).join(" + ") + " = " + l.map(function(g){ return Wp(g.P); }).join(" + ") + " = <span class=\"nw\"><b>" + Pw(e.P) + "</b></span></span>";
+    h += "<span>" + ix("I", id) + " = " + F(ix("P", id), "<i>U</i>") + " = " + F(Wp(e.P), "230" + NB + "V") + " " + gl(e.I) + " <b>" + A3(e.I) + "</b></span>";
+    if (l.length > 1) h += "<span>Kontrolle mit den Teilströmen: " + l.map(function(g){ return A3(g.P / U); }).join(" + ") + " ≈ " + A3(e.I) + "</span>";
+  }
+  $("rechnung").innerHTML = h;
+
+  var z = zone(e.I, IN), imax = FAKTOR * IN;
+  $("lineal").innerHTML = lineal(2, [1, FAKTOR], [{cls:"z1", label:"reicht aus"}, {cls:"z2", label:"kurzfristig"}, {cls:"z4", label:"löst aus"}], l.length ? e.I / IN : null,
+    [{v:0, label:"0"}, {v:0.5, label:"0,5"}, {v:1, label:"1"}, {v:FAKTOR, label:"1,45"}, {v:2, label:"2"}]);
+  var s = "<span>Bemessungsstrom: " + ix("I", "Sich") + " = 13" + NB + "A</span><span>" + ix("I", "max") + " = 1,45 · " + ix("I", "Sich") + " = 1,45 · 13" + NB + "A = " + A4(imax) + " ≈ <b>" + A3(imax) + "</b></span>";
+  if (l.length){
+    s += "<span>" + ix("I", id) + " " + gl(e.I) + " " + A3(e.I) + " " + (z === 0 ? (e.I === IN ? "=" : "&lt;") + " " + ix("I", "Sich") + " = 13" + NB + "A" : z === 1 ? "&lt; " + ix("I", "max") + " ≈ " + A3(imax) : "&gt; " + ix("I", "max") + " ≈ " + A3(imax)) + "</span>";
+    s += "<span>" + F(ix("I", id), ix("I", "Sich")) + " = " + F(A3(e.I), "13" + NB + "A") + " ≈ " + fmt(Math.round(e.I / IN * 100) / 100) + "</span>";
+  }
+  $("schwellen").innerHTML = s;
+  var u = $("urteil");
+  if (!l.length){ u.className = "urteil"; u.innerHTML = "Schalten Sie mindestens ein Gerät ein."; }
+  else { u.className = "urteil " + URTEIL[z][0]; u.innerHTML = URTEIL[z][1]; }
+}
+function init(){
+  $("merk-formel").innerHTML = "Aus <i>P</i> = <i>U</i> · <i>I</i> folgt für den Strom: <i>I</i> = " + F("<i>P</i>", "<i>U</i>") + " (ET2.16).";
+  $("geraete").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-i]"); if (!b) return; var i = Number(b.getAttribute("data-i")); st.an[i] = !st.an[i]; render(); var f = $("g-" + i); if (f) f.focus(); });
+  $("neu").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-p]"); if (!b) return; st.p2 = Number(b.getAttribute("data-p")); render(); var f = $("neu-" + st.p2); if (f) f.focus(); });
+  $("szenario").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-sz]"); if (!b) return; st.p2 = 650; st.an = [true, true, b.getAttribute("data-sz") === "2"]; render(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID6 Übung 51) ================= */
+function optionen(c, cands, show){
+  var out = [c], seen = {}; seen[show(c)] = 1;
+  shuffle(cands).concat([c * 2, c / 2, c * 3, c * 1.5, c / 4, c * 10]).forEach(function(x){
+    if (out.length < 4 && x > 0 && isFinite(x)){ var t = show(x); if (!seen[t]){ seen[t] = 1; out.push(x); } }
+  });
+  return out.sort(function(a, b){ return a - b; });
+}
+var RAD = [300, 400, 500, 650, 750, 900, 1100, 1200], HT = [1200, 1600, 1800, 2000, 2200];
+/* Geräteauswahl: zwei Radiatoren, wahlweise mit Haartrockner. Erste Auswahl entspricht Übung 51. */
+function auswahl(mitHT){
+  var r = Math.random() < 0.3 ? [1100, 650] : shuffle(RAD).slice(0, 2), l = [{n:"Handtuchradiator", P:r[0]}, {n:"zweiter Handtuchradiator", P:r[1]}];
+  if (mitHT) l.push({n:"Haartrockner", P:r[0] === 1100 && r[1] === 650 ? 2000 : pick(HT)});
+  return l;
+}
+function beschreibung(l){
+  var s = "An einer Anschlussdose laufen zwei Handtuchradiatoren mit " + Pw(l[0].P) + " und " + Pw(l[1].P) + " mit ihrer Bemessungsleistung.";
+  if (l.length === 3) s += " Zusätzlich wird in der gleichen Gruppe ein Haartrockner mit " + Wp(l[2].P) + " betrieben.";
+  return s;
+}
+function wegP(l, e){ return "<p class=\"num\">" + ix("P", "ges") + " = " + l.map(function(g, i){ return ix("P", i + 1); }).join(" + ") + " = " + l.map(function(g){ return Wp(g.P); }).join(" + ") + " = " + Pw(e.P) + "</p>"; }
+function wegI(e, u){ return "<p class=\"num\">" + ix("I", "ges") + " = " + F(ix("P", "ges"), "<i>U</i>") + " = " + F(Wp(e.P), (u || U) + NB + "V") + " " + gl(e.I) + " " + A3(e.I) + "</p>"; }
+function qSzenario(){
+  var l = auswahl(Math.random() < 0.5), Ps = l.map(function(g){ return g.P; }), e = rechne(Ps);
+  return {
+    text: beschreibung(l) + " Die Spannung beträgt 230" + NB + "V. Berechnen Sie die gesamte aufgenommene Leistung und den Gesamtstrom.",
+    parts: [
+      {label:"Gesamtleistung", options:optionen(e.P, [e.P - Ps[0], e.P - Ps[1], e.P + 500, Math.max.apply(null, Ps), e.P + Ps[0]], Pw), correct:e.P, mono:true, show:Pw},
+      {label:"Gesamtstrom", options:optionen(e.I, e.Ik.concat([U / e.P * 100, e.I * FAKTOR, e.I + 2.3, (e.P - Ps[0]) / U]), A3), correct:e.I, mono:true, show:A3}
+    ],
+    hint: "Auch bei der Parallelschaltung ergibt die Summe der Einzelleistungen die Gesamtleistung. Für den Strom gilt <i>I</i> = " + F("<i>P</i>", "<i>U</i>") + ".",
+    solution: wegP(l, e) + wegI(e) + "<p><b>" + ix("P", "ges") + " = " + Pw(e.P) + ", " + ix("I", "ges") + " " + gl(e.I) + " " + A3(e.I) + "</b></p>"
+  };
+}
+function qImax(){
+  var In = pick([6, 10, 13, 16, 20, 25]), c = round(FAKTOR * In, 4);
+  return {
+    text: "Eine Sicherung kann kurzfristig mit dem 1,45-fachen Bemessungsstrom belastet werden. Wie gross ist " + ix("I", "max") + " bei einem Bemessungsstrom von " + In + NB + "A?",
+    parts: [{label:"Imax", options:optionen(c, [round(1.13 * In, 4), In + 1.45, In * 2, In, round(In / FAKTOR, 3)], A4), correct:c, mono:true, show:A4}],
+    hint: ix("I", "max") + " = 1,45 · " + ix("I", "Sich"),
+    solution: "<p class=\"num\">" + ix("I", "max") + " = 1,45 · " + ix("I", "Sich") + " = 1,45 · " + In + NB + "A = <b>" + A4(c) + "</b></p>"
+  };
+}
+var AUSSAGE = [
+  "Die Sicherung reicht aus: Der Gesamtstrom ist nicht grösser als der Bemessungsstrom.",
+  "Nicht optimal: Der Gesamtstrom liegt über dem Bemessungsstrom, aber unter dem 1,45-fachen. Die Geräte sollten nicht gleichzeitig betrieben werden.",
+  "Die Sicherung muss innerhalb einer Stunde auslösen: Der Gesamtstrom erreicht das 1,45-fache des Bemessungsstromes.",
+  "Die Sicherung löst sofort aus, weil der Gesamtstrom nicht genau dem Bemessungsstrom entspricht."
+];
+function qUrteil(){
+  var ziel = pick([0, 0, 1, 1, 1, 2]), In, l, e, n = 0;
+  do {
+    In = pick([10, 13, 16]); l = auswahl(Math.random() < 0.7); e = rechne(l.map(function(g){ return g.P; })); n++;
+  } while (n < 400 && (zone(e.I, In) !== ziel || Math.abs(e.I - In) < 0.2 || Math.abs(e.I - FAKTOR * In) < 0.2));
+  var z = zone(e.I, In), imax = FAKTOR * In;
+  return {
+    text: beschreibung(l) + " Die Gruppe ist über einen FI-LS mit einem Bemessungsstrom von " + In + NB + "A abgesichert (<i>U</i> = 230" + NB + "V). Welche Beurteilung trifft zu?",
+    parts: [{label:"Beurteilung", options:AUSSAGE.slice(), correct:AUSSAGE[z]}],
+    hint: "Berechnen Sie den Gesamtstrom und vergleichen Sie ihn mit dem Bemessungsstrom " + In + NB + "A und mit " + ix("I", "max") + " = 1,45 · " + In + NB + "A.",
+    solution: "<p><b>" + AUSSAGE[z] + "</b></p>" + wegP(l, e) + wegI(e) + "<p class=\"num\">" + ix("I", "max") + " = 1,45 · " + In + NB + "A = " + A4(imax) + "</p><p class=\"num\">" + (z === 0 ? ix("I", "ges") + " " + gl(e.I) + " " + A3(e.I) + " &lt; " + ix("I", "Sich") + " = " + In + NB + "A" : z === 1 ? ix("I", "Sich") + " = " + In + NB + "A &lt; " + ix("I", "ges") + " " + gl(e.I) + " " + A3(e.I) + " &lt; " + ix("I", "max") + " = " + A4(imax) : ix("I", "ges") + " " + gl(e.I) + " " + A3(e.I) + " &gt; " + ix("I", "max") + " = " + A4(imax)) + "</p>"
+  };
+}
+function qMaxP(){
+  var In = pick([6, 10, 13, 16]), c = U * In;
+  return {
+    text: "Welche Leistung kann an 230" + NB + "V höchstens angeschlossen werden, damit der Bemessungsstrom einer Sicherung mit " + In + NB + "A nicht überschritten wird?",
+    parts: [{label:"Leistung", options:optionen(c, [c * FAKTOR, In * 100, U * 10, U / In * 100, c / 2], Pw), correct:c, mono:true, show:Pw}],
+    hint: "Es gilt <i>P</i> = <i>U</i> · <i>I</i>.",
+    solution: "<p class=\"num\"><i>P</i> = <i>U</i> · " + ix("I", "Sich") + " = 230" + NB + "V · " + In + NB + "A = " + Wp(c) + " = <b>" + Pw(c) + "</b></p>"
+  };
+}
+function qRest(){
+  var In = pick([10, 13, 16]), P1 = pick(RAD.concat([1500, 1800])), c = U * In - P1;
+  return {
+    text: "An einem FI-LS mit einem Bemessungsstrom von " + In + NB + "A ist bereits ein Handtuchradiator mit " + Pw(P1) + " angeschlossen (<i>U</i> = 230" + NB + "V). Welche Bemessungsleistung darf ein zweiter Radiator höchstens haben, damit der Bemessungsstrom bei gleichzeitigem Betrieb nicht überschritten wird?",
+    parts: [{label:"Leistung des zweiten Radiators", options:optionen(c, [U * In, U * In * FAKTOR - P1, U * In + P1, P1, c / 2], Pw), correct:c, mono:true, show:Pw}],
+    hint: "Berechnen Sie zuerst die Leistung beim Bemessungsstrom: <i>P</i> = <i>U</i> · " + ix("I", "Sich") + ". Ziehen Sie davon die Leistung des ersten Radiators ab.",
+    solution: "<p class=\"num\">" + ix("P", "max") + " = <i>U</i> · " + ix("I", "Sich") + " = 230" + NB + "V · " + In + NB + "A = " + Wp(U * In) + "</p><p class=\"num\">" + ix("P", "2") + " = " + ix("P", "max") + " − " + ix("P", "1") + " = " + Wp(U * In) + " − " + Wp(P1) + " = <b>" + Pw(c) + "</b></p>"
+  };
+}
+function qEinzel(){
+  var ht = Math.random() < 0.4, P = pick(ht ? HT : RAD), c = P / U;
+  return {
+    text: "Ein " + (ht ? "Haartrockner" : "Handtuchradiator") + " nimmt an 230" + NB + "V eine Leistung von " + Pw(P) + " auf. Wie gross ist sein Strom?",
+    parts: [{label:"Strom", options:optionen(c, [U / P * 10, c * 2, c / 2, c + 2, c * FAKTOR], A3), correct:c, mono:true, show:A3}],
+    hint: "Aus <i>P</i> = <i>U</i> · <i>I</i> folgt <i>I</i> = " + F("<i>P</i>", "<i>U</i>") + ".",
+    solution: "<p class=\"num\"><i>I</i> = " + F("<i>P</i>", "<i>U</i>") + " = " + F(Wp(P), "230" + NB + "V") + " " + gl(c) + " <b>" + A3(c) + "</b></p>"
+  };
+}
+var FI = "<i>I</i> = " + F("<i>P</i>", "<i>U</i>");
+var KONZEPT = [
+  {t:"Wie sind die Geräte an der Anschlussdose und an der Steckdose der gleichen Gruppe geschaltet?", o:["Parallel: Alle liegen an 230 V.", "In Serie: Durch alle fliesst der gleiche Strom.", "Gemischt: Die Radiatoren in Serie, der Haartrockner parallel.", "Gar nicht: Jedes Gerät hat seinen eigenen Stromkreis."], c:"Parallel: Alle liegen an 230 V.", s:"Parallelgeschaltete Verbraucher liegen an der gleichen Spannung und können unabhängig voneinander betrieben werden."},
+  {t:"Wofür steht die Bezeichnung FI-LS?", o:["Fehlerstrom-Schutzschalter mit integrierter Überstrom-Schutzeinrichtung", "Fehlerstrom-Schutzschalter ohne integrierte Überstrom-Schutzeinrichtung", "Ortsveränderlicher FI", "Differenzstrom-Überwachungsgerät"], c:"Fehlerstrom-Schutzschalter mit integrierter Überstrom-Schutzeinrichtung", s:"Die Übersicht der Fehlerstrom-Schutzeinrichtungen steht im Theoriebuch auf NIN33.17. Internationale Abkürzung: RCBO."},
+  {t:"Übung 51, Szenario 2: Der Gesamtstrom beträgt 16,3 A, " + ix("I", "max") + " beträgt 18,9 A. Wie bewerten Sie die Situation aus Sicht der Betriebssicherheit?", o:["Nicht optimal: Es wird empfohlen, die Geräte nicht gleichzeitig zu betreiben.", "Unbedenklich: Die Geräte dürfen dauernd gleichzeitig laufen.", "Die Sicherung löst sofort aus.", "Der Haartrockner darf an dieser Steckdose nie betrieben werden."], c:"Nicht optimal: Es wird empfohlen, die Geräte nicht gleichzeitig zu betreiben.", s:"Der Gesamtstrom liegt über dem Bemessungsstrom von 13 A, aber unter dem 1,45-fachen Bemessungsstrom."},
+  {t:"Zu den beiden Handtuchradiatoren wird in der gleichen Gruppe ein weiteres Gerät eingeschaltet. Was passiert mit dem Gesamtstrom?", o:["Er wird grösser, weil ein weiterer Teilstrom dazukommt.", "Er bleibt gleich, weil die Spannung gleich bleibt.", "Er wird kleiner, weil er sich auf mehr Geräte aufteilt.", "Er wird null."], c:"Er wird grösser, weil ein weiterer Teilstrom dazukommt.", s:"Bei der Parallelschaltung entspricht der Gesamtstrom der Summe der Teilströme."},
+  {t:"Mit welcher Formel berechnen Sie den Gesamtstrom aus der Gesamtleistung und der Spannung?", o:[FI, "<i>I</i> = <i>P</i> · <i>U</i>", "<i>I</i> = " + F("<i>U</i>", "<i>P</i>"), "<i>I</i> = " + F("<i>P</i>", "<i>U</i>²")], c:FI, s:"Die Formel folgt aus <i>P</i> = <i>U</i> · <i>I</i> (Formelrad, ET2.16)."},
+  {t:"Bis zu welchem Vielfachen des Bemessungsstromes darf ein Leitungsschutzschalter gemäss Theoriebuch frühestens nach einer Stunde auslösen?", o:["Bis zum 1,13-fachen", "Bis zum 1,45-fachen", "Bis zum 3-fachen", "Bis zum 5-fachen"], c:"Bis zum 1,13-fachen", s:"Bis zum 1,13-fachen Bemessungsstrom darf der LS frühestens nach einer Stunde (3'600 s) auslösen (NIN33.13)."},
+  {t:"Bei welchem Vielfachen des Bemessungsstromes muss ein Leitungsschutzschalter gemäss Theoriebuch innerhalb einer Stunde auslösen?", o:["Beim 1,45-fachen", "Beim 1,13-fachen", "Beim 1,05-fachen", "Erst beim 10-fachen"], c:"Beim 1,45-fachen", s:"Beim 1,45-fachen Bemessungsstrom muss die Auslösung innerhalb einer Stunde erfolgen (NIN33.13)."},
+  {t:"Wie berechnen Sie die gesamte aufgenommene Leistung von mehreren Geräten der gleichen Gruppe?", o:["Die Bemessungsleistungen werden addiert.", "Es zählt nur das Gerät mit der grössten Leistung.", "Die Bemessungsleistungen werden multipliziert.", "Der Mittelwert der Bemessungsleistungen wird gebildet."], c:"Die Bemessungsleistungen werden addiert.", s:"Auch bei der Parallelschaltung ergibt die Summe der Einzelleistungen die Gesamtleistung (ET4.7)."}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return {
+    text: k.t,
+    parts: [{label:"Antwort", options:shuffle(k.o), correct:k.c}],
+    hint: "Lesen Sie im Theoriebuch auf ET4.5 bis ET4.7 und NIN33.13 nach.",
+    solution: "<p><b>" + k.c + "</b></p><p>" + k.s + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.24) return qSzenario();
+  if (x < 0.36) return qImax();
+  if (x < 0.58) return qUrteil();
+  if (x < 0.67) return qMaxP();
+  if (x < 0.77) return qRest();
+  if (x < 0.86) return qEinzel();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qSzenario, qSzenario, qImax, qUrteil, qUrteil, pick([qMaxP, qRest]), qEinzel, qKonzept]); }});
+})();
+
+</script>
+</body>
+</html>

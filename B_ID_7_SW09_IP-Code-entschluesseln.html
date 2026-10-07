@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA2 IP-Code entschlüsseln BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.ipcode{font-family:var(--mono);font-size:2.2rem;font-weight:700;letter-spacing:.04em;color:var(--accent);line-height:1.1}
+.ipcode .z1{color:var(--ip-1)} .ipcode .z2{color:var(--ip-2)} .ipcode .zb{color:var(--ip-b)}
+:root{--ip-1:#B45309;--ip-2:#1D4ED8;--ip-b:#0B8A45;--ip-wand:#4A7BAF;--ip-innen:#DCE9F7;--ip-wasser:#3B82F6;--ip-blitz:#F59E0B}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--ip-1:#F5B55E;--ip-2:#8FB4FF;--ip-b:#5FD990;--ip-wand:#8FB4E0;--ip-innen:#1F2C3B;--ip-wasser:#6AA5FF;--ip-blitz:#FBBF24} }
+:root[data-theme="dark"]{--ip-1:#F5B55E;--ip-2:#8FB4FF;--ip-b:#5FD990;--ip-wand:#8FB4E0;--ip-innen:#1F2C3B;--ip-wasser:#6AA5FF;--ip-blitz:#FBBF24}
+.deut{display:flex;flex-direction:column;gap:6px}
+.deut p{border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.deut p.d1{border-color:var(--ip-1)} .deut p.d2{border-color:var(--ip-2)} .deut p.db{border-color:var(--ip-b)}
+.deut b.k{font-family:var(--mono)}
+.tab-k{width:100%;border-collapse:collapse;font-size:.92rem}
+.tab-k th,.tab-k td{text-align:left;padding:6px 8px 6px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-k th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tab-k td.kb{font-weight:700;font-family:var(--mono);white-space:nowrap}
+.tab-k tr.akt td{background:var(--accent-soft)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.urteil{font-weight:700;border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.urteil.ok{border-color:var(--ok);color:var(--ok)}
+.urteil.bad{border-color:var(--bad);color:var(--bad)}
+.ip-wand{fill:none;stroke:var(--ip-wand);stroke-width:5;stroke-linecap:butt}
+.ip-wand.dicht{stroke-width:7}
+.ip-wand.offen{stroke-dasharray:4 4;stroke-width:2}
+.ip-innen{fill:var(--ip-innen);stroke:none}
+.ip-teil{fill:var(--surface);stroke:var(--ink);stroke-width:1}
+.ip-blitz{fill:var(--ip-blitz);stroke:var(--bad);stroke-width:1;stroke-linejoin:round}
+.ip-sonde{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+.ip-sl{fill:none;stroke:var(--ink);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.ip-staub{fill:var(--ip-1);stroke:none}
+.ip-w{fill:var(--ip-wasser);stroke:none}
+.ip-ws{fill:none;stroke:var(--ip-wasser);stroke-width:1.6;stroke-linecap:round}
+.ip-wf{fill:var(--ip-wasser);fill-opacity:.28;stroke:none}
+.ip-t{fill:var(--ink);font-family:var(--sans);font-size:10px}
+.ip-t.k{fill:var(--muted);font-size:9px}
+.ip-t.b{font-weight:700}
+.abcd{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.abcd figure{margin:0;border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:4px}
+.abcd figure.akt{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.abcd figcaption{font-size:.84rem}
+.abcd figcaption b{font-family:var(--mono)}
+.q-schema{display:block;width:100%;max-width:230px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 2</p>
+    <h1>IP-Code entschlüsseln BAP</h1>
+    <p class="lead">Setzen Sie einen IP-Code aus den beiden Kennziffern und dem Zusatzbuchstaben zusammen und lesen Sie ab, wovor das Betriebsmittel geschützt ist. Umgekehrt: Bilden Sie aus den Anforderungen den passenden IP-Code.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>IP-Code zusammensetzen</h2>
+        <fieldset>
+          <legend>1. Kennziffer: Berührungs- und Fremdkörperschutz</legend>
+          <div class="opts" id="z1"></div>
+        </fieldset>
+        <fieldset>
+          <legend>2. Kennziffer: Wasserschutz</legend>
+          <div class="opts" id="z2"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Zusatzbuchstabe: Schutz gegen den Zugang zu gefährlichen Teilen (fakultativ)</legend>
+          <div class="opts" id="zb"></div>
+        </fieldset>
+        <p class="ipcode" id="code" aria-live="polite"></p>
+        <svg class="bild" id="szene" viewBox="0 0 320 150" role="img" aria-label="Gehäuse mit einem gefährlichen Teil: rechts der Fremdkörper, vor dem die erste Kennziffer schützt, links und oben das Wasser, vor dem die zweite Kennziffer schützt"></svg>
+        <div class="deut" id="deutung" aria-live="polite"></div>
+        <p class="urteil" id="urteil"></p>
+        <fieldset>
+          <legend>Beispiele aus Arbeitsblatt und Theoriebuch</legend>
+          <div class="opts" id="beispiele">
+            <button class="opt" type="button" data-c="20-">IP20</button>
+            <button class="opt" type="button" data-c="21-">IP21</button>
+            <button class="opt" type="button" data-c="55-">IP55</button>
+            <button class="opt" type="button" data-c="65-">IP65</button>
+            <button class="opt" type="button" data-c="68-">IP68</button>
+            <button class="opt" type="button" data-c="2XC">IP2XC</button>
+            <button class="opt" type="button" data-c="XXB">IPXXB</button>
+          </div>
+        </fieldset>
+        <p class="note">Das Bild ist eine vereinfachte Darstellung: rechts der Fremdkörper oder Staub (1. Kennziffer), links und oben das Wasser (2. Kennziffer). Ein X bedeutet: Für diese Kennziffer gelten keine besonderen Anforderungen.</p>
+      </div>
+
+      <div class="panel">
+        <h2>1. Kennziffer: Berührungs- und Fremdkörperschutz</h2>
+        <div class="scroll"><table class="tab-k"><tbody id="tab1"></tbody></table></div>
+        <h2>2. Kennziffer: Wasserschutz</h2>
+        <div class="scroll"><table class="tab-k"><tbody id="tab2"></tbody></table></div>
+        <p class="note">Tabellen aus dem Theoriebuch NIN33.3 und NIN33.4.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Zusatzbuchstaben A bis D</h2>
+        <div class="abcd" id="abcd"></div>
+        <p class="note">Der Zusatzbuchstabe wird nur dann verwendet, wenn der tatsächliche Schutz gegen das Berühren gefährlicher Teile höher ist als der Schutz, den die erste Kennziffer ausdrückt (Theoriebuch NIN33.4). Bilder vereinfacht nach dem Theoriebuch; die Zuordnung folgt den «Definitionen in der Praxis» auf NIN33.4.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>IP steht für International Protection bzw. Ingress Protection und bedeutet Eindringschutz. Die 1. Ziffer steht für den Berührungs- und Fremdkörperschutz, die 2. Ziffer für den Wasserschutz (Theoriebuch NIN33.3).</p>
+          <p>Die Buchstaben A bis D deklarieren den Schutz gegen den Zugang zu gefährlichen Teilen und sind fakultativ.</p>
+          <p>Der Basisschutz verhindert eine zufällige Berührung von spannungsführenden Teilen im ungestörten Betrieb. Bei Abdeckungen und Umhüllungen braucht es dafür mindestens die Schutzart IP2X oder IPXXB.</p>
+          <p>Für leicht zugängliche horizontale Deckflächen oder nach oben offene Umhüllungen gilt IP4X oder IPXXD.</p>
+          <p>Vor der Planung und Installation muss bekannt sein, welche äusseren Einflüsse auf die elektrische Installation wirken.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Stellen Sie IP20 ein, die Schutzart einer normalen Haushaltssteckdose. Wovor schützt sie, wovor nicht?</li>
+          <li>Ein Betriebsmittel soll tropfwasser- und fingergeschützt sein. Welchen IP-Code braucht es mindestens?</li>
+          <li>Worin unterscheiden sich IP55 und IP65? Worin IP65 und IP68?</li>
+          <li>Stellen Sie IP0X ein und wählen Sie nacheinander die Zusatzbuchstaben A bis D. Ab welchem Buchstaben ist der Basisschutz erfüllt?</li>
+          <li>Welche Kennziffer bietet den höchsten Schutz gegen Fremdkörper, welche den höchsten Schutz gegen Wasser?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Regeln der Technik NIN33.2 bis NIN33.4, Basisschutz und Schutzart nach IP-System.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 2 IP-Schutz und IK-Code: Übungen 16 bis 30 (ID7.11 bis ID7.13)</li><li>Theoriebuch Regeln der Technik, Kapitel 33 Schutz gegen elektrischen Schlag: NIN33.2 bis NIN33.4 (Basisschutz, Schutzart nach IP-System, Zusatzbuchstaben A bis D). Die Kopfzeile des Kapitels trägt die Seitennummern 31.2 bis 31.4.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = String.fromCharCode(160);
+
+/* ---------- Tabellen aus dem Theoriebuch NIN33.3 und NIN33.4 ---------- */
+var D1 = ["kein Schutz (blanke Teile)", "Schutz vor Fremdkörpern ≥ 50 mm (Hand)", "Schutz vor Fremdkörpern ≥ 12 mm (Finger)", "Schutz vor Fremdkörpern ≥ 2,5 mm (Schraubenzieher)", "Schutz vor Fremdkörpern ≥ 1 mm (Draht)", "staubgeschützt: wenig Staub kann eindringen", "staubdicht: kein Staub"];
+var D2 = ["kein Schutz", "tropfwassersicher (senkrechte Tropfen)", "tropfwassersicher (Tropfen bis 15°)", "Schutz gegen Sprühwasser (Tropfen bis 60°)", "spritzwassersicher (allseitig)", "strahlwassersicher (Bespritzen mit Düse)", "Schutz vor Schwallwasser (Welle)", "wasserdicht (zeitweiliges Eintauchen)", "druckwasserdicht (dauerndes Eintauchen)"];
+var BU = {
+  A:{k:"IPXXA", t:"Geschützt gegen Zugang mit dem Handrücken", p:"IP0XA", d:"Die Prüfkugel (50 mm) darf bis zum Anschlag eindringen, ohne gefährliche Teile zu berühren."},
+  B:{k:"IPXXB", t:"Geschützt gegen Zugang mit dem Finger", p:"IP1XB", d:"Der Prüffinger (12 mm) darf bis 80 mm eindringen, ohne gefährliche Teile zu berühren."},
+  C:{k:"IPXXC", t:"Geschützt gegen Zugang mit Werkzeug", p:"IP2XC", d:"Ein Draht mit Ø 2,5 mm darf bis 100 mm eindringen, ohne gefährliche Teile zu berühren."},
+  D:{k:"IPXXD", t:"Geschützt gegen Zugang mit Draht", p:"IP3XD", d:"Ein Draht mit Ø 1,0 mm darf bis 100 mm eindringen, ohne gefährliche Teile zu berühren."}
+};
+function code(a, b, c){ return "IP" + a + b + (c && c !== "-" ? c : ""); }
+
+/* ---------- Zeichnen ---------- */
+function n(x){ return Math.round(x * 100) / 100; }
+function tropfen(x, y, s){ return "<path class=\"ip-w\" d=\"M" + n(x) + " " + n(y - s) + " C" + n(x + s * 0.95) + " " + n(y + s * 0.25) + " " + n(x + s * 0.7) + " " + n(y + s) + " " + n(x) + " " + n(y + s) + " C" + n(x - s * 0.7) + " " + n(y + s) + " " + n(x - s * 0.95) + " " + n(y + s * 0.25) + " " + n(x) + " " + n(y - s) + " Z\"/>"; }
+function blitz(x, y, s){ return "<path class=\"ip-blitz\" d=\"M" + n(x + 2 * s) + " " + n(y - 13 * s) + " l" + n(-7 * s) + " " + n(12 * s) + " h" + n(5 * s) + " l" + n(-4 * s) + " " + n(12 * s) + " l" + n(10 * s) + " " + n(-15 * s) + " h" + n(-5 * s) + " l" + n(4 * s) + " " + n(-9 * s) + " Z\"/>"; }
+function tx(x, y, t, cls, anker){ return "<text class=\"ip-t" + (cls ? " " + cls : "") + "\" x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"" + (anker || "middle") + "\">" + t + "</text>"; }
+var LUECKE = {0:46, 1:26, 2:14, 3:7, 4:3.5, 5:0, 6:0};
+var KUGEL = {1:[17, "Ø 50 mm"], 2:[9.5, "Ø 12 mm"], 3:[5.5, "Ø 2,5 mm"], 4:[3.2, "Ø 1 mm"]};
+function szene(a, b){
+  var h = "", x0 = 120, x1 = 200, y0 = 45, y1 = 125, ym = 85;
+  /* Wasser hinter dem Gehäuse: Eintauchen */
+  if (b === "7" || b === "8") h += "<rect class=\"ip-wf\" x=\"4\" y=\"" + (b === "7" ? 30 : 6) + "\" width=\"312\" height=\"" + (b === "7" ? 104 : 128) + "\" rx=\"4\"" + (b === "8" ? " style=\"fill-opacity:.45\"" : "") + "/>";
+  h += "<rect class=\"ip-innen\" x=\"" + x0 + "\" y=\"" + y0 + "\" width=\"" + (x1 - x0) + "\" height=\"" + (y1 - y0) + "\"/>";
+  var wcls = "ip-wand" + (a === "6" ? " dicht" : a === "X" ? " offen" : "");
+  h += "<path class=\"" + wcls + "\" d=\"M" + x1 + " " + y0 + " H" + x0 + " V" + y1 + " H" + x1 + "\"/>";
+  var g = a === "X" ? 0 : LUECKE[a];
+  var ue = a === "X" ? 0 : a === "6" ? 3.5 : 2.5;
+  h += "<path class=\"" + wcls + "\" d=\"M" + x1 + " " + (y0 - ue) + " V" + n(ym - g / 2) + " M" + x1 + " " + n(ym + g / 2) + " V" + (y1 + ue) + "\"/>";
+  h += "<rect class=\"ip-teil\" x=\"150\" y=\"67\" width=\"16\" height=\"36\"/>" + blitz(157, 86, 0.9);
+  /* Fremdkörper rechts */
+  if (a === "0") h += "<path class=\"ip-sl\" d=\"M262 85 H206 M214 80 l-8 5 l8 5\"/>" + tx(254, 143, "kein Schutz");
+  else if (KUGEL[a]){ var r = KUGEL[a][0]; h += "<circle class=\"ip-sonde\" cx=\"" + n(x1 + 4 + r) + "\" cy=\"" + ym + "\" r=\"" + r + "\"/>" + tx(254, 143, KUGEL[a][1] + " bleibt draussen"); }
+  else if (a === "5" || a === "6"){
+    [[222, 60], [236, 72], [226, 84], [244, 92], [230, 104], [250, 66], [258, 86], [246, 110], [268, 76], [270, 100]].forEach(function(p){ h += "<circle class=\"ip-staub\" cx=\"" + p[0] + "\" cy=\"" + p[1] + "\" r=\"1.6\"/>"; });
+    if (a === "5") [[188, 78], [182, 98], [174, 112]].forEach(function(p){ h += "<circle class=\"ip-staub\" cx=\"" + p[0] + "\" cy=\"" + p[1] + "\" r=\"1.6\"/>"; });
+    h += tx(254, 143, a === "5" ? "wenig Staub dringt ein" : "kein Staub dringt ein");
+  } else h += tx(254, 143, "X: keine Angabe", "k");
+  /* Wasser links und oben */
+  var wl = "";
+  if (b === "0") wl = "kein Schutz";
+  else if (b === "1"){ [132, 146, 160, 174, 188].forEach(function(x, i){ h += tropfen(x, 14 + (i % 2) * 12, 4); }); wl = "senkrechte Tropfen"; }
+  else if (b === "2"){ [118, 132, 146, 160, 174].forEach(function(x, i){ h += "<g transform=\"rotate(15 " + x + " 20)\">" + tropfen(x, 14 + (i % 2) * 12, 4) + "</g>"; }); h += "<path class=\"ip-ws\" d=\"M96 8 L104 38\" style=\"stroke-dasharray:3 3\"/>" + tx(86, 22, "15°", "k"); wl = "Tropfen bis 15°"; }
+  else if (b === "3"){ [[60, 20], [74, 12], [90, 8], [108, 6]].forEach(function(p){ h += "<path class=\"ip-ws\" d=\"M" + p[0] + " " + p[1] + " L" + n(p[0] + 38) + " " + n(p[1] + 22) + "\" style=\"stroke-dasharray:5 4\"/>"; }); [140, 160, 180].forEach(function(x){ h += tropfen(x, 20, 3.5); }); h += tx(52, 34, "bis 60°", "k"); wl = "Sprühwasser"; }
+  else if (b === "4"){ [[160, 20], [130, 26], [190, 26], [98, 60], [92, 90], [100, 118], [140, 142], [180, 142]].forEach(function(p){ h += tropfen(p[0], p[1], 3.6); }); wl = "Spritzwasser allseitig"; }
+  else if (b === "5"){ h += "<path class=\"ip-sonde\" d=\"M22 77 H48 L58 81 V89 L48 93 H22 Z\"/>" + "<path class=\"ip-ws\" d=\"M60 83 H114 M60 87 H114 M60 85 H114\"/>"; wl = "Strahl aus der Düse"; }
+  else if (b === "6"){ h += "<path class=\"ip-wf\" style=\"fill-opacity:.55\" d=\"M6 134 V70 C30 40 60 30 84 44 C100 54 108 40 116 30 C112 60 112 100 116 134 Z\"/>"; wl = "Schwallwasser (Welle)"; }
+  else if (b === "7") wl = "zeitweilig eingetaucht";
+  else if (b === "8") wl = "dauernd eingetaucht";
+  else wl = "X: keine Angabe";
+  h += tx(60, 143, wl, b === "X" ? "k" : "");
+  return h;
+}
+/* Prüfsonden zu den Zusatzbuchstaben, vereinfacht nach Theoriebuch NIN33.4 */
+function sonde(b){
+  var h = "", g = b === "A" ? 30 : 16;
+  h += "<rect class=\"ip-innen\" x=\"8\" y=\"8\" width=\"56\" height=\"68\"/>";
+  h += "<path class=\"ip-wand\" style=\"stroke-width:3.5\" d=\"M64 8 H8 V76 H64 M64 6.2 V" + (42 - g / 2) + " M64 " + (42 + g / 2) + " V77.8\"/>";
+  h += "<rect class=\"ip-teil\" x=\"16\" y=\"24\" width=\"13\" height=\"36\"/>" + blitz(22.5, 43, 0.75);
+  if (b === "A") h += "<path class=\"ip-sonde\" d=\"M84 37 H114 V47 H84 Z\"/><circle class=\"ip-sonde\" cx=\"72\" cy=\"42\" r=\"16\"/>" + "<text class=\"ip-t b\" x=\"72\" y=\"44.6\" text-anchor=\"middle\" style=\"font-size:7.6px\">50 mm</text>" ;
+  else if (b === "B") h += "<path class=\"ip-sl\" style=\"stroke-width:6;stroke:var(--muted)\" d=\"M114 42 H72 L50 52\"/><circle class=\"ip-sonde\" cx=\"72\" cy=\"42\" r=\"2.6\"/>" + tx(92, 33, "80 mm", "b") + tx(66, 66, "12 mm", "b", "start");
+  else h += "<path class=\"ip-sl\" style=\"stroke-width:" + (b === "C" ? 3.6 : 1.3) + "\" d=\"M112 12 L38 54\"/><circle class=\"ip-sonde\" cx=\"78\" cy=\"31.3\" r=\"4.2\"/>" + tx(96, 34, "100 mm", "b", "start") + tx(68, 68, b === "C" ? "2,5 mm" : "1 mm", "b", "start");
+  return h;
+}
+function sondeSvg(b, cls){ return "<svg class=\"" + (cls || "bild") + "\" viewBox=\"0 0 140 84\" role=\"img\" aria-label=\"Gehäuse mit gefährlichem Teil und Prüfsonde\">" + sonde(b) + "</svg>"; }
+
+/* ================= ERKUNDEN ================= */
+var st = {a:"2", b:"0", c:"-"};
+function knopf(grp, w, akt, txt){ return "<button class=\"opt\" type=\"button\" data-g=\"" + grp + "\" data-w=\"" + w + "\" id=\"" + grp + "-" + (w === "-" ? "k" : w) + "\" aria-pressed=\"" + akt + "\">" + txt + "</button>"; }
+function basisschutz(a, c){
+  /* IP2X oder IPXXB: mit dem Prüffinger nicht berührbar */
+  if (c === "B" || c === "C" || c === "D") return true;
+  if (a !== "X" && Number(a) >= 2) return true;
+  if (a === "X" && (c === "-" || c === "A")) return null;
+  return false;
+}
+function render(){
+  var a = st.a, b = st.b, c = st.c, h = "";
+  $("z1").innerHTML = ["X", "0", "1", "2", "3", "4", "5", "6"].map(function(w){ return knopf("a", w, a === w, w); }).join("");
+  $("z2").innerHTML = ["X", "0", "1", "2", "3", "4", "5", "6", "7", "8"].map(function(w){ return knopf("b", w, b === w, w); }).join("");
+  $("zb").innerHTML = ["-", "A", "B", "C", "D"].map(function(w){ return knopf("c", w, c === w, w === "-" ? "ohne" : w); }).join("");
+  $("code").innerHTML = "IP<span class=\"z1\">" + a + "</span><span class=\"z2\">" + b + "</span>" + (c !== "-" ? "<span class=\"zb\">" + c + "</span>" : "");
+  $("szene").innerHTML = szene(a, b);
+  h += "<p class=\"d1\"><b class=\"k\">1. Ziffer " + a + ":</b> " + (a === "X" ? "keine besonderen Anforderungen angegeben" : D1[Number(a)]) + "</p>";
+  h += "<p class=\"d2\"><b class=\"k\">2. Ziffer " + b + ":</b> " + (b === "X" ? "keine besonderen Anforderungen angegeben" : D2[Number(b)]) + "</p>";
+  if (c !== "-") h += "<p class=\"db\"><b class=\"k\">Buchstabe " + c + ":</b> " + BU[c].t + ". " + BU[c].d + "</p>";
+  $("deutung").innerHTML = h;
+  var bs = basisschutz(a, c), u = $("urteil");
+  u.className = "urteil" + (bs === true ? " ok" : bs === false ? " bad" : "");
+  u.textContent = bs === true ? "Basisschutz durch Abdeckungen und Umhüllungen erfüllt: mindestens IP2X oder IPXXB."
+    : bs === false ? "Basisschutz nicht erfüllt: Verlangt ist mindestens IP2X oder IPXXB. Aktive Teile könnten mit dem Finger berührt werden."
+    : "Ohne Angabe zur ersten Kennziffer und ohne Zusatzbuchstaben B, C oder D lässt sich der Basisschutz nicht beurteilen.";
+  $("tab1").innerHTML = D1.map(function(t, i){ return "<tr" + (a === String(i) ? " class=\"akt\"" : "") + "><td class=\"kb\">IP" + i + "X</td><td>" + t + "</td></tr>"; }).join("");
+  $("tab2").innerHTML = D2.map(function(t, i){ return "<tr" + (b === String(i) ? " class=\"akt\"" : "") + "><td class=\"kb\">IPX" + i + "</td><td>" + t + "</td></tr>"; }).join("");
+  $("abcd").innerHTML = ["A", "B", "C", "D"].map(function(x){ return "<figure" + (c === x ? " class=\"akt\"" : "") + ">" + sondeSvg(x) + "<figcaption><b>" + BU[x].k + "</b> " + BU[x].t + ".<br><b>" + BU[x].p + "</b> " + BU[x].d + "</figcaption></figure>"; }).join("");
+}
+function init(){
+  ["z1", "z2", "zb"].forEach(function(id){
+    $(id).addEventListener("click", function(ev){
+      var bt = ev.target.closest("button[data-g]"); if (!bt) return;
+      st[bt.getAttribute("data-g")] = bt.getAttribute("data-w"); render();
+      var f = $(bt.id); if (f) f.focus();
+    });
+  });
+  $("beispiele").addEventListener("click", function(ev){
+    var bt = ev.target.closest("button[data-c]"); if (!bt) return; var s = bt.getAttribute("data-c");
+    st.a = s[0]; st.b = s[1]; st.c = s[2]; render();
+  });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 16 bis 30) ================= */
+var KURZ1 = {2:"fingergeschützt", 3:"gegen Fremdkörper ab 2,5 mm (Schraubenzieher) geschützt", 4:"gegen Fremdkörper ab 1 mm (Draht) geschützt", 5:"staubgeschützt", 6:"staubdicht"};
+var KURZ2 = {0:"ohne Wasserschutz", 1:"tropfwassersicher (senkrechte Tropfen)", 4:"spritzwassersicher", 5:"strahlwassersicher", 7:"wasserdicht (zeitweiliges Eintauchen)", 8:"druckwasserdicht"};
+var FEST = [[2, 1, "Ein elektrisches Betriebsmittel soll tropfwasser- und fingergeschützt sein."], [6, 8, "Ein Betriebsmittel ist staub- und druckwasserdicht."], [5, 5, "Ein Betriebsmittel ist strahlwassersicher und staubgeschützt."], [6, 5, "Ein Betriebsmittel ist strahlwassersicher und staubdicht."]];
+function qBilden(){
+  var a, b, t;
+  if (Math.random() < 0.5){ var f = pick(FEST); a = f[0]; b = f[1]; t = f[2]; }
+  else { a = pick([2, 3, 4, 5, 6]); b = pick([0, 1, 4, 5, 7, 8]); t = "Ein Betriebsmittel soll " + KURZ1[a] + " und " + KURZ2[b] + " sein."; }
+  var c = "IP" + a + b, o = [c], cand = shuffle(["IP" + b + a, "IP" + Math.max(0, a - 1) + b, "IP" + Math.min(6, a + 1) + b, "IP" + a + Math.max(0, b - 1), "IP" + a + Math.min(8, b + 1), "IP" + (a === 5 ? 6 : 5) + (b === 5 ? 4 : 5), "IP" + Math.min(6, b) + Math.min(8, a + 2)]);
+  cand.forEach(function(x){ if (o.length < 5 && o.indexOf(x) < 0 && Number(x[2]) <= 6) o.push(x); });
+  o.sort();
+  return {
+    text: t + " Welche IP-Schutzart muss es mindestens aufweisen?",
+    parts: [{label:"IP-Schutzart", options:o, correct:c, mono:true}],
+    hint: "Die 1. Ziffer steht für den Berührungs- und Fremdkörperschutz, die 2. Ziffer für den Wasserschutz.",
+    solution: "<p><b>" + c + "</b></p><p>1. Ziffer " + a + ": " + D1[a] + ".<br>2. Ziffer " + b + ": " + D2[b] + ".</p>"
+  };
+}
+function qEntschluesseln(){
+  var a = pick([0, 1, 2, 3, 4, 5, 6]), b = pick([0, 1, 2, 3, 4, 5, 6, 7, 8]), erste = Math.random() < 0.5, c = code(a, b);
+  var T = erste ? D1 : D2, k = erste ? a : b, o = [T[k]];
+  shuffle(T.filter(function(x, i){ return i !== k; })).slice(0, 3).forEach(function(x){ o.push(x); });
+  return {
+    text: "Ein Betriebsmittel trägt die Kennzeichnung " + c + ". Was bedeutet die " + (erste ? "erste" : "zweite") + " Kennziffer " + k + "?",
+    parts: [{label:(erste ? "1. Kennziffer " : "2. Kennziffer ") + k, options:shuffle(o), correct:T[k], mono:false}],
+    hint: erste ? "Die 1. Ziffer steht für den Berührungs- und Fremdkörperschutz (0 bis 6)." : "Die 2. Ziffer steht für den Wasserschutz (0 bis 8).",
+    solution: "<p><b>" + T[k] + "</b></p><p>" + c + ": 1. Ziffer " + a + " = " + D1[a] + "; 2. Ziffer " + b + " = " + D2[b] + ".</p>"
+  };
+}
+var HO = ["IP6X", "IP7X", "IP8X", "IPX6", "IPX7", "IPX8"];
+function qHoechst(){
+  var fremd = Math.random() < 0.5, c = fremd ? "IP6X" : "IPX8";
+  return {
+    text: "Welche IP-Ziffer bietet den höchsten Schutz gegen Eindringen von " + (fremd ? "Fremdkörpern" : "Wasser") + "?",
+    parts: [{label:"IP-Ziffer", options:HO, correct:c, mono:true}],
+    hint: "Die erste Kennziffer reicht von 0 bis 6, die zweite von 0 bis 8. Welche der beiden Ziffern gilt für " + (fremd ? "Fremdkörper" : "Wasser") + "?",
+    solution: "<p><b>" + c + "</b></p><p>" + (fremd ? "Fremdkörperschutz ist die erste Kennziffer; ihr höchster Wert ist 6 (staubdicht). IP7X und IP8X gibt es nicht." : "Wasserschutz ist die zweite Kennziffer; ihr höchster Wert ist 8 (druckwasserdicht, dauerndes Eintauchen).") + "</p>"
+  };
+}
+function qBuchstabe(){
+  var b = pick(["A", "B", "C", "D"]), o = ["IP0XA", "IP1XB", "IP2XC", "IPXXD"], c = o["ABCD".indexOf(b)];
+  return {
+    text: "Welcher IP-Code gehört zu diesem Bild?" + sondeSvg(b, "q-schema"),
+    parts: [{label:"IP-Code", options:o, correct:c, mono:true}],
+    hint: "A: Handrücken (Prüfkugel 50 mm). B: Finger (Prüffinger 12 mm, 80 mm lang). C: Werkzeug (Draht 2,5 mm, 100 mm lang). D: Draht (1 mm, 100 mm lang).",
+    solution: "<p><b>" + c + "</b></p><p>" + BU[b].t + ". " + BU[b].d + "</p>"
+  };
+}
+var MIND = [
+  {t:"Welche Schutzart müssen elektrische Betriebsmittel mindestens aufweisen, damit eine zufällige Berührung spannungsführender Teile ausgeschlossen ist?", o:["IP2X oder IPXXB", "IP1X oder IPXXA", "IP4X oder IPXXD", "IP55"], s:"Übung 25 und Theoriebuch NIN33.2: Aktive Teile dürfen mit dem Prüffinger nicht berührt werden können."},
+  {t:"Was bedeutet IP2X konkret?", o:["Ein Prüffinger von 12 mm Durchmesser oder grösser kann nicht eindringen.", "Ein Draht von 1 mm Durchmesser kann nicht eindringen.", "Das Betriebsmittel ist gegen Tropfwasser geschützt.", "Die Prüfkugel von 50 mm kann nicht eindringen, ein Finger aber schon."], s:"Übung 25 b. Das Theoriebuch nennt: Schutz vor Fremdkörpern ≥ 12 mm (Finger)."},
+  {t:"Was bedeutet IPXXB konkret?", o:["Der Prüffinger von 12 mm Durchmesser darf bis zu 80 mm eindringen, ohne gefährliche Teile zu berühren.", "Der Prüffinger kann gar nicht eindringen.", "Ein Draht von 1 mm darf bis 100 mm eindringen, ohne gefährliche Teile zu berühren.", "Das Gehäuse ist staubdicht."], s:"Übung 25 b. Der Zusatzbuchstabe beschreibt den Schutz von Personen gegen den Zugang zu gefährlichen Teilen."},
+  {t:"Welche Schutzart gilt für leicht zugängliche horizontale Deckflächen oder nach oben offene Umhüllungen?", o:["IP4X oder IPXXD", "IP2X oder IPXXB", "IP1X oder IPXXA", "IP68"], s:"Theoriebuch NIN33.3: Bei grösseren Öffnungen könnten Kleinteile in das Gerät eindringen und dadurch Gefahren verursachen."},
+  {t:"Welchen IP-Schutz hat eine normale Haushaltssteckdose?", o:["IP20", "IP44", "IP55", "IP00"], s:"Übung 34: fingergeschützt, kein Wasserschutz."},
+  {t:"Welche Schutzart muss eine Schaltgerätekombination laut Theoriebuch beispielsweise erfüllen?", o:["IP2XC", "IP0XA", "IP68", "IPX8"], s:"Theoriebuch NIN33.4: Grössere Öffnungen, aber innere Barrieren oder ausreichende Abstände verhindern den Kontakt mit unter Spannung stehenden Teilen."}
+];
+function qMindest(){
+  var q = pick(MIND);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Denken Sie an den Prüffinger: 12 mm Durchmesser, 80 mm lang.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+var WISSEN = [
+  {t:"Welchen Zweck erfüllt der Basisschutz bei einem Betriebsmittel?", o:["Er verhindert eine zufällige Berührung von spannungsführenden Teilen im ungestörten Betrieb.", "Er schaltet im Fehlerfall die Spannung automatisch ab.", "Er schützt das Betriebsmittel vor Überlast.", "Er verhindert das absichtliche Berühren aktiver Teile in jedem Fall."], s:"Übung 16."},
+  {t:"Was heisst die Abkürzung IP ausgeschrieben?", o:["International Protection bzw. Ingress Protection", "Internal Power", "Isolation Protection", "Installation Plan"], s:"Übung 18 und Theoriebuch NIN33.3: IP bedeutet Eindringschutz."},
+  {t:"Wofür steht die erste Ziffer beim IP-Schutz?", o:["Für den Berührungs- und Fremdkörperschutz", "Für den Wasserschutz", "Für die Stossfestigkeit", "Für die Schutzklasse"], s:"Übung 19."},
+  {t:"Wofür steht die zweite Ziffer beim IP-Schutz?", o:["Für den Wasserschutz", "Für den Berührungs- und Fremdkörperschutz", "Für die Stossfestigkeit", "Für die Bemessungsspannung"], s:"Übung 20."},
+  {t:"Wofür stehen die Buchstaben A bis D, die nach den Ziffern des IP-Schutzes stehen können?", o:["Für den Schutz von Personen gegen Zugang zu gefährlichen Teilen innerhalb des Gehäuses", "Für die Energieeffizienzklasse", "Für die Art der Wasserprüfung", "Für die Schutzklasse des Betriebsmittels"], s:"Übung 21."},
+  {t:"Was muss vor der Planung und Installation von elektrischen Anlagen in Erfahrung gebracht werden?", o:["Welche äusseren Einflüsse auf die elektrische Installation wirken", "Welche Farbe die Abdeckungen haben sollen", "Wie alt das Gebäude ist", "Welcher Hersteller die Schalter liefert"], s:"Übung 22."},
+  {t:"Was bedeutet ein X an der Stelle einer Kennziffer, zum Beispiel in IP2X?", o:["Für diese Kennziffer gelten keine besonderen Anforderungen.", "Der Schutz ist an dieser Stelle am höchsten.", "Das Betriebsmittel hat an dieser Stelle keinen Schutz.", "Die Prüfung wurde nicht bestanden."], s:"Theoriebuch NIN33.3: Wenn für eine Kennziffer keine besonderen Anforderungen gelten, wird an ihrer Stelle ein X eingesetzt."},
+  {t:"Wann wird der Zusatzbuchstabe A bis D verwendet?", o:["Wenn der tatsächliche Schutz gegen das Berühren gefährlicher Teile höher ist, als die erste Kennziffer ausdrückt", "Immer, er ist obligatorisch", "Nur bei Betriebsmitteln für den Aussenbereich", "Nur bei Kleinspannung"], s:"Theoriebuch NIN33.4. Der Buchstabe ist fakultativ."},
+  {t:"Dürfen Abdeckungen und Umhüllungen ohne Hilfsmittel entfernt werden können?", o:["Nein, eine Entfernung darf nur mit einem Schlüssel oder Werkzeug möglich sein.", "Ja, damit man im Notfall schnell an die Klemmen kommt.", "Ja, wenn ein Warnschild angebracht ist.", "Nur in Wohnräumen."], s:"Theoriebuch NIN33.3, Befestigung von Abdeckungen und Umhüllungen."}
+];
+function qWissen(){
+  var q = pick(WISSEN);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Lesen Sie im Theoriebuch NIN33.2 bis NIN33.4.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+var BASIS = {gut:["Isolierung aktiver Teile", "Abdeckungen und Umhüllungen", "Schutz durch Hindernisse", "Schutz durch Anordnung ausserhalb des Handbereichs"], falsch:["Automatische Abschaltung", "Schutzisolierung (Schutzklasse II)", "Fehlerstrom-Schutzschaltung (RCD)", "Schutztrennung", "Schutz-Potenzialausgleich"]};
+function qBasis(){
+  var g = shuffle(BASIS.gut).slice(0, pick([2, 3])), f = shuffle(BASIS.falsch).slice(0, 5 - g.length), o = shuffle(g.concat(f)), c = o.filter(function(x){ return g.indexOf(x) >= 0; });
+  return {
+    text: "Mit welchen dieser Massnahmen wird der Basisschutz realisiert?",
+    parts: [{type:"multi", label:"Basisschutz", options:o, correct:c, mono:false}],
+    hint: "Der Basisschutz ist der Schutz gegen direktes Berühren. Fehlerschutz und Zusatzschutz gehören nicht dazu.",
+    solution: "<p><b>" + c.join(", ") + "</b></p><p>Übung 17 und Theoriebuch NIN33.2: Isolierung aktiver Teile, Abdeckungen und Umhüllungen, Schutz durch Hindernisse, Schutz durch Anordnung ausserhalb des Handbereichs. Die anderen Massnahmen gehören zum Fehlerschutz oder zum Zusatzschutz.</p>"
+  };
+}
+function qVergleich(){
+  var paare = [["IP44", "IP54", 0, 1], ["IP54", "IP55", 1, 1], ["IP55", "IP65", 0, 1], ["IP65", "IP67", 1, 1], ["IP20", "IP21", 1, 1], ["IP21", "IP44", 0, 1], ["IP54", "IP45", 0, 0], ["IP54", "IP45", 1, 1], ["IP65", "IP56", 0, 0], ["IP65", "IP56", 1, 1], ["IP67", "IP68", 1, 1], ["IP2X", "IP4X", 0, 1]];
+  var p = pick(paare), was = p[2] === 0 ? "gegen das Eindringen von Fremdkörpern und Staub" : "gegen Wasser", c = p[3] === 0 ? p[0] : p[1];
+  var o = [p[0], p[1], "Beide sind gleich gut geschützt."];
+  var k = p[2] === 0 ? 2 : 3, x = p[0][k], y = p[1][k];
+  return {
+    text: "Zwei Betriebsmittel tragen die Kennzeichnungen " + p[0] + " und " + p[1] + ". Welches ist besser " + was + " geschützt?",
+    parts: [{label:"Besser geschützt", options:o, correct:c, mono:false}],
+    hint: p[2] === 0 ? "Vergleichen Sie die erste Kennziffer." : "Vergleichen Sie die zweite Kennziffer.",
+    solution: "<p><b>" + c + "</b></p><p>" + (p[2] === 0 ? "Erste" : "Zweite") + " Kennziffer: " + x + " (" + (p[2] === 0 ? D1[Number(x)] : D2[Number(x)]) + ") gegenüber " + y + " (" + (p[2] === 0 ? D1[Number(y)] : D2[Number(y)]) + ").</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.2) return qBilden();
+  if (x < 0.38) return qEntschluesseln();
+  if (x < 0.46) return qHoechst();
+  if (x < 0.58) return qBuchstabe();
+  if (x < 0.7) return qMindest();
+  if (x < 0.84) return qWissen();
+  if (x < 0.91) return qBasis();
+  return qVergleich();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qBilden, qEntschluesseln, qHoechst, qBuchstabe, qMindest, qWissen, qBasis, qVergleich]); }});
+})();
+</script>
+</body>
+</html>

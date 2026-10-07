@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_8 TA4 Kleinverteiler planen: Teilungseinheiten und Material BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.geraete{display:flex;flex-direction:column;gap:6px}
+.gz{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}
+.gz .gn{min-width:0;font-size:.95rem}
+.gz .gn small{display:block;color:var(--muted);font-size:.78rem}
+.gz .gt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.9rem;white-space:nowrap}
+.gz .zs{display:inline-flex;align-items:center;gap:4px}
+.gz .zs b{min-width:1.6em;text-align:center;font-family:var(--mono)}
+.gz .zs button{font:inherit;font-weight:700;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.gz .zs button:disabled{opacity:.35;cursor:default}
+.hs{fill:var(--z0);stroke:var(--muted);stroke-width:1}
+.hs-t{stroke:var(--muted);stroke-width:.8}
+.hg{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+.hg.k1{fill:var(--z1)} .hg.k2{fill:var(--z2)} .hg.k3{fill:var(--accent-soft)}
+.hg-h{fill:var(--ink)}
+.h-t{fill:var(--ink);font-family:var(--sans);font-size:10px;font-weight:700}
+.h-t.k{fill:var(--muted);font-size:9.5px;font-weight:400}
+.h-t.r{fill:var(--ink);font-size:10.5px;font-weight:400}
+.rechnung{font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.rechnung .zw{font-weight:700;color:var(--muted);font-size:.86rem;line-height:1.3;margin-top:4px}
+.urteil{font-weight:700;border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.urteil.ok{border-color:var(--ok);color:var(--ok)}
+.urteil.bad{border-color:var(--bad);color:var(--bad)}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.nw{white-space:nowrap}
+.liste{display:flex;flex-direction:column;gap:6px}
+.liste button{font:inherit;text-align:left;display:grid;grid-template-columns:minmax(9.5em,1fr) auto;gap:10px;align-items:start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--ink);cursor:pointer;min-width:0}
+.liste button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.liste button span:last-child{font-variant-numeric:tabular-nums;text-align:right;font-size:.86rem;font-weight:600}
+.erkl{border-left:4px solid var(--accent);padding:2px 0 2px 12px;min-height:4.5em}
+.steps li.q{color:var(--muted)}
+#schritte{padding-left:2em}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt · Teilauftrag 4</p>
+    <h1>Kleinverteiler planen: Teilungseinheiten und Material BAP</h1>
+    <p class="lead">Wie viel Platz brauchen die Geräte auf der Hutschiene, und was gehört auf die Bestellung? Rechnen Sie mit Teilungseinheiten, prüfen Sie die Materialliste des Sportplatz-Verteilers und ordnen Sie die Arbeitsschritte.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel" aria-live="polite">
+        <h2>Teilungseinheiten auf der Hutschiene (Übung 30)</h2>
+        <div class="geraete" id="geraete"></div>
+        <div class="opts">
+          <button class="opt txt" type="button" id="b-u30">Tabelle Übung 30: je ein Gerät</button>
+          <button class="opt txt" type="button" id="b-sport">Geräte des Sportplatz-Verteilers</button>
+          <button class="opt txt" type="button" id="b-leer">Leeren</button>
+        </div>
+        <svg class="bild" id="schiene" viewBox="0 0 340 80" role="img" aria-label="Hutschienen des Kleinverteilers mit den gewählten Geräten, 13 Teilungseinheiten pro Reihe"></svg>
+        <div class="rechnung" id="rechnung"></div>
+        <p class="urteil" id="urteil"></p>
+        <p class="note">Im Rechner hat eine Reihe 13 TE (Annahme des Tools). Die Durchgangsklemmen, ihre Abdeckungen und die Endhalter brauchen zusätzlich Platz; ihre Breite ist im Arbeitsblatt nicht angegeben.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Materialliste für den Grosshändler (Übung 31)</h2>
+        <p class="label">Komponente antippen</p>
+        <div class="liste" id="liste"></div>
+        <p class="erkl" id="erkl"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Arbeitsschritte (Übung 27)</h2>
+        <ol class="steps" id="schritte"></ol>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Die Teilungseinheit (TE) ist das Mass für den Platzbedarf auf der Hutschiene. Das Arbeitsblatt rechnet mit 18 mm pro TE.</p>
+          <p id="merk-formel"></p>
+          <p>Übung 30: 1-poliger LS 1 TE, 2-poliger FI-LS 2 TE, 3-poliger LS unter 63 A 3 TE, 3-poliges Schütz mit Hilfskontakt 3 TE.</p>
+          <p>Die Materialliste bezeichnet jede Komponente möglichst genau: Polzahl, Querschnitt, Farbe, Spannung, Montageart und Menge (Übung 31).</p>
+          <p>Für den Sportplatz braucht es einen Kleinverteiler, mindestens 2-reihig (≥ 26 TE), inklusive Abdeckungen und Beschriftungsstreifen.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie die Tabelle von Übung 30. Wie viele TE und wie viele Millimeter brauchen die vier Geräte zusammen?</li>
+          <li>Wie viele 1-polige LS haben neben einem 2-poligen FI-LS in einer Reihe mit 13 TE Platz?</li>
+          <li>Laden Sie die Geräte des Sportplatz-Verteilers. Wie viele TE bleiben in einem Verteiler mit 26 TE für Klemmen und Reserve?</li>
+          <li>Weshalb stehen 6 graue, 2 blaue und 2 gelb-grüne Durchgangsklemmen auf der Materialliste?</li>
+          <li>Welcher Arbeitsschritt kommt vor dem Verdrahten, welcher danach?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Zu diesem Thema gibt es keinen Abschnitt im Theoriebuch. Nehmen Sie die Arbeitsblätter dazu: Übungen 27, 30 und 31.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt, Teilauftrag 4 Dauerkontaktsteuerung: Übungen 27, 30 und 31 (ID8.16, ID8.20 und ID8.21); Betriebsmittel nach dem Schema von Übung 29, Anordnung nach dem Foto von Übung 32</li><li>Teilungseinheiten und Breiten der vier Geräte nach der Lösung von Übung 30: Das Arbeitsblatt rechnet mit 18 mm pro Teilungseinheit.</li><li>Recherche Hager (hager.com, Katalog Schweiz): FI-LS-Schalter 4-polig ADM413C mit 4 TE und 71 mm Breite, LED-Leuchtmelder SVN121 mit 1 Platzeinheit. In Herstellerangaben liegt die Breite pro Teilungseinheit zwischen 17,5 mm und 18 mm; Hager schreibt PLE (Platzeinheit) statt TE.</li><li>Annahmen des Tools: Drehschalter mit 1 TE (je nach Fabrikat auch mehr) und Kleinverteiler mit 13 TE pro Reihe (2 Reihen = 26 TE, passend zur Angabe ≥ 26 TE in Übung 31). Die Breite der Durchgangsklemmen ist im Arbeitsblatt nicht angegeben, sie fehlen deshalb im Rechner.</li><li>Die Bilder der Komponenten und das Foto des Kleinverteilers sind im Tool nicht abgebildet. Im Theoriebuch gibt es zu diesem Thema keinen Abschnitt.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = String.fromCharCode(160), MAL = " · ", TEMM = 18, REIHE = 13, MAXTE = 39;
+function TE(n){ return n + NB + "TE"; }
+function MM(x){ return fmt(x) + NB + "mm"; }
+
+/* Geräte: die ersten vier nach der Lösung von Übung 30, die übrigen nach Recherche bzw. Annahme */
+var G = [
+  {id:"ls1", n:"1-poliger LS", k:"LS", te:1, q:"Übung 30", kl:""},
+  {id:"fi2", n:"2-poliger FI-LS", k:"FI-LS", te:2, q:"Übung 30", kl:"k1"},
+  {id:"ls3", n:"3-poliger LS unter 63" + NB + "A", k:"LS 3-polig", te:3, q:"Übung 30", kl:""},
+  {id:"q3", n:"3-poliges Schütz mit Hilfskontakt", k:"Schütz", te:3, q:"Übung 30", kl:"k3"},
+  {id:"fi4", n:"FI-LS 3L + N", k:"FI-LS 3L + N", te:4, q:"Herstellerangabe Hager", kl:"k1"},
+  {id:"s", n:"Drehschalter Sch0", k:"Sch0", te:1, q:"Annahme des Tools", kl:"k2"},
+  {id:"p", n:"Kontrolllampe 230" + NB + "V", k:"Lampe", te:1, q:"Herstellerangabe Hager", kl:"k2"}
+];
+function gid(id){ return G.filter(function(g){ return g.id === id; })[0]; }
+var st = {z:{ls1:1, fi2:1, ls3:1, q3:1, fi4:0, s:0, p:0}, mat:0};
+function summe(z){ return G.reduce(function(a, g){ return a + (z[g.id] || 0) * g.te; }, 0); }
+
+/* Hutschienen mit je 13 TE; Geräte werden der Reihe nach aufgereiht, ein Gerät wird nie geteilt */
+function schienen(z){
+  var W = 23, X0 = 20, RH = 82, rows = [[]], used = [0];
+  G.forEach(function(g){ for (var i = 0; i < (z[g.id] || 0); i++){ var r = rows.length - 1; if (used[r] + g.te > REIHE){ rows.push([]); used.push(0); r++; } rows[r].push({g:g, x:used[r]}); used[r] += g.te; } });
+  var h = "", H = rows.length * RH + 6;
+  rows.forEach(function(row, r){
+    var y = 8 + r * RH;
+    h += "<rect class=\"hs\" x=\"" + (X0 - 8) + "\" y=\"" + (y + 22) + "\" width=\"" + (REIHE * W + 16) + "\" height=\"14\" rx=\"2\"/>";
+    for (var t = 0; t <= REIHE; t++) h += "<path class=\"hs-t\" d=\"M" + (X0 + t * W) + " " + (y + 58) + " v4\"/>";
+    row.forEach(function(e){
+      var x = X0 + e.x * W, w = e.g.te * W, xm = x + w / 2;
+      h += "<rect class=\"hg " + e.g.kl + "\" x=\"" + (x + 1) + "\" y=\"" + y + "\" width=\"" + (w - 2) + "\" height=\"56\" rx=\"2\"/>";
+      if (w < 40) h += "<text class=\"h-t\" text-anchor=\"middle\" transform=\"rotate(-90 " + (xm + 3) + " " + (y + 28) + ")\" x=\"" + (xm + 3) + "\" y=\"" + (y + 28) + "\">" + e.g.k + "</text>";
+      else h += "<text class=\"h-t\" text-anchor=\"middle\" x=\"" + xm + "\" y=\"" + (y + 26) + "\">" + e.g.k + "</text><text class=\"h-t k\" text-anchor=\"middle\" x=\"" + xm + "\" y=\"" + (y + 38) + "\">" + TE(e.g.te) + "</text>";
+    });
+    h += "<text class=\"h-t r\" x=\"" + X0 + "\" y=\"" + (y + 74) + "\">Reihe " + (r + 1) + ": " + TE(used[r]) + " belegt, " + TE(REIHE - used[r]) + " frei</text>";
+  });
+  return {svg:h, H:H, rows:rows.length, used:used};
+}
+var MAT = [
+  ["Durchgangsklemmen 3LNPE, 2,5" + NB + "mm²", "6 × grau<br>2 × N (blau)<br>2 × PE (gelb-grün)", "Im Schema von Übung 29 gibt es zwei Klemmenreihen X11: «Zuleitung UV» und «Zur Beleuchtung». Jede hat drei graue Klemmen für L1, L2 und L3, eine blaue für N und eine gelb-grüne für PE. Das ergibt 2" + MAL + "3 = 6 graue, 2 blaue und 2 gelb-grüne Klemmen."],
+  ["Abdeckung zu Durchgangsklemme", "2", "Eine Abdeckung pro Klemmenreihe, also 2 Stück."],
+  ["FI-LS 3L + N", "1", "Im Schema F11 (C 13A, 30mA). Er schaltet die drei Aussenleiter und den Neutralleiter."],
+  ["Schütz 3-polig mit Hilfskontakt", "1", "Im Schema Q10: drei Hauptkontakte für L1, L2 und L3 und der Hilfskontakt 13–14 für die Kontrolllampe."],
+  ["Drehschalter Sch0, Hutschienenmontage", "1", "Im Schema S10. Er wird im Verteiler auf die Hutschiene montiert und schaltet die Spule des Schützes."],
+  ["Kontrolllampe 230" + NB + "V für Hutschienenmontage", "1", "Im Schema P12. Sie zeigt den Schaltzustand der Beleuchtung an."],
+  ["Kleinverteiler, mindestens 2-reihig (≥" + NB + "26" + NB + "TE), inklusive Abdeckungen und Beschriftungsstreifen", "1", "Im Foto von Übung 32 sitzen in der oberen Reihe die beiden Klemmenreihen und der FI-LS, in der unteren Reihe Kontrolllampe, Drehschalter und Schütz."],
+  ["Endhalter", "6", "Endhalter halten die Klemmen und Geräte auf der Hutschiene seitlich fest. Bestellt werden 6 Stück."],
+  ["Kleinmaterial (Litzendraht, Aderendhülsen, Kabelbinder usw.)", "–", "Ohne Mengenangabe: Material für die Verdrahtung des Verteilers."]
+];
+var SCHRITTE = ["Installation und Anforderungen klären.", "Kundenwünsche und Funktion festlegen.", "Leitungen und Komponenten dimensionieren.", "Benötigte Betriebsmittel bestimmen.", "Verteiler planen (Ort, Typ, Grösse).", "Kabeleinführung, Montagehöhe und IP-Schutz festlegen.", "Komponenten platzieren und Verdrahtung planen.", "Verdrahtung erstellen.", "Dokumentation und Beschriftungen erstellen.", "Erst-, Funktions- und Abnahmekontrolle durchführen.", "Anlage an den Kunden übergeben."];
+
+function render(fokus){
+  var tot = summe(st.z), h = "";
+  $("geraete").innerHTML = G.map(function(g){
+    var z = st.z[g.id] || 0;
+    return "<div class=\"gz\"><span class=\"gn\">" + g.n + "<small>" + g.q + "</small></span><span class=\"gt\">" + TE(g.te) + "</span><span class=\"zs\"><button type=\"button\" data-g=\"" + g.id + "\" data-d=\"-1\" aria-label=\"" + g.n.replace(/ /g, " ") + ": eines weniger\"" + (z <= 0 ? " disabled" : "") + ">−</button><b>" + z + "</b><button type=\"button\" data-g=\"" + g.id + "\" data-d=\"1\" aria-label=\"" + g.n.replace(/ /g, " ") + ": eines mehr\"" + (tot + g.te > MAXTE ? " disabled" : "") + ">+</button></span></div>";
+  }).join("");
+  var s = schienen(st.z);
+  $("schiene").setAttribute("viewBox", "0 0 340 " + s.H);
+  $("schiene").innerHTML = s.svg;
+  var teile = G.filter(function(g){ return st.z[g.id] > 0; });
+  if (!teile.length) h = "<span>Noch kein Gerät gewählt.</span>";
+  else {
+    h += "<span class=\"zw\">Platzbedarf auf der Hutschiene</span>";
+    h += "<span>Anzahl TE = " + teile.map(function(g){ return st.z[g.id] + MAL + g.te; }).join(" + ") + " = <b>" + TE(tot) + "</b></span>";
+    h += "<span>Breite = Anzahl TE" + MAL + MM(TEMM) + " = " + tot + MAL + MM(TEMM) + " = <b>" + MM(tot * TEMM) + "</b></span>";
+  }
+  $("rechnung").innerHTML = h;
+  var u = $("urteil"), frei26 = 2 * REIHE - tot;
+  u.className = "urteil " + (s.rows <= 2 ? "ok" : "bad");
+  u.innerHTML = !teile.length ? "Wählen Sie Geräte mit den Tasten + und −." : s.rows === 1 ? "Die Geräte haben in einer Reihe mit " + TE(REIHE) + " Platz. Es bleiben " + TE(REIHE - tot) + " frei."
+    : s.rows === 2 ? "Die Geräte brauchen 2 Reihen. In einem Kleinverteiler mit " + TE(2 * REIHE) + " bleiben " + TE(frei26) + " frei."
+    : "Die Geräte brauchen " + s.rows + " Reihen: Ein 2-reihiger Kleinverteiler mit " + TE(2 * REIHE) + " genügt nicht.";
+  $("liste").innerHTML = MAT.map(function(m, i){ return "<button type=\"button\" data-m=\"" + i + "\" aria-pressed=\"" + (st.mat === i) + "\"><span>" + m[0] + "</span><span>" + m[1] + "</span></button>"; }).join("");
+  $("erkl").innerHTML = "<b>" + MAT[st.mat][0] + ":</b> " + MAT[st.mat][2];
+  if (fokus){ var el = document.querySelector(fokus); if (el && !el.disabled) el.focus(); }
+}
+function setze(z){ G.forEach(function(g){ st.z[g.id] = z[g.id] || 0; }); render(); }
+function init(){
+  $("merk-formel").innerHTML = "Breite in mm = Anzahl TE" + MAL + MM(TEMM) + ". Beispiel: 3" + NB + "TE" + MAL + MM(TEMM) + " = " + MM(54) + ".";
+  $("schritte").innerHTML = SCHRITTE.map(function(s){ return "<li>" + s + "</li>"; }).join("");
+  $("geraete").addEventListener("click", function(ev){
+    var b = ev.target.closest("button[data-g]"); if (!b) return;
+    var id = b.getAttribute("data-g"), d = Number(b.getAttribute("data-d")), g = gid(id);
+    if (d > 0 && summe(st.z) + g.te > MAXTE) return;
+    st.z[id] = Math.max(0, (st.z[id] || 0) + d);
+    render("#geraete button[data-g=\"" + id + "\"][data-d=\"" + d + "\"]");
+  });
+  $("b-u30").addEventListener("click", function(){ setze({ls1:1, fi2:1, ls3:1, q3:1}); });
+  $("b-sport").addEventListener("click", function(){ setze({fi4:1, q3:1, s:1, p:1}); });
+  $("b-leer").addEventListener("click", function(){ setze({}); });
+  $("liste").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-m]"); if (!b) return; st.mat = Number(b.getAttribute("data-m")); render("#liste button[data-m=\"" + st.mat + "\"]"); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID8 Übungen 27, 30 und 31) ================= */
+var G30 = G.slice(0, 4);
+function zahlOpt(c, cands){
+  var out = [c];
+  cands.concat([c + 1, c - 1, c * 2, c + 2, c + 3]).forEach(function(x){ if (out.length < 4 && x > 0 && Math.round(x) === x && out.indexOf(x) < 0) out.push(x); });
+  return out.sort(function(a, b){ return a - b; });
+}
+function qGeraet(){
+  var g = pick(G30);
+  return {
+    text: "Übung 30: Wie viele Teilungseinheiten (TE) braucht das folgende Gerät auf der Hutschiene, und wie breit ist es?<br><b>" + g.n + "</b>",
+    parts: [{label:"Anzahl TE", options:[1, 2, 3, 4], correct:g.te, mono:true, show:TE}, {label:"Breite", options:[18, 36, 54, 72], correct:g.te * TEMM, mono:true, show:MM}],
+    hint: "Bei diesen vier Geräten gilt: 1 TE pro Pol. Das 3-polige Schütz mit Hilfskontakt braucht 3 TE. Eine TE ist 18 mm breit.",
+    solution: "<p>" + g.n + ": <b>" + TE(g.te) + "</b></p><p>Breite = " + g.te + MAL + MM(TEMM) + " = <b>" + MM(g.te * TEMM) + "</b></p>"
+  };
+}
+function qBreite(){
+  var n = pick([2, 3, 4, 5, 6, 8, 9, 10, 12, 13, 24, 26]), hin = Math.random() < 0.55;
+  if (hin) return {
+    text: "Ein Gerät oder eine Gerätegruppe belegt " + TE(n) + ". Wie breit ist der Platzbedarf auf der Hutschiene (18" + NB + "mm pro TE)?",
+    parts: [{label:"Breite", options:zahlOpt(n * TEMM, [n * 10, n * 17, n * 20, n + TEMM, n * 9]), correct:n * TEMM, mono:true, show:MM}],
+    hint: "Breite in mm = Anzahl TE" + MAL + "18 mm.",
+    solution: "<p>Breite = " + n + MAL + MM(TEMM) + " = <b>" + MM(n * TEMM) + "</b></p>"
+  };
+  return {
+    text: "Auf einer Hutschiene sind " + MM(n * TEMM) + " frei. Wie vielen Teilungseinheiten entspricht das (18" + NB + "mm pro TE)?",
+    parts: [{label:"Anzahl TE", options:zahlOpt(n, [n + 1, n - 1, n * 2, n + 2]), correct:n, mono:true, show:TE}],
+    hint: "Anzahl TE = Breite in mm geteilt durch 18 mm.",
+    solution: "<p>Anzahl TE = " + BAP.frac(MM(n * TEMM), MM(TEMM)) + " = <b>" + TE(n) + "</b></p>"
+  };
+}
+function gruppe(){
+  var z = {}, n = 0, tot;
+  do { z = {ls1:pick([0, 2, 3, 4, 5, 6]), fi2:pick([0, 1, 1, 2]), ls3:pick([0, 0, 1, 2]), q3:pick([0, 0, 1])}; tot = summe(z); n++; } while ((tot < 5 || tot > 24 || G30.filter(function(g){ return z[g.id] > 0; }).length < 2) && n < 200);
+  return z;
+}
+function liste(z){ return G30.filter(function(g){ return z[g.id] > 0; }).map(function(g){ return z[g.id] + " × " + g.n; }).join(", "); }
+function wegSumme(z){ var t = G30.filter(function(g){ return z[g.id] > 0; }); return "Anzahl TE = " + t.map(function(g){ return z[g.id] + MAL + g.te; }).join(" + ") + " = <b>" + TE(summe(z)) + "</b>"; }
+function qSumme(){
+  var z = gruppe(), tot = summe(z);
+  return {
+    text: "In einen Kleinverteiler kommen folgende Geräte: " + liste(z) + ". Bestimmen Sie den Platzbedarf auf der Hutschiene.",
+    parts: [{label:"Anzahl TE", options:zahlOpt(tot, [G30.reduce(function(a, g){ return a + (z[g.id] || 0); }, 0), tot + 3, tot - 2]), correct:tot, mono:true, show:TE}, {label:"Breite", options:zahlOpt(tot * TEMM, [(tot + 1) * TEMM, (tot - 1) * TEMM, tot * 10, (tot + 2) * TEMM]), correct:tot * TEMM, mono:true, show:MM}],
+    hint: "1-poliger LS 1 TE, 2-poliger FI-LS 2 TE, 3-poliger LS 3 TE, 3-poliges Schütz mit Hilfskontakt 3 TE. Zählen Sie die TE zusammen und rechnen Sie mal 18 mm.",
+    solution: "<p>" + wegSumme(z) + "</p><p>Breite = " + tot + MAL + MM(TEMM) + " = <b>" + MM(tot * TEMM) + "</b></p>"
+  };
+}
+function qReihen(){
+  var z = gruppe(), tot = summe(z), r = pick([12, 13, 18]), reihen = Math.ceil(tot / r);
+  var JA = "Ja, eine Reihe genügt.", NEIN = "Nein, es braucht mehr als eine Reihe.";
+  return {
+    text: "Ein Kleinverteiler hat Reihen mit je " + TE(r) + ". Eingebaut werden: " + liste(z) + ". Wie viele TE belegen die Geräte, und haben sie in einer Reihe Platz?",
+    parts: [{label:"Belegte TE", options:zahlOpt(tot, [tot + 3, tot - 2, r - tot > 0 ? r - tot : tot + 4]), correct:tot, mono:true, show:TE}, {label:"Platz in einer Reihe?", options:[JA, NEIN], correct:tot <= r ? JA : NEIN, mono:false}],
+    hint: "Zählen Sie zuerst die TE aller Geräte zusammen und vergleichen Sie mit den " + TE(r) + " einer Reihe.",
+    solution: "<p>" + wegSumme(z) + "</p><p>" + (tot <= r ? "<b>" + JA + "</b> Es bleiben " + TE(r - tot) + " frei." : "<b>" + NEIN + "</b> " + TE(tot) + " sind mehr als " + TE(r) + ".") + "</p>"
+  };
+}
+var MENGEN = [
+  {t:"graue Durchgangsklemmen (für die Aussenleiter)", c:6, s:"Zwei Klemmenreihen X11 mit je drei Klemmen für L1, L2 und L3: 2" + MAL + "3 = 6."},
+  {t:"blaue Durchgangsklemmen (N)", c:2, s:"Zwei Klemmenreihen X11 mit je einer Klemme für N."},
+  {t:"gelb-grüne Durchgangsklemmen (PE)", c:2, s:"Zwei Klemmenreihen X11 mit je einer Klemme für PE."},
+  {t:"Abdeckungen zu Durchgangsklemme", c:2, s:"Eine Abdeckung pro Klemmenreihe."},
+  {t:"Endhalter", c:6, s:"Lösung von Übung 31: 6 Endhalter."},
+  {t:"FI-LS 3L + N", c:1, s:"Im Schema von Übung 29 gibt es einen FI-LS: F11."},
+  {t:"Schütze 3-polig mit Hilfskontakt", c:1, s:"Im Schema von Übung 29 gibt es ein Schütz: Q10."},
+  {t:"Kontrolllampen 230 V für Hutschienenmontage", c:1, s:"Im Schema von Übung 29 gibt es eine Kontrolllampe: P12."}
+];
+function qMenge(){
+  var m = pick(MENGEN);
+  return {
+    text: "Materialliste für den Kleinverteiler der Sportplatzbeleuchtung (Übung 31): Wie viele " + m.t + " werden bestellt?",
+    parts: [{label:"Menge", options:[1, 2, 3, 4, 5, 6], correct:m.c, mono:true}],
+    hint: "Denken Sie an das Schema von Übung 29: zwei Klemmenreihen X11 mit je L1, L2, L3, N und PE, dazu F11, S10, Q10 und P12.",
+    solution: "<p><b>" + m.c + "</b></p><p>" + m.s + "</p>"
+  };
+}
+var ZUORD = [
+  ["F11", "FI-LS 3L + N"], ["Q10", "Schütz 3-polig mit Hilfskontakt"], ["S10", "Drehschalter Sch0, Hutschienenmontage"], ["P12", "Kontrolllampe 230 V für Hutschienenmontage"], ["X11", "Durchgangsklemmen 3LNPE, 2,5 mm²"]
+];
+function qZuord(){
+  var z = pick(ZUORD);
+  return {
+    text: "Welche Komponente der Materialliste von Übung 31 gehört zum Betriebsmittel <b>" + z[0] + "</b> im Stromlaufschema von Übung 29?",
+    parts: [{label:"Komponente", options:shuffle(ZUORD.map(function(e){ return e[1]; })), correct:z[1], mono:false}],
+    hint: "Der Kennbuchstabe hilft: F schützt, Q schaltet, S wird von Hand betätigt, P zeigt an, X verbindet.",
+    solution: "<p>" + z[0] + ": <b>" + z[1] + "</b></p>"
+  };
+}
+var WISSEN = [
+  {t:"Was gibt die Teilungseinheit (TE) an?", o:["Den Platzbedarf eines Geräts auf der Hutschiene", "Den Bemessungsstrom eines Geräts", "Die Anzahl Klemmen eines Geräts", "Die Schutzart eines Verteilers"], s:"Übung 30: Platzbedarf auf Hutschiene, 1 TE = 18 mm."},
+  {t:"Wie gross muss der Kleinverteiler für die Sportplatzbeleuchtung nach Übung 31 mindestens sein?", o:["Mindestens 2-reihig (≥ 26 TE)", "1-reihig (12 TE)", "Mindestens 4-reihig (≥ 52 TE)", "1-reihig (≥ 26 TE)"], s:"Lösung von Übung 31: Kleinverteiler, mindestens 2-reihig (≥ 26 TE), inklusive Abdeckungen und Beschriftungsstreifen."},
+  {t:"Welche Farbe hat die Durchgangsklemme für den Neutralleiter?", o:["Blau", "Grau", "Gelb-grün", "Orange"], s:"Lösung von Übung 31: 2 × N (blau)."},
+  {t:"Welche Farbe hat die Durchgangsklemme für den Schutzleiter?", o:["Gelb-grün", "Blau", "Grau", "Rot"], s:"Lösung von Übung 31: 2 × PE (gelb-grün)."},
+  {t:"Weshalb werden 6 graue Durchgangsklemmen bestellt?", o:["Zwei Klemmenreihen mit je drei Aussenleitern", "Drei Klemmenreihen mit je zwei Aussenleitern", "Sechs Aussenleiter in der Zuleitung", "Eine Klemmenreihe und fünf Reserveklemmen"], s:"Schema von Übung 29: X11 «Zuleitung UV» und X11 «Zur Beleuchtung» mit je L1, L2 und L3."},
+  {t:"Für welchen Leiterquerschnitt sind die Durchgangsklemmen auf der Materialliste bezeichnet?", o:["2,5 mm²", "1,5 mm²", "4 mm²", "6 mm²"], s:"Lösung von Übung 31: Durchgangsklemmen 3LNPE, 2,5 mm². Die Zuleitung von der UV ist 5 × 2,5 mm²."},
+  {t:"Wie werden Drehschalter und Kontrolllampe im Kleinverteiler befestigt?", o:["Auf der Hutschiene (Hutschienenmontage)", "In der Türe des Verteilers", "Auf der Kabelrinne", "In einer Unterputzdose neben dem Verteiler"], s:"Lösung von Übung 31: Drehschalter Sch0, Hutschienenmontage; Kontrolllampe 230 V für Hutschienenmontage."},
+  {t:"Was gehört beim Kleinverteiler nach der Materialliste von Übung 31 zum Lieferumfang?", o:["Abdeckungen und Beschriftungsstreifen", "FI-LS und Schütz", "Durchgangsklemmen und Endhalter", "Litzendraht und Aderendhülsen"], s:"Lösung von Übung 31: Kleinverteiler … inklusive Abdeckungen und Beschriftungsstreifen."},
+  {t:"Was zählt in der Materialliste von Übung 31 zum Kleinmaterial?", o:["Litzendraht, Aderendhülsen, Kabelbinder", "Endhalter, Abdeckungen, Durchgangsklemmen", "FI-LS, Schütz, Drehschalter", "Beschriftungsstreifen und Kontrolllampe"], s:"Lösung von Übung 31: Kleinmaterial (Litzendraht, Aderendhülsen, Kabelbinder usw.)."},
+  {t:"Weshalb werden die Komponenten in der Materialliste möglichst genau bezeichnet?", o:["Damit der Grosshändler genau das passende Material liefert", "Damit die Liste länger wird", "Weil der Kunde die Liste unterschreiben muss", "Weil es die NIN für jede Bestellung vorschreibt"], s:"Übung 31: Die Materialliste dient der Bestellung beim Grosshändler."}
+];
+function qWissen(){
+  var q = pick(WISSEN);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Die Antworten stehen in den Lösungen der Übungen 30 und 31.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+function qSchritte(){
+  var a = pick([0, 1, 2, 3, 4, 5, 6]), teil = SCHRITTE.slice(a, a + 5);
+  return {
+    text: "Übung 27: Bringen Sie diese fünf Arbeitsschritte für den Auftrag «Sportplatzbeleuchtung» in die richtige Reihenfolge.",
+    parts: [{type:"order", label:"Reihenfolge", items:teil}],
+    hint: "Zuerst klären und festlegen, dann dimensionieren und planen, dann ausführen, zuletzt dokumentieren, kontrollieren und übergeben.",
+    solution: "<p><b>" + teil.map(function(x, i){ return (a + i + 1) + ". " + x; }).join("<br>") + "</b></p><p>Die Nummern zeigen die Stelle in der Liste von Übung 27 mit elf Schritten.</p>"
+  };
+}
+function qNachbar(){
+  var i = pick([1, 2, 3, 4, 5, 6, 7, 8, 9]), vor = Math.random() < 0.5, c = SCHRITTE[vor ? i - 1 : i + 1];
+  var andere = shuffle(SCHRITTE.filter(function(s, k){ return k !== i && k !== i - 1 && k !== i + 1; })).slice(0, 3);
+  return {
+    text: "Übung 27: Welcher Arbeitsschritt kommt in der Liste direkt " + (vor ? "vor" : "nach") + " dem folgenden Schritt?<br><b>«" + SCHRITTE[i] + "»</b>",
+    parts: [{label:"Arbeitsschritt", options:shuffle(andere.concat([c])), correct:c, mono:false}],
+    hint: "Reihenfolge im Grossen: klären, festlegen, dimensionieren, Betriebsmittel bestimmen, Verteiler planen, platzieren, verdrahten, dokumentieren, kontrollieren, übergeben.",
+    solution: "<p><b>" + c + "</b></p><p>" + (vor ? (i) + ". " + c + " → " + (i + 1) + ". " + SCHRITTE[i] : (i + 1) + ". " + SCHRITTE[i] + " → " + (i + 2) + ". " + c) + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.13) return qGeraet();
+  if (x < 0.25) return qBreite();
+  if (x < 0.39) return qSumme();
+  if (x < 0.5) return qReihen();
+  if (x < 0.62) return qMenge();
+  if (x < 0.71) return qZuord();
+  if (x < 0.85) return qWissen();
+  if (x < 0.93) return qSchritte();
+  return qNachbar();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qGeraet, qBreite, qSumme, qReihen, qMenge, qZuord, qWissen, qSchritte]); }});
+})();
+</script>
+</body>
+</html>

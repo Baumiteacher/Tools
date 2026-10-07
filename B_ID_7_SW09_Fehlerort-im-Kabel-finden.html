@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA7 Fehlerort im Kabel finden BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.fo-erde{fill:var(--earth)}
+.fo-l{fill:none;stroke:var(--cu);stroke-width:3;stroke-linecap:round}
+.fo-l.aus{stroke:var(--line)}
+.fo-m{stroke:var(--muted);stroke-width:.9;fill:none}
+.fo-s{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+.fo-t{fill:var(--ink);font-family:var(--sans);font-size:10.5px}
+.fo-t.k{fill:var(--muted);font-size:9px}
+.fo-ks{fill:none;stroke:var(--bad);stroke-width:2.6;stroke-linecap:round}
+.fo-grab{fill:var(--accent);stroke:none}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.rechnung .zw{font-weight:700;color:var(--muted);font-size:.86rem;line-height:1.3;margin-top:4px}
+.r-slider{display:grid;grid-template-columns:9.6em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.nw{white-space:nowrap}
+.messung{font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--accent)}
+.urteil{font-weight:700;border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.urteil.ok{border-color:var(--ok);color:var(--ok)}
+.urteil.bad{border-color:var(--bad);color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 7</p>
+    <h1>Fehlerort im Kabel finden BAP</h1>
+    <p class="lead">Zwischen den beiden Adern einer Leitung in der Erde ist ein Kurzschluss entstanden. Messen Sie am Anfang den Widerstand der Schlaufe, berechnen Sie die Entfernung und graben Sie an der richtigen Stelle.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Schadenstelle suchen (wie Übung 63)</h2>
+        <fieldset>
+          <legend>Leiterdurchmesser der Kupferadern</legend>
+          <div class="opts" id="dm"></div>
+        </fieldset>
+        <p class="label">Am Anfang der Leitung gemessener Widerstand</p>
+        <p class="messung" id="messung"></p>
+        <svg class="bild" id="bild" viewBox="0 0 320 132" role="img" aria-label="Leitung in der Erde mit Hin- und Rückleiter, Ohmmeter am Anfang und Kurzschluss an der Schadenstelle"></svg>
+        <label class="r-slider" for="grab"><span class="num" id="v-grab"></span><input type="range" id="grab" min="0" max="250" step="1" value="60"></label>
+        <div class="opts">
+          <button class="opt txt" type="button" id="graben">Hier graben</button>
+          <button class="opt txt" type="button" id="weg">Rechenweg zeigen</button>
+          <button class="opt txt" type="button" id="neu">Neue Schadenstelle</button>
+          <button class="opt txt" type="button" id="ue63">Übung 63 laden</button>
+        </div>
+        <p class="urteil" id="urteil" aria-live="polite"></p>
+        <div class="rechnung" id="rechnung" aria-live="polite"></div>
+        <p class="note">Die Leitung in diesem Tool ist 250 m lang. Der Messstrom fliesst im einen Leiter bis zur Schadenstelle und im anderen zurück: Gemessen wird der Widerstand der ganzen Schlaufe.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Schlaufenwiderstand einer Leitung (wie Übung 60)</h2>
+        <fieldset>
+          <legend>Leiterdurchmesser der Kupferadern</legend>
+          <div class="opts" id="dm2"></div>
+        </fieldset>
+        <label class="r-slider" for="laenge"><span class="num" id="v-laenge"></span><input type="range" id="laenge" min="0" max="200" step="1" value="100"></label>
+        <div class="opts"><button class="opt txt" type="button" id="ue60">Übung 60 laden</button></div>
+        <div class="rechnung" id="rechnung2" aria-live="polite"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch ET2.12)</h2>
+        <div class="merke">
+          <p id="merk-formel"></p>
+          <p>Bei einer 30 m langen Leitung (Kabellänge) müssen 2 mal 30 m in die Formel eingesetzt werden, weil ein Kabel einen Hin- und einen Rückleiter besitzt.</p>
+          <p>Fehlerort: Aus dem gemessenen Widerstand der Schlaufe, dem Querschnitt und dem spezifischen Widerstand ergibt sich die Entfernung der Schadenstelle. Der Faktor 2 steht dabei unter dem Bruchstrich.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie Übung 63. Lösen Sie die Aufgabe zuerst auf dem Arbeitsblatt und graben Sie dann an der berechneten Stelle.</li>
+          <li>Was geschieht, wenn Sie den Faktor 2 vergessen? An welcher Stelle würden Sie dann graben?</li>
+          <li>Die Schadenstelle liegt doppelt so weit entfernt. Wie ändert sich der gemessene Widerstand?</li>
+          <li>Laden Sie Übung 60. Weshalb ist der Schlaufenwiderstand eines Telefonkabels so gross?</li>
+          <li>Wählen Sie den doppelten Leiterdurchmesser. Um welchen Faktor ändert sich der Schlaufenwiderstand?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET2.12, Widerstand einer Leitung bzw. eines Kabels.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 7 Leiterwiderstand: Übungen 60 und 63 (ID7.23 und ID7.24)</li><li>Theoriebuch Elektrotechnik, Kapitel 2 Grundbegriffe der Elektrotechnik: ET2.12 (Widerstand einer Leitung mit Hin- und Rückleiter). Das Arbeitsblatt nennt für den Widerstand die Seiten ET2.13 bis 2.15.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217), MAL = " · ";
+var RHO = 0.0175, RHO_E = F("Ω" + NB + "mm²", "m"), PI = Math.PI, LMAX = 250;
+function tsd(s){ return String(s).replace(/\B(?=(\d{3})+(?!\d))/g, AP); }
+function z(x, sig){ var p = fmt(round(x, sig || 3)).split(","); return tsd(p[0]) + (p[1] ? "," + p[1] : ""); }
+function gl(x, sig){ return Math.abs(round(x, sig || 3) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+function fR(x){ return BAP.ohm(x, 3); }
+function fL(x){ return z(x, 3) + NB + "m"; }
+function fA(x){ return z(x, 4) + NB + "mm²"; }
+function fD(x){ return z(x, 3) + NB + "mm"; }
+function fRho(){ return "<span class=\"nw\">0,0175" + NB + RHO_E + "</span>"; }
+function hoch2(t){ return t + "<sup>2</sup>"; }
+function flaeche(d){ return d * d * PI / 4; }
+function schlaufe(d, l){ return RHO * l * 2 / flaeche(d); }
+function ort(d, R){ return R * flaeche(d) / (RHO * 2); }
+window.__t = {schlaufe:schlaufe, ort:ort};
+var L_ = "ℓ<sub>Ltg</sub>", R_ = "<i>R</i><sub>Ltg</sub>";
+function wegA(d){ var A = flaeche(d); return "<i>A</i> = " + hoch2("<i>d</i>") + MAL + F("π", "4") + " = " + hoch2("(" + fD(d) + ")") + MAL + F("π", "4") + " <span class=\"nw\">" + gl(A, 4) + " <b>" + fA(A) + "</b></span>"; }
+function wegOrt(d, R){ var A = flaeche(d), l = ort(d, R); return L_ + " = " + F("<i>R</i>" + MAL + "<i>A</i>", "ρ" + MAL + "2") + " = " + F(fR(R) + MAL + fA(A), fRho() + MAL + "2") + " <span class=\"nw\">" + gl(l) + " <b>" + fL(l) + "</b></span>"; }
+function wegSchlaufe(d, l){ var A = flaeche(d), R = schlaufe(d, l); return "<i>R</i> = " + F("ρ" + MAL + L_ + MAL + "2", "<i>A</i>") + " = " + F(fRho() + MAL + fL(l) + MAL + "2", fA(A)) + " <span class=\"nw\">" + gl(R) + " <b>" + fR(R) + "</b></span>"; }
+
+/* ================= ERKUNDEN ================= */
+var DM = [0.4, 0.5, 0.6, 0.8, 1];
+var st = {d:0.6, R:12.5, grab:60, gefunden:false, versuch:0, weg:false, d2:0.6, l2:35000};
+function neueStelle(){ var x = 20 + Math.floor(Math.random() * 221); st.R = round(schlaufe(st.d, x), 3); st.gefunden = false; st.versuch = 0; st.weg = false; }
+var LOG = [10, 50000];
+function logWert(v){ return round(LOG[0] * Math.pow(LOG[1] / LOG[0], v / 200), 2); }
+function logPos(x){ return Math.round(Math.log(x / LOG[0]) / Math.log(LOG[1] / LOG[0]) * 200); }
+function tx(x, y, t, cls, anker){ return "<text class=\"fo-t" + (cls ? " " + cls : "") + "\" x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"" + (anker || "middle") + "\">" + t + "</text>"; }
+function n2(x){ return Math.round(x * 100) / 100; }
+function bild(){
+  var x0 = 46, x1 = 306, X = function(m){ return x0 + m / LMAX * (x1 - x0); }, xf = X(ort(st.d, st.R)), xg = X(st.grab), h = "";
+  h += "<rect class=\"fo-erde\" x=\"36\" y=\"40\" width=\"280\" height=\"52\" rx=\"4\"/>";
+  h += "<path class=\"fo-l aus\" d=\"M" + x0 + " 58 H" + x1 + " M" + x0 + " 76 H" + x1 + "\"/>";
+  if (st.gefunden){
+    h += "<path class=\"fo-l\" d=\"M" + x0 + " 58 H" + n2(xf) + " M" + x0 + " 76 H" + n2(xf) + "\"/><path class=\"fo-ks\" d=\"M" + n2(xf) + " 58 l-3 5 l6 4 l-3 9\"/>";
+    h += "<path class=\"fo-m\" d=\"M" + x0 + " 104 H" + n2(xf) + " M" + x0 + " 100 v8 M" + n2(xf) + " 100 v8\"/>" + tx(n2((x0 + xf) / 2), 119, "Schadenstelle bei " + fL(ort(st.d, st.R)));
+  } else h += tx(176, 119, "Wo liegt der Kurzschluss?", "k");
+  /* Ohmmeter am Anfang */
+  h += "<path class=\"fo-m\" style=\"stroke:var(--ink);stroke-width:1.4\" d=\"M" + x0 + " 58 H22 V50 M" + x0 + " 76 H22 V84\"/><circle class=\"fo-s\" cx=\"22\" cy=\"67\" r=\"13\"/>" + tx(22, 71.5, "Ω", "", "middle");
+  /* Grabstelle */
+  h += "<path class=\"fo-grab\" d=\"M" + n2(xg) + " 40 l-6 -11 h12 Z\"/>" + tx(n2(Math.max(60, Math.min(292, xg))), 22, "Grabstelle " + fL(st.grab));
+  h += tx(x0, 12, "0 m", "k") + tx(x1, 12, LMAX + " m", "k");
+  return h;
+}
+function render(){
+  $("dm").innerHTML = DM.map(function(d){ return "<button class=\"opt\" type=\"button\" data-d=\"" + d + "\" aria-pressed=\"" + (st.d === d) + "\">" + fmt(d) + " mm</button>"; }).join("");
+  $("dm2").innerHTML = DM.map(function(d){ return "<button class=\"opt\" type=\"button\" data-d=\"" + d + "\" aria-pressed=\"" + (st.d2 === d) + "\">" + fmt(d) + " mm</button>"; }).join("");
+  $("messung").textContent = "R = " + fR(st.R).replace(/ /g, " ");
+  $("v-grab").innerHTML = "Graben bei " + fL(st.grab);
+  $("bild").innerHTML = bild();
+  var u = $("urteil"), x = ort(st.d, st.R);
+  if (st.gefunden){ u.className = "urteil ok"; u.textContent = "Gefunden: Die Schadenstelle liegt " + fL(x).replace(/ /g, " ") + " vom Anfang der Leitung entfernt."; }
+  else if (st.versuch){ u.className = "urteil bad"; u.textContent = "Hier ist die Leitung in Ordnung. Die Schadenstelle liegt " + (st.grab < x ? "weiter weg" : "näher beim Anfang") + ". Rechnen Sie nach."; }
+  else { u.className = "urteil"; u.textContent = "Berechnen Sie die Entfernung, stellen Sie die Grabstelle ein und graben Sie."; }
+  $("rechnung").innerHTML = st.weg || st.gefunden ? "<span class=\"zw\">Gegeben: <i>d</i> = " + fD(st.d) + ", <i>R</i> = " + fR(st.R) + ", ρ<sub>Cu</sub> = " + fRho() + "</span><span>" + wegA(st.d) + "</span><span>" + wegOrt(st.d, st.R) + "</span>" : "";
+  $("v-laenge").innerHTML = L_ + " = " + fL(st.l2);
+  $("rechnung2").innerHTML = "<span class=\"zw\">Gegeben: <i>d</i> = " + fD(st.d2) + ", " + L_ + " = " + fL(st.l2) + ", ρ<sub>Cu</sub> = " + fRho() + "</span><span>" + wegA(st.d2) + "</span><span>" + wegSchlaufe(st.d2, st.l2) + "</span>";
+}
+function init(){
+  $("merk-formel").innerHTML = "Widerstand einer Leitung bzw. eines Kabels: " + R_ + " = " + F("ρ" + MAL + L_ + MAL + "2", "<i>A</i>") + " mit ρ<sub>Cu</sub> = " + fRho() + ".";
+  $("dm").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-d]"); if (!b) return; var x = ort(st.d, st.R); st.d = Number(b.getAttribute("data-d")); st.R = round(schlaufe(st.d, x), 3); st.gefunden = false; st.versuch = 0; render(); });
+  $("dm2").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-d]"); if (!b) return; st.d2 = Number(b.getAttribute("data-d")); render(); });
+  $("grab").addEventListener("input", function(){ st.grab = Number($("grab").value); st.gefunden = false; render(); });
+  $("graben").addEventListener("click", function(){ st.versuch++; st.gefunden = Math.abs(st.grab - ort(st.d, st.R)) <= 1.5; render(); });
+  $("weg").addEventListener("click", function(){ st.weg = !st.weg; render(); });
+  $("neu").addEventListener("click", function(){ neueStelle(); render(); });
+  $("ue63").addEventListener("click", function(){ st.d = 0.6; st.R = 12.5; st.gefunden = false; st.versuch = 0; st.weg = false; render(); });
+  $("laenge").addEventListener("input", function(){ st.l2 = logWert(Number($("laenge").value)); render(); });
+  $("ue60").addEventListener("click", function(){ st.d2 = 0.6; st.l2 = 35000; $("laenge").value = logPos(35000); render(); });
+  $("laenge").value = logPos(st.l2);
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 60 und 63) ================= */
+function optionen(c, cands, show){
+  var out = [c], seen = {}; seen[show(c)] = 1;
+  shuffle(cands).concat([c * 2, c / 2, c * 4, c / 4, c * 10, c / 10]).forEach(function(x){ if (out.length < 4 && x > 0 && isFinite(x)){ var t = show(x); if (!seen[t]){ seen[t] = 1; out.push(x); } } });
+  return out.sort(function(a, b){ return a - b; });
+}
+function qSchlaufe(){
+  var d = pick(DM), km = pick([0.5, 1.2, 2, 5, 8, 12, 20, 35]), l = km * 1000, A = flaeche(d), R = schlaufe(d, l);
+  return {
+    text: "Wie gross ist der Schlaufenwiderstand (Hin- und Rückleiter) eines " + z(km) + NB + "km langen Kupfer-Telefonkabels mit einem Leiterdurchmesser von " + fD(d) + "?",
+    parts: [{label:"Querschnitt <i>A</i>", options:optionen(A, [d * d, d * PI, d * d * PI, A * 2], fA), correct:A, mono:true, show:fA}, {label:"Schlaufenwiderstand <i>R</i>", options:optionen(R, [R / 2, R / 1000, RHO * km * 2 / A, R * 2], fR), correct:R, mono:true, show:fR}],
+    hint: "Zuerst die Kreisfläche aus dem Durchmesser. Dann die Länge in Metern einsetzen und wegen Hin- und Rückleiter mit 2 multiplizieren.",
+    solution: "<p>" + wegA(d) + "</p><p>" + wegSchlaufe(d, l) + "</p>"
+  };
+}
+function qFehlerort(){
+  var d = pick(DM), x0 = pick([35, 48, 62, 77, 101, 125, 150, 180, 240]), R = round(schlaufe(d, x0), 3), l = ort(d, R);
+  return {
+    text: "Zwischen den beiden Adern einer in der Erde liegenden Leitung (Cu) von " + fD(d) + " Durchmesser ist ein Kurzschluss entstanden. Zur Bestimmung des Fehlerorts wird am Anfang der Leitung ein Widerstand von " + fR(R) + " gemessen. In welcher Entfernung befindet sich die Schadenstelle?",
+    parts: [{label:"Entfernung der Schadenstelle", options:optionen(l, [l * 2, l / 2, R * flaeche(d) * RHO * 2 * 1000, R / RHO / 10], fL), correct:l, mono:true, show:fL}],
+    hint: "Der gemessene Widerstand gehört zur ganzen Schlaufe: Hinleiter bis zur Schadenstelle und Rückleiter. Der Faktor 2 steht unter dem Bruchstrich.",
+    solution: "<p>" + wegA(d) + "</p><p>" + wegOrt(d, R) + "</p>"
+  };
+}
+function qFehlerortA(){
+  var A = pick([1.5, 2.5, 4, 6, 10, 16]), x0 = pick([18, 30, 42, 55, 70, 95, 120]), R = round(RHO * x0 * 2 / A, 3), l = R * A / (RHO * 2);
+  return {
+    text: "In einem erdverlegten Kupferkabel mit " + fA(A) + " Querschnitt haben zwei Adern Kurzschluss. Am Kabelanfang wird zwischen diesen Adern ein Widerstand von " + fR(R) + " gemessen. Wie weit ist die Schadenstelle entfernt?",
+    parts: [{label:"Entfernung der Schadenstelle", options:optionen(l, [l * 2, l / 2, R * A / RHO * 2, l * 4], fL), correct:l, mono:true, show:fL}],
+    hint: L_ + " = " + F("<i>R</i>" + MAL + "<i>A</i>", "ρ" + MAL + "2") + " mit ρ<sub>Cu</sub> = " + fRho() + "." + (R < 0.1 ? " Achten Sie auf mΩ." : ""),
+    solution: "<p>" + L_ + " = " + F("<i>R</i>" + MAL + "<i>A</i>", "ρ" + MAL + "2") + " = " + F(fR(R) + MAL + fA(A), fRho() + MAL + "2") + " " + gl(l) + " <b>" + fL(l) + "</b></p>"
+  };
+}
+function qGegenseite(){
+  var d = pick(DM), ges = pick([120, 150, 200, 250, 300]), x0 = Math.round(ges * pick([0.2, 0.3, 0.4, 0.6, 0.7])), R1 = round(schlaufe(d, x0), 3), R2 = schlaufe(d, ges - x0);
+  return {
+    text: "Eine " + fL(ges) + " lange Kupferleitung mit " + fD(d) + " Leiterdurchmesser hat einen Kurzschluss zwischen zwei Adern. Vom Anfang her wird ein Schlaufenwiderstand von " + fR(R1) + " gemessen. Welchen Widerstand zeigt das Ohmmeter etwa an, wenn zur Kontrolle vom anderen Ende her gemessen wird?",
+    parts: [{label:"Widerstand vom anderen Ende", options:optionen(R2, [R1, schlaufe(d, ges), schlaufe(d, ges) + R1, R2 / 2], fR), correct:R2, mono:true, show:fR}],
+    hint: "Berechnen Sie zuerst die Entfernung der Schadenstelle vom Anfang. Vom anderen Ende fehlt dann der Rest der Leitungslänge.",
+    solution: "<p>" + wegOrt(d, R1) + "</p><p>Vom anderen Ende sind es " + fL(ges) + " − " + fL(x0) + " = " + fL(ges - x0) + ".</p><p>" + wegSchlaufe(d, ges - x0) + "</p>"
+  };
+}
+var KONZEPT = [
+  {t:"Weshalb steht in der Formel für den Widerstand einer Leitung der Faktor 2?", o:["Weil ein Kabel einen Hin- und einen Rückleiter besitzt", "Weil Kupfer den doppelten Widerstand von Eisen hat", "Weil der Durchmesser doppelt so gross ist wie der Radius", "Weil mit zwei Messgeräten gemessen wird"], s:"Theoriebuch ET2.12: Bei einer 30 m langen Leitung müssen 2 mal 30 m eingesetzt werden."},
+  {t:"Bei der Fehlerortbestimmung vergisst ein Lernender den Faktor 2. Was ist die Folge?", o:["Er berechnet die doppelte Entfernung und gräbt zu weit weg.", "Er berechnet die halbe Entfernung und gräbt zu nah.", "Das Ergebnis stimmt trotzdem.", "Er berechnet die vierfache Entfernung."], s:"Ohne den Faktor 2 erhält man die Länge des ganzen Leiters der Schlaufe, also Hin- und Rückweg zusammen."},
+  {t:"Die Schadenstelle liegt doppelt so weit vom Messort entfernt. Wie ändert sich der gemessene Schlaufenwiderstand?", o:["Er wird doppelt so gross.", "Er wird halb so gross.", "Er wird viermal so gross.", "Er bleibt gleich."], s:"Der Widerstand ändert sich proportional zur Leiterlänge."},
+  {t:"Zwei gleich lange Leitungen haben Leiterdurchmesser von 0,4 mm und 0,8 mm. Wie verhalten sich ihre Schlaufenwiderstände?", o:["Die Leitung mit 0,4 mm hat den vierfachen Widerstand.", "Die Leitung mit 0,4 mm hat den doppelten Widerstand.", "Die Leitung mit 0,8 mm hat den doppelten Widerstand.", "Beide haben den gleichen Widerstand."], s:"Halber Durchmesser ergibt einen Viertel der Querschnittsfläche und damit den vierfachen Widerstand."},
+  {t:"Was misst das Ohmmeter am Anfang einer Leitung, deren Adern an der Schadenstelle Kurzschluss haben?", o:["Den Widerstand des Hinleiters bis zur Schadenstelle und des Rückleiters zurück", "Nur den Widerstand des Hinleiters bis zur Schadenstelle", "Den Widerstand der ganzen Leitung bis zum Ende", "Den Isolationswiderstand gegen Erde"], s:"Der Messstrom fliesst über den Kurzschluss zurück. Gemessen wird die Schlaufe."},
+  {t:"Wie berechnet man die Querschnittsfläche eines Runddrahts aus dem Durchmesser <i>d</i>?", o:[hoch2("<i>d</i>") + MAL + F("π", "4"), "<i>d</i>" + MAL + "π", hoch2("<i>d</i>") + MAL + "π", F("<i>d</i>" + MAL + "π", "2")], s:"Kreisfläche: <i>A</i> = " + hoch2("<i>d</i>") + MAL + F("π", "4") + ". Für 0,6 mm ergibt das 0,2827 mm²."}
+];
+function qKonzept(){
+  var q = pick(KONZEPT);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Zeichnen Sie die Schlaufe auf: Messgerät, Hinleiter, Kurzschluss, Rückleiter.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+function qLaenge(){
+  var l = pick([25, 30, 40, 65, 120, 170]);
+  return {
+    text: "Eine Leitung ist " + fL(l) + " lang. Welche Leiterlänge wirkt für den Schlaufenwiderstand (Hin- und Rückleiter)?",
+    parts: [{label:"Leiterlänge", options:optionen(2 * l, [l, l / 2, 4 * l, 3 * l], fL), correct:2 * l, mono:true, show:fL}],
+    hint: "Ein Kabel besitzt einen Hin- und einen Rückleiter.",
+    solution: "<p><b>" + fL(2 * l) + "</b></p><p>2" + MAL + fL(l) + " = " + fL(2 * l) + "</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.22) return qSchlaufe();
+  if (x < 0.46) return qFehlerort();
+  if (x < 0.62) return qFehlerortA();
+  if (x < 0.74) return qGegenseite();
+  if (x < 0.92) return qKonzept();
+  return qLaenge();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qSchlaufe, qFehlerort, qFehlerort, qFehlerortA, qGegenseite, qKonzept, qKonzept, qLaenge]); }});
+})();
+</script>
+</body>
+</html>

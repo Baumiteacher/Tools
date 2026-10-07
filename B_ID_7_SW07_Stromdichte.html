@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA5 Stromdichte: Zuleitung, Glühwendel, Kupferschiene BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.qs-t{fill:var(--ink);font-family:var(--sans);font-size:12px}
+.qs-t.k{font-size:10px;fill:var(--muted)}
+.qs-m{stroke:var(--muted);stroke-width:1;fill:none}
+.qs-r{stroke:var(--ink);stroke-width:1.2}
+.rechnung{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.rechnung > span{line-height:1.9}
+.rechnung .zw{font-weight:700;color:var(--muted);font-size:.86rem;line-height:1.3;margin-top:4px}
+.r-slider{display:grid;grid-template-columns:8.4em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.urteil{font-weight:700;border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.urteil.ok{border-color:var(--ok);color:var(--ok)}
+.urteil.bad{border-color:var(--bad);color:var(--bad)}
+.nw{white-space:nowrap}
+.formel{font-size:1.25rem;font-weight:700;color:var(--accent)}
+.luecke{display:inline-block;min-width:4.5em;border-bottom:2px solid var(--accent);text-align:center;font-weight:700;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 5</p>
+    <h1>Stromdichte: Zuleitung, Glühwendel, Kupferschiene BAP</h1>
+    <p class="lead">Gleicher Strom, anderer Querschnitt: Berechnen Sie die Stromdichte in einer Zuleitung, in einer Kupferschiene und im Glühwendel und beurteilen Sie, ob ein Grenzwert eingehalten ist.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Was wird untersucht?</legend>
+          <div class="opts" id="modus">
+            <button class="opt txt" type="button" data-m="leiter" id="m-leiter" aria-pressed="true">Zuleitung (wie Übung 51)</button>
+            <button class="opt txt" type="button" data-m="schiene" id="m-schiene" aria-pressed="false">Kupferschiene (wie Übung 52)</button>
+            <button class="opt txt" type="button" data-m="wendel" id="m-wendel" aria-pressed="false">Zuleitung und Glühwendel (Theoriebuch)</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Werte einstellen</legend>
+          <div class="plain" id="regler"></div>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2 id="b-titel">Querschnitt und Stromdichte</h2>
+        <svg class="bild" id="bild" viewBox="0 0 320 132" role="img" aria-label="Querschnittsfläche des Leiters im Massstab, eingefärbt nach der Stromdichte"></svg>
+        <p class="label" id="skala-leg"></p>
+        <div id="skala"></div>
+        <p class="urteil" id="urteil"></p>
+        <p class="note" id="b-note"></p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Rechenweg</h2>
+        <p class="formel" id="formel"></p>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch ET2.10)</h2>
+        <div class="merke">
+          <p>In einem einfachen elektrischen Stromkreis fliesst überall der gleiche Strom: Durch den dünnen Glühwendel bewegen sich gleich viele Elektronen wie durch die deutlich dickeren Zuleitungen.</p>
+          <p>Trotzdem erwärmen sich die Hin- und Rückleiter kaum, während der Glühwendel bis zur Weissglut aufleuchtet. Der Grund ist die Stromdichte.</p>
+          <p>Grosser Querschnitt: kleine Stromdichte. Kleiner Querschnitt: hohe Stromdichte und starke Erwärmung.</p>
+          <p id="merk-formel"></p>
+          <p>In der Niederspannungs-Installationsnorm hat die Stromdichte im Zusammenhang mit der Querschnittsdimensionierung eine wichtige Bedeutung (NIN Kapitel 5.2 Leitungen).</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie Übung 51. Lösen Sie die Aufgabe zuerst auf dem Arbeitsblatt und vergleichen Sie dann.</li>
+          <li>Wählen Sie bei gleichem Strom den nächstgrösseren Querschnitt. Wie ändert sich die Stromdichte?</li>
+          <li>Laden Sie Übung 52. Bis zu welchem Strom dürfte Pablo die Schiene 20 mm × 5 mm einsetzen?</li>
+          <li>Kupferschiene: Verdoppeln Sie die Breite <i>b</i>. Was geschieht mit der Stromdichte?</li>
+          <li>Zuleitung und Glühwendel: Wie viel mal grösser ist die Stromdichte im Wendel? Ändert sich dieses Verhältnis, wenn Sie den Strom verändern?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET2.10, Stromdichte.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 5 Stromdichte: Übungen 50 bis 52 (ID7.20)</li><li>Theoriebuch Elektrotechnik, Kapitel 2 Grundbegriffe der Elektrotechnik: ET2.10 (Stromdichte, Beispiel 1). Das Arbeitsblatt nennt dafür die Seiten ET2.12 und 2.13.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, round = BAP.round, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217), MAL = " · ";
+var JE = F("A", "mm²");
+function tsd(s){ return String(s).replace(/\B(?=(\d{3})+(?!\d))/g, AP); }
+/* Zahl mit Dezimalkomma, auf sig Stellen gerundet, mit Tausendertrennzeichen */
+function z(x, sig){ var r = round(x, sig || 3), p = fmt(r).split(","); return tsd(p[0]) + (p[1] ? "," + p[1] : ""); }
+function gl(x, sig){ return Math.abs(round(x, sig || 3) - x) > Math.abs(x) * 1e-9 ? "≈" : "="; }
+function J(x){ return "<span class=\"nw\">" + z(x) + NB + JE + "</span>"; }
+function A_(x){ return z(x, 4) + NB + "A"; }
+function mm2(x){ return z(x, 4) + NB + "mm²"; }
+function mm(x){ return z(x, 4) + NB + "mm"; }
+function ix(sym, idx){ return "<i>" + sym + "</i>" + (idx ? "<sub>" + idx + "</sub>" : ""); }
+window.__t = {z:z};
+
+/* ================= ERKUNDEN ================= */
+var NORM = [1.5, 2.5, 4, 6, 10, 16];
+var st = {m:"leiter", A:1.5, I:10, b:20, d:5, Is:160, Iw:0.3};
+var JMAX = 2, AL = 1.5, AW = 0.0006;
+/* Farbe nach Stromdichte: kühl (grau-blau) über Kupfer und Rot bis Weissglut */
+function farbe(j){
+  var t = Math.max(0, Math.min(1, (Math.log10(Math.max(j, 0.01)) + 1) / 4));
+  var st_ = [[0, [124, 147, 168]], [0.35, [201, 120, 58]], [0.7, [224, 69, 42]], [1, [255, 226, 130]]];
+  for (var i = 1; i < st_.length; i++){
+    if (t <= st_[i][0]){
+      var a = st_[i - 1], b = st_[i], u = (t - a[0]) / (b[0] - a[0]);
+      return "rgb(" + [0, 1, 2].map(function(k){ return Math.round(a[1][k] + (b[1][k] - a[1][k]) * u); }).join(",") + ")";
+    }
+  }
+  return "rgb(255,226,130)";
+}
+function txt(x, y, t, anker, cls){ return "<text class=\"qs-t" + (cls ? " " + cls : "") + "\" x=\"" + x + "\" y=\"" + y + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + ">" + t + "</text>"; }
+function n2(x){ return Math.round(x * 100) / 100; }
+function bildLeiter(){
+  var j = st.I / st.A, r = Math.sqrt(st.A / Math.PI) * 22, cx = 70, cy = 66, h = "";
+  h += "<circle class=\"qs-r\" cx=\"" + cx + "\" cy=\"" + cy + "\" r=\"" + n2(r) + "\" fill=\"" + farbe(j) + "\"/>";
+  h += txt(140, 46, "Querschnittsfläche <tspan font-style=\"italic\">A</tspan> = " + mm2(st.A));
+  h += txt(140, 66, "Stromstärke <tspan font-style=\"italic\">I</tspan> = " + A_(st.I));
+  h += txt(140, 86, "Durchmesser des Leiters ≈ " + mm(round(2 * Math.sqrt(st.A / Math.PI), 3)), "", "k");
+  h += txt(cx, 126, "Querschnitt im Massstab", "middle", "k");
+  return h;
+}
+function bildSchiene(){
+  var A = st.b * st.d, j = st.Is / A, s = 3.6, w = st.b * s, hh = st.d * s, x0 = 34, y0 = 60 - hh / 2, h = "";
+  h += "<rect class=\"qs-r\" x=\"" + x0 + "\" y=\"" + n2(y0) + "\" width=\"" + n2(w) + "\" height=\"" + n2(hh) + "\" fill=\"" + farbe(j) + "\"/>";
+  h += "<path class=\"qs-m\" d=\"M" + x0 + " " + n2(y0 + hh + 8) + " h" + n2(w) + " M" + x0 + " " + n2(y0 + hh + 4) + " v8 M" + n2(x0 + w) + " " + n2(y0 + hh + 4) + " v8 M22 " + n2(y0) + " v" + n2(hh) + " M18 " + n2(y0) + " h8 M18 " + n2(y0 + hh) + " h8\"/>";
+  h += txt(n2(x0 + w / 2), n2(y0 + hh + 21), "<tspan font-style=\"italic\">b</tspan> = " + mm(st.b), "middle");
+  h += txt(14, n2(y0 + hh / 2 + 3), "<tspan font-style=\"italic\">d</tspan>", "middle");
+  h += txt(x0, n2(y0 - 8), "<tspan font-style=\"italic\">d</tspan> = " + mm(st.d) + ", <tspan font-style=\"italic\">I</tspan> = " + A_(st.Is));
+  h += txt(160, 126, "Querschnitt der Kupferschiene im Massstab", "middle", "k");
+  return h;
+}
+function bildWendel(){
+  var jl = st.Iw / AL, jw = st.Iw / AW, s = 58, rl = Math.sqrt(AL / Math.PI) * s, rw = Math.max(0.8, Math.sqrt(AW / Math.PI) * s), h = "";
+  h += "<circle class=\"qs-r\" cx=\"64\" cy=\"62\" r=\"" + n2(rl) + "\" fill=\"" + farbe(jl) + "\"/>";
+  h += "<circle cx=\"222\" cy=\"62\" r=\"" + n2(rw) + "\" fill=\"" + farbe(jw) + "\" stroke=\"var(--ink)\" stroke-width=\".4\"/>";
+  h += "<path class=\"qs-m\" d=\"M222 44 v12 M219 52 l3 4 l3 -4\"/>";
+  h += txt(64, 14, "Zuleitung", "middle") + txt(222, 14, "Glühwendel", "middle");
+  h += txt(64, 118, "<tspan font-style=\"italic\">A</tspan> = " + mm2(AL), "middle") + txt(222, 118, "<tspan font-style=\"italic\">A</tspan> = 0,0006" + NB + "mm²", "middle");
+  h += txt(222, 36, "kaum sichtbar", "middle", "k");
+  h += txt(143, 66, "<tspan font-style=\"italic\">I</tspan> = " + A_(st.Iw), "middle");
+  h += "<path class=\"qs-m\" d=\"M112 74 H176 M171 70.5 l5 3.5 l-5 3.5\"/>";
+  return h;
+}
+function slider(id, label, min, max, step, val){ return "<label class=\"r-slider\" for=\"" + id + "\"><span class=\"num\" id=\"v-" + id + "\">" + label + "</span><input type=\"range\" id=\"" + id + "\" min=\"" + min + "\" max=\"" + max + "\" step=\"" + step + "\" value=\"" + val + "\"></label>"; }
+function regler(){
+  var h = "";
+  if (st.m === "leiter"){
+    h += "<div><p class=\"label\">Querschnitt <i>A</i> der Zuleitung in mm²</p><div class=\"opts\" id=\"norm\">" + NORM.map(function(a){ return "<button class=\"opt\" type=\"button\" data-a=\"" + a + "\" id=\"n-" + String(a).replace(".", "_") + "\" aria-pressed=\"" + (st.A === a) + "\">" + fmt(a) + "</button>"; }).join("") + "</div></div>";
+    h += slider("s-i", "", 0.5, 63, 0.5, st.I);
+    h += "<div class=\"opts\"><button class=\"opt txt\" type=\"button\" id=\"lade\">Übung 51 laden</button></div>";
+  } else if (st.m === "schiene"){
+    h += slider("s-b", "", 10, 60, 5, st.b) + slider("s-d", "", 3, 10, 1, st.d) + slider("s-is", "", 20, 630, 10, st.Is);
+    h += "<div class=\"opts\"><button class=\"opt txt\" type=\"button\" id=\"lade\">Übung 52 laden</button></div>";
+  } else {
+    h += slider("s-iw", "", 0.1, 1, 0.05, st.Iw);
+    h += "<div class=\"opts\"><button class=\"opt txt\" type=\"button\" id=\"lade\">Beispiel 1 aus dem Theoriebuch laden</button></div>";
+  }
+  $("regler").innerHTML = h;
+}
+function render(){
+  var m = st.m, h = "", j;
+  ["leiter", "schiene", "wendel"].forEach(function(x){ $("m-" + x).setAttribute("aria-pressed", String(x === m)); });
+  $("formel").innerHTML = "<i>J</i> = " + F("<i>I</i>", "<i>A</i>");
+  $("skala-leg").innerHTML = "Stromdichte <i>J</i> in " + JE + " (logarithmische Skala)";
+  var u = $("urteil"); u.className = "urteil";
+  if (m === "leiter"){
+    j = st.I / st.A;
+    NORM.forEach(function(a){ var b = $("n-" + String(a).replace(".", "_")); if (b) b.setAttribute("aria-pressed", String(st.A === a)); });
+    $("v-s-i").innerHTML = "<i>I</i> = " + A_(st.I);
+    $("b-titel").textContent = "Querschnitt der Zuleitung und Stromdichte";
+    $("bild").innerHTML = bildLeiter();
+    $("skala").innerHTML = BAP.lineal(0.01, 1000, [], [{cls:"z0", label:""}], j, [{v:0.01, label:"0,01"}, {v:0.1, label:"0,1"}, {v:1, label:"1"}, {v:10, label:"10"}, {v:100, label:"100"}, {v:1000, label:"1000"}]);
+    u.innerHTML = "<i>J</i> " + gl(j) + " " + J(j);
+    $("b-note").innerHTML = "Zum Vergleich aus dem Theoriebuch (Beispiel 1): In der Zuleitung eines Glühlämpchens beträgt die Stromdichte 0,2" + NB + JE + ", im Glühwendel 500" + NB + JE + ". Die Farbe der Fläche zeigt die Stromdichte: je heller und röter, desto höher.";
+    h += "<span class=\"zw\">Gegeben: <i>I</i> = " + A_(st.I) + ", <i>A</i> = " + mm2(st.A) + "</span>";
+    h += "<span><i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " = " + F(A_(st.I), mm2(st.A)) + " " + gl(j) + " <b>" + J(j) + "</b></span>";
+  } else if (m === "schiene"){
+    var A = st.b * st.d; j = st.Is / A;
+    $("v-s-b").innerHTML = "<i>b</i> = " + mm(st.b); $("v-s-d").innerHTML = "<i>d</i> = " + mm(st.d); $("v-s-is").innerHTML = "<i>I</i> = " + A_(st.Is);
+    $("b-titel").textContent = "Querschnitt der Kupferschiene und Stromdichte";
+    $("bild").innerHTML = bildSchiene();
+    $("skala").innerHTML = BAP.lineal(0.1, 100, [JMAX], [{cls:"z1", label:"zulässig"}, {cls:"z3", label:"zu hoch"}], j, [{v:0.1, label:"0,1"}, {v:1, label:"1"}, {v:2, label:"2"}, {v:10, label:"10"}, {v:100, label:"100"}]);
+    var ok = j <= JMAX + 1e-9;
+    u.className = "urteil " + (ok ? "ok" : "bad");
+    u.innerHTML = "<i>J</i> " + gl(j) + " " + J(j) + ": " + (ok ? "Die Kupferschiene darf eingesetzt werden." : "Die Stromdichte ist zu hoch. Diese Kupferschiene darf nicht eingesetzt werden.");
+    $("b-note").innerHTML = "Grenzwert aus Übung 52: Gemäss den Herstellervorgaben darf die Stromdichte in den Kupferschienen aufgrund der Erwärmung im Schaltschrank maximal 2" + NB + JE + " betragen. Dieser Wert gilt für diese Aufgabe, nicht allgemein.";
+    h += "<span class=\"zw\">Gegeben: <i>b</i> = " + mm(st.b) + ", <i>d</i> = " + mm(st.d) + ", <i>I</i> = " + A_(st.Is) + "</span>";
+    h += "<span><i>A</i> = <i>b</i>" + MAL + "<i>d</i> = " + mm(st.b) + MAL + mm(st.d) + " = <b>" + mm2(A) + "</b></span>";
+    h += "<span><i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " = " + F(A_(st.Is), mm2(A)) + " " + gl(j) + " <b>" + J(j) + "</b></span>";
+    h += "<span>Beurteilung: " + J(j) + " " + (ok ? "≤" : "&gt;") + " 2" + NB + JE + ", die Schiene darf " + (ok ? "" : "nicht ") + "eingesetzt werden.</span>";
+    h += "<span>Grösster zulässiger Strom: <i>I</i> = <i>J</i>" + MAL + "<i>A</i> = 2" + NB + JE + MAL + mm2(A) + " = <b>" + A_(JMAX * A) + "</b></span>";
+  } else {
+    var jl = st.Iw / AL, jw = st.Iw / AW; j = jw;
+    $("v-s-iw").innerHTML = "<i>I</i> = " + A_(st.Iw);
+    $("b-titel").textContent = "Zuleitung und Glühwendel im gleichen Massstab";
+    $("bild").innerHTML = bildWendel();
+    $("skala").innerHTML = BAP.lineal(0.01, 10000, [], [{cls:"z0", label:""}], jw, [{v:0.01, label:"0,01"}, {v:1, label:"1"}, {v:100, label:"100"}, {v:10000, label:"10" + AP + "000"}]);
+    u.innerHTML = "Zuleitung: " + ix("J", "Leitung") + " " + gl(jl) + " " + J(jl) + " · Glühwendel: " + ix("J", "Wendel") + " " + gl(jw) + " " + J(jw);
+    $("b-note").innerHTML = "Die Marke auf der Skala zeigt die Stromdichte im Glühwendel. Querschnitte aus dem Theoriebuch, Beispiel 1: Zuleitung 1,5" + NB + "mm², Glühwendel 0,0006" + NB + "mm².";
+    h += "<span class=\"zw\">Gegeben: <i>I</i> = " + A_(st.Iw) + ", " + ix("A", "Leitung") + " = " + mm2(AL) + ", " + ix("A", "Wendel") + " = 0,0006" + NB + "mm²</span>";
+    h += "<span>" + ix("J", "Leitung") + " = " + F("<i>I</i>", ix("A", "Leitung")) + " = " + F(A_(st.Iw), mm2(AL)) + " " + gl(jl) + " <b>" + J(jl) + "</b></span>";
+    h += "<span>" + ix("J", "Wendel") + " = " + F("<i>I</i>", ix("A", "Wendel")) + " = " + F(A_(st.Iw), "0,0006" + NB + "mm²") + " " + gl(jw) + " <b>" + J(jw) + "</b></span>";
+    h += "<span>Verhältnis: " + F(ix("J", "Wendel"), ix("J", "Leitung")) + " = " + F(ix("A", "Leitung"), ix("A", "Wendel")) + " = " + F(mm2(AL), "0,0006" + NB + "mm²") + " = <b>2" + AP + "500</b>. Die Stromdichte im Glühwendel ist 2" + AP + "500-mal grösser, unabhängig vom Strom.</span>";
+  }
+  $("rechnung").innerHTML = h;
+}
+function init(){
+  $("merk-formel").innerHTML = "Stromdichte: <i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " mit <i>J</i> in " + JE + ", <i>I</i> in A und <i>A</i> in mm².";
+  $("modus").addEventListener("click", function(ev){
+    var b = ev.target.closest("button[data-m]"); if (!b) return;
+    st.m = b.getAttribute("data-m"); regler(); render();
+  });
+  $("regler").addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    if (b.id === "lade"){
+      if (st.m === "leiter"){ st.A = 1.5; st.I = 10; }
+      else if (st.m === "schiene"){ st.b = 20; st.d = 5; st.Is = 160; }
+      else st.Iw = 0.3;
+      regler(); render(); $("lade").focus(); return;
+    }
+    if (b.hasAttribute("data-a")){ st.A = Number(b.getAttribute("data-a")); render(); }
+  });
+  $("regler").addEventListener("input", function(ev){
+    var e = ev.target, v = Number(e.value);
+    if (e.id === "s-i") st.I = v; else if (e.id === "s-b") st.b = v; else if (e.id === "s-d") st.d = v; else if (e.id === "s-is") st.Is = v; else if (e.id === "s-iw") st.Iw = v;
+    render();
+  });
+  regler(); render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 50 bis 52, Theoriebuch ET2.10) ================= */
+function numOpts(c, cands){
+  var seen = {}, out = [c]; seen[z(c)] = true;
+  shuffle(cands).forEach(function(x){ if (out.length < 4 && x > 0 && isFinite(x) && !seen[z(x)]){ seen[z(x)] = true; out.push(x); } });
+  return out.sort(function(a, b){ return a - b; });
+}
+var ORT = ["Für einen fest angeschlossenen Heizofen", "Für einen Wassererwärmer", "Für einen Backofen", "Für eine Wärmepumpe", "Für die Zuleitung zu einer Unterverteilung"];
+function qJ(){
+  var A, I, j, n = 0;
+  do { A = pick([1.5, 2.5, 4, 6, 10, 16, 25]); I = pick([6, 8, 10, 13, 16, 20, 25, 32, 40, 50, 63]); j = I / A; n++; } while ((j < 1 || j > 11) && n < 200);
+  var opts = numOpts(j, [I * A, A / I, j * 10, j / 10, j * 2, j / 2, I / (A * A)]);
+  return {
+    text: pick(ORT) + " wird eine Zuleitung aus Kupfer mit einem Querschnitt von " + mm2(A) + " verwendet. Der im Betrieb gemessene Strom beträgt " + A_(I) + ". Berechnen Sie die Stromdichte im Leiter.",
+    parts: [{label:"Stromdichte <i>J</i>", options:opts, correct:j, mono:true, show:J}],
+    hint: "<i>J</i> = " + F("<i>I</i>", "<i>A</i>") + ": Strom durch Querschnittsfläche.",
+    solution: "<p><i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " = " + F(A_(I), mm2(A)) + " " + gl(j) + " <b>" + J(j) + "</b></p>"
+  };
+}
+var JA = "Ja, die Stromdichte liegt nicht über dem Grenzwert.", NEIN = "Nein, die Stromdichte ist zu hoch.";
+function qSchiene(){
+  var b, d, I, jm, j, n = 0;
+  do { b = pick([15, 20, 25, 30, 40, 50]); d = pick([3, 5, 10]); I = pick([100, 125, 160, 200, 250, 315, 400, 630]); jm = pick([1.5, 2, 2.5]); j = I / (b * d); n++; }
+  while ((j < 0.6 || j > 4.5 || Math.abs(j - jm) < 0.05) && n < 300);
+  var A = b * d, ok = j <= jm, opts = numOpts(j, [I / (b + d), I * 10 / A, j / 2, j * 2, A / I, I / (2 * (b + d)), j + 1]);
+  return {
+    text: "In einer Hauptverteilung werden für die Aussenleiter massive Kupferschienen mit den Abmessungen " + mm(b) + " × " + mm(d) + " verwendet. Der Betriebsstrom beträgt " + A_(I) + ". Gemäss den Herstellervorgaben darf die Stromdichte maximal " + z(jm) + NB + JE + " betragen. a) Berechnen Sie die Stromdichte bei Volllast. b) Darf diese Kupferschiene eingesetzt werden?",
+    parts: [{label:"a) Stromdichte <i>J</i>", options:opts, correct:j, mono:true, show:J}, {label:"b) Beurteilung", options:[JA, NEIN], correct:ok ? JA : NEIN, mono:false}],
+    hint: "Berechnen Sie zuerst die Querschnittsfläche: <i>A</i> = <i>b</i>" + MAL + "<i>d</i>. Dann <i>J</i> = " + F("<i>I</i>", "<i>A</i>") + ".",
+    solution: "<p>a) <i>A</i> = <i>b</i>" + MAL + "<i>d</i> = " + mm(b) + MAL + mm(d) + " = " + mm2(A) + "</p><p><i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " = " + F(A_(I), mm2(A)) + " " + gl(j) + " <b>" + J(j) + "</b></p><p>b) " + J(j) + " " + (ok ? "≤" : "&gt;") + " " + z(jm) + NB + JE + ": <b>" + (ok ? "Die Kupferschiene darf eingesetzt werden." : "Die Kupferschiene darf nicht eingesetzt werden.") + "</b></p>"
+  };
+}
+function qQuerschnitt(){
+  var I = pick([80, 100, 125, 160, 200, 250, 400]), jm = pick([1.6, 2, 2.5]), A = I / jm;
+  var opts = numOpts(A, [I * jm, A / 2, A * 2, jm / I * 1000, A + 25, A * 1.6, A / 1.6]);
+  return {
+    text: "Eine Kupferschiene soll einen Betriebsstrom von " + A_(I) + " führen. Die Stromdichte darf wegen der Erwärmung im Schaltschrank maximal " + z(jm) + NB + JE + " betragen. Wie gross muss die Querschnittsfläche mindestens sein?",
+    parts: [{label:"Querschnittsfläche <i>A</i>", options:opts, correct:A, mono:true, show:mm2}],
+    hint: "Stellen Sie <i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " nach <i>A</i> um.",
+    solution: "<p><i>A</i> = " + F("<i>I</i>", "<i>J</i>") + " = " + F(A_(I), z(jm) + NB + JE) + " " + gl(A, 4) + " <b>" + mm2(A) + "</b></p>"
+  };
+}
+function qStrom(){
+  var b = pick([15, 20, 25, 30, 40, 50]), d = pick([3, 5, 10]), jm = pick([1.5, 2, 2.5]), A = b * d, I = jm * A;
+  var opts = numOpts(I, [A / jm, I / 2, I * 2, jm * (b + d), I + 50, I * 1.5, jm * b]);
+  return {
+    text: "Eine Kupferschiene hat die Abmessungen " + mm(b) + " × " + mm(d) + ". Die Stromdichte darf maximal " + z(jm) + NB + JE + " betragen. Für welchen Strom darf die Schiene höchstens eingesetzt werden?",
+    parts: [{label:"Grösster zulässiger Strom <i>I</i>", options:opts, correct:I, mono:true, show:A_}],
+    hint: "Zuerst <i>A</i> = <i>b</i>" + MAL + "<i>d</i>, dann <i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " nach <i>I</i> umstellen.",
+    solution: "<p><i>A</i> = <i>b</i>" + MAL + "<i>d</i> = " + mm(b) + MAL + mm(d) + " = " + mm2(A) + "</p><p><i>I</i> = <i>J</i>" + MAL + "<i>A</i> = " + z(jm) + NB + JE + MAL + mm2(A) + " = <b>" + A_(I) + "</b></p>"
+  };
+}
+function aw(x){ return fmt(x) + NB + "mm²"; }
+function qWendel(){
+  var I = pick([0.2, 0.25, 0.3, 0.4, 0.5]), al = pick([0.75, 1, 1.5]), w = pick([0.0004, 0.0005, 0.0006, 0.0008, 0.001]), jl = I / al, jw = I / w;
+  if (Math.random() < 0.5){
+    var o1 = numOpts(jw, [jl, jw / 10, jw * 10, I * w * 1e6, jw / 2, jw * 2]);
+    return {
+      text: "Ein Glühlämpchen nimmt " + A_(I) + " auf. Die Zuleitung hat einen Querschnitt von " + mm2(al) + ", der Glühwendel einen Querschnitt von " + aw(w) + ". Berechnen Sie die Stromdichte im Glühwendel.",
+      parts: [{label:"Stromdichte im Glühwendel", options:o1, correct:jw, mono:true, show:J}],
+      hint: "Durch den Wendel fliesst der gleiche Strom wie durch die Zuleitung. <i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " mit dem Querschnitt des Wendels.",
+      solution: "<p>" + ix("J", "Wendel") + " = " + F("<i>I</i>", ix("A", "Wendel")) + " = " + F(A_(I), aw(w)) + " " + gl(jw) + " <b>" + J(jw) + "</b></p><p>Zum Vergleich die Zuleitung: " + ix("J", "Leitung") + " = " + F(A_(I), mm2(al)) + " " + gl(jl) + " " + J(jl) + "</p>"
+    };
+  }
+  var v = al / w, o2 = numOpts(v, [v / 10, v * 10, v / 2, v * 2, al * w * 1e6, 1 / w]);
+  return {
+    text: "Ein Glühlämpchen nimmt " + A_(I) + " auf. Die Zuleitung hat einen Querschnitt von " + mm2(al) + ", der Glühwendel einen Querschnitt von " + aw(w) + ". Wie viel mal grösser ist die Stromdichte im Glühwendel als in der Zuleitung?",
+    parts: [{label:"Verhältnis", options:o2, correct:v, mono:true, show:function(x){ return z(x, 4) + "-mal"; }}],
+    hint: "Der Strom ist in beiden Leitern gleich. Die Stromdichten verhalten sich deshalb umgekehrt wie die Querschnitte.",
+    solution: "<p>" + ix("J", "Leitung") + " = " + F(A_(I), mm2(al)) + " " + gl(jl) + " " + J(jl) + ", " + ix("J", "Wendel") + " = " + F(A_(I), aw(w)) + " " + gl(jw) + " " + J(jw) + "</p><p>" + F(ix("J", "Wendel"), ix("J", "Leitung")) + " = " + F(ix("A", "Leitung"), ix("A", "Wendel")) + " = " + F(mm2(al), aw(w)) + " " + gl(v, 4) + " <b>" + z(v, 4) + "-mal</b></p>"
+  };
+}
+/* Lückentext von Übung 50. Fachbegriffe wie im Arbeitsblatt; «hohen» kommt in der Lösung nicht vor. */
+var BEGR = ["kleine", "Stromstärke", "hohe", "Weissglut", "Stromdichte", "A/mm2", "hohen", "Zuleitungen"];
+function begr(o){ return o === "A/mm2" ? JE : o; }
+var LUECKEN = [
+  {a:"In einem einfachen elektrischen Stromkreis fliesst überall die gleiche elektrische ", b:".", c:"Stromstärke"},
+  {a:"Durch den dünnen Glühwendel der Lampe bewegen sich gleich viele Elektronen wie durch die deutlich dickeren ", b:".", c:"Zuleitungen"},
+  {a:"Die Hin- und Rückleiter erwärmen sich kaum, während der Glühwendel so stark erhitzt wird, dass er bis zur ", b:" aufleuchtet.", c:"Weissglut"},
+  {a:"Um dieses Phänomen zu erklären, verwendet man den Begriff der ", b:". Sie wird mit dem Formelzeichen <i>J</i> bezeichnet.", c:"Stromdichte"},
+  {a:"Die Stromdichte wird mit dem Formelzeichen <i>J</i> bezeichnet und in der Einheit ", b:" angegeben.", c:"A/mm2"},
+  {a:"In den Zuleitungen sorgt der grosse Querschnitt für eine ", b:" Stromdichte.", c:"kleine"},
+  {a:"Im Glühwendel bewirkt der sehr kleine Querschnitt eine ", b:" Stromdichte, was eine starke Erwärmung des Materials verursacht.", c:"hohe"}
+];
+function qLuecke(){
+  var q = pick(LUECKEN);
+  return {
+    text: "Ergänzen Sie den Satz mit dem passenden Fachbegriff (Übung 50):<br>" + q.a + "<span class=\"luecke\">?</span>" + q.b,
+    parts: [{label:"Fachbegriff", options:BEGR, correct:q.c, mono:false, show:begr}],
+    hint: "Lesen Sie im Theoriebuch ET2.10 den Abschnitt Stromdichte.",
+    solution: "<p>" + q.a + "<b>" + begr(q.c) + "</b>" + q.b + "</p>"
+  };
+}
+var PROP = [[1.5, 6], [2.5, 10], [4, 16], [25, 50], [35, 70], [6, 1.5], [10, 2.5], [16, 4], [50, 25], [70, 35]];
+function qVerhaeltnis(){
+  if (Math.random() < 0.65){
+    var p = pick(PROP), f = Math.max(p[0], p[1]) / Math.min(p[0], p[1]), kl = p[1] > p[0];
+    var o = [f + "-mal kleiner", f + "-mal grösser", (f === 4 ? 2 : 4) + "-mal " + (kl ? "kleiner" : "grösser"), "Sie bleibt gleich"];
+    var c = f + "-mal " + (kl ? "kleiner" : "grösser");
+    return {
+      text: "Der Strom bleibt gleich. Der Querschnitt des Leiters wird von " + mm2(p[0]) + " auf " + mm2(p[1]) + " " + (kl ? "vergrössert" : "verkleinert") + ". Wie ändert sich die Stromdichte?",
+      parts: [{label:"Die Stromdichte wird", options:o, correct:c, mono:false}],
+      hint: "<i>J</i> = " + F("<i>I</i>", "<i>A</i>") + ": Der Querschnitt steht unter dem Bruchstrich.",
+      solution: "<p><b>" + c + "</b></p><p>Der Querschnitt wird " + f + "-mal " + (kl ? "grösser" : "kleiner") + ". Weil <i>A</i> unter dem Bruchstrich steht, wird die Stromdichte " + f + "-mal " + (kl ? "kleiner" : "grösser") + ".</p>"
+    };
+  }
+  var g = pick([2, 3, 4]), o2 = [g + "-mal grösser", g + "-mal kleiner", "Sie bleibt gleich", (g * g) + "-mal grösser"];
+  return {
+    text: "Der Querschnitt eines Leiters bleibt gleich. Der Strom wird " + g + "-mal grösser. Wie ändert sich die Stromdichte?",
+    parts: [{label:"Die Stromdichte wird", options:o2, correct:o2[0], mono:false}],
+    hint: "<i>J</i> = " + F("<i>I</i>", "<i>A</i>") + ": Der Strom steht über dem Bruchstrich.",
+    solution: "<p><b>" + o2[0] + "</b></p><p>Bei gleichem Querschnitt ist die Stromdichte proportional zum Strom.</p>"
+  };
+}
+var KONZEPT = [
+  {t:"Mit welchem Formelzeichen wird die Stromdichte bezeichnet?", o:["<i>J</i>", "<i>I</i>", "<i>A</i>", "<i>ρ</i>"], s:"Theoriebuch ET2.10: Symbol <i>J</i>."},
+  {t:"Weshalb leuchtet der Glühwendel auf, während sich die Zuleitungen kaum erwärmen?", o:["Im Wendel ist die Stromdichte wegen des sehr kleinen Querschnitts viel höher.", "Durch den Wendel fliesst ein grösserer Strom als durch die Zuleitungen.", "Im Wendel bewegen sich mehr Elektronen als in den Zuleitungen.", "Die Zuleitungen führen keinen Strom."], s:"Der Strom ist überall gleich. Der kleine Querschnitt des Wendels bewirkt eine hohe Stromdichte und damit eine starke Erwärmung."},
+  {t:"Ein einfacher Stromkreis besteht aus Spannungsquelle, Leitung und Glühlämpchen. Wo fliesst der grösste Strom?", o:["Der Strom ist überall gleich gross.", "Im Glühwendel", "In der Hinleitung", "In der Rückleitung"], s:"In einem einfachen elektrischen Stromkreis fliesst überall der gleiche Strom. Verschieden ist die Stromdichte."},
+  {t:"Welche Grösse steht in der Formel der Stromdichte unter dem Bruchstrich?", o:["Die Querschnittsfläche <i>A</i> in mm²", "Die Stromstärke <i>I</i> in A", "Die Leiterlänge <i>l</i> in m", "Die Spannung <i>U</i> in V"], s:"<i>J</i> = " + F("<i>I</i>", "<i>A</i>")},
+  {t:"Was bewirkt eine hohe Stromdichte in einem Leiter?", o:["Eine starke Erwärmung des Materials", "Eine Abkühlung des Leiters", "Eine höhere Spannung der Quelle", "Einen kleineren Strom"], s:"Übung 50: Im Glühwendel bewirkt der sehr kleine Querschnitt eine hohe Stromdichte, was eine starke Erwärmung des Materials verursacht."},
+  {t:"In welchem Zusammenhang hat die Stromdichte in der Niederspannungs-Installationsnorm eine wichtige Bedeutung?", o:["Bei der Querschnittsdimensionierung der Leitungen", "Bei der Wahl der Leiterfarben", "Bei der Nummerierung der Strompfade", "Bei der Schutzart IP"], s:"Theoriebuch ET2.10, Bemerkung: NIN Kapitel 5.2 Leitungen."},
+  {t:"Zwei Kupferleiter führen den gleichen Strom. Leiter 1 hat 1,5 mm², Leiter 2 hat 2,5 mm². In welchem ist die Stromdichte höher?", o:["Im Leiter 1 mit 1,5 mm²", "Im Leiter 2 mit 2,5 mm²", "In beiden gleich", "Das hängt von der Leiterlänge ab."], s:"Kleinerer Querschnitt bei gleichem Strom ergibt die höhere Stromdichte."}
+];
+function qKonzept(){
+  var q = pick(KONZEPT);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Denken Sie an die Formel <i>J</i> = " + F("<i>I</i>", "<i>A</i>") + " und an das Beispiel mit dem Glühlämpchen (Theoriebuch ET2.10).", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.2) return qJ();
+  if (x < 0.38) return qSchiene();
+  if (x < 0.48) return qQuerschnitt();
+  if (x < 0.58) return qStrom();
+  if (x < 0.7) return qWendel();
+  if (x < 0.8) return qLuecke();
+  if (x < 0.9) return qVerhaeltnis();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qJ, qSchiene, qQuerschnitt, qStrom, qWendel, qLuecke, qVerhaeltnis, qKonzept]); }});
+})();
+</script>
+</body>
+</html>

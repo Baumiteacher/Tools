@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_8 TA6 Bohrungen anreissen: Blindabdeckung und Trägerplatte BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Vermassung nach Arbeitsblatt ID8 Teilauftrag 6 */
+:root{--m-neu:#C2185B}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--m-neu:#FF8FB8} }
+:root[data-theme="dark"]{--m-neu:#FF8FB8}
+.m-k{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.m-k.fl{fill:var(--surface)}
+.m-k.dn{stroke-width:1.2}
+.m-k.st{stroke-width:1;stroke-dasharray:7 4}
+.m-m{fill:none;stroke:var(--ink);stroke-width:.8;stroke-linecap:butt}
+.m-p{fill:var(--ink);stroke:none}
+.m-a{fill:none;stroke:var(--ink);stroke-width:.8;stroke-dasharray:9 3 2 3}
+.m-t{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.m-r{fill:none;stroke:var(--line);stroke-width:.6}
+.m-m.akt,.m-a.akt{stroke:var(--accent);stroke-width:1.8} .m-p.akt{fill:var(--accent)} .m-t.akt{fill:var(--accent);font-weight:700;font-size:12px}
+.m-m.frage{stroke:var(--accent);stroke-width:1.8} .m-p.frage{fill:var(--accent)} .m-t.frage{fill:var(--accent);font-weight:700;font-size:14px}
+.m-m.neu{stroke:var(--m-neu);stroke-width:1.4} .m-p.neu{fill:var(--m-neu)} .m-t.neu{fill:var(--m-neu);font-weight:700}
+.bild{width:100%;height:auto;display:block;max-width:460px;margin-inline:auto}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.rechnung{font-variant-numeric:tabular-nums;font-size:1rem;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung > span{line-height:1.6}
+.rechnung .zw{font-weight:700}
+.nw{white-space:nowrap}
+.m-wahl{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.4}
+.al td,.al th{padding:7px 6px;white-space:nowrap}
+.al td:nth-child(n+2){font-family:var(--mono)}
+.al tr{cursor:pointer}
+.q-schema{display:block;width:100%;max-width:380px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt · Teilauftrag 6</p>
+    <h1>Bohrungen anreissen: Blindabdeckung und Trägerplatte BAP</h1>
+    <p class="lead">Die Zeichnung vermasst die Bohrungen ab der Mitte, in der Werkstatt wird ab der Kante gemessen. Rechnen Sie für die Blindabdeckung, die Wegleuchte und die Trägerplatte aus, wo jede Bohrung angerissen wird.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel" aria-live="polite">
+        <h2>Werkstück und Bohrung</h2>
+        <fieldset>
+          <legend>Werkstück wählen</legend>
+          <div class="opts" id="typ"></div>
+        </fieldset>
+        <p class="note" id="auftrag"></p>
+        <fieldset>
+          <legend>Vermassung</legend>
+          <div class="opts" id="modus"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Bohrung wählen</legend>
+          <div class="opts" id="loch"></div>
+        </fieldset>
+        <svg class="bild" id="zeichnung" viewBox="0 0 340 400" role="img" aria-label="Technische Zeichnung des gewählten Werkstücks mit Bohrungen und Masslinien"></svg>
+        <div class="rechnung" id="rechnung"></div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Anreissliste: alle Bohrungen ab Kante</h2>
+        <div class="scroll"><table class="al" id="liste"></table></div>
+        <p class="note" id="l-note"></p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Die Lage einer Bohrung wird immer auf ihre Mitte vermasst, der Durchmesser mit Ø.</p>
+          <p>Liegen die Bohrungen symmetrisch, dienen die Symmetrieachsen oder die Mitte als Bezug (Tipps zu den Übungen 45 und 46). Ein Mass gilt dann für alle spiegelbildlichen Bohrungen.</p>
+          <p id="merk-formel"></p>
+          <p>Übung 44: 2 Bohrungen Ø20, Mittelpunkt 30 mm von den Kanten entfernt. Übung 45: Bohrung Bewegungsmelder Ø60, Bohrungen Befestigung Ø5.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Trägerplatte: Wie weit ist die Mitte der Bohrung Ø10 oben links von der linken Kante und von der Unterkante entfernt?</li>
+          <li>Trägerplatte: Wie gross ist der Abstand zwischen der linken und der rechten Bohrung Ø5?</li>
+          <li>Wegleuchte: In welchem Abstand von der Oberkante liegen die beiden oberen Befestigungsbohrungen, in welchem die beiden unteren?</li>
+          <li>Wegleuchte: Wie breit ist der Steg zwischen dem Ausschnitt Ø60 und der linken Kante?</li>
+          <li>Blindabdeckung: Weshalb genügen die Masse 30 und 30 für beide Bohrungen?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Zu diesem Thema gibt es keinen Abschnitt im Theoriebuch. Nehmen Sie die Arbeitsblätter dazu: Übungen 44 bis 46 mit den Lösungen.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt, Teilauftrag 6 Werkstück zeichnen: Übungen 44, 45 und 46 (ID8.32 bis ID8.36)</li><li>Masse und Anordnung der Masslinien nach den Lösungen der Übungen 44 bis 46, neu gezeichnet. Die Masszeichnungen von Feller (Elektrokompass) lagen nicht vor; alle Masse stammen aus den Lösungen des Arbeitsblatts.</li><li>Übung 44: Die Aussenmasse der Blindabdeckung sind im Arbeitsblatt nicht vermasst. Das Tool zeichnet sie nach der Lösung mit etwa 87 mm Seitenlänge und rechnet damit nicht.</li><li>Übung 46: Die Zuordnung der vier äusseren Bohrungen Ø10 zur Befestigung der Trägerplatte und der vier inneren Bohrungen Ø5 zur NAP-Kopfzeile folgt dem Auftragstext; in der Lösung sind die Bohrungen nicht beschriftet.</li><li>Die Anreissmasse ab Kante sind aus den Massen der Lösungen berechnet. Die Bauteile in Üben und Prüfen sind Beispiele des Tools: gleiche Form, andere Zahlen.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Vermassung wie in den Arbeitsblättern ID8 Teilauftrag 6 (Übungen 40 bis 46): Körperkanten dick, Masslinien und Masshilfslinien dünn, Mittellinien strichpunktiert.
+   Alle Angaben in Millimetern des Werkstücks, Ursprung unten links, y nach oben. S = Zeichnungseinheiten pro Millimeter. */
+var MAS = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function blatt(S, x0, y0){
+  function X(x){ return n(x0 + x * S); }
+  function Y(y){ return n(y0 - y * S); }
+  function kl(o, basis){ o = o || {}; return basis + (o.akt ? " akt" : "") + (o.frage ? " frage" : "") + (o.neu ? " neu" : ""); }
+  function pfeil(x, y, dx, dy, o){
+    var l = Math.sqrt(dx * dx + dy * dy), ux = dx / l, uy = dy / l, L = 7, B = 1.5;
+    return "<path class=\"" + kl(o, "m-p") + "\" d=\"M" + n(x) + " " + n(y) + " L" + n(x - ux * L - uy * B) + " " + n(y - uy * L + ux * B) + " L" + n(x - ux * L + uy * B) + " " + n(y - uy * L - ux * B) + " Z\"/>";
+  }
+  function text(x, y, t, o, dreh){
+    return "<text class=\"" + kl(o, "m-t") + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\" text-anchor=\"" + ((o && o.anker) || "middle") + "\"" + (dreh ? " transform=\"rotate(" + dreh + " " + n(x) + " " + n(y) + ")\"" : "") + ">" + ((o && o.frage) ? "?" : t) + "</text>";
+  }
+  /* waagrechtes Mass zwischen xa und xb; fa, fb: Höhe (mm), an der die Masshilfslinien beginnen; yl: Höhe der Masslinie (mm) */
+  function hm(xa, xb, fa, fb, yl, t, o){
+    var ya = Y(yl), r = yl < Math.min(fa, fb) ? 3 : -3, h = "", innen = Math.abs(xb - xa) * S >= 19;
+    h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + X(xa) + " " + Y(fa) + " V" + n(ya + r) + " M" + X(xb) + " " + Y(fb) + " V" + n(ya + r) + "\"/>";
+    if (innen) h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + X(xa) + " " + ya + " H" + X(xb) + "\"/>" + pfeil(X(xa), ya, -1, 0, o) + pfeil(X(xb), ya, 1, 0, o);
+    else h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + n(X(xa) - 12) + " " + ya + " H" + n(X(xb) + 12) + "\"/>" + pfeil(X(xa), ya, 1, 0, o) + pfeil(X(xb), ya, -1, 0, o);
+    return h + text((X(xa) + X(xb)) / 2, ya - 3, t, o);
+  }
+  /* senkrechtes Mass zwischen ya und yb; fa, fb: Stelle (mm), an der die Masshilfslinien beginnen; xl: Lage der Masslinie (mm) */
+  function vm(ya, yb, fa, fb, xl, t, o){
+    var xa = X(xl), r = xl < Math.min(fa, fb) ? -3 : 3, h = "", innen = Math.abs(yb - ya) * S >= 19;
+    h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + X(fa) + " " + Y(ya) + " H" + n(xa + r) + " M" + X(fb) + " " + Y(yb) + " H" + n(xa + r) + "\"/>";
+    if (innen) h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + xa + " " + Y(ya) + " V" + Y(yb) + "\"/>" + pfeil(xa, Y(ya), 0, ya < yb ? 1 : -1, o) + pfeil(xa, Y(yb), 0, ya < yb ? -1 : 1, o);
+    else h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + xa + " " + n(Y(Math.min(ya, yb)) + 12) + " V" + n(Y(Math.max(ya, yb)) - 12) + "\"/>" + pfeil(xa, Y(Math.min(ya, yb)), 0, -1, o) + pfeil(xa, Y(Math.max(ya, yb)), 0, 1, o);
+    return h + text(xa - 3, (Y(ya) + Y(yb)) / 2, t, o, -90);
+  }
+  /* Durchmesser: Masslinie schräg durch die Mitte, Masszahl am äusseren Ende. w: Winkel in Grad (0 = nach rechts, 90 = nach oben) */
+  function dia(cx, cy, d, w, t, o){
+    o = o || {}; var a = w * Math.PI / 180, ux = Math.cos(a), uy = -Math.sin(a), r = d / 2 * S, x = X(cx), y = Y(cy), h = "", aus = o.aus === undefined ? 30 : o.aus, innen = r >= 14 && !o.aussen;
+    var x1 = x - ux * (r + (innen ? 8 : 12)), y1 = y - uy * (r + (innen ? 8 : 12)), x2 = x + ux * (r + aus), y2 = y + uy * (r + aus);
+    h += "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(x2) + " " + n(y2) + "\"/>";
+    if (innen) h += pfeil(x + ux * r, y + uy * r, ux, uy, o) + pfeil(x - ux * r, y - uy * r, -ux, -uy, o);
+    else h += pfeil(x + ux * r, y + uy * r, -ux, -uy, o) + pfeil(x - ux * r, y - uy * r, ux, uy, o);
+    var dreh = -w; if (dreh < -90) dreh += 180; if (dreh > 90) dreh -= 180;
+    var tx = x + ux * (r + aus - 10), ty = y + uy * (r + aus - 10), nx = uy, ny = -ux; if (ny > 0){ nx = -nx; ny = -ny; }
+    return h + text(tx + nx * 3.5, ty + ny * 3.5, t, o, dreh);
+  }
+  /* Radius: Masslinie von aussen über den Bogen bis zur Mitte */
+  function rad(cx, cy, r0, w, t, o){
+    o = o || {}; var a = w * Math.PI / 180, ux = Math.cos(a), uy = -Math.sin(a), r = r0 * S, x = X(cx), y = Y(cy), aus = o.aus === undefined ? 30 : o.aus;
+    var h = "<path class=\"" + kl(o, "m-m") + "\" d=\"M" + n(x) + " " + n(y) + " L" + n(x + ux * (r + aus)) + " " + n(y + uy * (r + aus)) + "\"/>" + pfeil(x + ux * r, y + uy * r, -ux, -uy, o);
+    var dreh = -w; if (dreh < -90) dreh += 180; if (dreh > 90) dreh -= 180;
+    var tx = x + ux * (r + aus - 11), ty = y + uy * (r + aus - 11), nx = uy, ny = -ux; if (ny > 0){ nx = -nx; ny = -ny; }
+    return h + text(tx + nx * 3.5, ty + ny * 3.5, t, o, dreh);
+  }
+  function kante(d, cls){ return "<path class=\"m-k" + (cls ? " " + cls : "") + "\" d=\"" + d + "\"/>"; }
+  function poly(p, cls){ return kante("M" + p.map(function(q){ return X(q[0]) + " " + Y(q[1]); }).join(" L") + " Z", cls); }
+  function kreis(cx, cy, d, cls){ return "<circle class=\"m-k" + (cls ? " " + cls : "") + "\" cx=\"" + X(cx) + "\" cy=\"" + Y(cy) + "\" r=\"" + n(d / 2 * S) + "\"/>"; }
+  /* Mittellinien: Kreuz in der Bohrungsmitte, über den Rand hinaus */
+  function mitte(cx, cy, d, o){ var l = d / 2 * S + ((o && o.ueber) || 6); return "<path class=\"" + kl(o, "m-a") + "\" d=\"M" + n(X(cx) - l) + " " + Y(cy) + " H" + n(X(cx) + l) + " M" + X(cx) + " " + n(Y(cy) - l) + " V" + n(Y(cy) + l) + "\"/>"; }
+  function achse(xa, ya, xb, yb, o){ return "<path class=\"" + kl(o, "m-a") + "\" d=\"M" + X(xa) + " " + Y(ya) + " L" + X(xb) + " " + Y(yb) + "\"/>"; }
+  function linie(xa, ya, xb, yb, cls){ return "<path class=\"" + cls + "\" d=\"M" + X(xa) + " " + Y(ya) + " L" + X(xb) + " " + Y(yb) + "\"/>"; }
+  /* Raster mit der Schrittweite s (mm) über das Rechteck xa..xb, ya..yb */
+  function raster(xa, ya, xb, yb, s){
+    var d = "", k;
+    for (k = xa; k <= xb + 1e-9; k += s) d += "M" + X(k) + " " + Y(ya) + " V" + Y(yb) + " ";
+    for (k = ya; k <= yb + 1e-9; k += s) d += "M" + X(xa) + " " + Y(k) + " H" + X(xb) + " ";
+    return "<path class=\"m-r\" d=\"" + d + "\"/>";
+  }
+  return {S:S, X:X, Y:Y, hm:hm, vm:vm, dia:dia, rad:rad, kante:kante, poly:poly, kreis:kreis, mitte:mitte, achse:achse, linie:linie, raster:raster, text:text, pfeil:pfeil};
+}
+return {blatt:blatt, n:n};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, fmt = BAP.fmt, pick = BAP.pick, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = String.fromCharCode(160);
+function MM(x){ return fmt(x) + NB + "mm"; }
+function halb(x){ return F(MM(x), "2"); }
+
+/* ================= WERKSTÜCKE (Arbeitsblatt ID8 Übungen 44 bis 46) ================= */
+/* Bohrung: {id, n, d, cx, cy (Zeichnung, mm ab links und ab unten), ex, ey (Bezugskanten), vx, vy (Masse ab Kante), wx, wy (Rechenweg), kx, ky (Name der Kante)} */
+var ECKE = [["ol", "oben links", -1, 1], ["or", "oben rechts", 1, 1], ["ul", "unten links", -1, -1], ["ur", "unten rechts", 1, -1]];
+function wahl(M, l, akt){ return akt === l.id ? "<circle class=\"m-wahl\" cx=\"" + M.X(l.cx) + "\" cy=\"" + M.Y(l.cy) + "\" r=\"" + MAS.n(Math.max(l.d / 2 * M.S + 4, 8)) + "\"/>" : ""; }
+/* Anreissmasse ab Kante für die gewählte Bohrung */
+function kantenmasse(M, l, grenzeOben){
+  var oben = l.cy + 14 > grenzeOben ? -8 : 8, seite = l.cx < 14 ? 8 : -8, o = {neu:true};
+  return M.hm(Math.min(l.ex, l.cx), Math.max(l.ex, l.cx), l.ex < l.cx ? l.cy + oben : l.cy, l.ex < l.cx ? l.cy : l.cy + oben, l.cy + oben, fmt(l.vx), o)
+    + M.vm(Math.min(l.ey, l.cy), Math.max(l.ey, l.cy), l.ey < l.cy ? l.cx + seite : l.cx, l.ey < l.cy ? l.cx : l.cx + seite, l.cx + seite, fmt(l.vy), o);
+}
+var TYP = {
+  tp: {
+    name:"Trägerplatte (Übung 46)", kurz:"Trägerplatte", ab:{B:140, H:220, a:50, b:90, d1:10, c:35, e:45, d2:5},
+    auftrag:"Trägerplatte für zwei Steckdosen am Treppengeländer: vier äussere Befestigungsbohrungen Ø10 und vier innere Bohrungen Ø5 für die NAP-Kopfzeile 1x2 von Feller. Bezug sind die Symmetrieachsen.",
+    zufall:function(){ var p, n = 0; do { p = {B:pick([120, 140, 160]), H:pick([200, 220, 240]), a:pick([40, 45, 50, 60]), b:pick([70, 80, 90, 100]), d1:10, c:pick([25, 30, 35]), e:pick([35, 40, 45, 50]), d2:5}; n++; } while ((p.a > p.B / 2 - 15 || p.b > p.H / 2 - 15 || p.c > p.a - 10 || p.e > p.b - 20) && n < 500); return p; },
+    loecher:function(p){
+      var out = [];
+      [["a", p.a, p.b, p.d1], ["i", p.c, p.e, p.d2]].forEach(function(g){
+        ECKE.forEach(function(e){
+          var x = p.B / 2 + e[2] * g[1], y = p.H / 2 + e[3] * g[2];
+          out.push({id:g[0] + e[0], n:"Ø" + g[3] + " " + e[1], d:g[3], cx:x, cy:y, ex:0, ey:0, vx:x, vy:y, kx:"ab linker Kante", ky:"ab Unterkante",
+            wx:halb(p.B) + (e[2] < 0 ? " − " : " + ") + MM(g[1]) + " = " + MM(p.B / 2) + (e[2] < 0 ? " − " : " + ") + MM(g[1]), wy:halb(p.H) + (e[3] < 0 ? " − " : " + ") + MM(g[2]) + " = " + MM(p.H / 2) + (e[3] < 0 ? " − " : " + ") + MM(g[2])});
+        });
+      });
+      return out;
+    },
+    zeichne:function(p, o){
+      var S = 1.82, M = MAS.blatt(S, 44, 30 + p.H * S), h = "", ls = this.loecher(p), B = p.B, H = p.H;
+      h += M.poly([[0, 0], [B, 0], [B, H], [0, H]], "fl");
+      ls.forEach(function(l){ h += wahl(M, l, o.akt) + M.kreis(l.cx, l.cy, l.d, "dn") + M.mitte(l.cx, l.cy, l.d, {ueber:5}); });
+      h += M.achse(B / 2, -5, B / 2, H + 4) + M.achse(-6, H / 2, B + 6, H / 2);
+      h += M.hm(0, B, H, H, H + 9, "" + B) + M.vm(0, H, 0, 0, -11, "" + H);
+      h += M.dia(B / 2 + p.a, H / 2 + p.b, p.d1, 155, "Ø" + p.d1, {aus:36}) + M.dia(B / 2 + p.c, H / 2 + p.e, p.d2, 155, "Ø" + p.d2, {aus:34});
+      if (o.modus !== "kante"){
+        h += M.hm(B / 2 - p.a, B / 2, H / 2 + p.b, H / 2 + p.b + 11, H / 2 + p.b + 11, "" + p.a, {frage:o.frage === "a"}) + M.hm(B / 2 - p.c, B / 2, H / 2 + p.e, H / 2 + p.e + 16, H / 2 + p.e + 16, "" + p.c, {frage:o.frage === "c"});
+        h += M.vm(H / 2, H / 2 + p.b, B / 2 - p.a - 9, B / 2 - p.a, B / 2 - p.a - 9, "" + p.b) + M.vm(H / 2, H / 2 + p.e, B / 2 - p.c - 14, B / 2 - p.c, B / 2 - p.c - 14, "" + p.e);
+      } else ls.forEach(function(l){ if (l.id === o.akt) h += kantenmasse(M, l, H); });
+      return {svg:h, vb:"0 0 " + MAS.n(44 + B * S + 16) + " " + MAS.n(30 + H * S + 14)};
+    }
+  },
+  wl: {
+    name:"Wegleuchte (Übung 45)", kurz:"Wegleuchte", ab:{B:120, H:300, c:80, e:28, d:60, d2:5, g:87},
+    auftrag:"Wegleuchte mit eingebautem Bewegungsmelder Feller NEVO 180 R: Ausschnitt für den Bewegungsmelder Ø60 und vier Befestigungsbohrungen Ø5. Bezug ist die Mitte der Grundplatte (gestrichelt).",
+    zufall:function(){ var p, n = 0; do { p = {B:pick([100, 120, 140]), H:pick([250, 300, 350]), c:pick([70, 80, 90, 100]), e:pick([25, 28, 30]), d:pick([50, 60, 70]), d2:5, g:87}; n++; } while ((p.d / 2 > p.e * 1.3 || p.B < p.g + 12 || p.c - p.g / 2 < 14 || Math.sqrt(2) * p.e - p.d / 2 < 4) && n < 500); return p; },
+    loecher:function(p){
+      var Hd = p.c + 92, out = [];
+      ECKE.forEach(function(e){
+        var x = p.B / 2 + e[2] * p.e, t = p.c - e[3] * p.e;
+        out.push({id:e[0], n:"Ø" + p.d2 + " " + e[1], d:p.d2, cx:x, cy:Hd - t, ex:0, ey:Hd, vx:x, vy:t, kx:"ab linker Kante", ky:"ab Oberkante",
+          wx:halb(p.B) + (e[2] < 0 ? " − " : " + ") + MM(p.e) + " = " + MM(p.B / 2) + (e[2] < 0 ? " − " : " + ") + MM(p.e), wy:MM(p.c) + (e[3] > 0 ? " − " : " + ") + MM(p.e)});
+      });
+      out.push({id:"m", n:"Ausschnitt Ø" + p.d, d:p.d, cx:p.B / 2, cy:Hd - p.c, ex:0, ey:Hd, vx:p.B / 2, vy:p.c, kx:"ab linker Kante", ky:"ab Oberkante", wx:halb(p.B), wy:"Mass der Zeichnung"});
+      return out;
+    },
+    zeichne:function(p, o){
+      var S = 2.02, Hd = p.c + 92, M = MAS.blatt(S, 52, 54 + Hd * S), h = "", ls = this.loecher(p), B = p.B, yc = Hd - p.c, g = p.g / 2;
+      function zack(y){ var x1 = M.X(B * 0.25), x2 = M.X(B * 0.75), yy = M.Y(y); return "M" + M.X(-2) + " " + yy + " H" + (x1 - 3) + " l2 -5 l3 10 l2 -5 H" + (x2 - 3) + " l2 -5 l3 10 l2 -5 H" + M.X(B + 2); }
+      h += M.kante("M" + M.X(0) + " " + M.Y(17) + " V" + M.Y(Hd) + " H" + M.X(B) + " V" + M.Y(17) + " M" + M.X(0) + " " + M.Y(10) + " V" + M.Y(0) + " H" + M.X(B) + " V" + M.Y(10)) + M.kante(zack(17) + " " + zack(10), "dn");
+      h += M.poly([[B / 2 - g, yc - g], [B / 2 + g, yc - g], [B / 2 + g, yc + g], [B / 2 - g, yc + g]], "st");
+      ls.forEach(function(l){ h += wahl(M, l, o.akt) + M.kreis(l.cx, l.cy, l.d, "dn") + (l.id === "m" ? "" : M.mitte(l.cx, l.cy, l.d, {ueber:6})); });
+      h += M.achse(B / 2, 0, B / 2, Hd + 16) + M.achse(-10, yc, B + 2, yc);
+      h += M.hm(0, B / 2, Hd, Hd, Hd + 8, "" + fmt(B / 2)) + M.hm(0, B, Hd, Hd, Hd + 17, "" + B) + M.vm(Hd - p.c, Hd, 0, 0, -6, "" + p.c, {frage:o.frage === "c"}) + M.vm(0, Hd, 0, 0, -16, "" + p.H);
+      h += M.dia(B / 2 + p.e, yc + p.e, p.d2, -17, "Ø" + p.d2, {aus:(p.g / 2 - p.e) * S + 26}) + M.dia(B / 2, yc, p.d, -17, "Ø" + p.d, {aus:(p.g / 2 - p.d / 2) * S + 30});
+      if (o.modus !== "kante"){
+        var yl = Math.min(yc + p.e + 30, Hd - 8);
+        h += M.hm(B / 2 - p.e, B / 2, yc + p.e, yl, yl, "" + p.e, {frage:o.frage === "e"}) + M.vm(yc, yc + p.e, 10, B / 2 - p.e, 10, "" + p.e);
+      } else ls.forEach(function(l){ if (l.id === o.akt) h += kantenmasse(M, l, Hd); });
+      return {svg:h, vb:"0 0 " + MAS.n(52 + B * S + 14) + " " + MAS.n(54 + Hd * S + 10)};
+    }
+  },
+  ba: {
+    name:"Blindabdeckung (Übung 44)", kurz:"Blindabdeckung", ab:{s:87, k:30, d:20},
+    auftrag:"Blindabdeckung für zwei Kabelverschraubungen: Bohrungen 2 × Ø20, Mittelpunkt der Bohrungen 30 mm von den Kanten entfernt. Die Bohrungen liegen auf der Diagonalen.",
+    zufall:function(){ var p = {s:pick([80, 90, 100, 110]), k:pick([25, 30, 35]), d:20, zeigeS:true}; return p; },
+    loecher:function(p){
+      return [
+        {id:"1", n:"Ø" + p.d + " unten links", d:p.d, cx:p.k, cy:p.k, ex:0, ey:0, vx:p.k, vy:p.k, kx:"ab linker Kante", ky:"ab Unterkante", wx:"Vorgabe", wy:"Vorgabe"},
+        {id:"2", n:"Ø" + p.d + " oben rechts", d:p.d, cx:p.s - p.k, cy:p.s - p.k, ex:p.s, ey:p.s, vx:p.k, vy:p.k, kx:"ab rechter Kante", ky:"ab Oberkante", wx:"Vorgabe", wy:"Vorgabe"}
+      ];
+    },
+    zeichne:function(p, o){
+      var S = 2.85, s = p.s, M = MAS.blatt(S, 50, (p.zeigeS ? 36 : 22) + s * S), h = "", ls = this.loecher(p), r = 7 * S;
+      h += "<rect class=\"m-k fl\" x=\"" + M.X(0) + "\" y=\"" + M.Y(s) + "\" width=\"" + MAS.n(s * S) + "\" height=\"" + MAS.n(s * S) + "\" rx=\"" + MAS.n(r) + "\"/>";
+      [[8, 8], [s - 8, 8], [8, s - 8], [s - 8, s - 8]].forEach(function(q){ h += M.kreis(q[0], q[1], 6.5, "dn") + M.kante("M" + MAS.n(M.X(q[0]) - 2.2) + " " + MAS.n(M.Y(q[1]) - 8.5) + " v17 M" + MAS.n(M.X(q[0]) + 2.2) + " " + MAS.n(M.Y(q[1]) - 8.5) + " v17", "dn"); });
+      h += "<circle class=\"m-k st\" cx=\"" + M.X(s / 2) + "\" cy=\"" + M.Y(s / 2) + "\" r=\"" + MAS.n(30 * S) + "\"/>";
+      ls.forEach(function(l){ h += wahl(M, l, o.akt) + M.kreis(l.cx, l.cy, l.d) + M.mitte(l.cx, l.cy, l.d, {ueber:7}); });
+      h += M.achse(0, 0, s + 3, s + 3);
+      h += M.dia(s - p.k, s - p.k, p.d, 0, "Ø" + p.d, {aus:36, aussen:true});
+      if (p.zeigeS) h += M.hm(0, s, s, s, s + 8, "" + s);
+      if (o.modus !== "kante") h += M.hm(0, p.k, 0, p.k - p.d / 2, -9, "" + p.k, {frage:o.frage === "k"}) + M.vm(0, p.k, 0, p.k - p.d / 2, -11, "" + p.k, {frage:o.frage === "k"});
+      else ls.forEach(function(l){ if (l.id === o.akt) h += kantenmasse(M, l, l.id === "2" ? 0 : s); });
+      return {svg:h, vb:"0 0 " + MAS.n(50 + s * S + 44) + " " + MAS.n((p.zeigeS ? 36 : 22) + s * S + 40)};
+    }
+  }
+};
+var IDS = ["tp", "wl", "ba"];
+function zeichne(typ, p, o){ return TYP[typ].zeichne(p, o || {}); }
+
+/* ================= ERKUNDEN ================= */
+var st = {typ:"tp", modus:"kante", akt:"aol"};
+function render(fokus){
+  var T = TYP[st.typ], p = T.ab, ls = T.loecher(p), l, z, h = "";
+  if (!ls.some(function(e){ return e.id === st.akt; })) st.akt = ls[0].id;
+  l = ls.filter(function(e){ return e.id === st.akt; })[0];
+  $("typ").innerHTML = IDS.map(function(id){ return "<button class=\"opt txt\" type=\"button\" data-t=\"" + id + "\" aria-pressed=\"" + (st.typ === id) + "\">" + TYP[id].name + "</button>"; }).join("");
+  $("auftrag").innerHTML = T.auftrag;
+  $("modus").innerHTML = [["loesung", "Wie in der Lösung"], ["kante", "Anreissmasse ab Kante"]].map(function(m){ return "<button class=\"opt txt\" type=\"button\" data-m=\"" + m[0] + "\" aria-pressed=\"" + (st.modus === m[0]) + "\">" + m[1] + "</button>"; }).join("");
+  $("loch").innerHTML = ls.map(function(e){ return "<button class=\"opt txt\" type=\"button\" data-l=\"" + e.id + "\" aria-pressed=\"" + (st.akt === e.id) + "\">" + e.n + "</button>"; }).join("");
+  z = zeichne(st.typ, p, {modus:st.modus, akt:st.akt});
+  $("zeichnung").setAttribute("viewBox", z.vb); $("zeichnung").innerHTML = z.svg;
+  h += "<span class=\"zw\">Bohrung " + l.n + "</span>";
+  h += "<span>Waagrecht " + l.kx + ": " + (l.wx === "Vorgabe" ? "" : l.wx + " = ") + "<b>" + MM(l.vx) + "</b>" + (l.wx === "Vorgabe" ? " (Vorgabe des Auftrags)" : "") + "</span>";
+  h += "<span>Senkrecht " + l.ky + ": " + (l.wy === "Vorgabe" || l.wy === "Mass der Zeichnung" ? "" : l.wy + " = ") + "<b>" + MM(l.vy) + "</b>" + (l.wy === "Vorgabe" ? " (Vorgabe des Auftrags)" : l.wy === "Mass der Zeichnung" ? " (Mass der Zeichnung)" : "") + "</span>";
+  if (st.typ === "ba") h += "<span>Beide Bohrungen liegen auf der Diagonalen, je 30" + NB + "mm von zwei Kanten entfernt. Deshalb genügen in der Lösung die Masse 30 und 30 an einer Bohrung.</span>";
+  $("rechnung").innerHTML = h;
+  $("liste").innerHTML = "<tr><th>Bohrung</th><th>waagrecht</th><th>senkrecht</th></tr>" + ls.map(function(e){ return "<tr data-l=\"" + e.id + "\"" + (st.akt === e.id ? " class=\"is-current\"" : "") + "><td>" + e.n + "</td><td>" + MM(e.vx) + "</td><td>" + MM(e.vy) + "</td></tr>"; }).join("");
+  $("l-note").innerHTML = st.typ === "ba" ? "Bohrung unten links: ab linker Kante und ab Unterkante. Bohrung oben rechts: ab rechter Kante und ab Oberkante." : "Waagrecht ab linker Kante, senkrecht " + ls[0].ky + ". Tippen Sie auf eine Zeile, um die Bohrung in der Zeichnung zu zeigen.";
+  if (fokus){ var el = document.querySelector(fokus); if (el) el.focus(); }
+}
+function init(){
+  $("merk-formel").innerHTML = "Vom Mass ab Mittelachse zum Mass ab Kante: Bohrung links der Achse = halbe Breite minus Achsmass, Bohrung rechts der Achse = halbe Breite plus Achsmass. Beispiel Trägerplatte: " + halb(140) + " − " + MM(50) + " = " + MM(20) + " und " + halb(140) + " + " + MM(50) + " = " + MM(120) + ".";
+  $("typ").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-t]"); if (!b) return; st.typ = b.getAttribute("data-t"); st.akt = ""; render("#typ button[data-t=\"" + st.typ + "\"]"); });
+  $("modus").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-m]"); if (!b) return; st.modus = b.getAttribute("data-m"); render("#modus button[data-m=\"" + st.modus + "\"]"); });
+  $("loch").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-l]"); if (!b) return; st.akt = b.getAttribute("data-l"); render("#loch button[data-l=\"" + st.akt + "\"]"); });
+  $("liste").addEventListener("click", function(ev){ var r = ev.target.closest("tr[data-l]"); if (!r) return; st.akt = r.getAttribute("data-l"); st.modus = "kante"; render(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID8 Übungen 44 bis 46) ================= */
+function bild(typ, p, o){ var z = zeichne(typ, p, o); return "<svg class=\"q-schema\" viewBox=\"" + z.vb + "\" role=\"img\" aria-label=\"Technische Zeichnung des Werkstücks\">" + z.svg + "</svg>"; }
+function zahlOpt(c, cands){
+  var out = [c];
+  shuffle(cands).concat([c + 10, c - 10, c + 5, c * 2, c + 20, c + 15]).forEach(function(x){ if (out.length < 4 && x > 0 && out.indexOf(x) < 0) out.push(x); });
+  return out.sort(function(a, b){ return a - b; });
+}
+function qKante(){
+  var typ = pick(["tp", "tp", "wl"]), T = TYP[typ], p = T.zufall(), ls = T.loecher(p).filter(function(l){ return l.id !== "m"; }), l = pick(ls), waag = Math.random() < 0.5;
+  var v = waag ? l.vx : l.vy, w = waag ? l.wx : l.wy, kante = waag ? "von der linken Kante" : (typ === "wl" ? "von der Oberkante" : "von der Unterkante");
+  var falsch = typ === "tp" ? [p.a, p.b, p.c, p.e, p.B / 2, p.H / 2, waag ? p.B - l.vx : p.H - l.vy] : [p.e, p.c, p.B / 2, waag ? p.B - l.vx : p.c + (l.vy > p.c ? -p.e : p.e), p.d / 2];
+  return {
+    text: T.kurz + " (Beispiel des Tools): Die Bohrung <b>" + l.n + "</b> soll angerissen werden. Wie weit ist ihre Mitte " + kante + " entfernt?" + bild(typ, p, {modus:"loesung", akt:l.id}),
+    parts: [{label:"Abstand der Bohrungsmitte " + kante, options:zahlOpt(v, falsch), correct:v, mono:true, show:MM}],
+    hint: waag ? "Die senkrechte Mittelachse liegt in der halben Breite. Links davon ziehen Sie das Achsmass ab, rechts davon zählen Sie es dazu." : (typ === "wl" ? "Die waagrechte Mittellinie ist ab der Oberkante vermasst. Bohrungen darüber liegen näher bei der Oberkante, Bohrungen darunter weiter weg." : "Die waagrechte Mittelachse liegt in der halben Höhe. Oberhalb zählen Sie das Achsmass dazu, unterhalb ziehen Sie es ab."),
+    solution: "<p>" + w + " = <b>" + MM(v) + "</b></p>" + bild(typ, p, {modus:"kante", akt:l.id})
+  };
+}
+function qAbstand(){
+  var typ = pick(["tp", "wl"]), T = TYP[typ], p = T.zufall(), art = pick(typ === "tp" ? ["aw", "as", "iw", "is"] : ["w", "s", "steg", "oben"]), t, v, w, f;
+  if (typ === "tp"){
+    var aussen = art.charAt(0) === "a", waag = art.charAt(1) === "w", m = aussen ? (waag ? p.a : p.b) : (waag ? p.c : p.e), d = aussen ? p.d1 : p.d2;
+    t = "Wie gross ist der Abstand zwischen den Mitten der " + (waag ? "linken und der rechten" : "oberen und der unteren") + " Bohrungen Ø" + d + "?"; v = 2 * m; w = "2 · " + MM(m); f = [m, p.B, p.H, p.B / 2, p.a + p.c, p.b + p.e];
+  } else if (art === "w" || art === "s"){
+    t = "Wie gross ist der Abstand zwischen den Mitten der " + (art === "w" ? "linken und der rechten" : "oberen und der unteren") + " Befestigungsbohrungen Ø" + p.d2 + "?"; v = 2 * p.e; w = "2 · " + MM(p.e); f = [p.e, p.d, p.c, p.B / 2];
+  } else if (art === "steg"){
+    t = "Wie breit ist der Steg zwischen dem Ausschnitt Ø" + p.d + " und der linken Kante?"; v = p.B / 2 - p.d / 2; w = halb(p.B) + " − " + halb(p.d) + " = " + MM(p.B / 2) + " − " + MM(p.d / 2); f = [p.B / 2, p.d / 2, p.B - p.d, p.e];
+  } else {
+    t = "Wie weit ist der oberste Punkt des Ausschnitts Ø" + p.d + " von der Oberkante entfernt?"; v = p.c - p.d / 2; w = MM(p.c) + " − " + halb(p.d) + " = " + MM(p.c) + " − " + MM(p.d / 2); f = [p.c, p.d / 2, p.c - p.e, p.c + p.d / 2];
+  }
+  return {
+    text: T.kurz + " (Beispiel des Tools): " + t + bild(typ, p, {modus:"loesung"}),
+    parts: [{label:"Gesuchtes Mass", options:zahlOpt(v, f), correct:v, mono:true, show:MM}],
+    hint: "Die Bohrungen liegen spiegelbildlich zu den Mittelachsen: Der Abstand zweier gegenüberliegender Bohrungen ist das doppelte Achsmass. Bei einem Kreis reicht der Rand um den halben Durchmesser über die Mitte hinaus.",
+    solution: "<p>" + w + " = <b>" + MM(v) + "</b></p>"
+  };
+}
+function qBlind(){
+  var p = TYP.ba.zufall(), art = pick(["links2", "abst", "rand", "unten2"]), t, v, w, f;
+  if (art === "links2"){ t = "Wie weit ist die Mitte der Bohrung oben rechts von der linken Kante entfernt?"; v = p.s - p.k; w = MM(p.s) + " − " + MM(p.k); f = [p.k, p.s / 2, p.s - 2 * p.k, p.s]; }
+  else if (art === "unten2"){ t = "Wie weit ist die Mitte der Bohrung oben rechts von der Unterkante entfernt?"; v = p.s - p.k; w = MM(p.s) + " − " + MM(p.k); f = [p.k, p.s / 2, p.s - 2 * p.k, p.s]; }
+  else if (art === "abst"){ t = "Wie gross ist der waagrechte Abstand zwischen den Mitten der beiden Bohrungen?"; v = p.s - 2 * p.k; w = MM(p.s) + " − 2 · " + MM(p.k); f = [p.k, p.s - p.k, 2 * p.k, p.s / 2]; }
+  else { t = "Wie breit ist das Material zwischen dem Rand der Bohrung unten links und der linken Kante?"; v = p.k - p.d / 2; w = MM(p.k) + " − " + halb(p.d) + " = " + MM(p.k) + " − " + MM(p.d / 2); f = [p.k, p.d / 2, p.k + p.d / 2, p.d]; }
+  return {
+    text: "Quadratische Abdeckung mit " + MM(p.s) + " Seitenlänge (Beispiel des Tools): zwei Bohrungen Ø" + p.d + ", Mittelpunkt je " + MM(p.k) + " von den Kanten entfernt, wie in Übung 44 auf der Diagonalen. " + t + bild("ba", p, {modus:"loesung"}),
+    parts: [{label:"Gesuchtes Mass", options:zahlOpt(v, f), correct:v, mono:true, show:MM}],
+    hint: "Die Bohrung unten links ist ab der linken Kante und ab der Unterkante vermasst, die Bohrung oben rechts liegt gleich weit von der rechten Kante und von der Oberkante entfernt.",
+    solution: "<p>" + w + " = <b>" + MM(v) + "</b></p>"
+  };
+}
+function qAb(){
+  var typ = pick(["tp", "wl"]), T = TYP[typ], p = T.ab, l = pick(T.loecher(p).filter(function(e){ return e.id !== "m"; })), waag = Math.random() < 0.5;
+  var v = waag ? l.vx : l.vy, w = waag ? l.wx : l.wy, kante = waag ? "von der linken Kante" : (typ === "wl" ? "von der Oberkante" : "von der Unterkante");
+  return {
+    text: T.name + ": Die Bohrung <b>" + l.n + "</b> wird angerissen. Wie weit ist ihre Mitte " + kante + " entfernt?" + bild(typ, p, {modus:"loesung", akt:l.id}),
+    parts: [{label:"Abstand der Bohrungsmitte " + kante, options:zahlOpt(v, typ === "tp" ? [20, 35, 50, 65, 90, 105, 120, 155, 200] : [28, 32, 52, 60, 80, 88, 108]), correct:v, mono:true, show:MM}],
+    hint: "Rechnen Sie vom Mass ab Mittelachse auf das Mass ab Kante um.",
+    solution: "<p>" + w + " = <b>" + MM(v) + "</b></p>" + bild(typ, p, {modus:"kante", akt:l.id})
+  };
+}
+var WISSEN = [
+  {t:"Übung 44: Welche Vorgaben gelten für die Bohrungen in der Blindabdeckung?", o:["2 × Ø20 mm, Mittelpunkt 30 mm von den Kanten entfernt", "2 × Ø30 mm, Mittelpunkt 20 mm von den Kanten entfernt", "4 × Ø5 mm, Mittelpunkt 28 mm von der Mitte entfernt", "1 × Ø60 mm in der Mitte"], s:"Auftragstext von Übung 44."},
+  {t:"Übung 45: Welche Durchmesser sind für die Wegleuchte vorgegeben?", o:["Bewegungsmelder Ø60 mm, Befestigung Ø5 mm", "Bewegungsmelder Ø5 mm, Befestigung Ø60 mm", "Bewegungsmelder Ø20 mm, Befestigung Ø10 mm", "Bewegungsmelder Ø87 mm, Befestigung Ø28 mm"], s:"Auftragstext von Übung 45."},
+  {t:"Übung 45: Welcher Bezugspunkt wird für die Vermassung empfohlen?", o:["Die Mitte der Grundplatte", "Die linke untere Ecke der Leuchte", "Der Rand des Ausschnitts", "Die rechte Kante der Leuchte"], s:"Tipp zu Übung 45: «Verwenden Sie die Mitte der Grundplatte als Bezugspunkt für die Vermassung.»"},
+  {t:"Übung 46: Welcher Bezug wird für die Vermassung der Trägerplatte empfohlen?", o:["Die Symmetrieachsen", "Die Oberkante", "Die Diagonale", "Der Rand der grössten Bohrung"], s:"Tipp zu Übung 46: «Verwenden Sie die Symmetrieachsen als Bezug für die Vermassung.»"},
+  {t:"Übung 46: Wie viele Bohrungen hat die Trägerplatte in der Lösung?", o:["4 × Ø10 und 4 × Ø5", "2 × Ø10 und 2 × Ø5", "4 × Ø10 und 2 × Ø5", "8 × Ø5"], s:"Vier äussere Bohrungen Ø10 und vier innere Bohrungen Ø5, je spiegelbildlich zu beiden Symmetrieachsen."},
+  {t:"Weshalb genügt in der Lösung von Übung 46 das Mass 50 für alle vier Bohrungen Ø10?", o:["Weil die Bohrungen spiegelbildlich zur senkrechten Symmetrieachse liegen", "Weil alle Bohrungen gleich gross sind", "Weil die Platte 50 mm breit ist", "Weil nur eine Bohrung gebohrt wird"], s:"Das Achsmass gilt für die Bohrungen links und rechts der Achse."},
+  {t:"Worauf bezieht sich das Mass für die Lage einer Bohrung?", o:["Auf die Mitte der Bohrung", "Auf den Rand der Bohrung, der näher bei der Kante liegt", "Auf den Rand der Bohrung, der weiter von der Kante weg liegt", "Auf die Diagonale des Werkstücks"], s:"In allen Lösungen der Übungen 44 bis 46 enden die Masslinien auf den Mittellinien der Bohrungen."},
+  {t:"Übung 45: Die Leuchte ist 300 mm hoch, die Zeichnung zeigt sie aber verkürzt. Woran erkennt man das?", o:["An den beiden Bruchlinien im unteren Teil", "An der gestrichelten Grundplatte", "An den Mittellinien", "Am Massstab 1:1"], s:"Zwischen den Bruchlinien ist ein Stück der Leuchte weggelassen. Das Mass 300 gilt trotzdem für die ganze Höhe."},
+  {t:"Übung 46: Welches Material wird auf der Trägerplatte montiert?", o:["Eine NAP-Kopfzeile 1x2 und Steckdosen NUP-IP55 von Feller", "Ein Bewegungsmelder NEVO 180 R von Feller", "Zwei Kabelverschraubungen", "Ein Kleinverteiler mit 26 TE"], s:"Angabe «Verwendetes Material» in Übung 46."}
+];
+function qWissen(){
+  var q = pick(WISSEN);
+  return { text:q.t, parts:[{label:"Antwort", options:shuffle(q.o), correct:q.o[0], mono:false}], hint:"Lesen Sie den Auftragstext und die Tipps der Übungen 44 bis 46.", solution:"<p><b>" + q.o[0] + "</b></p><p>" + q.s + "</p>" };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.32) return qKante();
+  if (x < 0.54) return qAbstand();
+  if (x < 0.68) return qBlind();
+  if (x < 0.82) return qAb();
+  return qWissen();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qKante, qKante, qAbstand, qAbstand, qBlind, qAb, qWissen, qWissen]); }});
+})();
+</script>
+</body>
+</html>

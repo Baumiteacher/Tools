@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_6 TA3 Minuterie: Zeitdiagramm BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Stromlaufschema nach Arbeitsblatt 2. Semester (ID6 bis ID8): schwarz gezeichnet, stromführende Leiter rot hervorgehoben */
+:root{ --sl-an:#D8261C; --sl-gelb:#F6D13A; --sl-q:#2446B8 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sl-an:#FF7F75; --sl-gelb:#F6D13A; --sl-q:#A3B6FF } }
+:root[data-theme="dark"]{ --sl-an:#FF7F75; --sl-gelb:#F6D13A; --sl-q:#A3B6FF }
+.sl{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sl.dn{stroke-width:1}
+.sl.dk{stroke-width:2.8;stroke-linecap:butt}
+.sl.an{stroke:var(--sl-an);stroke-width:2.6}
+.sl.hell{stroke:var(--sl-q);stroke-width:2.6}
+.sl-d{stroke-dasharray:4 3;stroke-linecap:butt}
+.sl-f{fill:var(--ink);stroke:none}
+.sl-bg{fill:var(--surface)}
+.sl-erregt{fill:var(--accent-soft)}
+.sl-gl{fill:var(--sl-gelb);stroke:none;opacity:.9}
+.sl-t{fill:var(--ink);font-family:var(--sans);font-size:10px}
+.sl-t.q{fill:var(--sl-q);font-weight:700}
+.sl-t.b{font-weight:700}
+.sl-hl{fill:var(--accent-soft);stroke:var(--sl-q);stroke-width:1}
+
+[hidden]{display:none!important}
+.bild{width:100%;height:auto;display:block;touch-action:manipulation}
+.zd-a{stroke:var(--ink);stroke-width:1.5;fill:none}
+.zd-k{stroke:var(--ink);stroke-width:1.8;fill:var(--surface);stroke-linejoin:miter}
+.zd-k.weg{stroke:var(--muted);stroke-dasharray:2.5 2}
+.zd-k.neu{stroke:var(--accent);fill:var(--accent-soft)}
+.zd-l{stroke:var(--sl-an);stroke-width:2.2;fill:none;stroke-linejoin:miter}
+.zd-g{stroke:var(--line);stroke-width:1;fill:none}
+.zd-t{fill:var(--ink);font-family:var(--sans);font-size:9.5px}
+.zd-f{fill:var(--sl-gelb);opacity:.35;stroke:none}
+.zd-z{stroke:var(--accent);stroke-width:1;stroke-dasharray:3 2;fill:none}
+.zd-hit{fill:transparent;cursor:pointer}
+.r-slider{display:grid;grid-template-columns:8.4em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700}
+.log{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.log .weg{color:var(--muted)}
+.summe{font-weight:600}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.q-schema{display:block;width:100%;max-width:420px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.chip .ol{display:block;font-weight:700;margin-bottom:2px}
+.chip svg.mini{display:block;width:240px;max-width:100%;height:auto}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_6 Apparate und Leitungen, einfache Verbraucherinstallation · Teilauftrag 3</p>
+    <h1>Minuterie: Zeitdiagramm BAP</h1>
+    <p class="lead">Setzen Sie Tasterimpulse auf die Zeitachse und bestimmen Sie, wie lange das Licht brennt: einmal jederzeit nachschaltbar, einmal erst nach einer Sperrzeit.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="plain">
+        <fieldset>
+          <legend>Eingestellte Zeit der Minuterie</legend>
+          <div class="opts" id="zeit"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Nachschalten</legend>
+          <div class="opts" id="sperre"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Ausschaltvoranzeige (Halblichtschaltung)</legend>
+          <div class="seg" id="voranzeige">
+            <button class="opt txt" type="button" data-v="0" id="va-0" aria-pressed="true">ohne (wie in den Übungen)</button>
+            <button class="opt txt" type="button" data-v="1" id="va-1" aria-pressed="false">mit: 30 Sekunden vorher</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="panel">
+        <h2>Zeitdiagramm</h2>
+        <svg class="bild" id="diagramm" viewBox="0 0 340 200" role="img" aria-label="Zeitdiagramm: oben die Tasterimpulse, unten das Licht"></svg>
+        <p class="note">Tippen Sie oben in das Diagramm, um einen Tasterimpuls zu setzen oder zu entfernen. Oder wählen Sie den Zeitpunkt mit dem Regler.</p>
+        <label class="r-slider" for="t-slider"><span class="num" id="t-val"></span><input type="range" id="t-slider" min="0" max="12" step="0.5" value="1"></label>
+        <div class="opts">
+          <button class="opt txt" type="button" id="setzen">Impuls setzen</button>
+          <button class="opt txt" type="button" id="ue26">Übung 26 laden</button>
+          <button class="opt txt" type="button" id="ue27">Übung 27 laden</button>
+          <button class="opt txt" type="button" id="leer">Alle Impulse löschen</button>
+          <button class="opt txt" type="button" id="licht" aria-pressed="true">Licht zeigen</button>
+        </div>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Was passiert?</h2>
+        <ol class="log" id="log"></ol>
+        <p class="summe" id="summe"></p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze (Theoriebuch AAD28.9)</h2>
+        <div class="merke">
+          <p>Die Minuterie ist ein abfallverzögertes Relais. Wird sie über einen Taster aktiviert, schaltet sich das Licht ein und bleibt so lange eingeschaltet, bis die voreingestellte Zeit abgelaufen ist.</p>
+          <p>Nachschaltbar heisst: Wird der Taster vor Ablauf der eingestellten Zeit erneut betätigt, wird die Verzögerungszeit wieder auf 100&nbsp;% zurückgesetzt.</p>
+          <p>Einige Typen sind erst nach einer bestimmten Zeitspanne nachschaltbar.</p>
+          <p>Merkmale: eingebauter Wahlschalter mit zwei Stellungen (Automat oder Dauerlicht), einstellbarer Zeitbereich zwischen 0,5 und 30&nbsp;min, gegebenenfalls eine Ausschaltvoranzeige: Etwa 30 Sekunden vor dem Ausschalten leuchten die Lampen mit verminderter Helligkeit.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Laden Sie die Übung 26. Verbergen Sie das Licht, zeichnen Sie die Lösung im Arbeitsblatt und kontrollieren Sie dann.</li>
+          <li>Laden Sie die Übung 27. Weshalb verlängert der Impuls bei 7,5&nbsp;min das Licht?</li>
+          <li>Setzen Sie bei Übung 27 einen zusätzlichen Impuls bei 6&nbsp;min. Was passiert, und weshalb?</li>
+          <li>Wie lange brennt das Licht insgesamt, wenn jede Minute einmal gedrückt wird?</li>
+          <li>Schalten Sie die Ausschaltvoranzeige ein. Was ändert sich am Verlauf, und wozu dient sie?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Schemazeichnen AAD28.9, Minuterie (Treppenhausautomat).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID6 Apparate und Leitungen, Teilauftrag 3 Minuterie: Übungen 26 und 27 (ID6.17)</li><li>Theoriebuch Schemazeichnen, Kapitel 28 Lampen- und Schwachstromschaltungen: AAD28.9 (Minuterie, Merkmale, Zeitablaufdiagramm). Das Arbeitsblatt schreibt bei Teilauftrag 3 «Theoriebuch Arbeitssicherheit»; Kapitel 28 gehört zu Schemazeichnen.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + p.label + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Stromlaufschema-Bibliothek: Schaltzeichen wie in den Arbeitsblättern 2. Semester (ID6 Übungen 1 bis 7 und folgende) */
+var SLP = (function(){
+"use strict";
+var K = 26, DX = 10.6;
+function n(x){ return Math.round(x * 100) / 100; }
+function P(d, cls, extra){ return "<path class=\"" + (cls || "sl") + "\" d=\"" + d + "\"" + (extra || "") + "/>"; }
+function T(x, y, t, anker, gr, cls){
+  if (t === undefined || t === null || t === "") return "";
+  var c = "sl-t" + (t === "?" ? " q" : "") + (cls ? " " + cls : "");
+  return "<text class=\"" + c + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (gr ? " style=\"font-size:" + gr + "px\"" : "") + ">" + t + "</text>";
+}
+function kl(o){ return "sl" + (o.an ? " an" : "") + (o.hell ? " hell" : ""); }
+/* Hervorhebung hinter einem Schaltzeichen */
+function marke(x, y, w, h){ return "<rect class=\"sl-hl\" x=\"" + n(x) + "\" y=\"" + n(y) + "\" width=\"" + n(w) + "\" height=\"" + n(h) + "\" rx=\"4\"/>"; }
+
+/* Antrieb links vom Schaltstück. xm, ym = Mitte des Schaltstücks. Gibt das Zeichen und die Stelle für den Namen zurück. */
+function antrieb(art, xm, ym, c, xmin){
+  var h = "", xb;
+  if (art === "taster" || art === "schalter"){
+    xb = Math.min(xm - 21, (xmin === undefined ? xm : xmin) - 14);
+    h += P("M" + n(xb + 5) + " " + n(ym - 5) + " H" + n(xb) + " V" + n(ym + 5) + " H" + n(xb + 5), c);
+    if (art === "schalter"){
+      /* rastend: Kerbe in der Wirkverbindung */
+      var k = xb + 9.5;
+      h += P("M" + n(xb + 1) + " " + n(ym) + " H" + n(k - 3), c + " dn") + P("M" + n(k - 3) + " " + n(ym) + " L" + n(k) + " " + n(ym + 2.8) + " L" + n(k + 3) + " " + n(ym), c + " dn") + P("M" + n(k + 4.5) + " " + n(ym) + " H" + n(xm - 1), c + " dn sl-d");
+    } else h += P("M" + n(xb + 1) + " " + n(ym) + " H" + n(xm - 1), c + " dn sl-d");
+    return {svg:h, xn:xb - 3};
+  }
+  if (art === "zeit"){
+    /* abfallverzögert: Halbkreis mit Doppellinie zum Schaltstück */
+    xb = Math.min(xm - 19, (xmin === undefined ? xm : xmin) - 12);
+    h += P("M" + n(xb) + " " + n(ym - 5.5) + " A5.5 5.5 0 0 1 " + n(xb) + " " + n(ym + 5.5), c);
+    h += P("M" + n(xb + 4.9) + " " + n(ym - 2.5) + " H" + n(xm - 0.6) + " M" + n(xb + 4.9) + " " + n(ym + 2.5) + " H" + n(xm + 0.6), c + " dn");
+    return {svg:h, xn:xb - 3};
+  }
+  return {svg:"", xn:(xmin === undefined ? xm : xmin) - 5};
+}
+/* Schliesser: oberer Anschluss (x, y), unterer Anschluss (x, y + K). o: zu, n1, n2, name, antrieb, an, hell */
+function schliesser(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x : x - DX, xm = (x + xt) / 2, ym = y + K / 2;
+  if (o.hell) h += marke(x - DX - 4, y, DX + 8, K);
+  var a = antrieb(o.antrieb, xm, ym, c, x - DX);
+  h += a.svg + P("M" + n(x) + " " + n(y + K) + " L" + n(xt) + " " + n(y + (o.zu ? 0 : 0.8)), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - 3, y + K + 10, o.n2, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Öffner: Querstrich am oberen Anschluss nach rechts, Schaltstück liegt daran an. o.zu = betätigt (geöffnet) */
+function oeffner(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x + 0.74 * K : x + 0.43 * K, yt = o.zu ? y + 0.2 * K : y - 0.08 * K, xm = (x + xt) / 2, ym = y + K / 2;
+  if (o.hell) h += marke(x - 2, y - 4, 0.48 * K + 6, K + 4);
+  var a = antrieb(o.antrieb, xm, ym, c, x);
+  h += a.svg + P("M" + n(x) + " " + n(y) + " H" + n(x + 0.48 * K), c) + P("M" + n(x) + " " + n(y + K) + " L" + n(xt) + " " + n(yt), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - 3, y + K + 10, o.n2, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Wechsler: gemeinsamer Anschluss oben (x, y); unten links (x − K/2, y + K) die Öffnerseite, unten rechts (x + K/2, y + K) die Schliesserseite */
+function wechsler(x, y, o){
+  o = o || {}; var c = kl(o), h = "", xt = o.zu ? x + K / 2 : x - 0.38 * K, yt = o.zu ? y + K : y + 1.09 * K, xm = (x + xt) / 2, ym = y + K * 0.5;
+  if (o.hell) h += marke(x - K / 2 - 2, y, K + 4, K + 3);
+  var a = antrieb(o.antrieb, xm, ym, c, x - 0.2 * K);
+  h += a.svg + P("M" + n(x - K / 2) + " " + n(y + K) + " H" + n(x), c) + P("M" + n(x) + " " + n(y) + " L" + n(xt) + " " + n(yt), c);
+  h += T(x - 3, y - 3, o.n1, "end") + T(x - K / 2 - 2.5, y + K + 11, o.n2, "end") + T(x + K / 2 - 2.5, y + K + 11, o.n3, "end") + T(a.xn, ym + 3.5, o.name, "end");
+  return h;
+}
+/* Spule: Mitte (x, y). art "" Schütz oder Relais, "schritt" Schrittschalter, "min" Minuterie (abfallverzögert). Anschlüsse bei y − 7,5 und y + 7,5 */
+function spule(x, y, o){
+  o = o || {}; var w = 30, hh = 15, h = "";
+  h += "<rect class=\"sl " + (o.erregt ? "sl-erregt" : "sl-bg") + (o.hell ? " hell" : "") + "\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - hh / 2) + "\" width=\"" + w + "\" height=\"" + hh + "\"/>";
+  if (o.art === "schritt") h += P("M" + n(x - 8) + " " + n(y + 3) + " H" + n(x - 0.5) + " V" + n(y - 3) + " H" + n(x + 8), "sl dn");
+  if (o.art === "min") h += "<rect class=\"sl-f\" x=\"" + n(x - w / 2) + "\" y=\"" + n(y - hh / 2) + "\" width=\"" + n(w * 0.31) + "\" height=\"" + hh + "\"/>";
+  h += T(x - 3, y - hh / 2 - 2.5, o.a1 === undefined ? "A1" : o.a1, "end", 8.5) + T(x - 3, y + hh / 2 + 8.5, o.a2 === undefined ? "A2" : o.a2, "end", 8.5) + T(x - w / 2 - 3, y + 3.5, o.name, "end");
+  return h;
+}
+/* Leuchte E: Kreuz auf dem Leiter */
+function lampeE(x, y, o){
+  o = o || {}; var a = 8, h = "";
+  if (o.an) h += "<circle class=\"sl-gl\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"11\"/>";
+  h += P("M" + n(x - a) + " " + n(y - a) + " L" + n(x + a) + " " + n(y + a) + " M" + n(x + a) + " " + n(y - a) + " L" + n(x - a) + " " + n(y + a), "sl");
+  if (o.x12 !== false) h += T(x - 4, y - 10, "X1", "end", 8.5) + T(x - 4, y + 17, "X2", "end", 8.5);
+  return h + T(x - 10, y + 3.5, o.name, "end");
+}
+/* Signallampe P: Kreis mit Kreuz */
+function lampeP(x, y, o){
+  o = o || {}; var r = 8.5, d = r * 0.707, h = "";
+  h += "<circle class=\"sl " + (o.an ? "" : "sl-bg") + "\"" + (o.an ? " style=\"fill:var(--sl-gelb)\"" : "") + " cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>";
+  h += P("M" + n(x - d) + " " + n(y - d) + " L" + n(x + d) + " " + n(y + d) + " M" + n(x + d) + " " + n(y - d) + " L" + n(x - d) + " " + n(y + d), "sl dn");
+  if (o.x12 !== false) h += T(x - 4, y - r - 2.5, "X1", "end", 8.5) + T(x - 4, y + r + 9, "X2", "end", 8.5);
+  return h + T(x - r - 3, y + 3.5, o.name, "end");
+}
+/* Strompfadleiste: dünne Linie mit Strichen und Nummern */
+function kopf(x0, x1, y, xs){
+  var h = P("M" + n(x0) + " " + n(y) + " H" + n(x1), "sl dn");
+  xs.forEach(function(x, i){ h += P("M" + n(x) + " " + n(y) + " v9", "sl dn") + T(x - 2.5, y + 9, String(i + 1), "end", 9); });
+  return h;
+}
+/* Sammelleiter mit Pfeilspitzen an beiden Enden */
+function schiene(x0, x1, y, label, an){
+  var c = "sl" + (an ? " an" : "");
+  return P("M" + n(x0) + " " + n(y) + " H" + n(x1) + " M" + n(x0 + 5) + " " + n(y - 3.5) + " L" + n(x0) + " " + n(y) + " L" + n(x0 + 5) + " " + n(y + 3.5) + " M" + n(x1 - 5) + " " + n(y - 3.5) + " L" + n(x1) + " " + n(y) + " L" + n(x1 - 5) + " " + n(y + 3.5), c) + T(x0 + 9, y - 3.5, label, "start", 9);
+}
+/* Kennzeichen des Neutralleiters: Schrägstrich mit Punkt */
+function nMarke(x, y){ return P("M" + n(x - 3.5) + " " + n(y + 6) + " L" + n(x + 3) + " " + n(y - 6), "sl") + "<circle class=\"sl-f\" cx=\"" + n(x + 3.4) + "\" cy=\"" + n(y - 7) + "\" r=\"1.7\"/>"; }
+/* Kontakttabelle unter der Spule: H Hauptkontakte, S Schliesser, Ö Öffner */
+function ktab(x, y, o){
+  o = o || {}; var cw = 19, h = "", z = Math.max((o.H || []).length, (o.S || []).length, (o.O || []).length, 1);
+  h += P("M" + n(x - cw * 1.5) + " " + n(y + 11) + " H" + n(x + cw * 1.5) + " M" + n(x - cw / 2) + " " + n(y) + " V" + n(y + 15 + z * 11) + " M" + n(x + cw / 2) + " " + n(y) + " V" + n(y + 15 + z * 11), "sl dn");
+  [["H", -1, o.H], ["S", 0, o.S], ["Ö", 1, o.O]].forEach(function(s){
+    h += T(x + s[1] * cw, y + 8, s[0], "middle", 9, "b");
+    (s[2] || []).forEach(function(e, i){ h += T(x + s[1] * cw, y + 21 + i * 11, e, "middle", 9.5); });
+  });
+  return h;
+}
+function leiter(d, an){ return P(d, "sl" + (an ? " an" : "")); }
+function punkt(x, y, an){ return "<circle class=\"sl-f\"" + (an ? " style=\"fill:var(--sl-an)\"" : "") + " cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"1.9\"/>"; }
+return {K:K, DX:DX, n:n, P:P, T:T, marke:marke, schliesser:schliesser, oeffner:oeffner, wechsler:wechsler, spule:spule, lampeE:lampeE, lampeP:lampeP, kopf:kopf, schiene:schiene, nMarke:nMarke, ktab:ktab, leiter:leiter, punkt:punkt};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, L = SLP;
+var NB = String.fromCharCode(160);
+function z(x){ return String(Math.round(x * 100) / 100).replace(".", ","); }
+function min(x){ return z(x) + NB + "min"; }
+
+/* ===== Logik der Minuterie: T = eingestellte Zeit, sperre = Zeit, nach der frühestens nachgeschaltet werden kann (0 = jederzeit) ===== */
+function simuliere(p, T, sperre){
+  var iv = [], log = [], start = null, ende = -1, s0 = 0;
+  p.slice().sort(function(a, b){ return a - b; }).forEach(function(t){
+    if (start === null || t >= ende){
+      if (start !== null) iv.push([s0, ende]);
+      s0 = t; start = t; ende = t + T; log.push({t:t, art:"ein", ende:ende});
+    } else if (t - start >= sperre){ start = t; ende = t + T; log.push({t:t, art:"nach", ende:ende}); }
+    else log.push({t:t, art:"gesperrt", ende:ende, frei:start + sperre});
+  });
+  if (start !== null) iv.push([s0, ende]);
+  return {iv:iv, log:log};
+}
+/* überlappende Abschnitte zusammenfassen */
+function verbinde(iv){
+  var out = [];
+  iv.slice().sort(function(a, b){ return a[0] - b[0]; }).forEach(function(v){
+    var l = out[out.length - 1];
+    if (l && v[0] <= l[1]) l[1] = Math.max(l[1], v[1]); else out.push([v[0], v[1]]);
+  });
+  return out;
+}
+function dauer(iv){ return iv.reduce(function(s, i){ return s + i[1] - i[0]; }, 0); }
+window.__t = {simuliere:simuliere, dauer:dauer};
+
+/* ===== Zeitdiagramm wie im Arbeitsblatt (Übungen 26 und 27) ===== */
+var X0 = 70, S = 19.5, TMAX = 13, YT1 = 30, YT0 = 70, YL1 = 120, YL0 = 160;
+function tx(t){ return X0 + t * S; }
+function lampenZeichen(x, y, an){
+  return "<circle class=\"sl dn\" style=\"fill:" + (an ? "var(--sl-gelb)" : "var(--surface)") + "\" cx=\"" + x + "\" cy=\"" + y + "\" r=\"5.5\"/>" + L.P("M" + (x - 3.9) + " " + (y - 3.9) + " l7.8 7.8 M" + (x + 3.9) + " " + (y - 3.9) + " l-7.8 7.8", "sl dn");
+}
+function tasterZeichen(x, y, zu){
+  return L.P("M" + (x - 11) + " " + y + " h7 M" + (x + 4) + " " + y + " h7 M" + (x - 4) + " " + y + " L" + (x + 5) + " " + (zu ? y - 0.5 : y - 5), "sl dn") + L.P("M" + (x - 4) + " " + (y - 13) + " v-2 h8 v2 M" + x + " " + (y - 15) + " V" + (zu ? y - 1 : y - 3), "sl dn sl-d");
+}
+/* Lampenverlauf als Linienzug; halb = Dauer der Ausschaltvoranzeige in Minuten */
+function lampenPfad(iv, yHoch, yTief, x0, s, halb){
+  var d = "M" + x0 + " " + yTief, ym = (yHoch + yTief) / 2;
+  iv.forEach(function(i){
+    var a = x0 + i[0] * s, b = x0 + Math.min(i[1], TMAX) * s;
+    d += " H" + a + " V" + yHoch;
+    if (halb && i[1] <= TMAX) d += " H" + (b - halb * s) + " V" + ym + " H" + b + " V" + yTief; else d += " H" + b + (i[1] <= TMAX ? " V" + yTief : "");
+  });
+  return d + " H" + (x0 + TMAX * s);
+}
+/* o: lampe (false = verbergen), log (Markierung gesperrter Impulse), halb, zeiger (Zeitpunkt des Reglers), hit */
+function diagramm(p, T, sperre, o){
+  o = o || {}; var r = simuliere(p, T, sperre), h = "", i, x1 = tx(TMAX);
+  for (i = 1; i <= 12; i++) h += "<path class=\"zd-g\" d=\"M" + tx(i) + " " + (YT1 - 6) + " V" + YT0 + " M" + tx(i) + " " + (YL1 - 6) + " V" + YL0 + "\"/>";
+  if (o.lampe !== false) r.iv.forEach(function(v){ h += "<rect class=\"zd-f\" x=\"" + tx(v[0]) + "\" y=\"" + YL1 + "\" width=\"" + (Math.min(v[1], TMAX) - v[0]) * S + "\" height=\"" + (YL0 - YL1) + "\"/>"; });
+  h += "<path class=\"zd-a\" d=\"M" + X0 + " " + (YT1 - 12) + " V" + YT0 + " H" + (x1 + 6) + " M" + X0 + " " + (YL1 - 12) + " V" + YL0 + " H" + (x1 + 6) + " M" + (x1 + 2) + " " + (YT0 - 3) + " l4 3 l-4 3 M" + (x1 + 2) + " " + (YL0 - 3) + " l4 3 l-4 3\"/>";
+  for (i = 1; i <= 12; i++){
+    h += "<path class=\"zd-a\" d=\"M" + tx(i) + " " + YT0 + " v5 M" + tx(i) + " " + YL0 + " v5\" style=\"stroke-width:1\"/>";
+    h += "<text class=\"zd-t\" x=\"" + tx(i) + "\" y=\"" + (YT0 + 15) + "\" text-anchor=\"middle\">" + i + "</text><text class=\"zd-t\" x=\"" + tx(i) + "\" y=\"" + (YL0 + 15) + "\" text-anchor=\"middle\">" + i + "</text>";
+  }
+  r.log.forEach(function(e){
+    var weg = e.art === "gesperrt" && o.log;
+    h += "<path class=\"zd-k" + (weg ? " weg" : "") + "\" d=\"M" + tx(e.t) + " " + YT0 + " V" + YT1 + " H" + (tx(e.t) + 4) + " V" + YT0 + "\"/>";
+  });
+  if (o.zeiger !== undefined) h += "<path class=\"zd-z\" d=\"M" + tx(o.zeiger) + " " + (YT1 - 10) + " V" + (YL0 + 4) + "\"/>";
+  if (o.lampe !== false) h += "<path class=\"zd-l\" d=\"" + lampenPfad(r.iv, YL1, YL0, X0, S, o.halb ? 0.5 : 0) + "\"/>";
+  h += "<text class=\"zd-t\" x=\"36\" y=\"24\" text-anchor=\"middle\">Betätigt</text>" + tasterZeichen(36, 42, true) + "<text class=\"zd-t\" x=\"36\" y=\"57\" text-anchor=\"middle\">Nicht betätigt</text>" + tasterZeichen(36, 77, false);
+  h += "<text class=\"zd-t\" x=\"30\" y=\"" + (YL1 + 3) + "\" text-anchor=\"end\">Ein</text>" + lampenZeichen(42, YL1, true) + "<text class=\"zd-t\" x=\"30\" y=\"" + (YL0 + 3) + "\" text-anchor=\"end\">Aus</text>" + lampenZeichen(42, YL0, false);
+  h += "<text class=\"zd-t\" x=\"338\" y=\"" + (YT0 + 27) + "\" text-anchor=\"end\">t [min]</text><text class=\"zd-t\" x=\"338\" y=\"" + (YL0 + 27) + "\" text-anchor=\"end\">t [min]</text>";
+  if (o.hit) h += "<rect class=\"zd-hit\" x=\"" + (X0 - 6) + "\" y=\"8\" width=\"" + (12.5 * S + 6) + "\" height=\"84\"/>";
+  return h;
+}
+function bild(p, T, sperre, o){ return "<svg class=\"q-schema\" viewBox=\"0 0 340 200\" role=\"img\" aria-label=\"Zeitdiagramm: Tasterimpulse bei " + p.map(z).join(", ") + " Minuten\">" + diagramm(p, T, sperre, o) + "</svg>"; }
+function miniKurve(iv){
+  var h = "<svg class=\"mini\" viewBox=\"0 0 280 46\" role=\"img\" aria-label=\"Verlauf des Lichts\">", i;
+  for (i = 1; i <= 12; i++) h += "<path class=\"zd-g\" d=\"M" + (10 + i * 20) + " 6 V32\"/><text class=\"zd-t\" x=\"" + (10 + i * 20) + "\" y=\"43\" text-anchor=\"middle\" style=\"font-size:7.5px\">" + i + "</text>";
+  iv.forEach(function(v){ h += "<rect class=\"zd-f\" x=\"" + (10 + v[0] * 20) + "\" y=\"8\" width=\"" + (Math.min(v[1], TMAX) - v[0]) * 20 + "\" height=\"24\"/>"; });
+  return h + "<path class=\"zd-a\" d=\"M10 4 V32 H274\"/><path class=\"zd-l\" d=\"" + lampenPfad(iv, 8, 32, 10, 20, 0) + "\"/></svg>";
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {p:[1, 5, 6, 7], T:3, sperre:0, halb:false, t:1, licht:true};
+var SPERREN = [[0, "jederzeit"], [1, "erst nach 1" + NB + "min"], [2, "erst nach 2" + NB + "min"]];
+function hat(t){ return st.p.indexOf(t) >= 0; }
+function render(){
+  var r = simuliere(st.p, st.T, st.sperre);
+  $("zeit").innerHTML = [2, 3, 4].map(function(v){ return "<button class=\"opt\" type=\"button\" id=\"T-" + v + "\" data-T=\"" + v + "\" aria-pressed=\"" + (v === st.T) + "\">" + v + NB + "min</button>"; }).join("");
+  $("sperre").innerHTML = SPERREN.map(function(v){ return "<button class=\"opt txt\" type=\"button\" id=\"sp-" + v[0] + "\" data-s=\"" + v[0] + "\" aria-pressed=\"" + (v[0] === st.sperre) + "\">" + v[1] + "</button>"; }).join("");
+  $("va-0").setAttribute("aria-pressed", String(!st.halb)); $("va-1").setAttribute("aria-pressed", String(st.halb));
+  $("diagramm").innerHTML = diagramm(st.p, st.T, st.sperre, {lampe:st.licht, log:st.licht, halb:st.halb, zeiger:st.t, hit:true});
+  $("t-val").innerHTML = "<i>t</i> = " + min(st.t);
+  $("setzen").textContent = hat(st.t) ? "Impuls bei " + z(st.t) + " min entfernen" : "Impuls bei " + z(st.t) + " min setzen";
+  $("licht").setAttribute("aria-pressed", String(st.licht)); $("licht").textContent = st.licht ? "Licht verbergen" : "Licht zeigen";
+  if (!st.licht){ $("log").innerHTML = "<li>Das Licht ist verborgen. Zeichnen Sie den Verlauf zuerst selbst und kontrollieren Sie dann.</li>"; $("summe").textContent = ""; return; }
+  $("log").innerHTML = r.log.length ? r.log.map(function(e){
+    if (e.art === "ein") return "<li><i>t</i> = " + min(e.t) + ": Der Taster wird gedrückt. Das Licht schaltet ein und brennt bis " + min(e.ende) + ".</li>";
+    if (e.art === "nach") return "<li><i>t</i> = " + min(e.t) + ": Nachgeschaltet. Die Zeit beginnt neu, das Licht brennt bis " + min(e.ende) + ".</li>";
+    return "<li class=\"weg\"><i>t</i> = " + min(e.t) + ": Keine Wirkung. Nachschalten ist erst ab " + min(e.frei) + " möglich. Das Licht brennt weiter bis " + min(e.ende) + ".</li>";
+  }).join("") : "<li>Noch kein Impuls gesetzt. Das Licht bleibt aus.</li>";
+  $("summe").innerHTML = r.iv.length ? "Das Licht brennt insgesamt " + min(dauer(r.iv)) + ": " + r.iv.map(function(v){ return "von " + z(v[0]) + " bis " + min(v[1]); }).join(", ") + "." + (st.halb ? " Mit Ausschaltvoranzeige leuchten die Lampen in den letzten 30 Sekunden mit verminderter Helligkeit." : "") : "";
+}
+function wechsle(t){ var i = st.p.indexOf(t); if (i >= 0) st.p.splice(i, 1); else st.p.push(t); st.t = t; $("t-slider").value = t; render(); }
+function init(){
+  $("zeit").addEventListener("click", function(e){ var b = e.target.closest("button[data-T]"); if (!b) return; st.T = Number(b.getAttribute("data-T")); render(); var f = $("T-" + st.T); if (f) f.focus(); });
+  $("sperre").addEventListener("click", function(e){ var b = e.target.closest("button[data-s]"); if (!b) return; st.sperre = Number(b.getAttribute("data-s")); render(); var f = $("sp-" + st.sperre); if (f) f.focus(); });
+  $("voranzeige").addEventListener("click", function(e){ var b = e.target.closest("button[data-v]"); if (!b) return; st.halb = b.getAttribute("data-v") === "1"; render(); });
+  $("t-slider").addEventListener("input", function(){ st.t = Number(this.value); render(); });
+  $("setzen").addEventListener("click", function(){ wechsle(st.t); });
+  $("ue26").addEventListener("click", function(){ st.p = [1, 5, 6, 7]; st.T = 3; st.sperre = 0; st.halb = false; render(); });
+  $("ue27").addEventListener("click", function(){ st.p = [1, 5, 7.5]; st.T = 3; st.sperre = 2; st.halb = false; render(); });
+  $("leer").addEventListener("click", function(){ st.p = []; render(); });
+  $("licht").addEventListener("click", function(){ st.licht = !st.licht; render(); });
+  $("diagramm").addEventListener("click", function(e){
+    if (!e.target.closest(".zd-hit")) return;
+    var b = this.getBoundingClientRect(), x = (e.clientX - b.left) / b.width * 340, t = Math.round((x - X0) / S * 2) / 2;
+    if (t < 0 || t > 12) return; wechsle(t);
+  });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID6 Übungen 26 und 27, Theoriebuch AAD28.9) ================= */
+function optionen(c, cands){
+  var out = [c];
+  cands.concat([c + 1, c - 1, c + 2, c + 0.5, c + 3]).forEach(function(x){ if (out.length < 4 && x > 0 && out.indexOf(x) < 0) out.push(x); });
+  return out.sort(function(a, b){ return a - b; });
+}
+function qEnde(){
+  var T = pick([2, 3, 4, 5]), t = pick([0.5, 1, 1.5, 2, 2.5, 3, 4]), c = t + T;
+  return {
+    text: "Eine Minuterie ist auf " + T + " Minuten eingestellt. Der Taster wird bei <i>t</i> = " + min(t) + " gedrückt, danach nicht mehr. Wann schaltet das Licht aus?",
+    parts: [{label:"Zeitpunkt des Ausschaltens", options:optionen(c, [T, t + 2 * T, Math.abs(T - t) + 0.5]), correct:c, mono:true, show:min}],
+    hint: "Das Licht bleibt so lange eingeschaltet, bis die eingestellte Zeit abgelaufen ist.",
+    solution: "<p class=\"num\">" + z(t) + NB + "min + " + T + NB + "min = <b>" + min(c) + "</b></p>"
+  };
+}
+function qNach(){
+  var T = 3, sperre = pick([0, 0, 2]), t1 = pick([1, 1.5, 2, 5]), dt = pick([0.5, 1, 1.5, 2, 2.5]), t2 = t1 + dt, r = simuliere([t1, t2], T, sperre), c = r.iv[0][1], wirkt = r.log[1].art === "nach";
+  return {
+    text: "Eine Minuterie ist auf 3 Minuten eingestellt. " + (sperre ? "Ein Nachschalten ist erst nach 2 Minuten möglich." : "Sie kann jederzeit nachgeschaltet werden.") + " Der Taster wird bei " + min(t1) + " und bei " + min(t2) + " gedrückt. Wann schaltet das Licht aus?" + bild([t1, t2], T, sperre, {lampe:false}),
+    parts: [{label:"Zeitpunkt des Ausschaltens", options:optionen(c, [t1 + T, t2 + T, t1 + 2 * T, t2 + T + dt]), correct:c, mono:true, show:min}],
+    hint: sperre ? "Prüfen Sie zuerst, ob beim zweiten Impuls seit dem Einschalten schon 2 Minuten vergangen sind." : "Beim Nachschalten wird die Verzögerungszeit wieder auf 100 % zurückgesetzt.",
+    solution: "<p><b>" + min(c) + "</b></p><p>" + (wirkt ? "Der zweite Impuls schaltet nach: Die 3 Minuten beginnen bei " + min(t2) + " neu." : "Der zweite Impuls kommt " + min(dt) + " nach dem Einschalten und hat keine Wirkung, weil erst nach 2 Minuten nachgeschaltet werden kann. Es zählt der erste Impuls: " + z(t1) + NB + "min + 3" + NB + "min.") + "</p>" + bild([t1, t2], T, sperre, {log:true})
+  };
+}
+/* Impulsfolgen: [Impulse, Sperrzeit]. Die ersten beiden entsprechen den Übungen 26 und 27. */
+var FOLGEN = [[[1, 5, 6, 7], 0], [[1, 5, 7.5], 2], [[1, 2, 6], 0], [[1, 2, 6], 2], [[0.5, 3, 5], 0], [[2, 3, 7, 8.5], 2], [[2, 3, 7, 8.5], 0], [[1, 3.5, 8], 2], [[1.5, 2.5, 3.5, 9], 0], [[0.5, 4.5, 5.5], 2], [[0.5, 4.5, 5.5], 0], [[1, 4.5, 6], 0], [[3, 4, 5, 6], 2]];
+function modus(sperre){ return sperre ? "Ein Nachschalten ist erst nach 2 Minuten möglich." : "Sie kann jederzeit nachgeschaltet werden."; }
+function qDauer(){
+  var f = pick(FOLGEN), r = simuliere(f[0], 3, f[1]), c = dauer(r.iv), anders = dauer(simuliere(f[0], 3, f[1] ? 0 : 2).iv);
+  return {
+    text: "Die Minuterie ohne Ausschaltvoranzeige ist auf 3 Minuten eingestellt. " + modus(f[1]) + " Wie lange brennt das Licht insgesamt?" + bild(f[0], 3, f[1], {lampe:false}),
+    parts: [{label:"Leuchtdauer insgesamt", options:optionen(c, [anders, f[0].length * 3, 3, c + 1.5]), correct:c, mono:true, show:min}],
+    hint: "Zeichnen Sie den Verlauf des Lichts ein: Jeder wirksame Impuls lässt das Licht ab diesem Moment 3 Minuten brennen.",
+    solution: "<p><b>" + min(c) + "</b></p><p>Das Licht brennt " + r.iv.map(function(v){ return "von " + z(v[0]) + " bis " + min(v[1]); }).join(" und ") + ".</p>" + bild(f[0], 3, f[1], {log:true})
+  };
+}
+function qDiagramm(){
+  var f = pick(FOLGEN), c = simuliere(f[0], 3, f[1]).iv, kand = [], sig = function(v){ return JSON.stringify(v); };
+  kand.push(simuliere(f[0], 3, f[1] ? 0 : 2).iv);                     /* andere Einstellung zum Nachschalten */
+  kand.push(simuliere(f[0], 3, 99).iv);                               /* gar nicht nachgeschaltet */
+  kand.push(f[0].map(function(t){ return [t, Math.min(t + 0.5, TMAX)]; }));   /* Licht folgt nur kurz dem Taster */
+  kand.push(c.map(function(v){ return [v[0], Math.min(v[1] + 1.5, TMAX)]; }));
+  kand.push(c.map(function(v){ return [v[0], Math.max(v[0] + 1, v[1] - 1)]; }));
+  kand = kand.map(verbinde);
+  var falsch = []; kand.forEach(function(k){ if (sig(k) !== sig(c) && !falsch.some(function(x){ return sig(x) === sig(k); })) falsch.push(k); });
+  var reihe = shuffle([c].concat(falsch.slice(0, 3))), buch = ["A", "B", "C", "D"], opt = reihe.map(function(k, n){ return "<span class=\"ol\">Verlauf " + buch[n] + "</span>" + miniKurve(k); }), ci = reihe.indexOf(c);
+  return {
+    text: "Die Minuterie ohne Ausschaltvoranzeige ist auf 3 Minuten eingestellt. " + modus(f[1]) + " Welcher Verlauf zeigt das Licht richtig?" + bild(f[0], 3, f[1], {lampe:false}),
+    parts: [{label:"Verlauf des Lichts", options:opt, correct:opt[ci]}],
+    hint: f[1] ? "Ein Impuls innerhalb der ersten 2 Minuten nach dem Einschalten oder Nachschalten hat keine Wirkung." : "Jeder Impuls setzt die Verzögerungszeit wieder auf 3 Minuten.",
+    solution: "<p><b>Verlauf " + buch[ci] + "</b></p><p>Das Licht brennt " + c.map(function(v){ return "von " + z(v[0]) + " bis " + min(v[1]); }).join(" und ") + ".</p>" + bild(f[0], 3, f[1], {log:true})
+  };
+}
+var KONZEPT = [
+  {t:"Was ist eine Minuterie?", o:["Ein abfallverzögertes Relais für den Einsatz in Treppenhäusern", "Ein Schalter, der bei jedem Impuls umschaltet", "Eine Schaltuhr mit Tagesprogramm", "Ein Schalter, der bei Dunkelheit einschaltet"], s:"Wird die Minuterie über einen Taster aktiviert, bleibt das Licht eingeschaltet, bis die voreingestellte Zeit abgelaufen ist."},
+  {t:"Was bedeutet «nachschaltbar» bei einer Minuterie?", o:["Wird der Taster vor Ablauf der Zeit erneut betätigt, wird die Verzögerungszeit wieder auf 100 % zurückgesetzt.", "Das Licht kann mit dem Taster vorzeitig ausgeschaltet werden.", "Die eingestellte Zeit verdoppelt sich bei jedem Tastendruck.", "Das Licht bleibt dauernd eingeschaltet."], s:"AAD28.9."},
+  {t:"Welche zwei Stellungen hat der eingebaute Wahlschalter einer Minuterie?", o:["Automat oder Dauerlicht", "Ein oder Aus", "Tag oder Nacht", "Hand oder Fernbedienung"], s:"Merkmale von Minuterien, AAD28.9."},
+  {t:"In welchem Bereich liegt der einstellbare Zeitbereich von Minuterien gemäss Theoriebuch?", o:["Zwischen 0,5 und 30 min", "Zwischen 1 und 5 s", "Zwischen 1 und 24 h", "Fest bei 3 min"], s:"Merkmale von Minuterien, AAD28.9."},
+  {t:"Was bewirkt die Ausschaltvoranzeige (Halblichtschaltung)?", o:["Etwa 30 Sekunden vor dem Ausschalten leuchten die Lampen mit verminderter Helligkeit.", "Das Licht blinkt während der ganzen Betriebsdauer.", "Das Licht schaltet 30 Sekunden früher aus.", "Die Taster leuchten rot."], s:"So tritt die völlige Dunkelheit nicht plötzlich ein (AAD28.9)."},
+  {t:"Übung 27: Die Minuterie ist auf 3 Minuten eingestellt, ein Nachschalten ist erst nach 2 Minuten möglich. Das Licht schaltet bei 5 min ein. Ab wann wirkt ein neuer Tastendruck?", o:["Ab 7 min", "Ab 5 min", "Ab 8 min", "Erst wenn das Licht aus ist"], s:"5 min + 2 min = 7 min. Der Impuls bei 7,5 min schaltet deshalb nach, das Licht brennt bis 10,5 min."},
+  {t:"Wie heisst die Minuterieschaltung, die im Theoriebuch dargestellt ist und grundsätzlich nachschaltbar ist?", o:["4-Leiter-Schaltung", "Wechselschaltung", "Kreuzschaltung", "Serieschaltung"], s:"Die dargestellten Schaltungen werden als 4-Leiter-Schaltung bezeichnet (AAD28.9)."}
+];
+function qKonzept(){
+  var k = pick(KONZEPT);
+  return { text:k.t, parts:[{label:"Antwort", options:shuffle(k.o), correct:k.o[0]}], hint:"Lesen Sie im Theoriebuch auf AAD28.9 nach.", solution:"<p><b>" + k.o[0] + "</b></p><p>" + k.s + "</p>" };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.14) return qEnde();
+  if (x < 0.40) return qNach();
+  if (x < 0.60) return qDauer();
+  if (x < 0.82) return qDiagramm();
+  return qKonzept();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qEnde, qNach, qNach, qDauer, qDauer, qDiagramm, qDiagramm, qKonzept]); }});
+})();
+
+</script>
+</body>
+</html>

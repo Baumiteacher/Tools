@@ -31,7 +31,10 @@ h1{font-size:1.6rem;line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}
 .seg button[aria-pressed=true]{background:var(--accent);color:var(--surface);font-weight:600}
 .count{margin:0 0 18px;color:var(--muted);font-size:.9rem}
 h2{font-size:1.05rem;margin:28px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-h2 small{font-weight:400;color:var(--muted);font-size:.9rem}
+h2 small,h3 small{font-weight:400;color:var(--muted);font-size:.9rem}
+h2.sem{font-size:1.25rem;margin-top:36px;border-bottom:3px solid var(--accent)}
+h3{font-size:1.02rem;margin:22px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.bar select{font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text)}
 ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:6px 14px;align-items:center}
 .sw{font-variant-numeric:tabular-nums;font-weight:700;font-size:.9rem;padding:4px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
@@ -46,7 +49,7 @@ li{background:var(--surface);border:1px solid var(--line);border-radius:10px;pad
 .btn.copy{background:var(--accent);color:var(--surface)}
 .btn.open{background:transparent;color:var(--accent)}
 .btn.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
-.btn:focus-visible,.seg button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .empty{color:var(--muted);padding:24px 0}
 footer{margin-top:36px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:620px){
@@ -62,6 +65,7 @@ footer{margin-top:36px;color:var(--muted);font-size:.85rem;border-top:1px solid 
 
   <div class="bar">
     <input type="search" id="suche" placeholder="Suchen, z. B. SW08, Erder, ID3" aria-label="Tools durchsuchen">
+    <select id="semester" aria-label="Semester wählen"></select>
     <div class="seg" role="group" aria-label="Sortierung">
       <button type="button" id="nach-block" aria-pressed="true">Nach Block</button>
       <button type="button" id="nach-sw" aria-pressed="false">Nach Schulwoche</button>
@@ -71,7 +75,7 @@ footer{margin-top:36px;color:var(--muted);font-size:.85rem;border-top:1px solid 
 
   <div id="liste"></div>
 
-  <footer>Stand: 6. Oktober 2026 · 30 Tools · Die Schulwoche stammt aus dem Dateinamen und ist ein Richtwert.</footer>
+  <footer>Stand: 7. Oktober 2026 · <span id="fuss-anzahl"></span> · Die Schulwoche stammt aus dem Dateinamen, zählt innerhalb des Semesters und ist ein Richtwert.</footer>
 </div>
 
 <script>
@@ -87,9 +91,15 @@ var BLOECKE = {
   ID3:"Potenzialausgleich",
   ID4:"EFH Treppenhaus UG EG",
   ID5:"Einphasige Beleuchtungsinstallationen im Wohnbereich",
-  KT1:"Vom Netzanbieter zum Endgerät"
+  KT1:"Vom Netzanbieter zum Endgerät",
+  ID6:"Apparate und Leitungen, einfache Verbraucherinstallation",
+  ID7:"Apparate und Leitungen, MFH Technik",
+  ID8:"Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt"
 };
-var REIHE = ["AS3","AS4","ID1","ID2","ID3","ID4","ID5","KT1"];
+var REIHE = ["AS3","AS4","ID1","ID2","ID3","ID4","ID5","KT1","ID6","ID7","ID8"];
+/* Semester jedes Blocks (1 bis 8). Ein neuer Block braucht hier einen Eintrag. */
+var SEMESTER = {AS3:1, AS4:1, ID1:1, ID2:1, ID3:1, ID4:1, ID5:1, KT1:1, ID6:2, ID7:2, ID8:2};
+var SEMESTER_MAX = 8;
 
 /* [Block, Teilauftrag, Schulwoche, Titel, Übungen, Dateiname] */
 var TOOLS = [
@@ -122,16 +132,66 @@ var TOOLS = [
   ["KT1","TA1", 9,"FTTH-Referenzmodell","Ü2","B_TK_1_SW09_FTTH-Referenzmodell.html"],
   ["KT1","TA2",10,"Hausanschluss-Berater","Ü3–4","B_TK_1_SW10_Hausanschluss-Berater.html"],
   ["KT1","TA2",11,"Bit-und-Byte-Rechner","Ü5–6","B_TK_1_SW11_Bit-und-Byte-Rechner.html"],
-  ["KT1","TA4",13,"Router-Rückseite und Dosen","Ü10–13","B_TK_1_SW13_Router-Rueckseite-und-Dosen.html"]
+  ["KT1","TA4",13,"Router-Rückseite und Dosen","Ü10–13","B_TK_1_SW13_Router-Rueckseite-und-Dosen.html"],
+  ["ID6","TA1", 1,"Kontakte beschriften: Ordnungs- und Funktionsziffer","Ü1–5","B_ID_6_SW01_Kontakte-beschriften.html"],
+  ["ID6","TA1", 1,"Stromlaufschema lesen: Strompfad und Kontakttabelle","Ü6–7","B_ID_6_SW01_Stromlaufschema-lesen.html"],
+  ["ID6","TA6", 1,"Leistungs-Rechner: P, U, I und R","Ü39–48","B_ID_6_SW01_Leistungs-Rechner.html"],
+  ["ID6","TA2", 2,"Schrittschalter: Zeitdiagramm","Ü8–9","B_ID_6_SW02_Schrittschalter-Zeitdiagramm.html"],
+  ["ID6","TA2", 2,"Massstab 1:50: Einmessen im Plan","Ü14, 24","B_ID_6_SW02_Massstab-Einmessen-im-Plan.html"],
+  ["ID6","TA6", 2,"Parallelschaltung mit Leistung","Ü49–50","B_ID_6_SW02_Parallelschaltung-mit-Leistung.html"],
+  ["ID6","TA6", 2,"Handtuchradiator am 13-A-FI-LS","Ü51","B_ID_6_SW02_Handtuchradiator-am-13-A-FI-LS.html"],
+  ["ID6","TA2", 2,"Schrittschaltung: Stromweg verfolgen","Ü10–12","B_ID_6_SW02_Schrittschaltung-Stromweg-verfolgen.html"],
+  ["ID6","TA2", 2,"Drahtarten im Installationsplan: Schrittschaltung","Ü13, 23","B_ID_6_SW02_Drahtarten-im-Installationsplan-Schrittschaltung.html"],
+  ["ID6","TA2", 2,"Orientierungs- oder Permanentlampe?","Ü15–21","B_ID_6_SW02_Orientierungs-oder-Permanentlampe.html"],
+  ["ID6","TA7", 3,"Gesetzespyramide und Normen: BV bis WV","Ü52–56","B_ID_6_SW03_Gesetzespyramide-und-Normen.html"],
+  ["ID6","TA7", 3,"Leitungs- und Sicherungsabschnitte","Ü57–58","B_ID_6_SW03_Leitungs-und-Sicherungsabschnitte.html"],
+  ["ID6","TA7", 4,"Basisschutz, Fehlerschutz, Zusatzschutz","Ü60–69","B_ID_6_SW04_Basisschutz-Fehlerschutz-Zusatzschutz.html"],
+  ["ID6","TA3", 4,"Minuterie: Zeitdiagramm","Ü26–27","B_ID_6_SW04_Minuterie-Zeitdiagramm.html"],
+  ["ID6","TA3", 4,"Minuterie in 4-Leiter-Schaltung: Stromweg","Ü28–30","B_ID_6_SW04_Minuterie-Stromweg-verfolgen.html"],
+  ["ID6","TA4", 5,"Kontrolllampe: Wann leuchtet sie?","Ü32–34","B_ID_6_SW05_Kontrolllampe-Wann-leuchtet-sie.html"],
+  ["ID6","TA4", 5,"Kontrolllampe nachrüsten: Welcher Draht fehlt?","Ü35–37","B_ID_6_SW05_Kontrolllampe-nachruesten-Welcher-Draht-fehlt.html"],
+  ["ID6","TA5", 5,"Kreuzschaltung Schema 6: Fehler finden","Ü38","B_ID_6_SW05_Kreuzschaltung-Schema-6-Fehler-finden.html"],
+  ["ID7","TA1", 6,"Minuterie mit Dauerlicht: Überbrückung und H-0-A","Ü1, 3","B_ID_7_SW06_Minuterie-mit-Dauerlicht.html"],
+  ["ID7","TA1", 6,"Drahtzugplan Treppenhaus","Ü2","B_ID_7_SW06_Drahtzugplan-Treppenhaus.html"],
+  ["ID7","TA1", 6,"Zeitschaltuhr: Wann brennt das Licht?","Ü4–9","B_ID_7_SW06_Zeitschaltuhr-Wann-brennt-das-Licht.html"],
+  ["ID7","TA5", 7,"Stromdichte: Zuleitung, Glühwendel, Kupferschiene","Ü50–52","B_ID_7_SW07_Stromdichte.html"],
+  ["ID7","TA1", 8,"Dämmerungsschalter einstellen","Ü10–13","B_ID_7_SW08_Daemmerungsschalter-einstellen.html"],
+  ["ID7","TA1", 8,"Wegbeleuchtung: Schaltuhr, Dämmerungsschalter und Minuterie","Ü14–15","B_ID_7_SW08_Wegbeleuchtung-Schaltuhr-Daemmerungsschalter-Minuterie.html"],
+  ["ID7","TA6", 8,"Serieschaltung mit Leistung: Vorwiderstand und zwei Lampen","Ü53–56","B_ID_7_SW08_Serieschaltung-mit-Leistung.html"],
+  ["ID7","TA2", 9,"IP-Code entschlüsseln","Ü16–30","B_ID_7_SW09_IP-Code-entschluesseln.html"],
+  ["ID7","TA2", 9,"IP und IK am Einsatzort wählen","Ü31–37","B_ID_7_SW09_IP-und-IK-am-Einsatzort.html"],
+  ["ID7","TA7", 9,"Leiterwiderstand umstellen: Länge, Querschnitt oder Material","Ü57–59, 61, 62, 64","B_ID_7_SW09_Leiterwiderstand-umstellen.html"],
+  ["ID7","TA7", 9,"Fehlerort im Kabel finden","Ü60, 63","B_ID_7_SW09_Fehlerort-im-Kabel-finden.html"],
+  ["ID7","TA8",10,"Spannungsfall-Labor: Volt und Prozent","Ü65–68, 70","B_ID_7_SW10_Spannungsfall-Labor.html"],
+  ["ID7","TA8",10,"Spannungsfall: Querschnitt oder Länge bestimmen","Ü69, 71, 73","B_ID_7_SW10_Spannungsfall-Querschnitt-oder-Laenge.html"],
+  ["ID7","TA8",10,"Warum leuchtet der Scheinwerfer schwächer?","Ü72, 74","B_ID_7_SW10_Warum-leuchtet-der-Scheinwerfer-schwaecher.html"],
+  ["ID7","TA3",11,"Schallschutz SIA 181: Steckdosen und Verteiler platzieren","Ü38–43","B_ID_7_SW11_Schallschutz-SIA-181.html"],
+  ["ID7","TA4",12,"Lichtausbeute: Lampen vergleichen","Ü44–47, 49","B_ID_7_SW12_Lichtausbeute-Lampen-vergleichen.html"],
+  ["ID8","TA1",13,"PIR-Melder: Erfassung und Montageort","Ü1–9","B_ID_8_SW13_PIR-Melder-Erfassung-und-Montageort.html"],
+  ["ID8","TA3",13,"Relais und Schütz: Aufbau und Funktion","Ü17–19, 21","B_ID_8_SW13_Relais-und-Schuetz-Aufbau-und-Funktion.html"],
+  ["ID8","TA3",13,"Schütz, Motorschutzrelais, Zeitrelais: Anschlüsse beschriften","Ü20, 22–26","B_ID_8_SW13_Schuetz-Motorschutzrelais-Zeitrelais-beschriften.html"],
+  ["ID8","TA2",14,"Bewegungsmelder anschliessen: L, N, Lampe, T/K","Ü10, 11","B_ID_8_SW14_Bewegungsmelder-anschliessen.html"],
+  ["ID8","TA2",14,"Bewegungsmelder einstellen: Zeit und Helligkeit","Ü11, 12","B_ID_8_SW14_Bewegungsmelder-einstellen.html"],
+  ["ID8","TA2",14,"Master und Slave: Erfassungsbereich erweitern","Ü13, 14","B_ID_8_SW14_Master-und-Slave-Erfassungsbereich-erweitern.html"],
+  ["ID8","TA2",14,"Korridor mit drei Zonen: Präsenzmelder","Ü15","B_ID_8_SW14_Korridor-mit-drei-Zonen-Praesenzmelder.html"],
+  ["ID8","TA4",14,"Sportplatz: 1 × 230 V oder 3 × 230 V?","Ü28","B_ID_8_SW14_Sportplatz-1x230V-oder-3x230V.html"],
+  ["ID8","TA4",14,"Dauerkontaktsteuerung: Schütz mit Kontrolllampe","Ü29, 32","B_ID_8_SW14_Dauerkontaktsteuerung-Schuetz-mit-Kontrolllampe.html"],
+  ["ID8","TA4",14,"Kleinverteiler planen: Teilungseinheiten und Material","Ü27, 30, 31","B_ID_8_SW14_Kleinverteiler-planen-Teilungseinheiten-und-Material.html"],
+  ["ID8","TA5",16,"Impulskontaktsteuerung: Selbsthaltung","Ü16, 34, 35","B_ID_8_SW16_Impulskontaktsteuerung-Selbsthaltung.html"],
+  ["ID8","TA5",16,"Steuerkabel zuordnen: Klemme X1.2","Ü36–38","B_ID_8_SW16_Steuerkabel-zuordnen-Klemme-X1-2.html"],
+  ["ID8","TA6",17,"Werkstück vermassen","Ü40–43","B_ID_8_SW17_Werkstueck-vermassen.html"],
+  ["ID8","TA6",17,"Bohrungen anreissen: Blindabdeckung und Trägerplatte","Ü44–46","B_ID_8_SW17_Bohrungen-anreissen-Blindabdeckung-und-Traegerplatte.html"]
 ];
 
-var modus = "block", suche = "";
+var modus = "block", suche = "", sem = 0;
+function semVon(t){ return SEMESTER[t[0]] || 0; }
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function sw2(n){ return "SW" + (n < 10 ? "0" : "") + n; }
 function passt(t){
+  if (sem && semVon(t) !== sem) return false;
   if (!suche) return true;
-  var text = (t[0] + " " + t[1] + " " + sw2(t[2]) + " SW" + t[2] + " " + t[3] + " " + t[4] + " " + BLOECKE[t[0]] + " " + t[5]).toLowerCase();
+  var text = (t[0] + " " + t[1] + " " + sw2(t[2]) + " SW" + t[2] + " " + t[3] + " " + t[4] + " " + BLOECKE[t[0]] + " " + t[5] + " " + semVon(t) + ". semester sem" + semVon(t)).toLowerCase();
   return suche.split(/\s+/).every(function(w){ return text.indexOf(w) >= 0; });
 }
 function eintrag(t){
@@ -144,28 +204,45 @@ function eintrag(t){
     "<a class=\"btn open\" href=\"" + esc(t[5]) + "\" target=\"_blank\" rel=\"noopener\">Öffnen</a></div>" +
     "<div class=\"url\">" + esc(url) + "</div></li>";
 }
+function anzahlText(n){ return n + (n === 1 ? " Tool" : " Tools"); }
 function render(){
-  var treffer = TOOLS.filter(passt), h = "";
+  var treffer = TOOLS.filter(passt), h = "", s;
   if (!treffer.length){
-    h = "<p class=\"empty\">Kein Tool gefunden. Suchbegriff anpassen.</p>";
-  } else if (modus === "block"){
-    REIHE.forEach(function(b){
-      var l = treffer.filter(function(t){ return t[0] === b; });
-      if (!l.length) return;
-      h += "<h2>" + b + " " + esc(BLOECKE[b]) + " <small>" + l.length + (l.length === 1 ? " Tool" : " Tools") + "</small></h2><ul>" + l.map(eintrag).join("") + "</ul>";
-    });
+    h = "<p class=\"empty\">Kein Tool gefunden. Suchbegriff oder Semester anpassen.</p>";
   } else {
-    var wochen = [];
-    treffer.forEach(function(t){ if (wochen.indexOf(t[2]) < 0) wochen.push(t[2]); });
-    wochen.sort(function(a,b){ return a - b; }).forEach(function(w){
-      var l = treffer.filter(function(t){ return t[2] === w; });
-      h += "<h2>Schulwoche " + w + " <small>" + l.length + (l.length === 1 ? " Tool" : " Tools") + "</small></h2><ul>" + l.map(eintrag).join("") + "</ul>";
-    });
+    for (s = 1; s <= SEMESTER_MAX; s++){
+      var imSem = treffer.filter(function(t){ return semVon(t) === s; });
+      if (!imSem.length) continue;
+      h += "<h2 class=\"sem\">" + s + ". Semester <small>" + anzahlText(imSem.length) + "</small></h2>";
+      if (modus === "block"){
+        REIHE.forEach(function(b){
+          var l = imSem.filter(function(t){ return t[0] === b; });
+          if (!l.length) return;
+          h += "<h3>" + b + " " + esc(BLOECKE[b]) + " <small>" + anzahlText(l.length) + "</small></h3><ul>" + l.map(eintrag).join("") + "</ul>";
+        });
+      } else {
+        var wochen = [];
+        imSem.forEach(function(t){ if (wochen.indexOf(t[2]) < 0) wochen.push(t[2]); });
+        wochen.sort(function(a,b){ return a - b; }).forEach(function(w){
+          var l = imSem.filter(function(t){ return t[2] === w; });
+          h += "<h3>Schulwoche " + w + " <small>" + anzahlText(l.length) + "</small></h3><ul>" + l.map(eintrag).join("") + "</ul>";
+        });
+      }
+    }
   }
   $("liste").innerHTML = h;
   $("anzahl").textContent = treffer.length + " von " + TOOLS.length + " Tools";
+  $("fuss-anzahl").textContent = anzahlText(TOOLS.length);
   $("nach-block").setAttribute("aria-pressed", String(modus === "block"));
   $("nach-sw").setAttribute("aria-pressed", String(modus === "sw"));
+}
+function baueSemester(){
+  var h = "<option value=\"0\">Alle Semester</option>", s;
+  for (s = 1; s <= SEMESTER_MAX; s++){
+    var n = TOOLS.filter(function(t){ return semVon(t) === s; }).length;
+    h += "<option value=\"" + s + "\">" + s + ". Semester (" + (n ? anzahlText(n) : "noch keine Tools") + ")</option>";
+  }
+  $("semester").innerHTML = h;
 }
 function kopiereAlt(text){
   var ta = document.createElement("textarea");
@@ -191,6 +268,8 @@ $("liste").addEventListener("click", function(ev){
 $("suche").addEventListener("input", function(){ suche = this.value.trim().toLowerCase(); render(); });
 $("nach-block").addEventListener("click", function(){ modus = "block"; render(); });
 $("nach-sw").addEventListener("click", function(){ modus = "sw"; render(); });
+$("semester").addEventListener("change", function(){ sem = Number(this.value); render(); });
+baueSemester();
 render();
 })();
 </script>

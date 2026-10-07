@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_8 TA1 PIR-Melder: Erfassung und Montageort BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.r-slider{display:grid;grid-template-columns:12em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700;font-family:var(--sans);font-size:.9rem}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.urteil{font-weight:700;border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.urteil.ok{border-color:var(--ok);color:var(--ok)}
+.urteil.bad{border-color:var(--bad);color:var(--bad)}
+.bild{width:100%;height:auto;display:block}
+:root{--ir:#E8590C;--ir-soft:rgba(232,89,12,.13);--teich:#1D4ED8;--gruen:#178A2F;--mauer:#7D7D7D}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--ir:#FF9457;--ir-soft:rgba(255,148,87,.16);--teich:#7FA5FF;--gruen:#6BD47E;--mauer:#8C97A3} }
+:root[data-theme="dark"]{--ir:#FF9457;--ir-soft:rgba(255,148,87,.16);--teich:#7FA5FF;--gruen:#6BD47E;--mauer:#8C97A3}
+.z-feld{fill:var(--ir-soft);stroke:none}
+.z-strahl{stroke:var(--ir);stroke-width:.7;fill:none;opacity:.75}
+.z-rand{stroke:var(--ir);stroke-width:1;fill:none;stroke-dasharray:4 3}
+.z-weg{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:2 3}
+.z-weg.an{stroke:var(--ink);stroke-width:1.6;stroke-dasharray:none}
+.z-x{fill:var(--surface);stroke:var(--ir);stroke-width:1.5}
+.z-x.erst{fill:var(--lampe);stroke:var(--ink)}
+.z-pir{fill:var(--ink);stroke:none}
+.z-t{fill:var(--muted);font-family:var(--sans);font-size:9px}
+.z-t.k{fill:var(--ink);font-weight:700}
+.p-kopf{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+.p-pfeil{stroke:var(--bad);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+:root{--lampe:#F6D13A}
+.sk{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.sk.dn{stroke-width:.8}
+.sk-mauer{fill:var(--mauer);stroke:var(--ink);stroke-width:1.2}
+.sk-teich{fill:none;stroke:var(--teich);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.sk-gruen{fill:none;stroke:var(--gruen);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.sk-t{fill:var(--ink);font-family:var(--sans);font-size:9.5px;font-style:italic}
+.sk-neu{fill:var(--teich)} .sk-neu-s{stroke:var(--teich);fill:none;stroke-width:1.3;stroke-linecap:round}
+.werte{font-variant-numeric:tabular-nums;font-size:.92rem;display:flex;flex-wrap:wrap;gap:4px 16px}
+.werte b{font-weight:700}
+.licht{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.licht i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);display:inline-block;background:var(--surface)}
+.licht.an i{background:var(--lampe)}
+.vgl{width:100%;border-collapse:collapse;font-size:.9rem}
+.vgl th,.vgl td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:left;vertical-align:top}
+.vgl thead th{font-size:.8rem;color:var(--muted);font-weight:600}
+.q-bild{display:block;width:100%;max-width:360px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.regel{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt · Teilauftrag 1</p>
+    <h1>PIR-Melder: Erfassung und Montageort BAP</h1>
+    <p class="lead">Ein PIR-Melder reagiert auf Wärme, die sich durch seine Erfassungszonen bewegt. Probieren Sie aus, weshalb Querbewegungen früher erkannt werden als Frontalbewegungen, und finden Sie für Reto Keel den besseren Montageort.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel" aria-live="polite">
+        <h2>Quer oder frontal? Das Zonenmodell</h2>
+        <fieldset>
+          <legend>Laufrichtung der Person wählen</legend>
+          <div class="opts" id="richtung">
+            <button class="opt txt" type="button" data-r="quer" aria-pressed="true">quer am Melder vorbei</button>
+            <button class="opt txt" type="button" data-r="schraeg" aria-pressed="false">schräg</button>
+            <button class="opt txt" type="button" data-r="frontal" aria-pressed="false">frontal auf den Melder zu</button>
+          </div>
+        </fieldset>
+        <svg class="bild" id="zonen" viewBox="0 0 340 200" role="img" aria-label="Zonenmodell eines PIR-Melders von oben: Erfassungszonen als Fächer, Weg der Person und die Stellen, an denen sie eine Zonengrenze überquert"></svg>
+        <label class="r-slider" for="s-weg"><span class="num" id="v-s-weg"></span><input type="range" id="s-weg" min="0" max="100" step="1" value="0"></label>
+        <p class="werte" id="werte"></p>
+        <p class="urteil" id="urteil"></p>
+        <p class="note">Vereinfachtes Modell mit Beispielwerten: Der Melder schaltet ein, sobald die Wärmequelle von einer Zone in die nächste wechselt. Kreise: überquerte Zonengrenzen; der gelbe Kreis ist die erste.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Der Melder von Reto Keel (Übung 9)</h2>
+        <div class="seg" id="ort">
+          <button class="opt txt" type="button" data-o="alt" aria-pressed="true">Melder wie bisher</button>
+          <button class="opt txt" type="button" data-o="neu" aria-pressed="false">Lösungsvorschlag</button>
+        </div>
+        <svg class="bild" id="skizze" viewBox="0 0 330 236" role="img" aria-label="Skizze wie in Übung 9 von oben: Haus mit Terrasse, Weg zwischen Haus und Parkplatz, Teich neben dem Weg und der Bewegungsmelder mit seinem Erfassungsbereich"></svg>
+        <p class="urteil" id="sk-urteil"></p>
+        <p class="note">Skizze nach dem Arbeitsblatt, nicht massstäblich. Orange: Erfassungsbereich mit Zonen. Rote Pfeile: Laufrichtung.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Bewegungsmelder oder Präsenzmelder?</h2>
+        <table class="vgl">
+          <thead><tr><th></th><th>Bewegungsmelder</th><th>Präsenzmelder</th></tr></thead>
+          <tbody>
+            <tr><td>geeignet für</td><td>wenig Tageslicht, kurzzeitige Nutzung, Gehbewegungen</td><td>gut beleuchtete Räume mit längerer Nutzung durch sitzende Personen</td></tr>
+            <tr><td>Beispiele</td><td>Hauseingänge, Treppenhäuser, Korridore, Keller, Garagen, Aussenbereiche</td><td>Büros, Schulzimmer, Korridore, Hallen, Krankenhäuser</td></tr>
+            <tr><td>Besonderes</td><td>ruhende Personen werden nicht erkannt</td><td>deutlich empfindlicher: erkennt kleinste Bewegungen; kann bei genug Tageslicht ausschalten, auch wenn Personen im Raum sind</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Theoriebuch AAD28.14, Übungen 4 bis 7.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>PIR steht für Passiv-Infrarot. Passiv bedeutet: Ein PIR sendet keine eigene Infrarotstrahlung aus, sondern erfasst lediglich die Infrarotstrahlung seiner Umgebung (Übungen 1 und 2).</p>
+          <p>Infrarotstrahlung kann Fensterglas nicht durchdringen: Durch ein Fenster erfasst ein PIR keine Bewegungen (Übung 3). Auch Wände halten die Strahlung auf.</p>
+          <p>Querbewegungen werden von einem PIR-Bewegungsmelder besser erkannt als Frontalbewegungen (Übung 9).</p>
+          <p>Einschränkungen: Ruhende Personen werden nicht erkannt. Fehlauslösungen können durch Haustiere oder starke Wärmequellen verursacht werden (Übung 7).</p>
+          <p>Störquellen im Erfassungsbereich (Übung 8): warme Gegenstände wie Heizlüfter, heisse Leuchten in der Nähe des Melders, sich bewegende Gegenstände wie Dekorationen im Luftzug, Luftströmungen mit wechselnder warmer und kalter Luft.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Wie viele Zonengrenzen überquert die Person quer zum Melder, und nach wie vielen Metern geht das Licht an?</li>
+          <li>Wie weit kommt die Person frontal an den Melder heran, bevor das Licht angeht?</li>
+          <li>Weshalb reagiert der Melder von Reto Keel am bisherigen Ort so spät?</li>
+          <li>Was ändert sich mit dem Lösungsvorschlag an der Laufrichtung der Personen, vom Melder aus gesehen?</li>
+          <li>Reto Keel überlegt, den Melder hinter das Fenster ins Haus zu setzen. Weshalb funktioniert das nicht?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Schemazeichnen AAD28.14, Passiv-Infrarot-Bewegungsmelder PIR.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID8 Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt, Teilauftrag 1 Bewegungs- und Präsenzmelder: Übungen 1 bis 9 (ID8.2 bis ID8.4)</li><li>Theoriebuch Schemazeichnen, Kapitel 28 Lampen- und Schwachstromschaltungen: AAD28.14 (Passiv-Infrarot-Bewegungsmelder PIR)</li><li>Feller AG, Systemhandbuch Bewegungs- und Präsenzmelder pirios, Abschnitte zur Erfassung (Recherche): Die tangentiale Erfassung ist empfindlicher als die Erfassung einer frontalen Annäherung; Störquellen.</li><li>Das Zonenmodell (Zonen alle 15 Grad, Reichweite 10 m) ist eine Vereinfachung des Tools mit Beispielwerten, keine Herstellerangabe. Die Skizze zu Übung 9 ist nicht massstäblich.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+var NB = String.fromCharCode(160);
+function n(x){ return Math.round(x * 100) / 100; }
+function m1(x){ return (Math.round(x * 10) / 10).toFixed(1).replace(".", ",") + NB + "m"; }
+function txt(x, y, t, cls, anker){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\" text-anchor=\"" + (anker || "middle") + "\">" + t + "</text>"; }
+/* Person von oben wie in der Skizze des Arbeitsblatts: Schultern, Kopf */
+function person(x, y, grad){ return "<g transform=\"rotate(" + n(grad) + " " + n(x) + " " + n(y) + ")\"><ellipse class=\"p-kopf\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" rx=\"3.8\" ry=\"8.4\"/><circle class=\"p-kopf\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"4.1\"/></g>"; }
+function pfeil(x1, y1, x2, y2, cls){
+  var L = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)), ux = (x2 - x1) / L, uy = (y2 - y1) / L, a = 5, b = 3;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(x2) + " " + n(y2) + " M" + n(x2 - ux * a - uy * b) + " " + n(y2 - uy * a + ux * b) + " L" + n(x2) + " " + n(y2) + " L" + n(x2 - ux * a + uy * b) + " " + n(y2 - uy * a - ux * b) + "\"/>";
+}
+
+/* ---------- Zonenmodell (Beispielwerte): Melder im Ursprung, Zonen alle 15 Grad über 180 Grad, Reichweite 10 m ---------- */
+var Z = {grad:15, R:10, k:16, x0:170, y0:186};
+var WEGE = {
+  quer:{a:[-8, 4], b:[8, 4], name:"quer am Melder vorbei"},
+  schraeg:{a:[-5.5, 8], b:[4, 1], name:"schräg"},
+  frontal:{a:[0.5, 9.9], b:[0.5, 0.8], name:"frontal auf den Melder zu"}
+};
+function zx(x){ return Z.x0 + x * Z.k; }
+function zy(y){ return Z.y0 - y * Z.k; }
+function zone(x, y){ return Math.floor(Math.atan2(y, x) * 180 / Math.PI / Z.grad + 1e-9); }
+/* alle Zonenwechsel entlang des Wegs: Liste von {s: Weg in m, x, y} */
+function wechsel(w){
+  var dx = w.b[0] - w.a[0], dy = w.b[1] - w.a[1], L = Math.sqrt(dx * dx + dy * dy), N = 4000, out = [], z0 = null;
+  for (var i = 0; i <= N; i++){
+    var t = i / N, x = w.a[0] + dx * t, y = w.a[1] + dy * t, r = Math.sqrt(x * x + y * y);
+    if (r > Z.R + 1e-9 || y < 0){ z0 = null; continue; }
+    var z = zone(x, y);
+    if (z0 !== null && z !== z0) out.push({s:t * L, x:x, y:y});
+    z0 = z;
+  }
+  return {L:L, liste:out};
+}
+function zonenBild(w, anteil, klein){
+  var h = "", r = Z.R * Z.k, we = wechsel(w), s = we.L * anteil;
+  /* Fächer: jede zweite Zone getönt */
+  for (var g = 0; g < 180; g += Z.grad){
+    var a1 = g * Math.PI / 180, a2 = (g + Z.grad) * Math.PI / 180;
+    if ((g / Z.grad) % 2 === 0) h += "<path class=\"z-feld\" d=\"M" + Z.x0 + " " + Z.y0 + " L" + n(Z.x0 + r * Math.cos(a1)) + " " + n(Z.y0 - r * Math.sin(a1)) + " A" + r + " " + r + " 0 0 0 " + n(Z.x0 + r * Math.cos(a2)) + " " + n(Z.y0 - r * Math.sin(a2)) + " Z\"/>";
+  }
+  for (g = 0; g <= 180; g += Z.grad){ var a = g * Math.PI / 180; h += "<path class=\"z-strahl\" d=\"M" + Z.x0 + " " + Z.y0 + " L" + n(Z.x0 + r * Math.cos(a)) + " " + n(Z.y0 - r * Math.sin(a)) + "\"/>"; }
+  h += "<path class=\"z-rand\" d=\"M" + (Z.x0 - r) + " " + Z.y0 + " A" + r + " " + r + " 0 0 1 " + (Z.x0 + r) + " " + Z.y0 + "\"/>";
+  /* Wand und Melder */
+  h += "<path class=\"sk\" d=\"M4 " + (Z.y0 + 4) + " H336\"/><path class=\"z-pir\" d=\"M" + (Z.x0 - 6) + " " + (Z.y0 + 4) + " A6 6 0 0 1 " + (Z.x0 + 6) + " " + (Z.y0 + 4) + " Z\"/>";
+  h += txt(Z.x0, Z.y0 + 13, "Melder an der Wand", "z-t") + txt(Z.x0 + r - 2, Z.y0 - 6, "10 m", "z-t", "end");
+  /* Weg */
+  var ax = zx(w.a[0]), ay = zy(w.a[1]), bx = zx(w.b[0]), by = zy(w.b[1]), px = ax + (bx - ax) * anteil, py = ay + (by - ay) * anteil;
+  h += "<path class=\"z-weg\" d=\"M" + n(ax) + " " + n(ay) + " L" + n(bx) + " " + n(by) + "\"/><path class=\"z-weg an\" d=\"M" + n(ax) + " " + n(ay) + " L" + n(px) + " " + n(py) + "\"/>";
+  var erst = true;
+  we.liste.forEach(function(q){ if (klein || q.s <= s + 1e-9){ h += "<circle class=\"z-x" + (erst && !klein ? " erst" : "") + "\" cx=\"" + n(zx(q.x)) + "\" cy=\"" + n(zy(q.y)) + "\" r=\"3\"/>"; erst = false; } });
+  var grad = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
+  h += person(px, py, grad);
+  if (anteil < 0.97) h += pfeil(px + 8 * Math.cos(grad * Math.PI / 180), py + 8 * Math.sin(grad * Math.PI / 180), px + 22 * Math.cos(grad * Math.PI / 180), py + 22 * Math.sin(grad * Math.PI / 180), "p-pfeil");
+  return {h:h, we:we, s:s, x:w.a[0] + (w.b[0] - w.a[0]) * anteil, y:w.a[1] + (w.b[1] - w.a[1]) * anteil};
+}
+
+/* ---------- Skizze wie Arbeitsblatt ID8 Übung 9 ---------- */
+function faecher(x, y, achse, radius){
+  var h = "", von = achse - 65, bis = achse + 65, g;
+  function p(gr, r){ var a = gr * Math.PI / 180; return n(x + r * Math.cos(a)) + " " + n(y + r * Math.sin(a)); }
+  h += "<path class=\"z-feld\" d=\"M" + x + " " + y + " L" + p(von, radius) + " A" + radius + " " + radius + " 0 0 1 " + p(bis, radius) + " Z\"/>";
+  for (g = von; g <= bis + 0.1; g += 13) h += "<path class=\"z-strahl\" d=\"M" + x + " " + y + " L" + p(g, radius) + "\"/>";
+  return h;
+}
+function skizze(ort){
+  var h = "", neu = ort === "neu";
+  /* Erfassungsbereich zuerst (liegt unter der Zeichnung) */
+  h += neu ? faecher(86.4, 68, 90, 160) : faecher(97, 56.6, 0, 160);
+  /* Haus (Mauer), Terrasse mit Brettern, Weg */
+  h += "<path class=\"sk-mauer\" d=\"M83 2.4 H96 V67.2 H30.2 V55.2 H83 Z\"/>";
+  h += "<path class=\"sk\" d=\"M96 2.4 H187.2 V67.2 H96\"/>";
+  [[107, 1.5], [118, -1.2], [129.5, 1], [141, -0.8], [152, 1.3], [163.5, -1], [175, 0.8]].forEach(function(b){ h += "<path class=\"sk dn\" d=\"M" + b[0] + " 4 C" + (b[0] + b[1] * 2) + " 22 " + (b[0] - b[1] * 2) + " 40 " + (b[0] + b[1]) + " 66\"/>"; });
+  h += "<path class=\"sk\" d=\"M30.2 67.2 V133 H254 M187.2 67.2 V80.6 H254\"/>";
+  /* Teich mit Seerosen, Büsche */
+  h += "<path class=\"sk\" d=\"M74 146 C80 136 104 140 122 138 C140 136 150 140 158 150 C170 164 166 190 152 206 C140 222 112 232 92 226 C76 220 80 196 76 182 C73 170 68 156 74 146 Z\"/>";
+  h += "<path class=\"sk-teich\" d=\"M82 152 L96 160 L84 168 L104 170 L88 182 L108 184 L96 198 L118 196 L108 212 L132 208 L124 222 M112 146 L128 156 L116 164 M138 150 L150 162 L140 172 L152 184 L142 196\"/>";
+  [[124, 156], [140, 172], [122, 188]].forEach(function(s){ h += "<path class=\"sk-gruen\" d=\"M" + (s[0] + 6) + " " + (s[1] - 3) + " A7 6 0 1 0 " + (s[0] + 7) + " " + (s[1] + 2) + " H" + s[0] + " V" + (s[1] - 2) + " H" + (s[0] + 5) + "\"/>"; });
+  [[46, 168, 1], [190, 172, 1], [228, 158, 0.75]].forEach(function(b){ var x = b[0], y = b[1], k = b[2]; h += "<path class=\"sk-gruen\" d=\"M" + n(x - 10 * k) + " " + n(y - 14 * k) + " C" + n(x - 2 * k) + " " + n(y - 24 * k) + " " + n(x + 12 * k) + " " + n(y - 20 * k) + " " + n(x + 12 * k) + " " + n(y - 8 * k) + " C" + n(x + 18 * k) + " " + n(y + 2 * k) + " " + n(x + 14 * k) + " " + n(y + 18 * k) + " " + n(x + 4 * k) + " " + n(y + 20 * k) + " C" + n(x - 8 * k) + " " + n(y + 24 * k) + " " + n(x - 16 * k) + " " + n(y + 12 * k) + " " + n(x - 12 * k) + " " + n(y + 2 * k) + " C" + n(x - 16 * k) + " " + n(y - 6 * k) + " " + n(x - 14 * k) + " " + n(y - 12 * k) + " " + n(x - 10 * k) + " " + n(y - 14 * k) + " Z M" + n(x - 3 * k) + " " + n(y - 6 * k) + " C" + n(x + 3 * k) + " " + n(y - 2 * k) + " " + n(x + 3 * k) + " " + n(y + 6 * k) + " " + n(x - 3 * k) + " " + n(y + 8 * k) + "\"/>"; });
+  /* Personen und Laufrichtung */
+  h += person(48, 102, 0) + pfeil(58, 102, 76, 102, "p-pfeil") + person(240, 109, 0) + pfeil(230, 109, 212, 109, "p-pfeil");
+  h += txt(27, 96, "Vom", "sk-t", "end") + txt(27, 108, "Haus", "sk-t", "end") + txt(292, 104, "Vom", "sk-t") + txt(292, 116, "Parkplatz", "sk-t");
+  /* Melder */
+  if (neu){
+    h += "<circle class=\"sk dn\" cx=\"103.2\" cy=\"56.6\" r=\"4.5\" stroke-dasharray=\"2 2\"/>";
+    h += "<path class=\"sk-neu\" d=\"M79.4 67.6 A7 7 0 0 0 93.4 67.6 Z\"/>";
+    h += "<path class=\"sk-neu-s\" d=\"M108 60 C122 70 118 88 102 84\"/><path class=\"sk-neu\" d=\"M98 83 L104.5 80.6 L103.5 87.6 Z\"/>";
+    h += txt(60, 80, "neu", "z-t k");
+  } else h += "<path class=\"z-pir\" d=\"M96.4 49.6 A7 7 0 0 1 96.4 63.6 Z\"/>";
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var st = {r:"quer", weg:0, ort:"alt"};
+function render(){
+  Array.prototype.forEach.call($("richtung").querySelectorAll("button"), function(b){ b.setAttribute("aria-pressed", String(b.getAttribute("data-r") === st.r)); });
+  var o = zonenBild(WEGE[st.r], st.weg / 100), li = o.we.liste, bisher = li.filter(function(q){ return q.s <= o.s + 1e-9; }), an = bisher.length > 0, erst = li[0];
+  $("zonen").innerHTML = o.h;
+  $("v-s-weg").innerHTML = "Weg: " + m1(o.s) + " von " + m1(o.we.L);
+  $("werte").innerHTML = "<span>Abstand zum Melder: <b>" + m1(Math.sqrt(o.x * o.x + o.y * o.y)) + "</b></span><span>Zonenwechsel bisher: <b>" + bisher.length + "</b> von " + li.length + "</span><span class=\"licht" + (an ? " an" : "") + "\"><i></i>Licht " + (an ? "ein" : "aus") + "</span>";
+  var u = $("urteil"), d = erst ? Math.sqrt(erst.x * erst.x + erst.y * erst.y) : 0;
+  u.className = "urteil " + (st.r === "frontal" ? "bad" : "ok");
+  u.innerHTML = st.r === "quer" ? "Querbewegung: Die Person durchquert auf " + m1(o.we.L) + " Weg " + li.length + " Zonengrenzen. Der Melder reagiert schon nach " + m1(erst.s) + ", in " + m1(d) + " Abstand."
+    : st.r === "schraeg" ? "Schräge Bewegung: Die Person durchquert " + li.length + " Zonengrenzen. Der Melder reagiert nach " + m1(erst.s) + ", in " + m1(d) + " Abstand."
+    : "Frontalbewegung: Die Person bleibt lange in der gleichen Zone. Der Melder reagiert erst nach " + m1(erst.s) + ", wenn die Person nur noch " + m1(d) + " entfernt ist.";
+  Array.prototype.forEach.call($("ort").querySelectorAll("button"), function(b){ b.setAttribute("aria-pressed", String(b.getAttribute("data-o") === st.ort)); });
+  $("skizze").innerHTML = skizze(st.ort);
+  var su = $("sk-urteil");
+  su.className = "urteil " + (st.ort === "neu" ? "ok" : "bad");
+  su.innerHTML = st.ort === "neu" ? "Lösungsvorschlag: Der Melder sitzt an der Hauswand und blickt quer über den Weg. Wer vom Haus oder vom Parkplatz kommt, läuft quer durch die Zonen und wird früh erkannt."
+    : "Wie bisher: Der Melder blickt dem Weg entlang. Die Personen laufen auf den Melder zu oder von ihm weg. Diese Frontalbewegung erkennt er erst spät, auf der Höhe des Teiches.";
+}
+function init(){
+  $("richtung").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-r]"); if (!b) return; st.r = b.getAttribute("data-r"); st.weg = 0; $("s-weg").value = 0; render(); });
+  $("s-weg").addEventListener("input", function(){ st.weg = Number($("s-weg").value); render(); });
+  $("ort").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-o]"); if (!b) return; st.ort = b.getAttribute("data-o"); render(); });
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID8 Übungen 1 bis 9) ================= */
+function mc(text, o, hint, s){ return { text:text, parts:[{label:"Antwort", options:shuffle(o), correct:o[0], mono:false}], hint:hint, solution:"<p><b>" + o[0] + "</b></p><p>" + s + "</p>" }; }
+var PIR = [
+  ["Wofür steht die Abkürzung PIR?", ["Passiv-Infrarot", "Personen-Infrarot-Radar", "Präsenz-Impuls-Relais", "Primär-Infrarot"], "Übung 1."],
+  ["Was bedeutet der Begriff «Passiv» beim Passiv-Infrarot-Bewegungsmelder?", ["Der Melder sendet keine eigene Infrarotstrahlung aus, sondern erfasst lediglich die Infrarotstrahlung seiner Umgebung.", "Der Melder sendet Infrarotstrahlung aus und misst das Echo.", "Der Melder braucht keine Speisung.", "Der Melder schaltet nur von Hand."], "Übung 2."],
+  ["Kann ein PIR-Bewegungsmelder Bewegungen durch ein Fenster erfassen?", ["Nein. Infrarotstrahlung kann Fensterglas nicht durchdringen.", "Ja. Fensterglas lässt Infrarotstrahlung ungehindert durch.", "Ja, aber nur bei Sonnenschein.", "Ja, wenn das Fenster nach Norden zeigt."], "Übung 3."],
+  ["Worauf reagiert der Sensor eines PIR-Melders?", ["Auf Temperaturänderungen durch die Infrarotstrahlung (Wärmestrahlung) von Personen oder Objekten", "Auf Geräusche im Raum", "Auf das sichtbare Licht der Leuchten", "Auf das Gewicht einer Person auf dem Boden"], "Theoriebuch AAD28.14."],
+  ["Weshalb ist die Bewegungserfassung eines PIR stets auf den jeweiligen Raum begrenzt?", ["Die Infrarotstrahlung durchdringt weder Wände noch Glas.", "Die Reichweite beträgt höchstens 1 m.", "Der Melder ist dafür zu wenig empfindlich.", "Die Leitung ist zu kurz."], "Theoriebuch AAD28.14."]
+];
+function qPIR(){ var q = pick(PIR); return mc(q[0], q[1], "Lesen Sie im Theoriebuch AAD28.14 die ersten Abschnitte zur Passiv-Infrarot-Technologie.", q[2]); }
+var BM = "Bewegungsmelder", PM = "Präsenzmelder";
+var ORTE = [["Hauseingang", BM], ["Treppenhaus", BM], ["Keller", BM], ["Garage", BM], ["Aussenbereich mit Wegbeleuchtung", BM], ["Büro mit Bildschirmarbeitsplätzen", PM], ["Schulzimmer", PM], ["Krankenhaus, Patientenbereich", PM], ["Halle mit Arbeitsplätzen", PM], ["Pflegeheim, Aufenthaltsraum", PM]];
+function qEinsatz(){
+  var o = pick(ORTE);
+  return {
+    text: "Welcher Melder passt typischerweise an diesen Einsatzort: <b>" + o[0] + "</b>?",
+    parts: [{label:"Melder", options:[BM, PM], correct:o[1], mono:false}],
+    hint: "Bewegungsmelder: wenig Tageslicht, kurzzeitige Nutzung, Gehbewegungen. Präsenzmelder: gut beleuchtete Räume mit längerer Nutzung durch sitzende Personen.",
+    solution: "<p><b>" + o[1] + "</b></p><p>" + (o[1] === BM ? "Bewegungsmelder: Hauseingänge, Treppenhäuser, Korridore, Keller, Garagen oder Aussenbereiche (Übung 4)." : "Präsenzmelder: Büros, Schulzimmer, Korridore, Hallen oder Krankenhäuser (Übung 5).") + "</p>"
+  };
+}
+var ST_GUT = ["Ein Heizlüfter im Erfassungsbereich", "Eine heisse Leuchte in der Nähe des Melders", "Eine Dekoration, die sich im Luftzug bewegt", "Luftströmungen mit wechselnder warmer und kalter Luft", "Ein Haustier, das durch den Erfassungsbereich läuft"];
+var ST_SCHLECHT = ["Ein Bild an der Wand", "Eine Person hinter einer geschlossenen Glastüre", "Ein Steinboden mit gleichbleibender Temperatur", "Ein Briefkasten aus Metall", "Eine Steckdose im Erfassungsbereich"];
+function qStoer(){
+  var k = pick([2, 3]), gut = shuffle(ST_GUT).slice(0, k), schlecht = shuffle(ST_SCHLECHT).slice(0, 5 - k);
+  return {
+    text: "Welche Einflüsse können bei einem PIR-Bewegungsmelder zu Fehlauslösungen führen?",
+    parts: [{type:"multi", label:"Mögliche Störquellen", options:shuffle(gut.concat(schlecht)), correct:gut, mono:false}],
+    hint: "Ein PIR reagiert auf Wärme, die sich bewegt oder verändert.",
+    solution: "<p><b>" + gut.join("; ") + "</b></p><p>Störquellen sind warme Gegenstände wie Heizlüfter, heisse Leuchten in der Nähe des Melders, sich bewegende Gegenstände im Luftzug, Luftströmungen mit wechselnder warmer und kalter Luft sowie Haustiere (Übungen 7 und 8).</p>"
+  };
+}
+function miniBild(r){ return "<svg class=\"q-bild\" viewBox=\"0 0 340 200\" role=\"img\" aria-label=\"Zonenmodell: Die Person läuft " + WEGE[r].name + "\">" + zonenBild(WEGE[r], 0.06, true).h + "</svg>"; }
+var FRUEH = "Früh: Es ist eine Querbewegung, die Person durchquert viele Zonen.", SPAET = "Spät: Es ist eine Frontalbewegung, die Person bleibt lange in der gleichen Zone.";
+function qQuer(){
+  if (Math.random() < 0.5){
+    var r = pick(["quer", "frontal"]), c = r === "quer" ? FRUEH : SPAET;
+    return {
+      text: "Das Bild zeigt einen PIR-Bewegungsmelder von oben und den Weg einer Person. Wird die Person früh oder spät erkannt?" + miniBild(r),
+      parts: [{label:"Beurteilung", options:[FRUEH, SPAET], correct:c, mono:false}],
+      hint: "Achten Sie darauf, wie viele Zonengrenzen der Weg kreuzt.",
+      solution: "<p><b>" + c + "</b></p><p>Querbewegungen werden von einem PIR-Bewegungsmelder besser erkannt als Frontalbewegungen (Übung 9).</p>"
+    };
+  }
+  return mc(pick(["Bei Reto Keel reagiert der Bewegungsmelder erst sehr spät, wenn er vom Parkplatz zum Haus geht. Was ist die Ursache?", "Ein Bewegungsmelder blickt genau dem Zugangsweg entlang und schaltet das Licht erst ein, wenn die Person fast vor ihm steht. Weshalb?"]),
+    ["Die Person bewegt sich frontal auf den Melder zu. Querbewegungen werden besser erkannt als Frontalbewegungen.", "Die Person ist zu warm angezogen.", "Der Melder sendet zu wenig Infrarotstrahlung aus.", "Der Neutralleiter ist unterbrochen."],
+    "Vergleichen Sie im Zonenmodell die Querbewegung mit der Frontalbewegung.", "Übung 9 a. Lösung: Den Melder so montieren, dass die Personen quer durch den Erfassungsbereich laufen.");
+}
+function qZonen(){
+  var r = pick(["quer", "schraeg", "frontal"]), k = wechsel(WEGE[r]).liste.length, opts = [k], kand = shuffle([1, 2, 3, 5, 7, 9, 11, 13]);
+  kand.forEach(function(x){ if (opts.length < 4 && opts.indexOf(x) < 0) opts.push(x); });
+  opts.sort(function(a, b){ return a - b; });
+  return {
+    text: "Zonenmodell: Die Person läuft den ganzen gestrichelten Weg ab. Die Kreise markieren die überquerten Zonengrenzen. Wie viele Zonenwechsel sind es?" + miniBild(r),
+    parts: [{label:"Anzahl Zonenwechsel", options:opts, correct:k, mono:true}],
+    hint: "Zählen Sie die Kreise auf dem Weg.",
+    solution: "<p><b>" + k + " Zonenwechsel</b></p><p>" + (r === "frontal" ? "Frontal bleibt die Person lange in der gleichen Zone: Der Melder reagiert spät." : "Je mehr Zonen eine Person durchquert, desto sicherer und früher reagiert der Melder.") + "</p>"
+  };
+}
+var DATEN = [
+  ["Welchen Erfassungswinkel haben PIR-Melder je nach Modell?", ["70° bis 360°", "5° bis 30°", "immer genau 90°", "immer genau 180°"], "Theoriebuch AAD28.14, technische Daten."],
+  ["Wie gross ist die Reichweite von PIR-Meldern, abhängig von Fabrikat und Montagehöhe?", ["bis 16 m", "bis 1 m", "bis 100 m", "bis 500 m"], "Theoriebuch AAD28.14, technische Daten."],
+  ["Wozu dient ein PIR mit Impulsfunktion?", ["Zum Ansteuern von Treppenhausautomaten", "Zum Messen der Raumtemperatur", "Zum Dimmen der Leuchten", "Zum Schutz vor Überstrom"], "Theoriebuch AAD28.14, technische Daten."],
+  ["Was bewirkt ein eingebautes Mikrofon bei einem PIR?", ["Der Melder schaltet erst aus, wenn im Raum keine Geräusche mehr wahrgenommen werden.", "Der Melder schaltet bei jedem Geräusch sofort aus.", "Der Melder zeichnet Gespräche auf.", "Der Melder erkennt Personen durch Fenster."], "Theoriebuch AAD28.14, technische Daten."],
+  ["Welche Fläche decken Präsenzmelder ab?", ["bis zu 100 m²", "höchstens 4 m²", "bis zu 1000 m²", "nur den Bereich direkt unter dem Melder"], "Theoriebuch AAD28.14."],
+  ["Was ist mit «Kleinbewegungen» gemeint, die ein Präsenzmelder erfasst?", ["Bewegungen ab 25 cm, z. B. Handbewegungen in 8 m Entfernung", "Bewegungen von Insekten", "Schwingungen der Decke", "Bewegungen von Fahrzeugen auf der Strasse"], "Theoriebuch AAD28.14."]
+];
+function qDaten(){ var q = pick(DATEN); return mc(q[0], q[1], "Die technischen Daten stehen im Theoriebuch AAD28.14.", q[2]); }
+var PRAES = [
+  ["Wofür werden Präsenzmelder eingesetzt?", ["Sie erkennen, ob sich Personen in einem Raum aufhalten, auch wenn sie sich kaum oder gar nicht bewegen.", "Sie erkennen nur schnelle Gehbewegungen im Freien.", "Sie messen die Raumtemperatur.", "Sie zählen die Personen in einem Raum."], "Übung 6."],
+  ["Worin unterscheidet sich ein Präsenzmelder von einem Bewegungsmelder?", ["Er ist deutlich empfindlicher und erkennt auch kleinste Bewegungen.", "Er ist weniger empfindlich und erkennt nur Fahrzeuge.", "Er sendet Infrarotstrahlung aus.", "Er funktioniert nur im Aussenbereich."], "Theoriebuch AAD28.14."],
+  ["Was kann ein Präsenzmelder bei ausreichendem Tageslicht tun?", ["Die Beleuchtung automatisch ausschalten, selbst wenn sich Personen im Raum befinden", "Die Beleuchtung heller schalten", "Die Storen öffnen", "Die Personen im Raum zählen"], "Theoriebuch AAD28.14: Das führt zu erheblicher Energieeinsparung."],
+  ["Für welche Situation ist ein Bewegungsmelder gedacht?", ["Für wenig Tageslicht, kurzzeitige Nutzung und Gehbewegungen", "Für gut beleuchtete Räume mit sitzenden Personen", "Für Räume ohne Personen", "Für Räume mit dauernd eingeschalteter Beleuchtung"], "Theoriebuch AAD28.14."]
+];
+function qPraesenz(){ var q = pick(PRAES); return mc(q[0], q[1], "Vergleichen Sie die Tabelle «Bewegungsmelder oder Präsenzmelder?».", q[2]); }
+var GR_GUT = ["Ruhende Personen werden nicht erkannt.", "Fehlauslösungen können durch Haustiere verursacht werden.", "Fehlauslösungen können durch starke Wärmequellen verursacht werden.", "Bewegungen hinter Fensterglas werden nicht erfasst."];
+var GR_SCHLECHT = ["Der Melder funktioniert nur bei Tageslicht.", "Der Melder erkennt nur Personen mit heller Kleidung.", "Der Melder sendet starke Infrarotstrahlung aus.", "Der Melder kann nur eine einzige Leuchte schalten."];
+function qGrenzen(){
+  var k = pick([2, 3]), gut = shuffle(GR_GUT).slice(0, k), schlecht = shuffle(GR_SCHLECHT).slice(0, 5 - k);
+  return {
+    text: "Welche Einschränkungen haben PIR-Bewegungsmelder?",
+    parts: [{type:"multi", label:"Zutreffende Einschränkungen", options:shuffle(gut.concat(schlecht)), correct:gut, mono:false}],
+    hint: "Ein PIR erkennt nur Temperaturveränderungen in seinem Erfassungsbereich.",
+    solution: "<p><b>" + gut.join(" ") + "</b></p><p>Übungen 3 und 7, Theoriebuch AAD28.14.</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.14) return qPIR();
+  if (x < 0.28) return qEinsatz();
+  if (x < 0.4) return qStoer();
+  if (x < 0.56) return qQuer();
+  if (x < 0.66) return qZonen();
+  if (x < 0.78) return qDaten();
+  if (x < 0.9) return qPraesenz();
+  return qGrenzen();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qPIR, qEinsatz, qStoer, qQuer, qZonen, qDaten, qPraesenz, qGrenzen]); }});
+})();
+</script>
+</body>
+</html>

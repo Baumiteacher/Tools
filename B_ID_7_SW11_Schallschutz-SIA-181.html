@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ID_7 TA3 Schallschutz SIA 181: Steckdosen und Verteiler platzieren BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+/* Installationsplan nach Arbeitsblatt 2. Semester (ID6 Übung 13 und folgende): Wände grau, Leitungen und Symbole blau, Drahtarten rot */
+:root{ --pl:#0000FF; --pl-wand:#BFBFBF; --pl-rand:#3A3A3A; --pl-l:#E00000; --pl-gelb:#FFF200 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --pl:#8FA2FF; --pl-wand:#46525E; --pl-rand:#9AA6B2; --pl-l:#FF8A80; --pl-gelb:#FFE94A } }
+:root[data-theme="dark"]{ --pl:#8FA2FF; --pl-wand:#46525E; --pl-rand:#9AA6B2; --pl-l:#FF8A80; --pl-gelb:#FFE94A }
+.pl{fill:none;stroke:var(--pl);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pl.dn{stroke-width:.9}
+.pl.eck{stroke-linecap:butt;stroke-linejoin:miter}
+.pl-bg{fill:var(--surface)}
+.pl-f{fill:var(--pl);stroke:none}
+.pl-wand{fill:var(--pl-wand);stroke:none}
+.pl-tuer{fill:none;stroke:var(--pl-rand);stroke-width:.7}
+.pl-rohr{fill:none;stroke:var(--pl);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.pl-rohr.an{stroke-width:4.4}
+.pl-rohr.blass{opacity:.35}
+.pl-hit{fill:none;stroke:transparent;stroke-width:15;cursor:pointer;pointer-events:stroke}
+.pl-lab{fill:var(--pl-l);font-family:var(--sans);font-size:10px;font-weight:600}
+.pl-lab.q{fill:var(--accent);font-size:17px;font-weight:700}
+.pl-tick{stroke:var(--pl-l);stroke-width:1.3;fill:none;stroke-linecap:round}
+.pl-t{fill:var(--ink);font-family:var(--sans);font-size:8.5px}
+.pl-gelb{fill:var(--pl-gelb);stroke:#1A1A1A;stroke-width:.5}
+.pl-lab .neu{fill:var(--accent);font-weight:700;text-decoration:underline}
+.pl-raum{fill:var(--ink);font-family:var(--sans);font-size:9.5px}
+
+.plan-svg{width:100%;height:auto;display:block}
+.pl-tuer.blatt{stroke-width:1.8;stroke:var(--ink)}
+.pl-fuge{stroke:var(--pl);stroke-width:1.2;fill:none}
+.pl-rot{fill:none;stroke:var(--pl-l);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pl-rotf{fill:var(--pl-l);stroke:none}
+.pl-alt{opacity:.45}
+.pl-mass{fill:none;stroke:var(--ink);stroke-width:.8}
+.pl-mt{fill:var(--ink);font-family:var(--sans);font-size:9.5px;font-weight:700}
+.pl-mt.bad{fill:var(--bad)} .pl-mt.ok{fill:var(--ok)}
+.an-wand{fill:var(--bg);stroke:var(--line);stroke-width:1}
+.an-boden{stroke:var(--ink);stroke-width:2;fill:none}
+.an-zone{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1;stroke-dasharray:4 3}
+.an-vorn{fill:var(--surface);stroke:var(--pl);stroke-width:1.8}
+.an-hinten{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 2.2}
+.an-t{fill:var(--muted);font-family:var(--sans);font-size:9px}
+.uv-raum{fill:var(--surface);stroke:none}
+.uv-fremd{fill:var(--bg);stroke:none}
+.uv-name{fill:var(--ink);font-family:var(--sans);font-size:9.5px}
+.uv-name.f{fill:var(--muted);font-style:italic}
+.uv-ort{cursor:pointer}
+.uv-ort circle{fill:var(--surface);stroke:var(--accent);stroke-width:1.6}
+.uv-ort text{fill:var(--accent);font-family:var(--sans);font-size:10px;font-weight:700;pointer-events:none}
+.uv-ort.an circle{fill:var(--accent)}
+.uv-ort.an text{fill:var(--surface)}
+.uv-ort.gut.an circle{fill:var(--ok);stroke:var(--ok)}
+.uv-ort.schlecht.an circle{fill:var(--bad);stroke:var(--bad)}
+.uv-tasten{display:flex;flex-wrap:wrap;gap:6px}
+.werte{font-variant-numeric:tabular-nums;font-size:.95rem;display:flex;flex-wrap:wrap;gap:4px 16px}
+.werte b{font-weight:700}
+.q-plan{display:block;width:100%;max-width:360px;height:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.regel{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px}
+.r-slider{display:grid;grid-template-columns:11.5em 1fr;gap:10px;align-items:center}
+.r-slider .num{font-weight:700;font-family:var(--sans);font-size:.9rem}
+.merke{border-left:4px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.urteil{font-weight:700;border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.urteil.ok{border-color:var(--ok);color:var(--ok)}
+.urteil.bad{border-color:var(--bad);color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ID_7 Apparate und Leitungen, MFH Technik · Teilauftrag 3</p>
+    <h1>Schallschutz SIA 181: Steckdosen und Verteiler platzieren BAP</h1>
+    <p class="lead">Elektroinstallationen dürfen den baulichen Schallschutz nicht verschlechtern. Verschieben Sie eine Steckdose in der Trennwand zwischen zwei Wohnungen, wählen Sie den Platz für die Unterverteilung und prüfen Sie, was die Norm SIA 181 für Ihre Arbeit bedeutet.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel" aria-live="polite">
+        <h2>Steckdosen in der Trennwand (Übung 43)</h2>
+        <svg class="plan-svg" id="grundriss" viewBox="0 0 328 242" role="img" aria-label="Grundriss wie Übung 43: Zimmer 1 der Wohnung 1 und Zimmer 1 der Wohnung 2 mit einer Trennwand dazwischen. In der Trennwand sitzt auf beiden Seiten eine Dreifachsteckdose."></svg>
+        <fieldset>
+          <legend>Steckdose der Wohnung 1 verschieben</legend>
+          <div class="plain">
+            <label class="r-slider" for="s-s"><span class="num" id="v-s-s"></span><input type="range" id="s-s" min="0.15" max="4.35" step="0.05" value="0.45"></label>
+            <label class="r-slider" for="s-h"><span class="num" id="v-s-h"></span><input type="range" id="s-h" min="0.15" max="1.5" step="0.05" value="0.3"></label>
+          </div>
+          <div class="opts">
+            <button class="opt txt" type="button" id="b-andere" aria-pressed="false">An die Türwand versetzen (Lösung von Übung 43 b)</button>
+            <button class="opt txt" type="button" id="b-start">Zurück zur Ausgangslage</button>
+          </div>
+        </fieldset>
+        <p class="label">Ansicht der Trennwand, von der Wohnung 1 aus gesehen</p>
+        <svg class="plan-svg" id="ansicht" viewBox="0 0 328 190" role="img" aria-label="Ansicht der Trennwand mit der Steckdose der Wohnung 1, der Steckdose auf der Rückseite und dem Bereich, in dem beide Abstände kleiner als 0,5 m sind"></svg>
+        <p class="werte" id="werte"></p>
+        <p class="urteil" id="urteil"></p>
+        <p class="note">Gestrichelt: Steckdose der Wohnung 2 auf der Rückseite der Trennwand. Rot: Hier sind der horizontale und der vertikale Abstand kleiner als 0,5 m. Die Masse des Zimmers sind Annahmen des Tools.</p>
+      </div>
+
+      <div class="panel" aria-live="polite">
+        <h2>Wohin mit der Unterverteilung? (Übung 40)</h2>
+        <svg class="plan-svg" id="uvplan" viewBox="0 0 328 200" role="img" aria-label="Beispiel-Grundriss einer Wohnung mit Korridor, Schlafzimmer, Küche, Wohnzimmer und Réduit zwischen Treppenhaus und Nachbarwohnung. Sechs mögliche Plätze A bis F für die Unterverteilung."></svg>
+        <div class="uv-tasten" id="uvtasten"></div>
+        <p class="urteil" id="uv-urteil" hidden></p>
+        <p class="note" id="uv-note">Tippen Sie auf einen Platz A bis F. Eigenes Beispiel, nicht aus dem Arbeitsblatt.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Merksätze</h2>
+        <div class="merke">
+          <p>Die Norm SIA 181 «Schallschutz im Hochbau» legt die Anforderungen an den Schallschutz in Gebäuden fest (Übung 38). Sie gilt für Neubauten, umfangreiche Umbauten und Haustechnikanlagen.</p>
+          <p>Erhöhte Anforderungen gelten bei Neubauten von Einfamilien-, Doppeleinfamilien- und Reiheneinfamilienhäusern sowie bei Stockwerkeigentum (Übung 39). Rechtlich verbindlich sind mindestens die Mindestanforderungen.</p>
+          <p>Unterverteilungen und Verteilkästen sollten nicht in Trennwänden zu benachbarten Wohnungen oder zu Treppenhäusern eingebaut werden (Übung 40). Sie werden in vorbereitete Aussparungen gesetzt und sauber hintergossen oder eingemörtelt.</p>
+          <p>Steckdosen dürfen in gegenüberliegenden Seiten einer Trennwand nicht direkt vis-à-vis angeordnet werden. Zwischen den Steckdosen sollte ein horizontaler oder vertikaler Abstand von mindestens 0,5 m eingehalten werden (Übung 41).</p>
+          <p>Elektroleitungen sollten vorzugsweise in der Deckenlage verlegt und verteilt werden (Übung 42): Dort treten geringere Schallübertragungen auf als bei Bodenleitungen.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <h2>Schallmindernde Massnahmen bei Leitungen im Boden</h2>
+        <ul class="regel">
+          <li>Ummantelung der Leitungen in Wandlagern mit elastischem Material (ca. 15 bis 20 cm)</li>
+          <li>Unterbrechen der Rohrführung mit elastisch gelagerten Flexstücken</li>
+          <li>Vermeidung von Leitungskreuzungen</li>
+          <li>keine Befestigung an anderen Medienleitungen (Wasser, Abwasser, Lüftung)</li>
+          <li>Ummantelung durchgehender Leitungen auf 20 bis 30 cm Länge</li>
+          <li>Begrenzung der Schlitztiefe in Wänden auf maximal 3 cm</li>
+        </ul>
+        <p class="note">Theoriebuch AAD30.6.</p>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Welche Anforderung der SIA 181 hält die Ausgangslage von Übung 43 nicht ein?</li>
+          <li>Wie weit müssen Sie die Steckdose der Wohnung 1 auf gleicher Höhe mindestens verschieben?</li>
+          <li>Lassen Sie die Steckdose an ihrem Platz und ändern Sie nur die Höhe. Ab welcher Höhe ist die Anordnung in Ordnung?</li>
+          <li>Weshalb löst das Versetzen an die Türwand das Problem ebenfalls?</li>
+          <li>Welche zwei Plätze eignen sich im Beispiel für die Unterverteilung, und was haben sie gemeinsam?</li>
+        </ul>
+      </div>
+
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Schemazeichnen AAD30.5 und AAD30.6, Schallschutz im Hochbau.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ID7 Apparate und Leitungen, MFH Technik, Teilauftrag 3 SIA 181: Übungen 38 bis 43 (ID7.16 und ID7.17)</li><li>Theoriebuch Schemazeichnen, Kapitel 30 Installationsplan und Prinzipschema: AAD30.5 und AAD30.6 (Schallschutz im Hochbau, Norm SIA 181:2020; Standort Unterverteiler). Die Kopfzeile des Kapitels trägt die Seitennummern 29.5 und 29.6.</li><li>Grundriss wie Übung 43. Annahmen des Tools, im Arbeitsblatt nicht angegeben: Zimmer 3,0 m breit und 4,5 m lang, Raumhöhe 2,4 m, Steckdosen 0,3 m über dem Boden. Der Grundriss mit der Unterverteilung ist ein eigenes Beispiel.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Installationsplan-Bibliothek: Symbole wie in den Arbeitsblättern 2. Semester (ID6 Übungen 13 und 23) */
+var PLN = (function(){
+"use strict";
+function n(x){ return Math.round(x * 100) / 100; }
+function rad(g){ return g * Math.PI / 180; }
+function P(d, cls){ return "<path class=\"" + (cls || "pl") + "\" d=\"" + d + "\"/>"; }
+/* glatte Kurve durch Punkte (Catmull-Rom als kubische Bézierkurve) */
+function kurve(p){
+  var d = "M" + n(p[0][0]) + " " + n(p[0][1]);
+  for (var i = 0; i < p.length - 1; i++){
+    var a = p[i - 1] || p[i], b = p[i], c = p[i + 1], e = p[i + 2] || c;
+    d += " C" + n(b[0] + (c[0] - a[0]) / 6) + " " + n(b[1] + (c[1] - a[1]) / 6) + " " + n(c[0] - (e[0] - b[0]) / 6) + " " + n(c[1] - (e[1] - b[1]) / 6) + " " + n(c[0]) + " " + n(c[1]);
+  }
+  return d;
+}
+var R = 4.4;
+/* Taster: Kreis, Stiel in Richtung grad mit Querstrich am Ende. o.led: Kreuz im Kreis (Taster mit LED-Baugruppe) */
+function taster(x, y, grad, o){
+  o = o || {}; var a = rad(grad), dx = Math.cos(a), dy = Math.sin(a), l = R + 6.6, b = 2.3, h = "";
+  h += P("M" + n(x + R * dx) + " " + n(y + R * dy) + " L" + n(x + l * dx) + " " + n(y + l * dy) + " M" + n(x + l * dx - b * dy) + " " + n(y + l * dy + b * dx) + " L" + n(x + l * dx + b * dy) + " " + n(y + l * dy - b * dx), "pl eck");
+  h += "<circle class=\"pl pl-bg\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + R + "\"/>";
+  if (o.led){ var q = R * 0.707; h += P("M" + n(x - q) + " " + n(y - q) + " L" + n(x + q) + " " + n(y + q) + " M" + n(x + q) + " " + n(y - q) + " L" + n(x - q) + " " + n(y + q), "pl dn"); }
+  return h;
+}
+/* Schalter Schema 0: Kreis, Stiel in Richtung grad mit Haken am Ende (im Uhrzeigersinn abgewinkelt). o.led: Kreuz im Kreis (Schalter mit LED-Baugruppe) */
+function schalter(x, y, grad, o){
+  o = o || {}; var a = rad(grad), dx = Math.cos(a), dy = Math.sin(a), l = R + 7.2, hk = 3, h = "";
+  h += P("M" + n(x + R * dx) + " " + n(y + R * dy) + " L" + n(x + l * dx) + " " + n(y + l * dy) + " L" + n(x + l * dx - hk * dy) + " " + n(y + l * dy + hk * dx), "pl");
+  h += "<circle class=\"pl pl-bg\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + R + "\"/>";
+  if (o.led){ var q = R * 0.707; h += P("M" + n(x - q) + " " + n(y - q) + " L" + n(x + q) + " " + n(y + q) + " M" + n(x + q) + " " + n(y - q) + " L" + n(x - q) + " " + n(y + q), "pl dn"); }
+  return h;
+}
+/* Leuchte als Rechteck mit Diagonalen (Übung 35) */
+function leuchteR(x1, y1, x2, y2){
+  return "<rect class=\"pl pl-bg eck\" x=\"" + n(x1) + "\" y=\"" + n(y1) + "\" width=\"" + n(x2 - x1) + "\" height=\"" + n(y2 - y1) + "\"/>" + P("M" + n(x1) + " " + n(y1) + " L" + n(x2) + " " + n(y2) + " M" + n(x2) + " " + n(y1) + " L" + n(x1) + " " + n(y2), "pl dn");
+}
+/* Steckdose: Stiel ab (x, y) in Richtung grad, Querstrich, Bogen (Wölbung am Querstrich) */
+function steckdose(x, y, grad, o){
+  o = o || {}; var s = o.stiel === undefined ? 5 : o.stiel, b = 4.4, ra = 4.4, a = rad(grad), dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+  var ex = x + s * dx, ey = y + s * dy, cx = ex + ra * dx, cy = ey + ra * dy;
+  return P("M" + n(x) + " " + n(y) + " L" + n(ex) + " " + n(ey) + " M" + n(ex + b * px) + " " + n(ey + b * py) + " L" + n(ex - b * px) + " " + n(ey - b * py), "pl eck")
+    + P("M" + n(cx + ra * px) + " " + n(cy + ra * py) + " A" + ra + " " + ra + " 0 0 1 " + n(cx - ra * px) + " " + n(cy - ra * py), "pl");
+}
+/* Taster kombiniert mit Steckdose: Steckdose schliesst in Richtung gradSD am Kreis an */
+function kombi(x, y, gradStiel, gradSD, o){
+  var a = rad(gradSD);
+  return steckdose(x + R * Math.cos(a), y + R * Math.sin(a), gradSD) + taster(x, y, gradStiel, o);
+}
+/* Steckdose 3-fach, Stiel nach oben: (x, y) = unteres Ende des Stiels. Häkchen am rechten Bogenende und Zahl 3 */
+function steckdose3(x, y, stiel){
+  var s = stiel === undefined ? 7 : stiel, ey = y - s, tx = x + 4.4, ty = ey - 4.4;
+  return steckdose(x, y, -90, {stiel:s}) + P("M" + n(tx - 2) + " " + n(ty + 0.8) + " L" + n(tx + 0.25) + " " + n(ty + 3.3) + " L" + n(tx + 1.7) + " " + n(ty + 2), "pl dn")
+    + "<text class=\"pl-t\" x=\"" + n(x + 3.4) + "\" y=\"" + n(ey + 8.5) + "\">3</text>";
+}
+function leuchte(x, y, s){ s = s || 6.3; return P("M" + n(x - s) + " " + n(y - s) + " L" + n(x + s) + " " + n(y + s) + " M" + n(x + s) + " " + n(y - s) + " L" + n(x - s) + " " + n(y + s), "pl"); }
+/* Leuchte wie in Übung 23: Kreis mit vier gelben Punkten, darüber ein Rechteck */
+function leuchte4(x, y){
+  var r = 5.6, h = "<rect class=\"pl dn pl-bg\" x=\"" + n(x - 2.9) + "\" y=\"" + n(y - r - 8.6) + "\" width=\"5.8\" height=\"9.6\"/><circle class=\"pl pl-bg\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"" + r + "\"/>";
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function(q){ h += "<circle class=\"pl-gelb\" cx=\"" + n(x + q[0] * 2.05) + "\" cy=\"" + n(y + q[1] * 2.05) + "\" r=\"1.55\"/>"; });
+  return h;
+}
+function dose(x, y, s){ s = s || 6.8; return "<rect class=\"pl pl-bg eck\" x=\"" + n(x - s) + "\" y=\"" + n(y - s) + "\" width=\"" + 2 * s + "\" height=\"" + 2 * s + "\"/><circle class=\"pl-f\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"2.3\"/>"; }
+/* Zuleitung von der Unterverteilung: abgerundeter Kasten mit gefüllter Pfeilspitze. (x, y) = Anschluss der Leitung, grad = Richtung der Spitze (0 nach rechts, 90 nach unten) */
+function uv(x, y, grad){
+  var w = 17, hh = 4.3, d = "M" + n(x + 3.5) + " " + n(y - hh) + " H" + n(x + w) + " V" + n(y + hh) + " H" + n(x + 3.5) + " A3.5 " + hh + " 0 0 1 " + n(x + 3.5) + " " + n(y - hh) + " Z";
+  var g = "<g transform=\"rotate(" + grad + " " + n(x) + " " + n(y) + ")\">" + "<path class=\"pl pl-bg\" d=\"" + d + "\"/><path class=\"pl-f\" d=\"M" + n(x + w) + " " + n(y - hh - 0.6) + " L" + n(x + w + 10) + " " + n(y) + " L" + n(x + w) + " " + n(y + hh + 0.6) + " Z\"/>";
+  g += grad === 90 ? "<text class=\"pl-t\" x=\"" + n(x + 9.5) + "\" y=\"" + n(y) + "\" text-anchor=\"middle\" transform=\"rotate(180 " + n(x + 9.5) + " " + n(y) + ")\" dy=\"3\">UV</text>" : "<text class=\"pl-t\" x=\"" + n(x + 9.5) + "\" y=\"" + n(y + 3) + "\" text-anchor=\"middle\">UV</text>";
+  return g + "</g>";
+}
+function wand(r){ return "<rect class=\"pl-wand\" x=\"" + n(r[0]) + "\" y=\"" + n(r[1]) + "\" width=\"" + n(r[2] - r[0]) + "\" height=\"" + n(r[3] - r[1]) + "\"/>"; }
+return {n:n, P:P, kurve:kurve, R:R, taster:taster, schalter:schalter, leuchteR:leuchteR, steckdose:steckdose, kombi:kombi, steckdose3:steckdose3, leuchte:leuchte, leuchte4:leuchte4, dose:dose, uv:uv, wand:wand};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, L = PLN;
+var NB = String.fromCharCode(160), MIN = 0.5, EPS = 1e-9;
+function m2(x){ return (Math.round(x * 100) / 100).toFixed(2).replace(".", ",") + NB + "m"; }
+function n(x){ return Math.round(x * 100) / 100; }
+function dreh(grad, x, y, inhalt, cls){ return "<g" + (cls ? " class=\"" + cls + "\"" : "") + " transform=\"rotate(" + grad + " " + n(x) + " " + n(y) + ")\">" + inhalt + "</g>"; }
+function txt(x, y, t, cls, anker, grad){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\" text-anchor=\"" + (anker || "middle") + "\"" + (grad ? " transform=\"rotate(" + grad + " " + n(x) + " " + n(y) + ")\"" : "") + ">" + t + "</text>"; }
+function inOrdnung(dx, dy){ return dx >= MIN - EPS || dy >= MIN - EPS; }
+
+/* ---------- Grundriss wie Arbeitsblatt ID7 Übung 43 (Annahme: 1 m = 43 Einheiten, Zimmer 3,0 m × 4,5 m) ---------- */
+var G = {m:43, yo:28, yu:221.5, xa:153, xb:174};
+function gy(s){ return G.yo + s * G.m; }
+/* o: {s1, s2, andere (Steckdose der Wohnung 1 an der Türwand), mass (Abstand anschreiben), ohne1 (keine Steckdose in Wohnung 1)} */
+function grundriss(o){
+  var h = "", W = L.wand, y1 = gy(o.s1), y2 = gy(o.s2);
+  /* Wände: aussen, Trennwand aus zwei Schalen mit Fuge, Türwand, Fensterwand */
+  [[14, 18, 24, 231.5], [303, 18, 313, 231.5], [153, 18, 162, 231.5], [165, 18, 174, 231.5], [24, 18, 26, 28], [63, 18, 153, 28], [174, 18, 264, 28], [301, 18, 303, 28],
+   [24, 221.5, 66, 231.5], [134.5, 221.5, 153, 231.5], [174, 221.5, 191.7, 231.5], [259.7, 221.5, 303, 231.5]].forEach(function(r){ h += W(r); });
+  h += "<path class=\"pl-fuge\" d=\"M163.5 18 V231.5\"/>";
+  /* Zimmertüren (Türblatt offen, Schwenkbereich) */
+  h += "<path class=\"pl-tuer blatt\" d=\"M26 28 V65\"/><path class=\"pl-tuer\" d=\"M26 65 A37 37 0 0 0 63 28\"/>";
+  h += "<path class=\"pl-tuer blatt\" d=\"M301 28 V65\"/><path class=\"pl-tuer\" d=\"M301 65 A37 37 0 0 1 264 28\"/>";
+  /* Fenster: Drehkipp (DK) und Dreh (D) */
+  h += "<path class=\"pl-tuer\" d=\"M66 224.5 H134.5 M66 228.5 H134.5 M191.7 224.5 H259.7 M191.7 228.5 H259.7\"/>";
+  h += "<path class=\"pl-tuer\" d=\"M66 221.5 V182.9 A38.6 38.6 0 0 1 104.6 221.5 M134.5 221.5 V191.6 A29.9 29.9 0 0 0 104.6 221.5 M191.7 221.5 V194.3 A27.2 27.2 0 0 1 218.9 221.5 M259.7 221.5 V180.7 A40.8 40.8 0 0 0 218.9 221.5\"/>";
+  h += txt(85, 219.5, "DK", "pl-t") + txt(120, 219.5, "D", "pl-t") + txt(205, 219.5, "DK", "pl-t") + txt(240, 219.5, "D", "pl-t");
+  /* Raumbezeichnungen wie im Arbeitsblatt */
+  h += txt(44, 132, "Zimmer 1", "pl-raum", "middle", -90) + txt(56, 132, "Wohnung 1", "pl-raum", "middle", -90) + txt(196, 132, "Zimmer 1", "pl-raum", "middle", -90) + txt(208, 132, "Wohnung 2", "pl-raum", "middle", -90);
+  /* Leuchten, Schalter mit Steckdose bei der Tür, Dreifachsteckdosen an der Fensterwand */
+  h += L.leuchte(88, 121.5) + L.leuchte(238, 124.7);
+  [72.6, 250].forEach(function(x){ h += L.steckdose(x, 33.6 + L.R, 90) + L.schalter(x, 33.6, 150); });
+  h += L.steckdose3(37, 221.5) + L.steckdose3(290, 221.5);
+  /* Dreifachsteckdosen in der Trennwand */
+  h += dreh(90, G.xb, y2, L.steckdose3(G.xb, y2));
+  if (o.andere){
+    h += dreh(-90, G.xa, y1, L.steckdose3(G.xa, y1), "pl-alt") + "<path class=\"pl-rot\" d=\"M" + n(G.xa - 21) + " " + n(y1 + 10) + " L" + n(G.xa - 3) + " " + n(y1 - 9) + "\"/>";
+    h += dreh(180, 139.4, G.yo, L.steckdose3(139.4, G.yo));
+    h += "<path class=\"pl-rot\" d=\"M" + n(G.xa - 24) + " " + n(y1 + 5) + " H121 Q115 " + n(y1 + 5) + " 115 " + n(y1 - 1) + " V44 Q115 38 121 38 H124\"/><path class=\"pl-rotf\" d=\"M129 38 L122.5 34.6 L122.5 41.4 Z\"/>";
+  } else if (!o.ohne1) h += dreh(-90, G.xa, y1, L.steckdose3(G.xa, y1));
+  /* Abstand entlang der Trennwand */
+  if (o.mass && !o.andere && !o.ohne1){
+    var dx = Math.abs(o.s1 - o.s2), xm = G.xa - 27, gut = o.gut === undefined ? dx >= MIN - EPS : o.gut;
+    if (dx > 0.001) h += "<path class=\"pl-mass\" d=\"M" + xm + " " + n(y1) + " V" + n(y2) + " M" + (xm - 3) + " " + n(y1) + " H" + (xm + 3) + " M" + (xm - 3) + " " + n(y2) + " H" + (xm + 3) + " M" + (xm + 5) + " " + n(y2) + " H" + (G.xa - 2) + "\"/>";
+    h += txt(xm - 6, (y1 + y2) / 2 + 3.3, m2(dx), "pl-mt " + (gut ? "ok" : "bad"), "end");
+  }
+  return h;
+}
+/* ---------- Ansicht der Trennwand von der Wohnung 1 aus (Annahme: 4,5 m lang, 2,4 m hoch) ---------- */
+var A = {k:66, x0:14, yf:172, W:4.5, H:2.4};
+function ax(s){ return A.x0 + s * A.k; }
+function ay(hh){ return A.yf - hh * A.k; }
+function dose(x, y, vorn){ return vorn ? "<rect class=\"an-vorn\" x=\"" + n(x - 5.5) + "\" y=\"" + n(y - 5.5) + "\" width=\"11\" height=\"11\" rx=\"1.5\"/><circle class=\"an-vorn\" cx=\"" + n(x) + "\" cy=\"" + n(y) + "\" r=\"2.6\"/>" : "<rect class=\"an-hinten\" x=\"" + n(x - 5.5) + "\" y=\"" + n(y - 5.5) + "\" width=\"11\" height=\"11\" rx=\"1.5\"/>"; }
+/* o: {s1, h1, s2, h2, zone, mass} */
+function ansicht(o){
+  var h = "", x1 = ax(o.s1), y1 = ay(o.h1), x2 = ax(o.s2), y2 = ay(o.h2), dx = Math.abs(o.s1 - o.s2), dy = Math.abs(o.h1 - o.h2);
+  h += "<rect class=\"an-wand\" x=\"" + A.x0 + "\" y=\"" + n(ay(A.H)) + "\" width=\"" + n(A.W * A.k) + "\" height=\"" + n(A.H * A.k) + "\"/>";
+  if (o.zone){
+    var zx0 = Math.max(A.x0, ax(o.s2 - MIN)), zx1 = Math.min(ax(A.W), ax(o.s2 + MIN)), zy0 = ay(o.h2 + MIN), zy1 = Math.min(A.yf, ay(o.h2 - MIN));
+    h += "<rect class=\"an-zone\" x=\"" + n(zx0) + "\" y=\"" + n(zy0) + "\" width=\"" + n(zx1 - zx0) + "\" height=\"" + n(zy1 - zy0) + "\"/>";
+  }
+  h += "<path class=\"an-boden\" d=\"M" + (A.x0 - 6) + " " + A.yf + " H" + n(ax(A.W) + 6) + "\"/>";
+  h += txt(A.x0 + 5, ay(A.H) + 12, "Türwand", "an-t", "start") + txt(ax(A.W) - 5, ay(A.H) + 12, "Fensterwand", "an-t", "end") + txt(ax(A.W / 2), A.yf + 13, "Boden", "an-t");
+  h += dose(x2, y2, false);
+  if (!o.ohne1) h += dose(x1, y1, true);
+  if (o.mass && !o.ohne1){
+    if (dx > 0.001){ var ym = Math.min(y1, y2) - 14; h += "<path class=\"pl-mass\" d=\"M" + n(x1) + " " + n(ym) + " H" + n(x2) + " M" + n(x1) + " " + n(ym - 3) + " V" + n(ym + 3) + " M" + n(x2) + " " + n(ym - 3) + " V" + n(ym + 3) + "\"/>" + txt((x1 + x2) / 2, ym - 4, m2(dx), "pl-mt"); }
+    if (dy > 0.001){ var xm = Math.max(x1, x2) + 14; h += "<path class=\"pl-mass\" d=\"M" + n(xm) + " " + n(y1) + " V" + n(y2) + " M" + n(xm - 3) + " " + n(y1) + " H" + n(xm + 3) + " M" + n(xm - 3) + " " + n(y2) + " H" + n(xm + 3) + "\"/>" + txt(xm + 5, (y1 + y2) / 2 + 3.3, m2(dy), "pl-mt", "start"); }
+  }
+  return h;
+}
+
+/* ---------- Beispiel-Grundriss für die Unterverteilung (eigenes Beispiel nach AAD30.5 und AAD30.6) ---------- */
+var UV = [
+  {k:"A", x:79, y:105, gut:false, wand:"Wand zum Treppenhaus", t:"Zu vermeiden: Wand zum Treppenhaus. Unterverteilungen sollten nicht in Trennwänden zu Treppenhäusern eingebaut werden (Übung 40)."},
+  {k:"B", x:124, y:83, gut:false, wand:"Wand zum Schlafzimmer", t:"Nicht geeignet: Wand zum Schlafzimmer. Der Unterverteiler darf nicht in einer Wand zu Wohn- oder Schlafzimmern platziert werden (Theoriebuch AAD30.6)."},
+  {k:"C", x:218, y:83, gut:true, wand:"Wand zwischen Korridor und Küche", t:"Geeignet: Wand zwischen Korridor und Küche. Sie grenzt weder an ein Wohn- oder Schlafzimmer noch an eine andere Wohnung oder an das Treppenhaus."},
+  {k:"D", x:265, y:105, gut:false, wand:"Trennwand zur Nachbarwohnung", t:"Zu vermeiden: Trennwand zur Nachbarwohnung. Unterverteilungen sollten nicht in Trennwänden zu benachbarten Wohnungen eingebaut werden (Übung 40)."},
+  {k:"E", x:198, y:127, gut:false, wand:"Wand zum Wohnzimmer", t:"Nicht geeignet: Wand zum Wohnzimmer. Der Unterverteiler darf nicht in einer Wand zu Wohn- oder Schlafzimmern platziert werden (Theoriebuch AAD30.6)."},
+  {k:"F", x:106, y:127, gut:true, wand:"Wand zwischen Korridor und Réduit", t:"Geeignet: Wand zwischen Korridor und Réduit. Sie grenzt weder an ein Wohn- oder Schlafzimmer noch an eine andere Wohnung oder an das Treppenhaus."}
+];
+function uvplan(akt){
+  var h = "<rect class=\"pl-wand\" x=\"4\" y=\"6\" width=\"320\" height=\"188\"/>";
+  function raum(x0, y0, x1, y1, name, fremd){ h += "<rect class=\"" + (fremd ? "uv-fremd" : "uv-raum") + "\" x=\"" + x0 + "\" y=\"" + y0 + "\" width=\"" + (x1 - x0) + "\" height=\"" + (y1 - y0) + "\"/>"; name.split("|").forEach(function(z, i, a){ h += txt((x0 + x1) / 2, (y0 + y1) / 2 + 3.3 + (i - (a.length - 1) / 2) * 11, z, "uv-name" + (fremd ? " f" : "")); }); }
+  raum(8, 10, 76, 190, "Treppen-|haus", true); raum(268, 10, 320, 190, "Nachbar-|wohnung", true);
+  raum(82, 10, 170, 80, "Schlafzimmer"); raum(176, 10, 262, 80, "Küche"); raum(82, 86, 262, 124, "Korridor"); raum(82, 130, 130, 190, "Réduit"); raum(136, 130, 262, 190, "Wohnzimmer");
+  /* Türöffnungen: Wohnungstür zum Treppenhaus und Zimmertüren */
+  h += "<rect class=\"uv-raum\" x=\"76\" y=\"88\" width=\"6\" height=\"12\"/><rect class=\"uv-raum\" x=\"146\" y=\"80\" width=\"14\" height=\"6\"/><rect class=\"uv-raum\" x=\"184\" y=\"80\" width=\"14\" height=\"6\"/><rect class=\"uv-raum\" x=\"88\" y=\"124\" width=\"12\" height=\"6\"/><rect class=\"uv-raum\" x=\"232\" y=\"124\" width=\"14\" height=\"6\"/>";
+  UV.forEach(function(u){ h += "<g class=\"uv-ort" + (akt === u.k ? " an " + (u.gut ? "gut" : "schlecht") : "") + "\" data-k=\"" + u.k + "\"><circle cx=\"" + u.x + "\" cy=\"" + u.y + "\" r=\"8\"/><text x=\"" + u.x + "\" y=\"" + (u.y + 3.6) + "\" text-anchor=\"middle\">" + u.k + "</text></g>"; });
+  return h;
+}
+
+/* ================= ERKUNDEN ================= */
+var START = {s1:0.45, h1:0.3, andere:false};
+var st = {s1:0.45, h1:0.3, s2:0.45, h2:0.3, andere:false, uv:""};
+function render(){
+  var dx = Math.abs(st.s1 - st.s2), dy = Math.abs(st.h1 - st.h2), ok = st.andere || inOrdnung(dx, dy), u = $("urteil");
+  $("v-s-s").innerHTML = "Abstand zur Türwand: " + m2(st.s1); $("v-s-h").innerHTML = "Höhe über dem Boden: " + m2(st.h1);
+  $("s-s").disabled = st.andere; $("s-h").disabled = st.andere;
+  $("b-andere").setAttribute("aria-pressed", String(st.andere));
+  $("grundriss").innerHTML = grundriss({s1:st.s1, s2:st.s2, andere:st.andere, mass:true, gut:ok});
+  $("ansicht").innerHTML = ansicht({s1:st.s1, h1:st.h1, s2:st.s2, h2:st.h2, zone:true, mass:true, ohne1:st.andere});
+  $("werte").innerHTML = st.andere ? "<span>In der Trennwand sitzt nur noch die Steckdose der Wohnung 2.</span>" : "<span>Horizontaler Abstand: <b>" + m2(dx) + "</b></span><span>Vertikaler Abstand: <b>" + m2(dy) + "</b></span>";
+  u.className = "urteil " + (ok ? "ok" : "bad");
+  u.innerHTML = st.andere ? "In Ordnung: Die Steckdose der Wohnung 1 sitzt nicht mehr in der Trennwand. In der Trennwand liegen keine zwei Steckdosen mehr einander gegenüber (Lösung von Übung 43 b)."
+    : dx < 0.001 && dy < 0.001 ? "Nicht in Ordnung: Zwei Steckdosen liegen in einer Trennwand direkt einander gegenüber (Übung 43 a)."
+    : !ok ? "Nicht in Ordnung: Der horizontale Abstand (" + m2(dx) + ") und der vertikale Abstand (" + m2(dy) + ") sind beide kleiner als 0,5 m."
+    : dx >= MIN - EPS ? "In Ordnung: Der horizontale Abstand zwischen den Steckdosen beträgt " + m2(dx) + ", also mindestens 0,5 m."
+    : "In Ordnung: Der vertikale Abstand zwischen den Steckdosen beträgt " + m2(dy) + ", also mindestens 0,5 m.";
+  $("uvplan").innerHTML = uvplan(st.uv);
+  $("uvtasten").innerHTML = UV.map(function(q){ return "<button class=\"opt\" type=\"button\" data-k=\"" + q.k + "\" aria-pressed=\"" + (st.uv === q.k) + "\" aria-label=\"Platz " + q.k + ": " + q.wand + "\">" + q.k + "</button>"; }).join("");
+  var uu = $("uv-urteil"), q = UV.filter(function(x){ return x.k === st.uv; })[0];
+  uu.hidden = !q;
+  if (q){ uu.className = "urteil " + (q.gut ? "ok" : "bad"); uu.innerHTML = "Platz " + q.k + ": " + q.t; }
+}
+function init(){
+  $("s-s").addEventListener("input", function(){ st.s1 = Number($("s-s").value); render(); });
+  $("s-h").addEventListener("input", function(){ st.h1 = Number($("s-h").value); render(); });
+  $("b-andere").addEventListener("click", function(){ st.andere = !st.andere; render(); });
+  $("b-start").addEventListener("click", function(){ st.s1 = START.s1; st.h1 = START.h1; st.andere = false; $("s-s").value = st.s1; $("s-h").value = st.h1; render(); });
+  function waehle(ev){ var b = ev.target.closest("[data-k]"); if (!b) return; var k = b.getAttribute("data-k"); st.uv = st.uv === k ? "" : k; render(); }
+  $("uvplan").addEventListener("click", waehle); $("uvtasten").addEventListener("click", waehle);
+  render();
+}
+
+/* ================= AUFGABEN (Arbeitsblatt ID7 Übungen 38 bis 43) ================= */
+function mc(text, o, hint, s){ return { text:text, parts:[{label:"Antwort", options:shuffle(o), correct:o[0], mono:false}], hint:hint, solution:"<p><b>" + o[0] + "</b></p><p>" + s + "</p>" }; }
+var NORM = [
+  ["Welche Anforderungen regelt die Norm SIA 181?", ["Die Anforderungen an den Schallschutz in Gebäuden", "Die Anforderungen an den Brandschutz in Gebäuden", "Die Anforderungen an die Beleuchtungsstärke in Arbeitsräumen", "Die Anforderungen an den Berührungsschutz elektrischer Betriebsmittel"], "Übung 38: Die Norm SIA 181 legt die Anforderungen an den Schallschutz in Gebäuden fest."],
+  ["Wie heisst die Norm SIA 181?", ["Schallschutz im Hochbau", "Brandschutz im Hochbau", "Wärmeschutz im Hochbau", "Niederspannungs-Installationsnorm"], "Theoriebuch AAD30.5: Norm SIA 181 «Schallschutz im Hochbau»."],
+  ["Für welche Bauvorhaben gilt die SIA 181?", ["Für Neubauten, umfangreiche Umbauten und Haustechnikanlagen", "Nur für Neubauten von Einfamilienhäusern", "Nur für Industrie- und Gewerbebauten", "Nur für Gebäude mit mehr als zehn Wohnungen"], "Theoriebuch AAD30.5, Geltungsbereich und Anforderungen."],
+  ["Zusammen mit welcher Verordnung wird die SIA 181 rechtsverbindlich angewendet?", ["Lärmschutzverordnung (LSV)", "Niederspannungs-Installationsverordnung (NIV)", "Starkstromverordnung (StV)", "Verordnung über elektrische Niederspannungserzeugnisse (NEV)"], "Theoriebuch AAD30.5: Die Norm ist Teil der anerkannten Regeln der Baukunde und wird im Zusammenhang mit der Lärmschutzverordnung (LSV) rechtsverbindlich angewendet."],
+  ["Welche Anforderungen der SIA 181 sind rechtlich mindestens verbindlich?", ["Die Mindestanforderungen", "Die erhöhten Anforderungen", "Nur die Anforderungen an Haustechnikanlagen", "Keine: Die Norm ist nur eine Empfehlung"], "Theoriebuch AAD30.5: Rechtlich verbindlich sind mindestens die Mindestanforderungen."],
+  ["Wozu dienen die Mindestanforderungen der SIA 181?", ["Sie gelten allgemein zur Verhinderung erheblicher Störungen.", "Sie gelten nur für Stockwerkeigentum.", "Sie legen die Höhe der Steckdosen fest.", "Sie regeln den Querschnitt der Leitungen."], "Theoriebuch AAD30.5, Anforderungsstufen."],
+  ["Was müssen Sie als Elektroinstallateurin oder Elektroinstallateur beim Schallschutz beachten?", ["Elektrische Installationen so gestalten, dass der bauliche Schallschutz nicht beeinträchtigt wird", "Nichts: Der Schallschutz ist allein Sache des Baumeisters", "Alle Leitungen im Boden verlegen", "Steckdosen in Trennwänden immer genau gegenüber anordnen"], "Theoriebuch AAD30.5, Bedeutung für die Elektroinstallation."]
+];
+function qNorm(){ var q = pick(NORM); return mc(q[0], q[1], "Lesen Sie im Theoriebuch AAD30.5 den Abschnitt «Schallschutz im Hochbau».", q[2]); }
+var ERH = ["Neubauten von Einfamilienhäusern", "Neubauten von Doppeleinfamilienhäusern", "Neubauten von Reiheneinfamilienhäusern", "Neubauten mit Stockwerkeigentum"];
+var ERH_N = ["Neubauten von Lagerhallen", "Neubauten von Tiefgaragen", "Neubauten von Scheunen", "Neubauten von Fabrikhallen"];
+function qErhoeht(){
+  var k = pick([2, 3, 4]), gut = shuffle(ERH).slice(0, k), schlecht = shuffle(ERH_N).slice(0, 5 - k);
+  return {
+    text: "Für welche der folgenden Bauten gelten gemäss SIA 181 erhöhte Schallschutzanforderungen (Übung 39)?",
+    parts: [{type:"multi", label:"Bauten mit erhöhten Anforderungen", options:shuffle(gut.concat(schlecht)), correct:gut, mono:false}],
+    hint: "Erhöhte Anforderungen gelten bei Neubauten von Wohnbauten: vier Beispiele stehen im Theoriebuch AAD30.5.",
+    solution: "<p><b>" + gut.join(", ") + "</b></p><p>Erhöhte Anforderungen gelten bei Neubauten von Einfamilien-, Doppeleinfamilien- und Reiheneinfamilienhäusern sowie bei Stockwerkeigentum (Übung 39).</p>"
+  };
+}
+var GEEIGNET = "Geeignet", VERMEIDEN = "Nicht geeignet oder zu vermeiden";
+var UV_MC = [
+  ["Worauf ist bei der Platzierung von Unterverteilungen besonders zu achten?", ["Sie sollten nicht in Trennwänden zu benachbarten Wohnungen oder zu Treppenhäusern eingebaut werden.", "Sie sollten immer in der Trennwand zur Nachbarwohnung eingebaut werden.", "Sie sollten möglichst in einer Wand des Schlafzimmers eingebaut werden.", "Der Standort spielt für den Schallschutz keine Rolle."], "Übung 40."],
+  ["Wie wird eine Unterverteilung schalltechnisch richtig eingebaut?", ["In eine vorbereitete Aussparung setzen und sauber hintergiessen oder einmörteln", "Lose in die Aussparung stellen, damit sie frei schwingen kann", "An den Wasserleitungen befestigen", "Hohlräume hinter dem Kasten offen lassen"], "Theoriebuch AAD30.5, Elektroverteilung."],
+  ["Weshalb werden Unterverteilungen sauber hintergossen oder eingemörtelt?", ["Um Schallbrücken und Körperschallübertragungen zu minimieren", "Damit der Kasten besser gekühlt wird", "Damit weniger Leitungen nötig sind", "Um den Berührungsschutz zu erhöhen"], "Theoriebuch AAD30.5, Elektroverteilung."],
+  ["In welche Wand darf der Unterverteiler gemäss Theoriebuch nicht platziert werden?", ["In eine Wand zu Wohn- oder Schlafzimmern", "In eine Wand zwischen Korridor und Réduit", "In eine Wand zwischen Korridor und Küche", "In eine Wand im Korridor, die an keinen anderen Raum grenzt"], "Theoriebuch AAD30.6, Standort Unterverteiler (UV)."]
+];
+function qUV(){
+  if (Math.random() < 0.45){ var q = pick(UV_MC); return mc(q[0], q[1], "Unterverteilungen gehören nicht in Trennwände zu anderen Wohnungen oder zum Treppenhaus und nicht in Wände zu Wohn- oder Schlafzimmern.", q[2]); }
+  var u = pick(UV), c = u.gut ? GEEIGNET : VERMEIDEN;
+  return {
+    text: "Die Unterverteilung einer Wohnung soll vom Korridor aus in die folgende Wand eingebaut werden: <b>" + u.wand + "</b>. Beurteilen Sie den Standort.<svg class=\"q-plan\" viewBox=\"0 0 328 200\" role=\"img\" aria-label=\"Beispiel-Grundriss mit dem Platz " + u.k + " für die Unterverteilung: " + u.wand + "\">" + uvplan(u.k).replace(/ an (gut|schlecht)/, " an") + "</svg>",
+    parts: [{label:"Beurteilung des Standorts " + u.k, options:[GEEIGNET, VERMEIDEN], correct:c, mono:false}],
+    hint: "Unterverteilungen gehören nicht in Trennwände zu anderen Wohnungen oder zum Treppenhaus und nicht in Wände zu Wohn- oder Schlafzimmern.",
+    solution: "<p><b>" + c + "</b></p><p>" + u.t + "</p>"
+  };
+}
+var P_OK = "In Ordnung: Der Abstand zwischen den Steckdosen beträgt mindestens 0,5 m.", P_EINE = "In Ordnung: In der Trennwand sitzt nur auf einer Seite eine Steckdose.",
+    P_DIREKT = "Nicht in Ordnung: Zwei Steckdosen liegen in der Trennwand direkt einander gegenüber.", P_KLEIN = "Nicht in Ordnung: Der Abstand zwischen den Steckdosen ist kleiner als 0,5 m.";
+function qPlan(){
+  var fall = pick(["direkt", "direkt", "klein", "klein", "ok", "ok", "ok", "eine"]), s2 = pick([0.45, 0.8, 1.2, 1.6, 2.0, 2.5]), dx = fall === "direkt" ? 0 : fall === "klein" ? pick([0.1, 0.2, 0.3, 0.4]) : pick([0.5, 0.6, 0.8, 1.0, 1.5]);
+  var s1 = s2 + dx <= 4.2 ? s2 + dx : s2 - dx, c = fall === "direkt" ? P_DIREKT : fall === "klein" ? P_KLEIN : fall === "ok" ? P_OK : P_EINE;
+  var bild = "<svg class=\"q-plan\" viewBox=\"0 0 328 242\" role=\"img\" aria-label=\"Grundriss der Zimmer von Wohnung 1 und Wohnung 2 mit den Steckdosen in der Trennwand" + (fall === "eine" ? ": Steckdose nur auf der Seite der Wohnung 2" : ", Abstand entlang der Wand " + m2(dx)) + "\">" + grundriss({s1:s1, s2:s2, mass:true, gut:true, ohne1:fall === "eine"}).replace("pl-mt ok", "pl-mt") + "</svg>";
+  return {
+    text: "Beurteilen Sie die Installation der Steckdosen in der Trennwand zwischen Wohnung 1 und Wohnung 2. " + (fall === "eine" ? "Die Steckdose der Wohnung 1 wurde an die Türwand geplant." : "Beide Steckdosen sitzen auf der gleichen Höhe über dem Boden.") + bild,
+    parts: [{label:"Beurteilung nach SIA 181", options:[P_OK, P_EINE, P_DIREKT, P_KLEIN], correct:c, mono:false}],
+    hint: "Steckdosen dürfen in gegenüberliegenden Seiten einer Trennwand nicht direkt vis-à-vis angeordnet werden. Der Abstand sollte mindestens 0,5 m betragen.",
+    solution: "<p><b>" + c + "</b></p><p>" + (fall === "eine" ? "In der Trennwand entsteht kein direkter Schallweg von Steckdose zu Steckdose." : "Der Abstand entlang der Trennwand beträgt " + m2(dx) + ". Verlangt sind mindestens 0,5 m, horizontal oder vertikal (Übung 41).") + "</p>"
+  };
+}
+var A_H = "Zulässig: Der horizontale Abstand beträgt mindestens 0,5 m.", A_V = "Zulässig: Der vertikale Abstand beträgt mindestens 0,5 m.", A_NEIN = "Nicht zulässig: Der horizontale und der vertikale Abstand sind kleiner als 0,5 m.", A_NIE = "Nicht zulässig: In Trennwänden sind Steckdosen grundsätzlich verboten.";
+function qAnsicht(){
+  var fall = pick(["h", "v", "nein", "nein"]), kl = [0, 0.1, 0.2, 0.3, 0.4], gr = [0.5, 0.6, 0.8, 1.0];
+  var dx = fall === "h" ? pick(gr) : pick(kl), dy = fall === "v" ? pick(gr) : pick(kl), s2 = pick([1.2, 1.8, 2.4, 3.0]), h2 = 0.3, s1 = s2 + (Math.random() < 0.5 ? dx : -dx), h1 = h2 + dy;
+  var c = fall === "h" ? A_H : fall === "v" ? A_V : A_NEIN;
+  var bild = "<svg class=\"q-plan\" viewBox=\"0 0 328 190\" role=\"img\" aria-label=\"Ansicht der Trennwand: horizontaler Abstand " + m2(dx) + ", vertikaler Abstand " + m2(dy) + "\">" + ansicht({s1:s1, h1:h1, s2:s2, h2:h2, mass:true}) + "</svg>";
+  return {
+    text: "Auf den zwei Seiten einer Trennwand zwischen zwei Wohnungen sitzt je eine Steckdose. Horizontaler Abstand: " + m2(dx) + ", vertikaler Abstand: " + m2(dy) + ". Ist diese Anordnung zulässig?" + bild,
+    parts: [{label:"Beurteilung nach SIA 181", options:[A_H, A_V, A_NEIN, A_NIE], correct:c, mono:false}],
+    hint: "Zwischen den Steckdosen sollte ein horizontaler oder vertikaler Abstand von mindestens 0,5 m eingehalten werden: Einer der zwei Abstände genügt.",
+    solution: "<p><b>" + c + "</b></p><p>Horizontal " + m2(dx) + ", vertikal " + m2(dy) + ". Verlangt ist ein horizontaler oder vertikaler Abstand von mindestens 0,5 m (Übung 41). Gestrichelt gezeichnet ist die Steckdose auf der Rückseite.</p>"
+  };
+}
+function qVersetzen(){
+  var a, opts, gut, k = 0;
+  do {
+    a = pick([1.0, 1.2, 1.5, 1.8, 2.0, 2.4]);
+    opts = shuffle([-0.8, -0.6, -0.5, -0.4, -0.3, -0.2, 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.9]).slice(0, 5).map(function(d){ return Math.round((a + d) * 100) / 100; }).sort(function(x, y){ return x - y; });
+    gut = opts.filter(function(x){ return Math.abs(x - a) >= MIN - EPS; }); k++;
+  } while ((gut.length === 0 || gut.length === opts.length) && k < 100);
+  return {
+    text: "In der Trennwand zwischen zwei Wohnungen sitzt auf der Seite der Wohnung 2 eine Steckdose, " + m2(a) + " von der Türwand entfernt. Auf der Seite der Wohnung 1 soll auf der gleichen Höhe ebenfalls eine Steckdose eingebaut werden. Welche Abstände zur Türwand sind dafür zulässig?",
+    parts: [{type:"multi", label:"Zulässige Abstände zur Türwand", options:opts, correct:gut, mono:true, show:m2}],
+    hint: "Auf gleicher Höhe zählt nur der horizontale Abstand: Er muss mindestens 0,5 m betragen, nach links oder nach rechts.",
+    solution: "<p>Zulässig: <b>" + gut.map(m2).join(", ") + "</b></p><p>" + opts.map(function(x){ var d = Math.abs(x - a); return m2(x) + ": Abstand " + m2(d) + (d >= MIN - EPS ? " (in Ordnung)" : " (zu klein)"); }).join("; ") + ".</p>"
+  };
+}
+var LTG = [
+  ["Welche Leitungsführung wird aus schallschutztechnischer Sicht empfohlen?", ["Elektroleitungen vorzugsweise in der Deckenlage verlegen und verteilen", "Elektroleitungen vorzugsweise im Boden verlegen", "Elektroleitungen an den Wasserleitungen befestigen", "Elektroleitungen immer durch die Trennwände zur Nachbarwohnung führen"], "Übung 42."],
+  ["Weshalb werden Elektroleitungen bevorzugt in der Deckenlage verlegt?", ["Dort treten geringere Schallübertragungen auf als bei Bodenleitungen.", "Dort ist der Spannungsfall kleiner.", "Dort braucht es keinen Schutzleiter.", "Dort sind grössere Schlitze erlaubt."], "Theoriebuch AAD30.6, Leitungsführung und Schallschutz."],
+  ["Auf welche Tiefe sind Schlitze in Wänden aus schalltechnischer Sicht höchstens zu begrenzen?", ["3 cm", "1 cm", "6 cm", "10 cm"], "Theoriebuch AAD30.6: Begrenzung der Schlitztiefe in Wänden auf maximal 3 cm."],
+  ["Auf welcher Länge werden Leitungen in Wandlagern mit elastischem Material ummantelt?", ["ca. 15 bis 20 cm", "ca. 1 bis 2 cm", "ca. 50 bis 60 cm", "auf der ganzen Leitungslänge"], "Theoriebuch AAD30.6, schallmindernde Massnahmen."],
+  ["Auf welcher Länge werden durchgehende Leitungen ummantelt?", ["20 bis 30 cm", "2 bis 3 cm", "5 bis 10 cm", "1 bis 2 m"], "Theoriebuch AAD30.6, schallmindernde Massnahmen."],
+  ["Weshalb lassen sich Leitungen nicht immer in der Decke verlegen?", ["Wegen der Baustatik, des Brandschutzes oder des gewählten Installationskonzepts", "Weil Deckenleitungen verboten sind", "Weil Deckenleitungen mehr Schall übertragen", "Weil die SIA 181 Bodenleitungen vorschreibt"], "Theoriebuch AAD30.6, Leitungsführung und Schallschutz."],
+  ["Worauf ist bei der Platzierung von Steckdosen in Trennwänden besonders zu achten?", ["Steckdosen dürfen in gegenüberliegenden Seiten einer Trennwand nicht direkt vis-à-vis angeordnet werden.", "Steckdosen müssen in einer Trennwand immer genau gegenüber liegen.", "In Trennwänden sind nur Dreifachsteckdosen erlaubt.", "Steckdosen in Trennwänden müssen mindestens 1,5 m über dem Boden sitzen."], "Übung 41: Zwischen den Steckdosen sollte ein horizontaler oder vertikaler Abstand von mindestens 0,5 m eingehalten werden."],
+  ["Weshalb dürfen Steckdosen in einer Trennwand nicht direkt einander gegenüber sitzen?", ["Über die Installationsöffnungen entsteht sonst ein direkter Schallweg durch die Trennwand.", "Die Steckdosen würden sich sonst gegenseitig erwärmen.", "Der Fehlerstrom-Schutzschalter würde sonst auslösen.", "Die Leitungen wären sonst zu kurz."], "Theoriebuch AAD30.5, Steckdosen."]
+];
+function qLeitung(){ var q = pick(LTG); return mc(q[0], q[1], "Lesen Sie im Theoriebuch AAD30.5 und AAD30.6 die Abschnitte «Steckdosen» und «Leitungsführung und Schallschutz».", q[2]); }
+var MS_GUT = ["Leitungen in Wandlagern mit elastischem Material ummanteln", "Rohrführung mit elastisch gelagerten Flexstücken unterbrechen", "Leitungskreuzungen vermeiden", "Leitungen nicht an anderen Medienleitungen (Wasser, Abwasser, Lüftung) befestigen", "Durchgehende Leitungen auf 20 bis 30 cm Länge ummanteln", "Schlitztiefe in Wänden auf maximal 3 cm begrenzen"];
+var MS_SCHLECHT = ["Leitungen an Wasser- und Abwasserleitungen befestigen", "Möglichst viele Leitungskreuzungen einplanen", "Schlitze in Wänden möglichst tief ausführen", "Rohre starr und ohne Unterbruch durch alle Wandlager führen"];
+function qMassn(){
+  var k = pick([2, 3]), gut = shuffle(MS_GUT).slice(0, k), schlecht = shuffle(MS_SCHLECHT).slice(0, 5 - k);
+  return {
+    text: "Elektroleitungen müssen im Boden geführt werden. Welche Massnahmen wirken dabei schallmindernd?",
+    parts: [{type:"multi", label:"Schallmindernde Massnahmen", options:shuffle(gut.concat(schlecht)), correct:gut, mono:false}],
+    hint: "Schallmindernd wirkt, was Leitungen elastisch von Bauteilen und von anderen Leitungen trennt.",
+    solution: "<p><b>" + gut.join("; ") + "</b></p><p>Theoriebuch AAD30.6: Ummantelung in Wandlagern (ca. 15 bis 20 cm), elastisch gelagerte Flexstücke, keine Leitungskreuzungen, keine Befestigung an anderen Medienleitungen, Ummantelung durchgehender Leitungen auf 20 bis 30 cm, Schlitztiefe maximal 3 cm.</p>"
+  };
+}
+function randomQuestion(){
+  var x = Math.random();
+  if (x < 0.13) return qNorm();
+  if (x < 0.23) return qErhoeht();
+  if (x < 0.4) return qUV();
+  if (x < 0.56) return qPlan();
+  if (x < 0.7) return qAnsicht();
+  if (x < 0.8) return qVersetzen();
+  if (x < 0.92) return qLeitung();
+  return qMassn();
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom([qNorm, qErhoeht, qUV, qPlan, qAnsicht, qVersetzen, qLeitung, qMassn]); }});
+})();
+</script>
+</body>
+</html>
