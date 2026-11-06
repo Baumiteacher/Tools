@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ES_1 TA1 Energieformen und Energieträger BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+:root{--box:#FFF6A8;--box-l:#C62828;--wl:#C62828;--hl:#2446B8;--hl2:#C55A00;--t-er:#F2E04A;--t-ne:#D3E8F0;--t-ke:#C3E52E;--t-ge:#F79A5E;--t-l:#E53524;--t-ink:#1E3557}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--box:#4A4318;--box-l:#FF8A80;--wl:#FF9A90;--hl:#A3B6FF;--hl2:#FFB061;--t-er:#6B6120;--t-ne:#29424E;--t-ke:#4D6112;--t-ge:#7A3E18;--t-l:#FF7A6B;--t-ink:#E7ECF1} }
+:root[data-theme="dark"]{--box:#4A4318;--box-l:#FF8A80;--wl:#FF9A90;--hl:#A3B6FF;--hl2:#FFB061;--t-er:#6B6120;--t-ne:#29424E;--t-ke:#4D6112;--t-ge:#7A3E18;--t-l:#FF7A6B;--t-ink:#E7ECF1}
+.bild{width:100%;height:auto;display:block}
+.uebersicht{width:100%;min-width:640px;height:auto;display:block}
+.n-box{fill:var(--box);stroke:var(--box-l);stroke-width:1.2;cursor:pointer}
+.n-box.on{stroke:var(--hl);stroke-width:3}
+.n-bt{fill:var(--accent);font-family:var(--sans);font-size:12.5px;pointer-events:none}
+.n-l{stroke:var(--ink);stroke-width:1.2;fill:none}
+.n-l.dim{opacity:.35}
+.n-l.ab{stroke:var(--hl);stroke-width:2.6}
+.n-l.zu{stroke:var(--hl2);stroke-width:2.6}
+.n-s{fill:var(--ink)}
+.n-s.dim{opacity:.35}
+.n-s.ab{fill:var(--hl)} .n-s.zu{fill:var(--hl2)}
+.n-w{fill:var(--wl);font-family:var(--sans);font-size:10.5px;paint-order:stroke;stroke:var(--surface);stroke-width:3.5px;stroke-linejoin:round;cursor:pointer}
+.n-w.dim{opacity:.45}
+.n-w.on{font-weight:700}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.info .zu{color:var(--hl2);font-weight:700}
+.info .ab{color:var(--hl);font-weight:700}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--box-l);padding:2px 0 2px 12px}
+.kette{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.k-e{border:1.5px solid var(--box-l);background:var(--box);border-radius:8px;padding:7px 12px;font-weight:600}
+.k-e small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.k-w{display:flex;align-items:center;gap:8px;padding-left:18px;color:var(--wl);font-size:.92rem}
+.k-w::before{content:"↓";font-size:1.25rem;color:var(--ink);line-height:1}
+.k-end{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.k-end .k-e.nutz{border-color:var(--ok);background:var(--ok-soft)}
+.k-end .k-e.verl{border-color:var(--bad);background:var(--bad-soft)}
+.t-k{stroke:var(--t-ink);stroke-width:1.6;cursor:pointer}
+.t-k.er{fill:var(--t-er)} .t-k.ne{fill:var(--t-ne)} .t-k.ke{fill:var(--t-ke)} .t-k.ge{fill:var(--t-ge);cursor:default}
+.t-k.on{stroke:var(--hl);stroke-width:3.5}
+.t-t{fill:var(--t-ink);font-family:var(--sans);font-size:15px;pointer-events:none}
+.t-t.b{font-weight:700}
+.t-l{stroke:var(--t-l);stroke-width:2.2;fill:none}
+.t-l.on{stroke:var(--hl);stroke-width:3.6}
+.t-s{fill:var(--t-l)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ES_1 Das Haus aus dem Stromnetz für den direkten Verbrauch mit Energie versorgen · Teilauftrag 1</p>
+    <h1>Energieformen und Energieträger BAP</h1>
+    <p class="lead">Verfolgen Sie, wie Energie von einer Form in eine andere umgewandelt wird, und ordnen Sie die Energieträger den drei Hauptarten zu.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Energieumwandlungen (ET3.2)</h2>
+        <p class="note">Tippen Sie auf eine Energieform oder auf einen Energiewandler. Die Pfeile zeigen, in welche Richtung umgewandelt wird.</p>
+        <fieldset>
+          <legend>Energieform</legend>
+          <div class="opts" id="formen"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Energiewandler</legend>
+          <div class="opts" id="wandler"></div>
+        </fieldset>
+        <svg class="bild" id="netz" viewBox="0 0 420 356" role="img" aria-label="Diagramm der Energieumwandlungen zwischen sechs Energieformen"></svg>
+        <div class="info" id="info" aria-live="polite"></div>
+        <div class="merke">
+          <p><b>Merke:</b> Energie lässt sich grundsätzlich nicht erzeugen oder vernichten, sondern nur in eine andere Form umwandeln (Energieerhaltungssatz).</p>
+          <p><b>Merke:</b> Nicht jede Energieform lässt sich direkt in jede andere umwandeln. Mechanische Energie lässt sich zum Beispiel nicht direkt in Strahlungsenergie umformen. Einzig die elektrische Energie lässt sich einfach umwandeln. Deshalb hat sie im Alltag die höchste Bedeutung.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Umwandlungsketten aus den Übungen</h2>
+        <fieldset>
+          <legend>Beispiel</legend>
+          <div class="opts" id="ketten"></div>
+        </fieldset>
+        <div class="kette" id="kette" aria-live="polite"></div>
+        <p class="note">Nutzenergie ist die Energieform, die tatsächlich vom Anwender verwendet wird. Die gleichzeitig entstehende, nicht gewünschte Energie (meist Wärme) heisst Verlustenergie.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Energieträger (ET3.3, Übung 8)</h2>
+        <p class="note">Energieträger sind Stoffe, die in der Lage sind, Energie zu speichern. Tippen Sie auf einen Energieträger.</p>
+        <div class="opts" id="t-wahl" role="group" aria-label="Energieträger wählen"></div>
+        <div class="scroll"><svg class="uebersicht" id="traeger" viewBox="0 0 730 210" role="img" aria-label="Übersicht der Energieträger: erneuerbare, nicht erneuerbare und Kernenergie"></svg></div>
+        <div class="info" id="t-info" aria-live="polite"></div>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Welche Energieform braucht der Wasserkocher, und in welche Energieform wandelt er sie um? (Übung 1)</li>
+          <li>Tippen Sie auf «elektrische Energie». In wie viele andere Energieformen lässt sie sich direkt umwandeln? Vergleichen Sie mit der mechanischen Energie.</li>
+          <li>Welcher Energiewandler macht aus Strahlungsenergie elektrische Energie, welcher macht es umgekehrt? (Übung 3)</li>
+          <li>Verfolgen Sie die Kette Dampfturbine, Generator, Lampe. Welche Energie ist Nutzenergie, welche ist Verlustenergie? (Übungen 6 und 7)</li>
+          <li>Warum werden Kohle, Erdöl und Erdgas in absehbarer Zeit knapp, Wind und Sonne aber nicht?</li>
+        </ul>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET3.1 (Energieformen), ET3.2 (Energieumwandlungen) und ET3.3 (Energieträger).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Elektrotechnik, Kapitel 3 Energie allgemein und angewandt in Gebäuden: ET3.1 (Abschnitt 2.2 Energieformen), ET3.2 (Abschnitt 2.3 Energieumwandlungen, Diagramm und Beispiel Dampfturbine, Generator, Lampe), ET3.3 (Abschnitt 2.4 Energieträger). Das Arbeitsblatt nennt die Abschnitte 2.2 bis 2.4.</li><li>Arbeitsblätter ES1, Teilauftrag 1: Übungen 1 bis 8 (ES1.2 bis ES1.4); die Übersicht der Energieträger ist aus Übung 8 nachgezeichnet.</li><li>Ergänzung im Tool: Beim Akkumulator zeigt das Theoriebuch zwei Pfeile ohne Namen. Das Tool nennt sie «Laden» (elektrische in chemische Energie) und «Entladen» (chemische in elektrische Energie).</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle;
+function n(x){ return Math.round(x * 100) / 100; }
+
+/* ===== Energieformen (ET3.1) und Diagramm (ET3.2) ===== */
+var FORMEN = {
+  elek:   {box:["Elektrische", "Energie"], name:"elektrische Energie", x:358, y:118,
+           text:"Die grosse Bedeutung der elektrischen Energie liegt darin, dass sie sich besonders leicht in andere Energieformen umwandeln und gut transportieren lässt. Leider lässt sich die elektrische Energie kaum speichern."},
+  mech:   {box:["Mechanische", "Energie"], name:"mechanische Energie", x:210, y:28,
+           text:"Eine Masse, an der Arbeit verrichtet wurde (z. B. durch Anheben), besitzt mechanische Energie. Man unterscheidet kinetische Energie (Energie der Bewegung, z. B. ein fahrendes Auto oder fliessendes Wasser) und potentielle Energie (Energie der Lage, z. B. Wasser in einem Stausee)."},
+  waerme: {box:["Wärmeenergie"], name:"thermische Energie", x:62, y:118,
+           text:"Thermische Energie (Wärmeenergie): Je höher die Temperatur eines Körpers ist, desto grösser ist seine thermische Energie (z. B. siedendes Wasser)."},
+  chem:   {box:["Chemische", "Energie"], name:"chemische Energie", x:358, y:250,
+           text:"Chemische Energie hängt mit der Struktur der Materie zusammen, mit den Bindungen zwischen Atomen und Molekülen (z. B. Benzin, Säuren in Batterien)."},
+  strahl: {box:["Strahlungs-", "energie"], name:"Strahlungsenergie", x:62, y:250,
+           text:"Strahlungsenergie wird durch elektromagnetische Strahlung (z. B. Wärmestrahlung oder Licht) transportiert. So gelangt fast alle Energie, die wir auf der Erde nutzen, von der Sonne zu uns (z. B. Solarzellen, Sonnenkollektoren)."},
+  kern:   {box:["Kernenergie"], name:"Kernenergie", x:210, y:332,
+           text:"Kernenergie entsteht durch Kernspaltung von schweren Atomen (Atomkraftwerke) oder durch Kernfusion (Verschmelzung) von leichten Atomen (im Innern der Sonne)."}
+};
+var REIHE_F = ["elek", "mech", "waerme", "chem", "strahl", "kern"];
+var BW = 104, BH = 40;
+/* Energiewandler: von, nach, Name im Diagramm, Lage der Beschriftung entlang des Pfeils */
+var WANDLER = [
+  {id:"reib",  von:"mech",   nach:"waerme", name:"Reibung", t:0.42},
+  {id:"dampf", von:"waerme", nach:"mech",   name:"Dampfturbine", t:0.6},
+  {id:"gen",   von:"mech",   nach:"elek",   name:"Generator", t:0.45},
+  {id:"mot",   von:"elek",   nach:"mech",   name:"Motor", t:0.65},
+  {id:"thermo",von:"waerme", nach:"elek",   name:"Thermoelement", t:0.5},
+  {id:"heiz",  von:"elek",   nach:"waerme", name:"Heizofen, Halogenglühlampe", t:0.5},
+  {id:"sonnk", von:"strahl", nach:"waerme", name:"Sonnenkollektor", t:0.5},
+  {id:"gluehl",von:"waerme", nach:"strahl", name:"Glühlampe", t:0.5},
+  {id:"solar", von:"strahl", nach:"elek",   name:"Solarzelle", t:0.62},
+  {id:"led",   von:"elek",   nach:"strahl", name:"Leuchtdiode", t:0.4},
+  {id:"akkuL", von:"elek",   nach:"chem",   name:"Akkumulator", zusatz:"Laden", t:0.5},
+  {id:"akkuE", von:"chem",   nach:"elek",   name:"Akkumulator", zusatz:"Entladen", t:0.5},
+  {id:"radio", von:"strahl", nach:"chem",   name:"Radioaktive Schädigung", t:0.5},
+  {id:"kernsp",von:"kern",   nach:"strahl", name:"Kernspaltung", t:0.5}
+];
+function wName(w){ return w.name + (w.zusatz ? " (" + w.zusatz + ")" : ""); }
+function wById(id){ for (var i = 0; i < WANDLER.length; i++) if (WANDLER[i].id === id) return WANDLER[i]; return null; }
+function gegen(w){ for (var i = 0; i < WANDLER.length; i++) if (WANDLER[i].von === w.nach && WANDLER[i].nach === w.von) return WANDLER[i]; return null; }
+/* Schnittpunkt der Linie vom Mittelpunkt in Richtung (dx, dy) mit dem Kasten */
+function rand(f, dx, dy){
+  var hw = BW / 2 + 2, hh = BH / 2 + 2, t = Math.min(dx ? hw / Math.abs(dx) : 1e9, dy ? hh / Math.abs(dy) : 1e9);
+  return [f.x + dx * t, f.y + dy * t];
+}
+function geometrie(w){
+  var a = FORMEN[w.von], b = FORMEN[w.nach], dx = b.x - a.x, dy = b.y - a.y, L = Math.sqrt(dx * dx + dy * dy);
+  var ux = dx / L, uy = dy / L, off = 0;
+  if (gegen(w)){
+    /* Paar: beide Pfeile parallel versetzen, Normale immer gleich für das Paar */
+    /* die Normale dreht mit der Richtung: so liegen die beiden Pfeile auf verschiedenen Seiten */
+    off = (w.von === "mech" && w.nach === "waerme") || (w.von === "waerme" && w.nach === "mech") ? 7 : -7;
+  }
+  var nx = -uy, ny = ux;
+  var p0 = rand(a, ux, uy), p1 = rand(b, -ux, -uy);
+  p0 = [p0[0] + nx * off, p0[1] + ny * off]; p1 = [p1[0] + nx * off, p1[1] + ny * off];
+  var mx = p0[0] + (p1[0] - p0[0]) * w.t, my = p0[1] + (p1[1] - p0[1]) * w.t;
+  var ang = Math.atan2(uy, ux) * 180 / Math.PI;
+  if (ang > 90) ang -= 180; if (ang < -90) ang += 180;
+  return {p0:p0, p1:p1, ux:ux, uy:uy, mx:mx, my:my, ang:ang, nx:nx, ny:ny, off:off};
+}
+var sel = {art:"form", id:"elek"};
+function klasseW(w){
+  if (sel.art === "form"){
+    if (w.von === sel.id) return "ab";
+    if (w.nach === sel.id) return "zu";
+    return "dim";
+  }
+  return w.id === sel.id ? "ab" : "dim";
+}
+function zeichneNetz(){
+  var h = "";
+  WANDLER.forEach(function(w){
+    var g = geometrie(w), c = klasseW(w), sx = g.p1[0] - g.ux * 9, sy = g.p1[1] - g.uy * 9;
+    h += "<path class=\"n-l " + c + "\" d=\"M" + n(g.p0[0]) + " " + n(g.p0[1]) + " L" + n(sx) + " " + n(sy) + "\"/>";
+    h += "<path class=\"n-s " + c + "\" d=\"M" + n(g.p1[0]) + " " + n(g.p1[1]) + " L" + n(sx + g.nx * 4) + " " + n(sy + g.ny * 4) + " L" + n(sx - g.nx * 4) + " " + n(sy - g.ny * 4) + " Z\"/>";
+  });
+  WANDLER.forEach(function(w){
+    var g = geometrie(w), c = klasseW(w), lx = g.mx, ly = g.my;
+    /* bei Paaren die Beschriftung leicht nach aussen schieben */
+    if (g.off){ var sg = g.off > 0 ? 1 : -1; lx += g.nx * 8 * sg; ly += g.ny * 8 * sg; }
+    h += "<text class=\"n-w" + (c === "dim" ? " dim" : " on") + "\" data-w=\"" + w.id + "\" x=\"" + n(lx) + "\" y=\"" + n(ly + 3.6) + "\" text-anchor=\"middle\" transform=\"rotate(" + n(g.ang) + " " + n(lx) + " " + n(ly) + ")\">" + w.name + "</text>";
+  });
+  REIHE_F.forEach(function(k){
+    var f = FORMEN[k], on = (sel.art === "form" && sel.id === k) || (sel.art === "wandler" && (wById(sel.id).von === k || wById(sel.id).nach === k));
+    h += "<rect class=\"n-box" + (on ? " on" : "") + "\" data-f=\"" + k + "\" x=\"" + (f.x - BW / 2) + "\" y=\"" + (f.y - BH / 2) + "\" width=\"" + BW + "\" height=\"" + BH + "\"/>";
+    if (f.box.length === 1) h += "<text class=\"n-bt\" x=\"" + f.x + "\" y=\"" + (f.y + 4.5) + "\" text-anchor=\"middle\">" + f.box[0] + "</text>";
+    else h += "<text class=\"n-bt\" x=\"" + f.x + "\" y=\"" + (f.y - 3) + "\" text-anchor=\"middle\">" + f.box[0] + "</text><text class=\"n-bt\" x=\"" + f.x + "\" y=\"" + (f.y + 12) + "\" text-anchor=\"middle\">" + f.box[1] + "</text>";
+  });
+  $("netz").innerHTML = h;
+}
+function zeigeInfo(){
+  var h = "";
+  if (sel.art === "form"){
+    var f = FORMEN[sel.id];
+    var ab = WANDLER.filter(function(w){ return w.von === sel.id; }), zu = WANDLER.filter(function(w){ return w.nach === sel.id; });
+    h += "<p><b>" + f.name.charAt(0).toUpperCase() + f.name.slice(1) + "</b></p><p>" + f.text + "</p>";
+    h += "<p><span class=\"ab\">Wird umgewandelt in:</span> " + (ab.length ? ab.map(function(w){ return FORMEN[w.nach].name + " (" + wName(w) + ")"; }).join(", ") : "keine direkte Umwandlung im Diagramm") + "</p>";
+    h += "<p><span class=\"zu\">Entsteht aus:</span> " + (zu.length ? zu.map(function(w){ return FORMEN[w.von].name + " (" + wName(w) + ")"; }).join(", ") : "keine Umwandlung im Diagramm") + "</p>";
+  } else {
+    var w = wById(sel.id);
+    h += "<p><b>Energiewandler: " + wName(w) + "</b></p>";
+    h += "<p>Zugeführte Energie: <span class=\"zu\">" + FORMEN[w.von].name + "</span></p><p>Abgegebene Energie: <span class=\"ab\">" + FORMEN[w.nach].name + "</span></p>";
+    var gw = gegen(w);
+    if (gw) h += "<p class=\"note\">Umgekehrte Richtung: " + wName(gw) + " wandelt " + FORMEN[gw.von].name + " in " + FORMEN[gw.nach].name + " um.</p>";
+  }
+  $("info").innerHTML = h;
+}
+function zeigeWahl(){
+  $("formen").innerHTML = REIHE_F.map(function(k){ return "<button class=\"opt txt\" type=\"button\" id=\"fo-" + k + "\" data-f=\"" + k + "\" aria-pressed=\"" + (sel.art === "form" && sel.id === k) + "\">" + FORMEN[k].name + "</button>"; }).join("");
+  $("wandler").innerHTML = WANDLER.map(function(w){ return "<button class=\"opt txt\" type=\"button\" id=\"wa-" + w.id + "\" data-w=\"" + w.id + "\" aria-pressed=\"" + (sel.art === "wandler" && sel.id === w.id) + "\">" + wName(w) + "</button>"; }).join("");
+  zeichneNetz(); zeigeInfo();
+}
+
+/* ===== Umwandlungsketten (Übungen 1, 2, 3, 6, 7) ===== */
+var KETTEN = [
+  {id:"kw", name:"Dampfturbine, Generator, Lampe (Übung 7)", schritte:[["waerme", "zugeführte Energie"], "Dampfturbine", ["mech"], "Generator", ["elek"], "Lampe"], nutz:["strahl", "Licht"], verl:["waerme", "Wärme"]},
+  {id:"wk", name:"Wasserkocher (Übung 1)", schritte:[["elek", "zugeführte Energie"], "Wasserkocher"], nutz:["waerme", "das Wasser wird erhitzt"]},
+  {id:"bm", name:"Bohrmaschine (Übung 6)", schritte:[["elek", "zugeführte Energie"], "Bohrmaschine"], nutz:["mech", "das Werkstück wird bearbeitet"], verl:["waerme", "Wärme"]},
+  {id:"bat", name:"Batterie, Akkumulator (Übung 2)", schritte:[["chem", "gespeicherte Energie"], "Batterie, Akkumulator"], nutz:["elek", "für ein Gerät"]},
+  {id:"pv", name:"Photovoltaikanlage (Übung 3)", schritte:[["strahl", "Sonnenlicht"], "Solarzelle"], nutz:["elek", "für das Haus oder das Netz"]},
+  {id:"ledk", name:"LED-Leuchtmittel (Übung 3)", schritte:[["elek", "zugeführte Energie"], "Leuchtdiode (LED)"], nutz:["strahl", "Licht"], verl:["waerme", "Wärme"]}
+];
+var kette = "kw";
+function zeigeKette(){
+  $("ketten").innerHTML = KETTEN.map(function(k){ return "<button class=\"opt txt\" type=\"button\" id=\"ke-" + k.id + "\" data-k=\"" + k.id + "\" aria-pressed=\"" + (k.id === kette) + "\">" + k.name + "</button>"; }).join("");
+  var k = KETTEN.filter(function(x){ return x.id === kette; })[0], h = "";
+  k.schritte.forEach(function(s){
+    if (typeof s === "string") h += "<div class=\"k-w\">" + s + " <span class=\"note\">(Energiewandler)</span></div>";
+    else h += "<div class=\"k-e\">" + FORMEN[s[0]].name + (s[1] ? "<small>" + s[1] + "</small>" : "") + "</div>";
+  });
+  h += "<div class=\"k-end\"><div class=\"k-e nutz\">Nutzenergie: " + FORMEN[k.nutz[0]].name + "<small>" + k.nutz[1] + "</small></div>";
+  if (k.verl) h += "<div class=\"k-e verl\">Verlustenergie: " + FORMEN[k.verl[0]].name + "<small>" + k.verl[1] + "</small></div>";
+  h += "</div>";
+  $("kette").innerHTML = h;
+}
+
+/* ===== Energieträger (ET3.3, Übung 8) ===== */
+var GRUPPEN = {
+  er: {name:"erneuerbare Energieträger", text:"Erneuerbare Energieträger wachsen ständig nach oder entstehen laufend durch Sonnenstrahlung. Sie gelten als nahezu unerschöpflich. Beispiele: Sonnenenergie, Wind, Wasserkraft, Biomasse und Erdwärme."},
+  ne: {name:"nicht erneuerbare Energieträger", text:"Dazu zählen vor allem die fossilen Brennstoffe Kohle, Erdöl und Erdgas. Sie haben die Sonnenenergie über Millionen von Jahren gespeichert, sind jedoch endlich und werden in absehbarer Zeit knapp."},
+  ke: {name:"Kernenergie", text:"Aus der Kernenergie wird in Atomkraftwerken durch Kernspaltung elektrische Energie erzeugt (Uran, Plutonium)."}
+};
+/* Kasten: Text, Gruppe, x-Mitte, Breite (Masse aus Übung 8, verkleinert) */
+var TRAEGER = [["Wind", "er", 64, 74], ["Sonne", "er", 145, 74], ["Wasser", "er", 226, 74], ["Biomasse", "er", 307, 74],
+               ["Erdöl", "ne", 403, 74], ["Erdgas", "ne", 484, 74], ["Kohle", "ne", 565, 74], ["Uran, Plutonium", "ke", 667, 72]];
+var GKOPF = {er:[30, 341], ne:[369, 599], ke:[631, 703]};
+var tSel = null;
+function zeichneTraeger(){
+  var h = "", yK = 18, hK = 26, yT = 76, hT = 34, ySam = 128, yG = 158;
+  var g0 = TRAEGER.map(function(t){ return t[2]; });
+  ["er", "ne", "ke"].forEach(function(g){
+    var a = GKOPF[g][0], b = GKOPF[g][1], on = tSel !== null && TRAEGER[tSel][1] === g;
+    h += "<rect class=\"t-k " + g + (on ? " on" : "") + "\" x=\"" + a + "\" y=\"" + yK + "\" width=\"" + (b - a) + "\" height=\"" + hK + "\"/>";
+    h += "<text class=\"t-t\" x=\"" + ((a + b) / 2) + "\" y=\"" + (yK + 18) + "\" text-anchor=\"middle\">" + (g === "ke" ? "Kernenergie" : GRUPPEN[g].name) + "</text>";
+  });
+  TRAEGER.forEach(function(t, i){
+    var on = tSel === i, x = t[2], w = t[3];
+    h += "<path class=\"t-l" + (on ? " on" : "") + "\" d=\"M" + x + " " + (yK + hK) + " V" + yT + " M" + x + " " + (yT + hT) + " V" + ySam + "\"/>";
+  });
+  /* Sammelleitung und Pfeil zur Gewinnung */
+  var mitte = 365;
+  h += "<path class=\"t-l" + (tSel !== null ? " on" : "") + "\" d=\"M" + g0[0] + " " + ySam + " H" + g0[g0.length - 1] + " M" + mitte + " " + ySam + " V" + (yG - 12) + "\"/>";
+  h += "<path class=\"t-s\" d=\"M" + (mitte - 8) + " " + (yG - 13) + " H" + (mitte + 8) + " L" + mitte + " " + (yG - 1) + " Z\"/>";
+  TRAEGER.forEach(function(t, i){
+    var x = t[2], w = t[3], on = tSel === i, zwei = t[0].indexOf(",") > 0;
+    h += "<rect class=\"t-k " + t[1] + (on ? " on" : "") + "\" data-t=\"" + i + "\" x=\"" + (x - w / 2) + "\" y=\"" + yT + "\" width=\"" + w + "\" height=\"" + hT + "\"/>";
+    if (zwei) h += "<text class=\"t-t\" x=\"" + x + "\" y=\"" + (yT + 14) + "\" text-anchor=\"middle\">Uran,</text><text class=\"t-t\" x=\"" + x + "\" y=\"" + (yT + 29) + "\" text-anchor=\"middle\">Plutonium</text>";
+    else h += "<text class=\"t-t\" x=\"" + x + "\" y=\"" + (yT + 22) + "\" text-anchor=\"middle\">" + t[0] + "</text>";
+  });
+  h += "<rect class=\"t-k ge\" x=\"" + (mitte - 125) + "\" y=\"" + yG + "\" width=\"250\" height=\"32\"/><text class=\"t-t b\" x=\"" + mitte + "\" y=\"" + (yG + 21) + "\" text-anchor=\"middle\">Gewinnung elektrischer Energie</text>";
+  $("traeger").innerHTML = h;
+  $("t-wahl").innerHTML = TRAEGER.map(function(t, i){ return "<button class=\"opt txt\" type=\"button\" id=\"tw-" + i + "\" data-t=\"" + i + "\" aria-pressed=\"" + (tSel === i) + "\">" + t[0] + "</button>"; }).join("");
+  if (tSel === null) $("t-info").innerHTML = "<p>Tippen Sie auf einen Energieträger in der Übersicht.</p><p class=\"note\">Man unterscheidet drei Hauptarten: erneuerbare Energieträger, nicht erneuerbare Energieträger und Kernenergie.</p>";
+  else { var g = TRAEGER[tSel][1]; $("t-info").innerHTML = "<p><b>" + TRAEGER[tSel][0] + "</b> gehört zu: <b>" + GRUPPEN[g].name + "</b></p><p>" + GRUPPEN[g].text + "</p>"; }
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+var FN = {elek:"elektrische Energie", mech:"mechanische Energie", waerme:"thermische Energie", chem:"chemische Energie", strahl:"Strahlungsenergie", kern:"Kernenergie"};
+var ALLE_F = ["elek", "mech", "waerme", "chem", "strahl", "kern"];
+function fShow(k){ return FN[k]; }
+var QW = WANDLER.filter(function(w){ return true; });
+function qZuAb(){
+  var w = pick(QW), name = w.zusatz ? w.name + " beim " + w.zusatz : w.name;
+  return {text:"Energiewandler <b>" + name + "</b>: Welche Energieform wird zugeführt, und welche Energieform wird abgegeben?",
+    parts:[{label:"zugeführte Energie", options:ALLE_F.slice(), correct:w.von, show:fShow},
+           {label:"abgegebene Energie", options:ALLE_F.slice(), correct:w.nach, show:fShow}],
+    hint:"Suchen Sie den Pfeil mit der Beschriftung «" + w.name + "» im Diagramm der Energieumwandlungen (ET3.2). Der Pfeil zeigt zur abgegebenen Energieform.",
+    solution:"<p>" + name + ": " + FN[w.von] + " → <b>" + FN[w.nach] + "</b> (ET3.2).</p>"};
+}
+function qWandler(){
+  var w = pick(QW.filter(function(x){ return x.id !== "akkuL" && x.id !== "akkuE"; }).concat([wById("akkuE")]));
+  var andere = shuffle(WANDLER.filter(function(x){ return x.name !== w.name; }).map(function(x){ return x.name; }));
+  var opts = [w.name], i;
+  for (i = 0; i < andere.length && opts.length < 4; i++) if (opts.indexOf(andere[i]) < 0) opts.push(andere[i]);
+  return {text:"Welcher Energiewandler wandelt <b>" + FN[w.von] + "</b> in <b>" + FN[w.nach] + "</b> um?",
+    parts:[{label:"Energiewandler", options:shuffle(opts), correct:w.name}],
+    hint:"Im Diagramm (ET3.2) führt ein Pfeil von «" + FN[w.von] + "» zu «" + FN[w.nach] + "». Lesen Sie die Beschriftung des Pfeils.",
+    solution:"<p>" + FN[w.von] + " → " + FN[w.nach] + ": <b>" + w.name + "</b>" + (w.zusatz ? " (" + w.zusatz + ")" : "") + ".</p>"};
+}
+var TRAEGER_Q = [["Sonnenenergie", "er"], ["Wind", "er"], ["Wasserkraft", "er"], ["Biomasse", "er"], ["Erdwärme", "er"],
+                 ["Kohle", "ne"], ["Erdöl", "ne"], ["Erdgas", "ne"], ["Uran", "ke"], ["Plutonium", "ke"]];
+var GN = {er:"erneuerbare Energieträger", ne:"nicht erneuerbare Energieträger", ke:"Kernenergie"};
+function qTraeger(){
+  var t = pick(TRAEGER_Q);
+  return {text:"Zu welcher Hauptart gehört der Energieträger <b>" + t[0] + "</b>?",
+    parts:[{label:"Hauptart", options:["er", "ne", "ke"], correct:t[1], show:function(o){ return GN[o]; }}],
+    hint:"Wächst der Energieträger nach oder entsteht er laufend durch Sonnenstrahlung? Fossile Brennstoffe sind endlich. Uran und Plutonium werden gespalten (ET3.3).",
+    solution:"<p>" + t[0] + ": <b>" + GN[t[1]] + "</b>.</p><p>" + GRUPPEN[t[1]].text + "</p>"};
+}
+var BEISPIELE = [["ein fahrendes Auto", "mech", "kinetische Energie, Energie der Bewegung"], ["Wasser in einem Stausee", "mech", "potentielle Energie, Energie der Lage"],
+  ["fliessendes Wasser", "mech", "kinetische Energie"], ["siedendes Wasser", "waerme", "je höher die Temperatur, desto grösser die thermische Energie"],
+  ["Benzin", "chem", "Bindungen zwischen Atomen und Molekülen"], ["Säuren in Batterien", "chem", "Bindungen zwischen Atomen und Molekülen"],
+  ["das Licht einer Lampe", "strahl", "Energie, die durch elektromagnetische Strahlung transportiert wird"], ["Wärmestrahlung der Sonne", "strahl", "elektromagnetische Strahlung"],
+  ["Kernspaltung im Atomkraftwerk", "kern", "Spaltung von schweren Atomen"], ["Kernfusion im Innern der Sonne", "kern", "Verschmelzung von leichten Atomen"],
+  ["Energie, die über eine Hochspannungsleitung transportiert wird", "elek", "lässt sich gut transportieren und leicht umwandeln"]];
+function qBeispiel(){
+  var b = pick(BEISPIELE);
+  return {text:"Welche Energieform steckt in folgendem Beispiel: <b>" + b[0] + "</b>?",
+    parts:[{label:"Energieform", options:ALLE_F.slice(), correct:b[1], show:fShow}],
+    hint:"Vergleichen Sie mit den Beispielen zu den sechs Energieformen im Theoriebuch (ET3.1).",
+    solution:"<p>" + b[0].charAt(0).toUpperCase() + b[0].slice(1) + ": <b>" + FN[b[1]] + "</b> (" + b[2] + ").</p>"};
+}
+var MECH = [["ein fahrendes Auto", "kin"], ["fliessendes Wasser", "kin"], ["ein drehendes Windrad", "kin"], ["Wasser in einem Stausee", "pot"],
+            ["eine angehobene Masse", "pot"], ["Wasser im Oberbecken eines Pumpspeicherkraftwerks", "pot"]];
+function qMech(){
+  var m = pick(MECH), N2 = {kin:"kinetische Energie (Energie der Bewegung)", pot:"potentielle Energie (Energie der Lage)"};
+  return {text:"Mechanische Energie: Welche Art liegt vor bei <b>" + m[0] + "</b>?",
+    parts:[{label:"Art der mechanischen Energie", options:["kin", "pot"], correct:m[1], show:function(o){ return N2[o]; }}],
+    hint:"Bewegt sich die Masse, oder ist sie hoch gelagert (ET3.1)?",
+    solution:"<p>" + m[0].charAt(0).toUpperCase() + m[0].slice(1) + ": <b>" + N2[m[1]] + "</b>.</p>"};
+}
+function qKette(){
+  return {text:"Beispiel Dampfturbine, Generator, Lampe (Übung 7): Bringen Sie die Energieformen in die Reihenfolge, in der sie umgewandelt werden.",
+    parts:[{label:"Reihenfolge von der zugeführten zur Nutzenergie", type:"order", items:["thermische Energie", "mechanische Energie", "elektrische Energie", "Strahlungsenergie (Licht)"]}],
+    hint:"Der Dampfturbine wird Wärme zugeführt. Der Generator wird von der Turbine angetrieben. Die Lampe gibt Licht ab.",
+    solution:"<p>thermische Energie → Dampfturbine → mechanische Energie → Generator → elektrische Energie → Lampe → <b>Strahlungsenergie (Licht)</b>; dazu entsteht thermische Energie (Wärme) als Verlust (ET3.2).</p>"};
+}
+var GERAETE = [["Bohrmaschine", "mech", "waerme"], ["Elektromotor", "mech", "waerme"], ["LED-Leuchtmittel", "strahl", "waerme"],
+               ["Generator", "elek", "waerme"], ["Glühlampe", "strahl", "waerme"]];
+function qNutz(){
+  var g = pick(GERAETE);
+  return {text:"<b>" + g[0] + "</b>: Welche Energieform ist die Nutzenergie, welche die Verlustenergie?",
+    parts:[{label:"Nutzenergie", options:["elek", "mech", "waerme", "strahl"], correct:g[1], show:fShow},
+           {label:"Verlustenergie", options:["elek", "mech", "waerme", "strahl"], correct:g[2], show:fShow}],
+    hint:"Nutzenergie ist die Energieform, die der Anwender tatsächlich verwendet. Die gleichzeitig entstehende, nicht gewünschte Energie ist meist Wärme (Übung 6).",
+    solution:"<p>" + g[0] + ": Nutzenergie <b>" + FN[g[1]] + "</b>, Verlustenergie <b>" + FN[g[2]] + "</b> (Wärme).</p>"};
+}
+var RICHTIG = ["Energie kann nicht erzeugt, sondern nur in eine andere Form umgewandelt werden.", "Elektrische Energie lässt sich besonders leicht in andere Energieformen umwandeln.",
+  "Elektrische Energie lässt sich kaum speichern.", "Nutzenergie ist die Energieform, die tatsächlich vom Anwender verwendet wird.",
+  "Mechanische Energie lässt sich nicht direkt in Strahlungsenergie umwandeln.", "Energieträger sind Stoffe, die in der Lage sind, Energie zu speichern."];
+var FALSCH = ["Ein Kraftwerk erzeugt Energie aus dem Nichts.", "Elektrische Energie lässt sich in grossen Mengen einfach speichern.",
+  "Jede Energieform lässt sich direkt in jede andere umwandeln.", "Die Wärme einer Bohrmaschine ist ihre Nutzenergie.",
+  "Kohle, Erdöl und Erdgas sind erneuerbare Energieträger.", "Uran gehört zu den erneuerbaren Energieträgern."];
+function qAussagen(){
+  var nR = 1 + Math.floor(Math.random() * 3), r = shuffle(RICHTIG).slice(0, nR), f = shuffle(FALSCH).slice(0, 4 - nR);
+  return {text:"Welche Aussagen sind richtig?",
+    parts:[{label:"Aussagen", type:"multi", options:shuffle(r.concat(f)), correct:r}],
+    hint:"Denken Sie an den Energieerhaltungssatz, an die Merksätze zu den Energieumwandlungen (ET3.2) und an die drei Hauptarten der Energieträger (ET3.3).",
+    solution:"<p>Richtig sind:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch sind:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>"};
+}
+var MAKERS = [qZuAb, qWandler, qTraeger, qBeispiel, qMech, qKette, qNutz, qAussagen];
+var GEW = [3, 3, 2, 2, 1, 1, 2, 2];
+function randomQuestion(){
+  var sum = GEW.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+  for (i = 0; i < MAKERS.length; i++){ r -= GEW[i]; if (r < 0) return MAKERS[i](); }
+  return MAKERS[0]();
+}
+
+function init(){
+  zeigeWahl(); zeigeKette(); zeichneTraeger();
+  $("formen").addEventListener("click", function(e){ var b = e.target.closest("button[data-f]"); if (!b) return; sel = {art:"form", id:b.getAttribute("data-f")}; zeigeWahl(); $("fo-" + sel.id).focus(); });
+  $("wandler").addEventListener("click", function(e){ var b = e.target.closest("button[data-w]"); if (!b) return; sel = {art:"wandler", id:b.getAttribute("data-w")}; zeigeWahl(); $("wa-" + sel.id).focus(); });
+  $("netz").addEventListener("click", function(e){
+    var t = e.target.closest("[data-f],[data-w]"); if (!t) return;
+    sel = t.hasAttribute("data-f") ? {art:"form", id:t.getAttribute("data-f")} : {art:"wandler", id:t.getAttribute("data-w")};
+    zeigeWahl();
+  });
+  $("ketten").addEventListener("click", function(e){ var b = e.target.closest("button[data-k]"); if (!b) return; kette = b.getAttribute("data-k"); zeigeKette(); $("ke-" + kette).focus(); });
+  $("traeger").addEventListener("click", function(e){ var t = e.target.closest("[data-t]"); if (!t) return; tSel = Number(t.getAttribute("data-t")); zeichneTraeger(); });
+  $("t-wahl").addEventListener("click", function(e){ var b = e.target.closest("button[data-t]"); if (!b) return; tSel = Number(b.getAttribute("data-t")); zeichneTraeger(); $("tw-" + tSel).focus(); });
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

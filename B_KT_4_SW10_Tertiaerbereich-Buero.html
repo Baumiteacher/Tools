@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_KT_4 TA3 Tertiärbereich Büro BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.wand{fill:#D3D7DC;stroke:#2A3E5C;stroke-width:1}
+.raum{fill:#FFFFFF;stroke:#2A3E5C;stroke-width:1}
+.rn{fill:#4F6FA8;font-family:var(--sans);font-size:11px;pointer-events:none}
+.ks{fill:none;stroke:#5A9A2E;stroke-width:1.6;stroke-dasharray:5 3}
+.kp{fill:none;stroke:#5A9A2E;stroke-width:1.6}
+.do{fill:#FFFFFF;stroke:#5A9A2E;stroke-width:1.4;cursor:pointer}
+.do.sel{stroke:var(--accent);stroke-width:3}
+.ap{fill:#FFFFFF;stroke:#5A9A2E;stroke-width:1.4;cursor:pointer}
+.kl{fill:#2A3E5C;font-family:var(--sans);font-size:8px;pointer-events:none}
+.kb{fill:#2A3E5C;font-family:var(--sans);font-size:11px;pointer-events:none}
+.fe{fill:#DCE9F5;stroke:#4F6FA8;stroke-width:.8}
+.tu{stroke:none}
+.tb{fill:none;stroke:#2A3E5C;stroke-width:1}
+.tr{stroke:#2A3E5C;stroke-width:.8}
+.trp{stroke:#3B5A8C;stroke-width:3}
+.trs{fill:#3B5A8C}
+.in{fill:none;stroke:#5A9A2E;stroke-width:1;pointer-events:none}
+.hit{fill:transparent;cursor:pointer}
+.nn{fill:#17212B;font-family:var(--sans);font-size:9px;font-weight:700;pointer-events:none}
+.ev{fill:#FFFFFF;stroke:#5A9A2E;stroke-width:1.4}
+.pf{fill:#5A9A2E}
+.hin{fill:#FFFFFF;stroke:#5A9A2E;stroke-width:1.2}
+.lk-p{fill:none;stroke:#5A9A2E;stroke-width:5}
+.lk-c{fill:none;stroke:#2F6BFF;stroke-width:3}
+.lb{fill:var(--ink);font-family:var(--sans);font-size:10px}
+.zt{width:100%;border-collapse:collapse;font-size:.86rem}
+.zt td,.zt th{border:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+.zt th{background:var(--accent-soft)}
+.sz{display:flex;align-items:center;gap:4px;margin:2px 0}
+.zt td:nth-child(2){width:50%}
+.zt select{flex:1;min-width:0;font:inherit;padding:4px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_KT_4 Im Büro- und Gewerbebereich Kommunikationsinstallationen erstellen · Teilauftrag 3</p>
+    <h1>Tertiärbereich Büro BAP</h1>
+    <p class="lead">Installationsplan des Bürogeschosses: Dosen und Kabel pro Trasse zählen, die Legende des Etagenverteilers ergänzen und Permanent Link und Channel Link prüfen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Installationsplan Bürogeschoss (Übung 27)</h2>
+        <svg class="bild" id="plan" viewBox="75 480 476 586" role="img" aria-label="Installationsplan des Bürogeschosses mit Netzwerkdosen und Access Points"></svg>
+        <div class="info" id="info" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <h2>Legende EV Büro (Übung 28)</h2>
+        <div class="tab-k" id="leg"></div>
+      </div>
+      <div class="panel">
+        <h2>Permanent Link und Channel Link (Übung 29)</h2>
+        <label class="slider-head" for="r-pl"><span class="label">Permanent Link (Patchfeld bis Dose)</span><b id="r-pl-w"></b></label>
+        <input type="range" id="r-pl" min="5" max="110" step="1" value="62" aria-label="Länge Permanent Link">
+        <label class="slider-head" for="r-pk"><span class="label">Patchkabel im EV</span><b id="r-pk-w"></b></label>
+        <input type="range" id="r-pk" min="0" max="10" step="0.5" value="2" aria-label="Länge Patchkabel">
+        <label class="slider-head" for="r-ak"><span class="label">Anschlusskabel zum Endgerät</span><b id="r-ak-w"></b></label>
+        <input type="range" id="r-ak" min="0" max="10" step="0.5" value="3" aria-label="Länge Anschlusskabel">
+        <svg class="bild" id="link" viewBox="0 0 360 90" role="img" aria-label="Permanent Link und Channel Link"></svg>
+        <div class="rechnung" id="rechnung" aria-live="polite"></div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Kommunikationstechnik KT26.3 (Permanent-Link und Channel-Link) und KT23.10 (PoE).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter KT4, Teilauftrag 3: Übung 27 Installationsplan Bürogeschoss mit Lösung (KT4.13), Übung 28 Projektskizze EV Büro und Legende 1 bis 6, Übungen 29 und 30 (KT4.14). Der Plan ist vereinfacht nachgezeichnet.</li><li>Lösung Übung 27: Links 1 und 2 sowie 3 und 4 im Büro Chef, Access Point 5 bei der Garderobe, Bodendosen 6 und 7 bis 16 und 17 im Büro mit je 2x RJ45 Kat6a, Access Point 18; Rohre M32 mit 4x S-FTP 4x2 Kat7a und M25 mit 2x S-FTP 4x2 Kat7a. Die Linkpaare stehen im Arbeitsblatt mit Schrägstrich; das Tool schreibt «1 und 2» (im Plan «1+2»).</li><li>Theoriebuch Kommunikationstechnik, Kapitel 26 (Datei T04_K26): KT26.3 Permanent-Link höchstens 90 m (Patch-Panel bis Anschlussdose), Channel-Link höchstens 100 m (90 m + 2 x 5 m).</li><li>Hinweis: Die Pfeile «EV Büro» im Plan bedeuten Leitungen vom Etagenverteiler; der Weg (Kanal KK 80x40 nach Übung 28) ist im Plan nicht gezeichnet.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, E = ESH, NB = E.NB;
+/* Dosen nach Lösung Übung 27: Links, Lage, Raum, Art */
+var DOSEN = [
+  {l:"1, 2", x:117, y:591, r:"Büro Chef", t:"Netzwerkdose 2x RJ45", lx:112, ly:576}, {l:"3, 4", x:325, y:591, r:"Büro Chef", t:"Netzwerkdose 2x RJ45", lx:322, ly:576},
+  {l:"5", x:380, y:509, r:"Garderobe", t:"Access Point (PoE)", ap:true, lx:392, ly:526}, {l:"18", x:240, y:728, r:"Büro", t:"Access Point (PoE)", ap:true, lx:243, ly:744},
+  {l:"14, 15", x:117, y:824, r:"Büro", t:"Bodendose 2x RJ45 Kat6a", lx:82, ly:812}, {l:"16, 17", x:306, y:824, r:"Büro", t:"Bodendose 2x RJ45 Kat6a", lx:271, ly:812}, {l:"6, 7", x:504, y:824, r:"Büro", t:"Bodendose 2x RJ45 Kat6a", lx:516, ly:812},
+  {l:"12, 13", x:127, y:993, r:"Büro", t:"Bodendose 2x RJ45 Kat6a", lx:94, ly:978}, {l:"10, 11", x:313, y:993, r:"Büro", t:"Bodendose 2x RJ45 Kat6a", lx:285, ly:978}, {l:"8, 9", x:502, y:993, r:"Büro", t:"Bodendose 2x RJ45 Kat6a", lx:506, ly:978}
+];
+var LEG = [
+  {n:1, rk:"Patchkabel", k:"18x S-FTP 4x2, Kat7a", f:"Verbindung Switch und Patchfeld"},
+  {n:2, rk:"Patchkabel", k:"1x Multimode OM4 Duplex", f:"Verbindung LWL-Patchfeld und Switch"},
+  {n:3, rk:"KK 80x40", k:"17x S-FTP 4x2, Kat7a", f:"16x Bodendosen, 1x PoE (Accesspoint)"},
+  {n:4, rk:"KIR M20", k:"1x S-FTP 4x2, Kat7a", f:"1x PoE (Accesspoint)"}
+];
+var st = {sel:-1, leg:{}, pl:62, pk:2, ak:3};
+function T(x, y, t, c, a){ return E.txt(x, y, t, c || "kl", a); }
+function tick(x, y, dx, dy){ return "<path class=\"kp\" d=\"M" + (x - dx) + " " + (y - dy) + " L" + (x + dx) + " " + (y + dy) + "\"/>"; }
+function evPfeil(x, y, rot){ return "<g transform=\"translate(" + x + " " + y + ") rotate(" + rot + ")\"><path class=\"hin\" d=\"M-22 -6 H14 V-10 L24 0 L14 10 V6 H-22 Z\"/>" + T(-3, 3, "EV Büro", "kl", "middle") + "</g>"; }
+function plan(){
+  var h = "<rect class=\"wand\" x=\"75\" y=\"480\" width=\"475\" height=\"585\"/><rect class=\"raum\" x=\"90\" y=\"495\" width=\"262\" height=\"213\"/><rect class=\"raum\" x=\"362\" y=\"495\" width=\"173\" height=\"213\"/><rect class=\"raum\" x=\"90\" y=\"720\" width=\"445\" height=\"325\"/>";
+  /* Fenster */
+  h += "<rect class=\"fe\" x=\"155\" y=\"484\" width=\"105\" height=\"8\"/><rect class=\"fe\" x=\"385\" y=\"484\" width=\"115\" height=\"8\"/><rect class=\"fe\" x=\"79\" y=\"800\" width=\"8\" height=\"65\"/><rect class=\"fe\" x=\"538\" y=\"760\" width=\"8\" height=\"100\"/>";
+  /* Türen: Durchgang und Türblatt mit Schwenkbogen */
+  h += "<rect class=\"raum tu\" x=\"245\" y=\"706\" width=\"50\" height=\"16\"/><path class=\"tb\" d=\"M245 708 V668 A40 40 0 0 1 285 708\"/><rect class=\"raum tu\" x=\"383\" y=\"706\" width=\"47\" height=\"16\"/><path class=\"tb\" d=\"M430 708 V668 A47 47 0 0 0 383 708\"/>";
+  /* Treppe */
+  h += "<rect class=\"raum\" x=\"90\" y=\"720\" width=\"150\" height=\"70\"/>";
+  for (var i = 1; i < 9; i++) h += "<path class=\"tr\" d=\"M" + (90 + i * 16.5) + " 720 V790\"/>";
+  h += "<path class=\"trp\" d=\"M230 760 H100\"/><path class=\"trs\" d=\"M92 760 L104 754 V766 Z\"/>";
+  h += T(220, 584, "Büro Chef", "rn", "middle") + T(442, 583, "Garderobe", "rn", "middle") + T(293, 851, "Büro", "rn", "middle");
+  /* EV */
+  h += "<rect class=\"ev\" x=\"362\" y=\"520\" width=\"23\" height=\"30\"/>" + "<text class=\"nn\" transform=\"translate(377 535) rotate(-90)\" text-anchor=\"middle\">EV</text>";
+  /* Leitungen */
+  h += "<path class=\"kp\" d=\"M385 504 C398 504 400 520 386 522\"/>" + tick(398, 512, 4, 0) + T(405, 509, "S-FTP 4x2,") + T(405, 518, "Kat7a, PoE");
+  h += "<path class=\"ks\" d=\"M375 550 V566 L333 591\"/>" + tick(372, 571, 4, -1) + T(367, 584, "M32") + T(367, 594, "4xS-FTP 4x2, Kat7a");
+  h += "<path class=\"ks\" d=\"M126 591 H316\"/>" + tick(127, 591, 0, 0) + T(133, 604, "M25") + T(133, 614, "2xS-FTP 4x2, Kat7a");
+  h += "<path class=\"kp\" d=\"M374 520 C330 560 255 620 240 724\"/>" + tick(268, 636, 4, -3) + T(272, 642, "S-FTP 4x2,") + T(272, 652, "Kat7a, PoE");
+  [[117, 306, "s"], [306, 313, "s"], [504, 502, "e"]].forEach(function(q, k){
+    var x1 = [117, 306, 504][k], x2 = [127, 313, 502][k], links = k < 2, tx = links ? x1 + 16 : x1 - 16, an = links ? "start" : "end";
+    h += "<path class=\"ks\" d=\"M" + x1 + " 816 V806 M" + x1 + " 832 L" + x2 + " 985\"/>" + tick(x1, 806, 4, 0);
+    h += T(tx, 818, "M32", "kl", an) + T(tx, 828, "4xS-FTP 4x2, Kat7a", "kl", an);
+    var my = k === 0 ? 905 : 952, mx = x1 + (x2 - x1) * (my - 832) / 153;
+    h += tick(mx, my, 4, 0) + T(links ? mx + 9 : mx - 9, my + 2, "M25", "kl", an) + T(links ? mx + 9 : mx - 9, my + 12, "2xS-FTP 4x2, Kat7a", "kl", an);
+  });
+  h += evPfeil(166, 794, -28) + evPfeil(356, 794, -28) + evPfeil(458, 785, 238);
+  h += "<rect class=\"hin\" x=\"150\" y=\"925\" width=\"137\" height=\"43\"/>" + T(218, 942, "In allen Bodendosen", "kb", "middle") + T(218, 959, "2x RJ45, Kat6a", "kb", "middle");
+  DOSEN.forEach(function(d, i){ var w = d.ap ? 14 : 18, hh = d.ap ? 7 : 16; h += "<g data-d=\"" + i + "\" tabindex=\"0\" role=\"button\" aria-label=\"" + d.t + " " + d.l + "\"><rect class=\"hit\" x=\"" + (d.x - 12) + "\" y=\"" + (d.y - 12) + "\" width=\"24\" height=\"24\"/><rect class=\"" + (d.ap ? "ap" : "do") + (st.sel === i ? " sel" : "") + "\" x=\"" + (d.x - w / 2) + "\" y=\"" + (d.y - hh / 2) + "\" width=\"" + w + "\" height=\"" + hh + "\"/>" + (d.ap ? "<rect class=\"in\" x=\"" + (d.x - 4) + "\" y=\"" + (d.y - 2) + "\" width=\"8\" height=\"4\"/>" : "<rect class=\"in\" x=\"" + (d.x - 3) + "\" y=\"" + (d.y - 5) + "\" width=\"6\" height=\"10\"/>") + T(d.lx, d.ly, d.l, "nn") + "</g>"; });
+  $("plan").innerHTML = h;
+  var L = [];
+  if (st.sel >= 0){ var d = DOSEN[st.sel]; L.push("<p><b>Link " + d.l + "</b>: " + d.t + " im Raum " + d.r + "." + (d.ap ? " Versorgung über PoE (Übung 27)." : "") + "</p>"); }
+  L.push("<p>Total: " + DOSEN.filter(function(d){ return !d.ap && d.r === "Büro"; }).length + " Bodendosen mit je 2x RJ45 im Büro, 2 Netzwerkdosen im Büro Chef, 2 Access Points; zusammen 18 Links (1 bis 18). Tippen Sie eine Dose an.</p>");
+  $("info").innerHTML = L.join("");
+}
+function leg(){
+  var kk = ["Patchkabel", "KK 80x40", "KIR M20"], kb = ["18x S-FTP 4x2, Kat7a", "1x Multimode OM4 Duplex", "17x S-FTP 4x2, Kat7a", "1x S-FTP 4x2, Kat7a", "3x2.5mm²"];
+  $("leg").innerHTML = "<table class=\"zt\"><tr><th>Nr.</th><th>Rohr, Kanal und Kabel</th><th>Funktion</th></tr>" + LEG.map(function(r, i){
+    var a = st.leg[i + "a"], b = st.leg[i + "b"];
+    function sel(id, liste, v, richtig){ return "<select id=\"l-" + i + id + "\" data-l=\"" + i + id + "\" aria-label=\"Position " + r.n + "\"><option value=\"\">wählen</option>" + liste.map(function(x){ return "<option" + (v === x ? " selected" : "") + ">" + x + "</option>"; }).join("") + "</select>" + (v ? (v === richtig ? " <span class=\"okt\">✓</span>" : " <span class=\"warn\">✗</span>") : ""); }
+    return "<tr><td>" + r.n + "</td><td><div class=\"sz\">" + sel("a", kk, a, r.rk) + "</div><div class=\"sz\">" + sel("b", kb, b, r.k) + "</div></td><td>" + r.f + "</td></tr>"; }).join("") + "<tr><td>5</td><td>KIR M20<br>3x2.5mm²</td><td>Zuleitung USV 1x 16A</td></tr><tr><td>6</td><td>Steigzone</td><td></td></tr></table>";
+}
+function link(){
+  var pl = st.pl, ch = pl + st.pk + st.ak, h = "", sx = function(m){ return 20 + m * 3; };
+  $("r-pl-w").textContent = pl + " m"; $("r-pk-w").textContent = E.zahl(st.pk) + " m"; $("r-ak-w").textContent = E.zahl(st.ak) + " m";
+  h += "<path class=\"lk-c\" d=\"M" + sx(0) + " 40 H" + E.n(sx(Math.min(ch, 110))) + "\"/><path class=\"lk-p\" d=\"M" + E.n(sx(st.pk)) + " 40 H" + E.n(sx(Math.min(st.pk + pl, 110))) + "\"/>";
+  h += "<path d=\"M" + sx(90) + " 20 V60 M" + sx(100) + " 20 V60\" stroke=\"#C62828\" stroke-dasharray=\"3 3\"/>" + E.txt(sx(90), 16, "90 m", "lb", "middle") + E.txt(sx(100), 72, "100 m", "lb", "middle");
+  h += E.txt(20, 62, "Patchfeld", "lb") + E.txt(E.n(sx(Math.min(st.pk + pl, 110))), 30, "Dose", "lb", "middle");
+  $("link").innerHTML = h;
+  var L = [];
+  L.push("<span>Permanent Link = <b>" + pl + NB + "m</b> " + (pl <= 90 ? "≤ 90" + NB + "m: zulässig" : "> 90" + NB + "m: nicht zulässig") + "</span>");
+  L.push("<span>Channel Link = " + pl + NB + "m + " + E.zahl(st.pk) + NB + "m + " + E.zahl(st.ak) + NB + "m = <b>" + E.zahl(ch) + NB + "m</b> " + (ch <= 100 ? "≤ 100" + NB + "m: zulässig" : "> 100" + NB + "m: nicht zulässig") + "</span>");
+  L.push(pl <= 90 && ch <= 100 ? "<span class=\"okt\">Beide Grenzwerte sind eingehalten.</span>" : "<span class=\"warn\">Mindestens ein Grenzwert ist überschritten.</span>");
+  $("rechnung").innerHTML = L.join("");
+}
+function zeige(){ plan(); leg(); link(); }
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+function qLeg(){ var r = pick(LEG), w = pick(["rk", "k"]); var opt = w === "rk" ? ["Patchkabel", "KK 80x40", "KIR M20", "Steigzone"] : ["18x S-FTP 4x2, Kat7a", "1x Multimode OM4 Duplex", "17x S-FTP 4x2, Kat7a", "1x S-FTP 4x2, Kat7a"]; return {text:"Übung 28, Position " + r.n + " (" + r.f + "): " + (w === "rk" ? "Welches Rohr, welcher Kanal oder welches Installationsteil?" : "Welche Kabel?"), parts:[{label:"Position " + r.n, options:opt, correct:r[w]}], hint:"17 Kabel zu den Bodendosen im Kanal, 1 Kabel zum Access Point im Rohr.", solution:"<p>" + r.rk + ", " + r.k + ", " + r.f + "</p>"}; }
+function qLink(){
+  var pl = pick([70, 85, 88, 92, 95]), pk = pick([2, 3, 5]), ak = pick([2, 3, 5]), ch = pl + pk + ak;
+  return {text:"Permanent Link " + pl + NB + "m, Patchkabel " + pk + NB + "m, Anschlusskabel " + ak + NB + "m. Ist die Strecke zulässig?", parts:[{label:"Permanent Link", options:["zulässig", "nicht zulässig"], correct:pl <= 90 ? "zulässig" : "nicht zulässig"}, {label:"Channel Link", options:["zulässig", "nicht zulässig"], correct:ch <= 100 ? "zulässig" : "nicht zulässig"}], hint:"Permanent Link höchstens 90 m, Channel Link höchstens 100 m (Übung 29).", solution:"<p>Permanent Link " + pl + " m " + (pl <= 90 ? "≤" : ">") + " 90 m; Channel Link " + ch + " m " + (ch <= 100 ? "≤" : ">") + " 100 m</p>"};
+}
+function qZaehl(){
+  return pick([
+    function(){ return {text:"Übung 27: Wie viele Links (Anschlüsse) hat das Bürogeschoss insgesamt, inklusive der beiden Access Points?", parts:[{label:"Links", options:["16", "17", "18", "20"], correct:"18", mono:true}], hint:"Linknummern 1 bis 18.", solution:"<p><b>18 Links</b>: 12 in den Bodendosen, 4 im Büro Chef, 2 Access Points; deshalb 18 Patchkabel (Übung 28).</p>"}; },
+    function(){ return {text:"Wie viele Kabel S-FTP 4x2 Kat7a liegen im Rohr M32 vom EV Büro zur ersten Bodendose einer Reihe?", parts:[{label:"Kabel", options:["1", "2", "4", "6"], correct:"4", mono:true}], hint:"Zwei Bodendosen mit je 2x RJ45.", solution:"<p><b>4 Kabel</b> (M32, 4xS-FTP 4x2, Kat7a); davon gehen 2 weiter im M25 zur zweiten Dose.</p>"}; },
+    function(){ return {text:"Wie viele Kabel liegen im Kanal KK 80x40 des EV Büro (Übung 28, Position 3)?", parts:[{label:"Kabel", options:["16", "17", "18", "19"], correct:"17", mono:true}], hint:"16 Bodendosen-Anschlüsse und 1 Access Point.", solution:"<p><b>17x S-FTP 4x2, Kat7a</b>: 16x Bodendosen, 1x PoE (Accesspoint).</p>"}; }
+  ])();
+}
+function qWissen(){
+  return pick([
+    function(){ return E.wahl("Übung 30: Was ist zu berücksichtigen, damit die beiden Access Points über PoE betrieben werden können?", "Einsatz eines PoE-fähigen Switches oder eines PoE-Injektors im Etagenverteiler", ["eine 230-V-Steckdose bei jedem Access Point", "ein Multimode-Kabel zu jedem Access Point", "ein zweiter Router im Büro"], "Lösung von Übung 30."); },
+    function(){ return E.wahl("Was ist der Unterschied zwischen Permanent Link und Channel Link?", "Der Channel Link enthält zusätzlich Patch- und Anschlusskabel.", ["Der Permanent Link enthält die Patchkabel.", "Der Channel Link ist nur bis 90 m zulässig.", "Es gibt keinen Unterschied."], "Lösung von Übung 29, KT26.3."); }
+  ])();
+}
+var MAKERS = [qLeg, qLink, qZaehl, qWissen, qLeg, qLink, qZaehl, qWissen];
+function init(){
+  zeige();
+  var s = $("plan");
+  function w(t){ if (!t) return; st.sel = Number(t.getAttribute("data-d")); plan(); var f = s.querySelector("[data-d=\"" + st.sel + "\"]"); if (f) f.focus(); }
+  s.addEventListener("click", function(e){ w(e.target.closest("[data-d]")); });
+  s.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ var t = e.target.closest("[data-d]"); if (t){ e.preventDefault(); w(t); } } });
+  $("leg").addEventListener("change", function(e){ var x = e.target.closest("select[data-l]"); if (!x) return; st.leg[x.getAttribute("data-l")] = x.value; var id = x.id; leg(); $(id).focus(); });
+  $("r-pl").addEventListener("input", function(){ st.pl = Number(this.value); link(); });
+  $("r-pk").addEventListener("input", function(){ st.pk = Number(this.value); link(); });
+  $("r-ak").addEventListener("input", function(){ st.ak = Number(this.value); link(); });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [2, 3, 2, 2, 0, 0, 0, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

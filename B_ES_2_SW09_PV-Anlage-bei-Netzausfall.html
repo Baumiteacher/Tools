@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ES_2 TA4 PV-Anlage bei Netzausfall BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.w{fill:none;stroke-width:2.6;stroke-linecap:round}
+.w.aus{stroke:var(--line)}
+.w.dc{stroke:#5A9A2E}
+.w.ac{stroke:#E53524}
+.a-dc{fill:#5A9A2E}
+.a-ac{fill:#E53524}
+.hb{fill:none;stroke:#7FB23F;stroke-width:1.5}
+.bk{fill:#D6E8F0;stroke:#2A3E5C;stroke-width:1.6}
+.bk.aus{opacity:.45}
+.sy{fill:none;stroke:#2A3E5C;stroke-width:1.6}
+.pv{fill:#3E62A8;stroke:#2A3E5C;stroke-width:1.2}
+.pv.aus{fill:#7D8CA6}
+.pvl{stroke:#9EC1EE;stroke-width:.8}
+.gak{fill:#F26C21;stroke:#2A3E5C;stroke-width:1.2}
+.wr{fill:#7DC243;stroke:#2A3E5C;stroke-width:1.2}
+.zy{fill:#F5D327;stroke:#2A3E5C;stroke-width:1.2}
+.zp{fill:#B27BC7;stroke:#2A3E5C;stroke-width:1.2}
+.hs{fill:#D6E8F0;stroke:#2A3E5C;stroke-width:1.6}
+.hs.dunkel{fill:#8A97A3}
+.ma{fill:none;stroke:#4F86B9;stroke-width:1.6}
+.bat{fill:#4F86B9;stroke:#2A3E5C;stroke-width:1.2}
+.batf{fill:#D6E8F0}
+.x{stroke:#E53524;stroke-width:3.5;stroke-linecap:round}
+.lb{fill:var(--ink);font-family:var(--sans);font-size:10px}
+.lg2{fill:#5A8A2A;font-family:var(--sans);font-size:10px}
+.st{font-family:var(--sans);font-size:11px;font-weight:700}
+.st.ok{fill:var(--ok)}
+.st.bad{fill:var(--bad)}
+.sun{fill:#F5B800}
+.moon{fill:#8A97A3}
+.legende{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:.85rem;color:var(--muted);margin:0}
+.lg{display:inline-block;width:22px;height:4px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.lg.dc{background:#5A9A2E}.lg.ac{background:#E53524}.lg.aus{background:var(--line)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .lg2{fill:#9FD16B} :root:not([data-theme="light"]) .lb{fill:var(--ink)} }
+:root[data-theme="dark"] .lg2{fill:#9FD16B}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ES_2 Im Haus Energie speichern für späteren Verbrauch oder Netzausfall · Teilauftrag 4</p>
+    <h1>PV-Anlage bei Netzausfall BAP</h1>
+    <p class="lead">Spielen Sie Tag, Nacht und Netzausfall durch: mit der netzgekoppelten PV-Anlage ohne Speicher (Ist-Situation), mit Hybridwechselrichter und Batterie (Soll-Situation) und mit einer USV. Verfolgen Sie Gleichstrom und Wechselstrom.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Energieflüsse (Übungen 29, 30, 34)</h2>
+        <fieldset><legend>Anlage</legend><div class="opts" id="w-a"></div></fieldset>
+        <fieldset><legend>Situation</legend><div class="opts" id="w-s"></div></fieldset>
+        <svg class="bild" id="anl" viewBox="0 0 360 300" role="img" aria-label="Blockbild der Anlage mit Energieflüssen"></svg>
+        <p class="legende"><span class="lg dc"></span>Gleichstrom (DC) <span class="lg ac"></span>Wechselstrom (AC) <span class="lg aus"></span>kein Strom</p>
+        <div class="info" id="info" aria-live="polite"></div>
+      </div>
+      <div class="plain">
+        <h2>Merke</h2>
+        <div class="merke">
+          <p>Der Wechselrichter wandelt die vom Solargenerator erzeugte Gleichspannung in Wechselspannung um (Übung 32).</p>
+          <p>Selbstgeführte Wechselrichter arbeiten im Inselbetrieb, netzgeführte Wechselrichter speisen ins öffentliche Netz ein (Übung 33).</p>
+          <p>Eine netzgekoppelte PV-Anlage ohne Batteriespeicher kann das Haus bei einem Netzausfall nicht versorgen (Übung 29 c).</p>
+        </div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET3.20 bis ET3.26, besonders ET3.22 (Generatoranschlusskasten, Wechselrichter) und ET3.24, ET3.25 (Batterie-Energiespeichersysteme).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter ES2, Teilauftrag 4: Übung 29 mit Abbildung der netzgekoppelten Anlage (ES2.11), Übung 30 mit Abbildung der PV-Anlage mit Hybridwechselrichter und Batterie (ES2.12), Übungen 31 bis 34 (ES2.12, ES2.13). Die Abbildungen sind als vereinfachte Blockbilder mit den Bezeichnungen des Arbeitsblatts nachgezeichnet; Farben wie im Arbeitsblatt: grün Gleichstrom (DC), rot Wechselstrom (AC).</li><li>Theoriebuch Elektrotechnik, Kapitel 3 Energie (Datei T02_K03, Kopfzeile Kapitel 2): ET3.22 (2.12.5 Generatoranschlusskasten, 2.12.6 Wechselrichter: selbstgeführt für Inselbetrieb, netzgeführt für Einspeisung), ET3.24 (2.13 Batterie-Energiespeichersysteme, Inselbetrieb und Back-up-Systeme nach dem Prinzip einer USV), ET3.25 (Hauptkomponenten).</li><li>Vereinfachungen im Tool: Bei «Nacht» ist die Batterie geladen, bei «Tag» liefert die PV-Anlage mehr Energie, als die Verbraucher brauchen. Wie die Anlage bei Netzausfall technisch vom Netz getrennt wird, zeigen die Unterlagen nicht; das Tool stellt diese Umschaltung nicht dar.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, E = ESH;
+var ANL = [["ist", "Ist: netzgekoppelt, ohne Speicher (Ü29)"], ["soll", "Soll: Hybridwechselrichter mit Batterie (Ü30)"], ["usv", "USV für den PC (Ü34)"]];
+var SIT = {ist:[["tag", "Tag, Netz vorhanden"], ["nacht", "Nacht, Netz vorhanden"], ["natag", "Netzausfall am Tag"], ["nanacht", "Netzausfall in der Nacht"]],
+  soll:[["tag", "Tag, Netz vorhanden"], ["nacht", "Nacht, Netz vorhanden"], ["natag", "Netzausfall am Tag"], ["nanacht", "Netzausfall in der Nacht"]],
+  usv:[["normal", "Netz vorhanden"], ["na", "Netzausfall"]]};
+var st = {a:"ist", s:"tag"};
+
+/* Leitung mit Pfeil: Punkte, Art (dc, ac), Richtung 1 vorwärts, −1 rückwärts, 0 kein Strom */
+function leitung(p, typ, dir){
+  var d = "M" + p.map(function(q){ return q[0] + " " + q[1]; }).join(" L"), h = "<path class=\"w " + (dir ? typ : "aus") + "\" d=\"" + d + "\"/>";
+  if (!dir) return h;
+  var i, b = 0, L = 0;
+  for (i = 0; i < p.length - 1; i++){ var l = Math.abs(p[i + 1][0] - p[i][0]) + Math.abs(p[i + 1][1] - p[i][1]); if (l > L){ L = l; b = i; } }
+  var a = p[b], c = p[b + 1]; if (dir < 0){ var t = a; a = c; c = t; }
+  var mx = (a[0] + c[0]) / 2, my = (a[1] + c[1]) / 2, ux = Math.sign(c[0] - a[0]), uy = Math.sign(c[1] - a[1]), s = 6;
+  return h + "<path class=\"a-" + typ + "\" d=\"M" + (mx + ux * s) + " " + (my + uy * s) + " L" + (mx - ux * s - uy * s) + " " + (my - uy * s + ux * s) + " L" + (mx - ux * s + uy * s) + " " + (my - uy * s - ux * s) + " Z\"/>";
+}
+function T(x, y, t, cls, anker){ return E.txt(x, y, t, cls || "lb", anker); }
+function panels(x, y, aus){
+  var h = "<path class=\"pv" + (aus ? " aus" : "") + "\" d=\"M" + (x + 20) + " " + y + " H" + (x + 100) + " L" + (x + 80) + " " + (y + 42) + " H" + x + " Z\"/>", i;
+  for (i = 1; i < 5; i++) h += "<path class=\"pvl\" d=\"M" + (x + 20 + i * 20) + " " + y + " L" + (x + i * 20) + " " + (y + 42) + "\"/>";
+  for (i = 1; i < 3; i++) h += "<path class=\"pvl\" d=\"M" + (x + 20 - i * 20 / 3) + " " + (y + i * 14) + " H" + (x + 100 - i * 20 / 3) + "\"/>";
+  return h;
+}
+function wr(x, y, oben, unten){
+  return "<rect class=\"wr\" x=\"" + x + "\" y=\"" + y + "\" width=\"28\" height=\"28\"/><path class=\"sy\" d=\"M" + x + " " + (y + 28) + " L" + (x + 28) + " " + y + " M" + (x + 16) + " " + (y + 7) + " h8 M" + (x + 16) + " " + (y + 10) + " h8" +
+    (unten === "~" ? " M" + (x + 4) + " " + (y + 21) + " q3 -5 6 0 t6 0" : " M" + (x + 4) + " " + (y + 18) + " h8 M" + (x + 4) + " " + (y + 21) + " h8") + "\"/>";
+}
+function haus(x, y, an){ return "<path class=\"hs" + (an ? "" : " dunkel") + "\" d=\"M" + (x - 24) + " " + (y + 40) + " V" + (y + 18) + " L" + x + " " + y + " L" + (x + 24) + " " + (y + 18) + " V" + (y + 40) + " Z\"/>" + (an ? "<circle class=\"sun\" cx=\"" + x + "\" cy=\"" + (y + 26) + "\" r=\"5\"/>" : ""); }
+function mast(x, y){ return "<path class=\"ma\" d=\"M" + (x - 14) + " " + (y + 90) + " L" + (x - 3) + " " + y + " L" + (x + 3) + " " + y + " L" + (x + 14) + " " + (y + 90) + " M" + (x - 16) + " " + (y + 18) + " H" + (x + 16) + " M" + (x - 14) + " " + (y + 34) + " H" + (x + 14) + " M" + (x - 8) + " " + (y + 18) + " L" + (x + 10) + " " + (y + 60) + " M" + (x + 8) + " " + (y + 18) + " L" + (x - 10) + " " + (y + 60) + " M" + (x - 10) + " " + (y + 60) + " L" + (x + 14) + " " + (y + 90) + " M" + (x + 10) + " " + (y + 60) + " L" + (x - 14) + " " + (y + 90) + "\"/>"; }
+function kreuz(x, y){ return "<path class=\"x\" d=\"M" + (x - 8) + " " + (y - 8) + " L" + (x + 8) + " " + (y + 8) + " M" + (x + 8) + " " + (y - 8) + " L" + (x - 8) + " " + (y + 8) + "\"/>"; }
+function himmel(x, y, tag){ return tag ? "<circle class=\"sun\" cx=\"" + x + "\" cy=\"" + y + "\" r=\"10\"/>" + [0, 45, 90, 135, 180, 225, 270, 315].map(function(g){ var r = g * Math.PI / 180; return "<path class=\"w\" style=\"stroke:#F5B800;stroke-width:2\" d=\"M" + E.n(x + 13 * Math.cos(r)) + " " + E.n(y + 13 * Math.sin(r)) + " L" + E.n(x + 18 * Math.cos(r)) + " " + E.n(y + 18 * Math.sin(r)) + "\"/>"; }).join("") : "<path class=\"moon\" d=\"M" + (x + 4) + " " + (y - 11) + " A11 11 0 1 0 " + (x + 4) + " " + (y + 11) + " A8 8 0 1 1 " + (x + 4) + " " + (y - 11) + " Z\"/>"; }
+function status(ok, txt){ return E.txt(352, 294, txt, "st " + (ok ? "ok" : "bad"), "end"); }
+
+/* Zustand je Anlage und Situation: Richtungen der Leitungen, Text, versorgt */
+function zustand(a, s){
+  var tag = s === "tag" || s === "natag", na = s === "natag" || s === "nanacht" || s === "na";
+  if (a === "ist"){
+    if (na) return {tag:tag, na:true, v:false, q:"keine", f:{}, text:"<p><b>Netzausfall:</b> Da die PV-Anlage netzgekoppelt ist und kein Batteriespeicher vorhanden ist, wird bei einem Netzausfall auch das Haus spannungslos (Übung 29 c).</p>" + (tag ? "<p>Das gilt auch am Tag, wenn die Sonne scheint.</p>" : "")};
+    if (tag) return {tag:true, na:false, v:true, q:"pv", netz:"ein", f:{pg:1, gw:1, wp:1, pn:1, nv:1, nz:1, zn:1}, text:"<p>Die Solarmodule erzeugen Gleichspannung, welche über den Wechselrichter in 230-V-Wechselspannung umgewandelt wird. Die erzeugte Energie wird von den Verbrauchern genutzt oder ins öffentliche Netz eingespeist (Übung 29 b).</p>"};
+    return {tag:false, na:false, v:true, q:"netz", netz:"bezug", f:{zn:-1, nz:-1, nv:1}, text:"<p>Ohne Sonnenlicht erzeugen die Solarmodule keine Energie. Die Verbraucher werden aus dem öffentlichen Netz versorgt.</p>"};
+  }
+  if (a === "soll"){
+    if (tag) return {tag:true, na:na, v:true, q:"pv", bat:"laden", netz:na ? "aus" : "ein", f:{pv:1, wn:1, nw:1, nl:1, lb:1, wa:1, av:1, an:na ? 0 : 1},
+      text:"<p>Die PV-Anlage erzeugt tagsüber aus Sonnenlicht elektrische Energie. Wird im Haushalt nicht die gesamte Energie benötigt, kann der überschüssige Strom im Batteriespeicher gespeichert werden (Übung 30).</p>" + (na ? "<p><b>Netzausfall:</b> Die Verbraucher werden weiter aus der PV-Anlage versorgt, ins ausgefallene Netz wird nichts eingespeist.</p>" : "<p>Was weder gebraucht noch gespeichert wird, fliesst ins Netz.</p>")};
+    return {tag:false, na:na, v:true, q:"bat", bat:"entladen", netz:na ? "aus" : "kein", f:{nl:-1, lb:-1, nw:1, wa:1, av:1},
+      text:"<p>Der gespeicherte Strom steht später, beispielsweise am Abend oder bei einem Netzausfall, wieder zur Verfügung (Übung 30).</p>" + (na ? "<p><b>Netzausfall:</b> Die Batterie versorgt die Verbraucher. Wie lange, hängt von ihrer Ladung ab (Autonomiezeit; Kai wünscht etwa 4 Stunden, Übung 29 a).</p>" : "<p>Ist die Batterie leer, werden die Verbraucher aus dem Netz versorgt.</p>")};
+  }
+  if (na) return {tag:true, na:true, v:true, q:"bat", f:{ak:-1, u2:1, pc:1}, text:"<p><b>Netzausfall:</b> Fällt die Netzspannung aus, übernimmt die USV sofort die Stromversorgung über den Akku. Kai kann ohne Unterbruch weiter online spielen (Übung 34).</p>"};
+  return {tag:true, na:false, v:true, q:"netz", f:{ms:1, su:1, u1:1, u2:1, ak:1, pc:1}, text:"<p>Im Normalbetrieb werden die angeschlossenen Geräte aus dem Netz versorgt und der Akku der USV geladen (Übung 34).</p><p>Die USV wird zwischen Steckdose und PC angeschlossen.</p>"};
+}
+function zeichneIst(z){
+  var f = z.f, h = himmel(30, 30, z.tag);
+  h += panels(222, 18, !z.tag) + T(216, 58, "Solarpanels", "lb", "end");
+  h += leitung([[262, 60], [262, 104]], "dc", f.pg || 0) + leitung([[262, 128], [262, 156]], "dc", f.gw || 0);
+  h += "<rect class=\"gak\" x=\"238\" y=\"104\" width=\"48\" height=\"24\"/>" + T(232, 113, "Generatoran-", "lb", "end") + T(232, 125, "schlusskasten", "lb", "end");
+  h += leitung([[262, 184], [262, 240], [186, 240]], "ac", f.wp || 0) + wr(248, 156, "=", "~") + T(242, 174, "Wechselrichter", "lb", "end");
+  h += leitung([[160, 240], [133, 240]], "ac", f.pn || 0) + leitung([[133, 240], [133, 182]], "ac", f.nv || 0) + leitung([[133, 240], [106, 240]], "ac", f.nz || 0) + leitung([[80, 240], [36, 240]], "ac", f.zn || 0);
+  h += "<rect class=\"zp\" x=\"160\" y=\"224\" width=\"26\" height=\"32\"/>" + T(173, 236, "kWh", "lb", "middle") + T(173, 272, "Produktionszähler", "lb", "middle") + T(173, 284, "(fakultativ)", "lb", "middle");
+  h += "<rect class=\"zy\" x=\"80\" y=\"224\" width=\"26\" height=\"32\"/>" + T(93, 236, "kWh", "lb", "middle") + T(93, 272, "Zähler", "lb", "middle");
+  h += "<circle cx=\"133\" cy=\"240\" r=\"3.5\" fill=\"#2A3E5C\"/>" + haus(133, 142, z.v) + T(133, 136, "Verbraucher", "lb", "middle");
+  h += mast(26, 150) + T(26, 272, "Netz", "lb", "middle");
+  if (z.na) h += kreuz(58, 240);
+  return h + status(z.v, z.v ? "Verbraucher versorgt" : "Haus spannungslos");
+}
+function zeichneSoll(z){
+  var f = z.f, h = himmel(206, 26, z.tag);
+  h += panels(20, 16, !z.tag) + T(124, 44, "Solarpanels");
+  h += "<rect class=\"hb\" x=\"66\" y=\"80\" width=\"150\" height=\"142\"/>" + T(212, 92, "Hybridwechselrichter", "lg2", "end");
+  h += leitung([[92, 58], [92, 98]], "dc", f.pv || 0) + leitung([[92, 126], [92, 150]], "dc", f.wn || 0) + leitung([[100, 158], [150, 158]], "dc", f.nw || 0);
+  h += leitung([[92, 166], [92, 186]], "dc", f.nl || 0) + leitung([[92, 206], [92, 236]], "dc", f.lb || 0);
+  h += "<rect class=\"bk\" x=\"78\" y=\"98\" width=\"28\" height=\"28\"/><path class=\"sy\" d=\"M78 126 L106 98 M94 105 h8 M94 108 h8 M82 117 h8 M82 120 h8\"/>" + T(110, 108, "Wandler DC in DC") + T(110, 119, "mit MPP-Tracker");
+  h += "<rect class=\"bk\" x=\"84\" y=\"150\" width=\"16\" height=\"16\"/>" + wr(150, 144, "=", "~") + T(150, 131, "Wechselrichter") + T(150, 141, "DC in AC");
+  h += "<rect class=\"bk\" x=\"80\" y=\"186\" width=\"24\" height=\"20\"/><rect class=\"bat\" x=\"84\" y=\"190\" width=\"10\" height=\"8\"/>" + T(108, 195, "Laderegler") + T(108, 206, "DC in DC");
+  h += "<rect class=\"bat\" x=\"74\" y=\"236\" width=\"36\" height=\"52\" rx=\"2\"/><rect class=\"batf\" x=\"77\" y=\"248\" width=\"30\" height=\"11\"/><rect class=\"batf\" x=\"77\" y=\"262\" width=\"30\" height=\"11\"/>" + T(116, 250, "Batterie");
+  if (z.bat) h += T(116, 263, z.bat === "laden" ? "wird geladen" : "wird entladen", "lb");
+  h += leitung([[178, 158], [238, 158]], "ac", f.wa || 0) + leitung([[246, 150], [246, 112]], "ac", f.av || 0) + leitung([[254, 158], [306, 158]], "ac", f.an || 0);
+  h += "<rect class=\"bk\" x=\"238\" y=\"150\" width=\"16\" height=\"16\"/>" + haus(246, 72, z.v) + T(274, 84, "Verbraucher");
+  h += mast(318, 112) + T(318, 218, "Netz", "lb", "middle");
+  if (z.na) h += kreuz(282, 158);
+  return h + status(z.v, "Verbraucher versorgt");
+}
+function zeichneUsv(z){
+  var f = z.f, h = "";
+  h += mast(30, 100) + T(30, 208, "Netz", "lb", "middle");
+  h += leitung([[44, 148], [76, 148]], "ac", f.ms || 0) + leitung([[108, 148], [150, 148]], "ac", f.su || 0);
+  h += "<rect class=\"bk\" x=\"76\" y=\"132\" width=\"32\" height=\"32\" rx=\"4\"/><circle cx=\"86\" cy=\"148\" r=\"3\" fill=\"#2A3E5C\"/><circle cx=\"98\" cy=\"148\" r=\"3\" fill=\"#2A3E5C\"/>" + T(92, 180, "Steckdose", "lb", "middle");
+  h += "<rect class=\"hb\" x=\"150\" y=\"110\" width=\"100\" height=\"104\" rx=\"4\"/>" + T(200, 126, "USV", "lg2", "middle");
+  h += leitung([[150, 148], [200, 148]], "ac", f.u1 || 0) + leitung([[200, 148], [250, 148]], "ac", f.u2 || 0) + leitung([[200, 148], [200, 170]], "dc", f.ak || 0);
+  h += "<circle cx=\"200\" cy=\"148\" r=\"3.5\" fill=\"#2A3E5C\"/><rect class=\"bat\" x=\"184\" y=\"170\" width=\"32\" height=\"32\" rx=\"2\"/><rect class=\"batf\" x=\"187\" y=\"180\" width=\"26\" height=\"8\"/>" + T(222, 192, "Akku");
+  h += leitung([[250, 148], [282, 148]], "ac", f.pc || 0);
+  h += "<rect class=\"bk\" x=\"282\" y=\"124\" width=\"60\" height=\"40\" rx=\"3\"/><rect fill=\"" + (z.v ? "#3E62A8" : "#8A97A3") + "\" x=\"287\" y=\"129\" width=\"50\" height=\"30\"/><path class=\"sy\" d=\"M312 164 V174 M300 176 H324\"/>" + T(312, 192, "PC", "lb", "middle");
+  if (z.na) h += kreuz(60, 148);
+  return h + status(z.v, z.na ? "PC versorgt, ohne Unterbruch" : "PC versorgt");
+}
+function zeige(){
+  E.knoepfe("w-a", "a", ANL, st.a, true);
+  var liste = SIT[st.a]; if (!liste.some(function(x){ return x[0] === st.s; })) st.s = liste[0][0];
+  E.knoepfe("w-s", "s", liste, st.s, true);
+  var z = zustand(st.a, st.s);
+  $("anl").innerHTML = st.a === "ist" ? zeichneIst(z) : st.a === "soll" ? zeichneSoll(z) : zeichneUsv(z);
+  $("info").innerHTML = z.text;
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+var QTXT = {pv:"aus der PV-Anlage", bat:"aus der Batterie", netz:"aus dem Netz", keine:"gar nicht, das Haus ist spannungslos"};
+function qSzenario(){
+  var a = pick(["ist", "soll"]), s = pick(["tag", "nacht", "natag", "nanacht"]), z = zustand(a, s), sn = SIT[a].filter(function(x){ return x[0] === s; })[0][1];
+  var o = BAP.shuffle(["pv", "bat", "netz", "keine"]).map(function(k){ return QTXT[k]; });
+  return {text:"Anlage: " + (a === "ist" ? "netzgekoppelte PV-Anlage ohne Speicher (Übung 29)" : "PV-Anlage mit Hybridwechselrichter und geladener Batterie (Übung 30)") + ". Situation: <b>" + sn + "</b>. Woher erhalten die Verbraucher ihre Energie?",
+    parts:[{label:"Energie für die Verbraucher", options:o, correct:QTXT[z.q]}], hint:"Spielen Sie die Situation im Modus Erkunden durch.", solution:z.text};
+}
+function qBatterie(){
+  var s = pick(["tag", "nacht", "natag", "nanacht"]), z = zustand("soll", s), sn = SIT.soll.filter(function(x){ return x[0] === s; })[0][1];
+  var o = ["wird geladen", "wird entladen", "bleibt ohne Strom"];
+  return {text:"PV-Anlage mit Hybridwechselrichter und Batterie (Übung 30), Situation: <b>" + sn + "</b>. Was geschieht mit der Batterie, und in welche Richtung fliesst der Gleichstrom zwischen Laderegler und Batterie?",
+    parts:[{label:"Batterie", options:o, correct:z.bat === "laden" ? o[0] : o[1]}, {label:"Gleichstrom", options:["vom Laderegler zur Batterie", "von der Batterie zum Laderegler"], correct:z.bat === "laden" ? "vom Laderegler zur Batterie" : "von der Batterie zum Laderegler"}],
+    hint:"Am Tag wird Überschuss gespeichert, am Abend steht er wieder zur Verfügung (Übung 30).", solution:z.text};
+}
+function qWeg(){
+  var w = pick([
+    ["Ordnen Sie den Energieweg der netzgekoppelten Anlage (Übung 29) am Tag, von der Sonne zum Verbraucher.", ["Solarpanels", "Generatoranschlusskasten", "Wechselrichter", "Verbraucher"]],
+    ["Ordnen Sie den Energieweg der Anlage mit Hybridwechselrichter (Übung 30) in der Nacht, von der Batterie zum Verbraucher.", ["Batterie", "Laderegler DC in DC", "Wechselrichter DC in AC", "Verbraucher"]],
+    ["Ordnen Sie den Energieweg der Anlage mit Hybridwechselrichter (Übung 30) am Tag, von den Solarpanels zur Batterie.", ["Solarpanels", "Wandler DC in DC mit MPP-Tracker", "Laderegler DC in DC", "Batterie"]],
+    ["Ordnen Sie den Anschluss der USV (Übung 34) vom Netz zum Gerät.", ["Netz", "Steckdose", "USV", "PC"]]
+  ]);
+  return {text:w[0], parts:[{label:"Reihenfolge", type:"order", items:w[1]}], hint:"Folgen Sie den Pfeilen im Blockbild.", solution:"<p><b>" + w[1].join(" → ") + "</b></p>"};
+}
+function qWR(){
+  return pick([
+    function(){ return E.wahl("Übung 32: Welche Hauptaufgabe hat ein Wechselrichter in einer PV-Anlage?", "Er wandelt die vom Solargenerator erzeugte Gleichspannung in Wechselspannung um.", ["Er wandelt die Wechselspannung des Netzes in Gleichspannung für die Solarmodule um.", "Er speichert überschüssige Energie.", "Er misst die eingespeiste Energie.", "Er schützt die Anlage vor Blitzeinschlägen."], "ET3.22, Merke zum Wechselrichter."); },
+    function(){ return E.aussagen("Übung 33: Welche zwei grundlegenden Arten von Wechselrichtern werden unterschieden?", ["selbstgeführte Wechselrichter für den Inselbetrieb", "netzgeführte Wechselrichter zur Einspeisung ins öffentliche Netz"], ["netzgeführte Wechselrichter für den Inselbetrieb", "selbstgeführte Wechselrichter, die nur mit Netzspannung arbeiten", "Wechselrichter mit Generatoranschlusskasten"], "ET3.22, 2.12.6 Wechselrichter."); },
+    function(){ return E.wahl("Übung 29 c: Warum war das Haus beim letzten Netzausfall trotz PV-Anlage spannungslos?", "Die PV-Anlage ist netzgekoppelt und es ist kein Batteriespeicher vorhanden.", ["Die Solarmodule erzeugen nur Wechselspannung.", "Der Produktionszähler hat die Anlage abgeschaltet.", "Zwei Solarmodule liefern grundsätzlich zu wenig Spannung."], "Lösung von Übung 29 c."); }
+  ])();
+}
+function qVorteile(){
+  return pick([
+    function(){ return E.aussagen("Übung 30: Welche Vorteile bietet eine PV-Anlage mit Batteriespeicher?", ["Überschüssiger Strom kann im Batteriespeicher gespeichert werden.", "Der gespeicherte Strom steht am Abend oder bei einem Netzausfall zur Verfügung.", "Es kann mehr selbst erzeugte Energie genutzt werden.", "Die Unabhängigkeit vom öffentlichen Netz steigt."], ["Die Batterie erhöht die Leistung der Solarmodule.", "Die Batterie wandelt Gleichspannung in Wechselspannung um.", "Ohne Netz kann keine Energie gespeichert werden."], "Lösung von Übung 30."); },
+    function(){ return E.aussagen("Übung 31: Worauf muss bei elektrischen Speichersystemen grundsätzlich geachtet werden?", ["Wirtschaftlichkeit", "Wirkungsgrad", "Umweltauswirkungen", "Speicherdauer", "Recyclingfähigkeit"], ["Farbe des Gehäuses", "Anzahl Steckdosen im Haus", "Länge der Zuleitung zum Zähler"], "Lösung von Übung 31."); },
+    function(){ return E.aussagen("Übung 34: Was gilt für eine USV-Anlage am PC von Kai?", ["Im Normalbetrieb werden die Geräte aus dem Netz versorgt und der Akku geladen.", "Fällt die Netzspannung aus, übernimmt die USV sofort die Versorgung über den Akku.", "Die USV wird zwischen Steckdose und PC angeschlossen."], ["Die USV wird zwischen Solarpanels und Wechselrichter angeschlossen.", "Bei Netzausfall gibt es einen kurzen Unterbruch, bis die USV anläuft.", "Die USV versorgt das ganze Haus über mehrere Tage."], "Lösung von Übung 34."); }
+  ])();
+}
+var MAKERS = [qSzenario, qBatterie, qWeg, qWR, qVorteile, qSzenario, qWeg, qVorteile];
+function init(){
+  zeige();
+  $("view-erkunden").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-k]"); if (!b) return;
+    st[b.getAttribute("data-k")] = b.getAttribute("data-v"); zeige(); var f = $(b.id); if (f) f.focus();
+  });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [3, 2, 2, 2, 2, 0, 0, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

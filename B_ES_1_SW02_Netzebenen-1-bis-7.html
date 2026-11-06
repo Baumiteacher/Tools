@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ES_1 TA2 Netzebenen 1 bis 7 BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+:root{--b-odd:#A9D3FA;--b-even:#D4FBFB;--ne1:#D11F1F;--ne3:#C512C5;--ne5:#16801F;--ne7:#1D2DC9;--ne-t:#8A3F0A;--fl-r:#E02020;--fl-g:#178A24;--bd:#17212B}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--b-odd:#1E3A55;--b-even:#18393C;--ne1:#FF8A80;--ne3:#F59BF5;--ne5:#7FE08A;--ne7:#A3B6FF;--ne-t:#F2B27A;--fl-r:#FF7A6B;--fl-g:#6FD67D;--bd:#E7ECF1} }
+:root[data-theme="dark"]{--b-odd:#1E3A55;--b-even:#18393C;--ne1:#FF8A80;--ne3:#F59BF5;--ne5:#7FE08A;--ne7:#A3B6FF;--ne-t:#F2B27A;--fl-r:#FF7A6B;--fl-g:#6FD67D;--bd:#E7ECF1}
+.bild{width:100%;height:auto;display:block}
+.b-odd{fill:var(--b-odd)} .b-even{fill:var(--b-even)}
+.band{cursor:pointer}
+.band.on rect{stroke:var(--accent);stroke-width:3}
+.t-ne{fill:var(--ink);font-family:var(--sans);font-size:12.5px;font-weight:700}
+.t-n{font-family:var(--sans);font-size:11.5px}
+.c1{fill:var(--ne1)} .c3{fill:var(--ne3)} .c5{fill:var(--ne5)} .c7{fill:var(--ne7)} .ct{fill:var(--ne-t)}
+.t-r{font-family:var(--sans);font-size:10.5px}
+.t-x{fill:var(--ink);font-family:var(--sans);font-size:10.5px}
+.mast{stroke:var(--bd);stroke-width:1.1;fill:none}
+.trafo{stroke:var(--bd);stroke-width:1;fill:var(--surface)}
+.spule{stroke:var(--bd);stroke-width:1}
+.sp1{fill:#C26A3A} .sp2{fill:#2B2B2B} .sp3{fill:#9A9A9A}
+.fl-r{stroke:var(--fl-r);stroke-width:1.6;fill:none} .fl-rs{fill:var(--fl-r)}
+.fl-g{stroke:var(--fl-g);stroke-width:1.6;fill:none} .fl-gs{fill:var(--fl-g)}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:1.9}
+.balken{display:flex;flex-direction:column;gap:6px}
+.bz{display:grid;grid-template-columns:5.2em 1fr;gap:8px;align-items:center;font-size:.85rem}
+.bz .bb{height:16px;border-radius:4px;background:var(--line);overflow:hidden}
+.bz .bb span{display:block;height:100%;background:var(--bad)}
+.bz.on{font-weight:700}
+.bz.on .bb{outline:2px solid var(--accent)}
+.feststellung{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ES_1 Das Haus aus dem Stromnetz für den direkten Verbrauch mit Energie versorgen · Teilauftrag 2</p>
+    <h1>Netzebenen 1 bis 7 BAP</h1>
+    <p class="lead">Verfolgen Sie den Weg der elektrischen Energie vom Kraftwerk bis zum Haus. Ordnen Sie jeder Netzebene den Spannungsbereich und die Aufgabe zu, und sehen Sie, warum mit hoher Spannung übertragen wird.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Die sieben Netzebenen (ET3.7)</h2>
+        <p class="note">Tippen Sie auf eine Netzebene. Rote Pfeile: Kraftwerke speisen ein. Grüne Pfeile: Verbraucher werden versorgt.</p>
+        <div class="opts" id="ne-wahl" role="group" aria-label="Netzebene wählen"></div>
+        <svg class="bild" id="netz" viewBox="0 0 360 568" role="img" aria-label="Schema der Netzebenen 1 bis 7 vom Höchstspannungsnetz bis zum Niederspannungsnetz"></svg>
+        <div class="info" id="info" aria-live="polite"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Warum wird mit 380 kV bzw. 220 kV übertragen? (Übung 14)</h2>
+        <p class="note">Modellrechnung: Eine Leistung von 50 MW wird über eine Leitung mit 1 Ω Widerstand übertragen. Wählen Sie die Spannung.</p>
+        <div class="opts" id="u-wahl" role="group" aria-label="Übertragungsspannung wählen"></div>
+        <div class="rechnung" id="rechnung" aria-live="polite"></div>
+        <div class="balken" id="balken" aria-hidden="true"></div>
+        <p class="feststellung"><b>Feststellung:</b> Bei hoher Spannung ist die Stromstärke bei gleicher Leistung klein. Dadurch bleiben die Leitungsverluste gering.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Verbundnetz (ET3.8)</h2>
+        <ul class="ask">
+          <li>Im europäischen Verbundnetz wird in der Höchstspannungsebene Energie ausgetauscht. Es ermöglicht den internationalen Austausch von elektrischer Energie und eine hohe Versorgungssicherheit.</li>
+          <li>So können Energieüberschüsse oder Energieengpässe zwischen Ländern ausgeglichen werden, z. B. wenn in einem Land zu wenig Wind- oder Sonnenstrom verfügbar ist.</li>
+          <li>Die Swissgrid AG mit Sitz in Laufenburg betreibt das Schweizer Höchstspannungsnetz: rund 6700 km Leitungen mit 220 kV und 380 kV, als Maschennetz (Verbundnetz) aufgebaut. Es ist Teil des europäischen Verbundnetzes.</li>
+        </ul>
+      </div>
+
+      <div class="plain">
+        <h2>Erkundungsfragen</h2>
+        <ul class="ask">
+          <li>Wie viele Netzebenen werden beim Transport von elektrischer Energie unterschieden? (Übung 13 a)</li>
+          <li>Tippen Sie nacheinander auf die Netzebenen 2, 4 und 6. Was haben sie gemeinsam? (Übung 13 b)</li>
+          <li>In welche Netzebene speist eine Photovoltaikanlage auf einem Einfamilienhaus ein?</li>
+          <li>Wählen Sie in der Modellrechnung 50 kV und danach 380 kV. Um welchen Faktor werden die Verluste kleiner?</li>
+        </ul>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET3.7 (Übertragungseinrichtungen, Bild der Netzebenen) und ET3.8 (Spannungsbereiche, europäisches und schweizerisches Verbundnetz).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Elektrotechnik, Kapitel 3 Energie allgemein und angewandt in Gebäuden: ET3.7 (Abschnitt 2.6.2 Übertragungseinrichtungen, Bild der Netzebenen 1 bis 7) und ET3.8 (Spannungsbereiche der Netzebenen 1, 3, 5, 7; europäisches und schweizerisches Verbundnetz). Das Arbeitsblatt nennt «Kapitel 2.6 Seiten xy».</li><li>Arbeitsblätter ES1, Teilauftrag 2: Übungen 13 und 14 (ES1.6, ES1.7); Tabelle der Netzebenen aus der Lösung von Übung 13 c).</li><li>Netzebene 7: Das Arbeitsblatt nennt 400 V bzw. 230 V, das Bild im Theoriebuch «bis 1 kV». Das Tool verwendet die Angabe des Arbeitsblatts.</li><li>Modellrechnung «Warum Hochspannung?»: Leistung 50 MW und Leitungswiderstand 1 Ω sind vom Tool angenommen. Gerechnet wird vereinfacht mit <i>I</i> = <i>P</i> durch <i>U</i> und <i>P</i><sub>v</sub> = <i>I</i><sup>2</sup> · <i>R</i> wie bei Gleichstrom. Sie zeigt nur den Zusammenhang aus Übung 14 b), keine wirklichen Netzwerte.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, F = BAP.frac;
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function zahl(x, d){ var s = (d === undefined ? String(x) : x.toFixed(d)); var p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+
+/* ===== Netzebenen nach Arbeitsblatt Übung 13 c) und ET3.7, ET3.8 ===== */
+var NE = [
+  null,
+  {name:"Höchstspannungsnetz", u:"380 kV bzw. 220 kV", netz:"Übertragungsnetz", c:"c1",
+   text:"Diese Netze dienen dem Transport elektrischer Energie über grosse Entfernungen (z. B. innerhalb Europas).",
+   ein:["Kohle- und Wasserkraftwerke", "Atomkraftwerk"], aus:[]},
+  {name:"Umspannwerk", u:"–", c:"ct", trafo:true},
+  {name:"Hochspannungsnetz", u:"50 kV – 150 kV", netz:"Überregionale Verteilnetze", c:"c3",
+   text:"Kleinere Kraftwerke geben elektrische Energie an dieses Netz ab. Aus dieser Netzebene wird die Grossindustrie versorgt.",
+   ein:["Mittlere Kraftwerke"], aus:["Grossindustrie"]},
+  {name:"Umspannwerk", u:"–", c:"ct", trafo:true},
+  {name:"Mittelspannungsnetz", u:"10 kV – 30 kV", netz:"Regionale Verteilnetze", c:"c5",
+   text:"Dieses Netz dient der Versorgung der Industrie mit eigenen Transformatoren und zur Einspeisung von Ortsnetzen.",
+   ein:["Windkraftwerk"], aus:["Industrie"]},
+  {name:"Umspannwerk", u:"–", c:"ct", trafo:true},
+  {name:"Niederspannungsnetz", u:"400 V bzw. 230 V", netz:"Lokale (örtliche) Verteilnetze", c:"c7",
+   text:"Diese Spannungsebene versorgt Einfamilienhäuser, Büros, Schulen und landwirtschaftliche Betriebe. Zunehmend speisen auch Photovoltaikanlagen Energie direkt in diese Netzebene ein.",
+   ein:["PV-Anlage"], aus:["Ortsnetz", "Verwaltung, Schulen"]}
+];
+var TRAFO_TEXT = "Umspannwerk, Transformierung: Transformatoren erzeugen aus einer kleinen Spannung eine hohe Spannung und umgekehrt. Das sind die Netzebenen 2, 4 und 6.";
+var sel = 1;
+var ZEILEN = {"Kohle- und Wasserkraftwerke":["Kohle- und", "Wasserkraftwerke"], "Mittlere Kraftwerke":["Mittlere", "Kraftwerke"], "Verwaltung, Schulen":["Verwaltung,", "Schulen"]};
+var H_ODD = 96, H_EVEN = 58, MX = 184;
+function yVon(k){ var y = 6, i; for (i = 1; i < k; i++) y += (i % 2 ? H_ODD : H_EVEN); return y; }
+function mast(x, y){
+  /* Gittermast: Schaft, zwei Traversen, Fachwerk */
+  var h = "<path class=\"mast\" d=\"M" + (x - 9) + " " + (y + 52) + " L" + (x - 3) + " " + y + " L" + (x + 3) + " " + y + " L" + (x + 9) + " " + (y + 52) +
+    " M" + (x - 16) + " " + (y + 10) + " H" + (x + 16) + " M" + (x - 20) + " " + (y + 20) + " H" + (x + 20) +
+    " M" + (x - 5) + " " + (y + 26) + " L" + (x + 6) + " " + (y + 38) + " M" + (x + 5) + " " + (y + 26) + " L" + (x - 6) + " " + (y + 38) +
+    " M" + (x - 7) + " " + (y + 40) + " L" + (x + 8) + " " + (y + 51) + " M" + (x + 7) + " " + (y + 40) + " L" + (x - 8) + " " + (y + 51) + "\"/>";
+  [-16, 16, -20, 20].forEach(function(d, i){ h += "<path class=\"mast\" d=\"M" + (x + d) + " " + (y + (i < 2 ? 10 : 20)) + " v4\"/>"; });
+  return h;
+}
+function trafo(x, y){
+  var h = "<rect class=\"trafo\" x=\"" + (x - 24) + "\" y=\"" + (y + 26) + "\" width=\"48\" height=\"12\"/>";
+  ["sp1", "sp2", "sp3"].forEach(function(c, i){
+    var cx = x - 15 + i * 15;
+    h += "<rect class=\"spule " + c + "\" x=\"" + (cx - 5) + "\" y=\"" + (y + 10) + "\" width=\"10\" height=\"16\" rx=\"1.5\"/>";
+  });
+  return h;
+}
+function pfeil(x1, y1, x2, y2, art){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy), ux = dx / L, uy = dy / L, sx = x2 - ux * 7, sy = y2 - uy * 7;
+  return "<path class=\"fl-" + art + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"fl-" + art + "s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * 3.5) + " " + n(sy + ux * 3.5) + " L" + n(sx + uy * 3.5) + " " + n(sy - ux * 3.5) + " Z\"/>";
+}
+function zeichne(){
+  var h = "", k;
+  for (k = 1; k <= 7; k++){
+    var y = yVon(k), hh = k % 2 ? H_ODD : H_EVEN, d = NE[k];
+    h += "<g class=\"band" + (sel === k ? " on" : "") + "\" data-ne=\"" + k + "\"><rect class=\"" + (k % 2 ? "b-odd" : "b-even") + "\" x=\"2\" y=\"" + y + "\" width=\"356\" height=\"" + hh + "\"/>";
+    h += "<text class=\"t-ne\" x=\"10\" y=\"" + (y + 18) + "\">Netzebene " + k + "</text>";
+    if (d.trafo) h += "<text class=\"t-n ct\" x=\"10\" y=\"" + (y + 34) + "\">Umspannwerk,</text><text class=\"t-n ct\" x=\"10\" y=\"" + (y + 49) + "\">Transformierung</text>";
+    else {
+      h += "<text class=\"t-n " + d.c + "\" x=\"10\" y=\"" + (y + 34) + "\">" + d.name + "</text><text class=\"t-n " + d.c + "\" x=\"10\" y=\"" + (y + 49) + "\">" + d.u + "</text>";
+      var zl = {1:["Übertragungsnetz"], 3:["Überregionale", "Verteilnetze"], 5:["Regionale", "Verteilnetze"], 7:["Lokale", "Verteilnetze"]}[k];
+      zl.forEach(function(t, j){ var xx = (zl.length === 1 ? 349 : 337) + j * 12; h += "<text class=\"t-r " + d.c + "\" transform=\"rotate(-90 " + xx + " " + (y + hh / 2) + ")\" x=\"" + xx + "\" y=\"" + (y + hh / 2 + 3) + "\" text-anchor=\"middle\">" + t + "</text>"; });
+    }
+    h += "</g>";
+  }
+  /* Energiefluss: rote Leitungen beidseits des Masts nach unten */
+  for (k = 1; k <= 5; k += 2){
+    var y0 = yVon(k) + 30, y1 = yVon(k + 1) + 18, y2 = yVon(k + 1) + 36, y3 = yVon(k + 2) + 30;
+    [-1, 1].forEach(function(s){
+      h += "<path class=\"fl-r\" d=\"M" + (MX + s * 24) + " " + y0 + " H" + (MX + s * 30) + " V" + y1 + "\"/>" + pfeil(MX + s * 30, y1 - 1, MX + s * 26, y1 + 6, "r");
+      if (k < 5) h += "<path class=\"fl-r\" d=\"M" + (MX + s * 26) + " " + y2 + " H" + (MX + s * 30) + " V" + (y3 - 4) + "\"/>" + pfeil(MX + s * 30, y3 - 5, MX + s * 24, y3, "r");
+    });
+  }
+  for (k = 1; k <= 7; k++){
+    var yy = yVon(k), dd = NE[k];
+    if (dd.trafo){ h += trafo(MX, yy); continue; }
+    if (k < 7) h += mast(MX, yy + 20);
+    /* Einspeisung (rot) und Bezug (grün) rechts vom Mast als Liste */
+    var yt = yy + 22;
+    function eintrag(e, art){
+      var z = ZEILEN[e] || [e];
+      h += (art === "r" ? pfeil(MX + 54, yt - 4, MX + 36, yt - 4, "r") : pfeil(MX + 36, yt - 4, MX + 54, yt - 4, "g"));
+      z.forEach(function(t, j){ h += "<text class=\"t-x\" x=\"" + (MX + 58) + "\" y=\"" + (yt + j * 12) + "\">" + t + "</text>"; });
+      yt += 12 * z.length + 6;
+    }
+    dd.ein.forEach(function(e){ eintrag(e, "r"); });
+    dd.aus.forEach(function(e){ eintrag(e, "g"); });
+  }
+  /* Netzebene 7: grüne Verteilung ab Trafo 6 */
+  var y7 = yVon(7);
+  h += "<path class=\"fl-g\" d=\"M" + MX + " " + (yVon(6) + 38) + " V" + (y7 + 70) + "\"/>" + pfeil(MX, y7 + 70, MX, y7 + 82, "g");
+
+  $("netz").innerHTML = h;
+  $("ne-wahl").innerHTML = [1, 2, 3, 4, 5, 6, 7].map(function(i){ return "<button class=\"opt\" type=\"button\" id=\"nw-" + i + "\" data-ne=\"" + i + "\" aria-pressed=\"" + (sel === i) + "\">NE " + i + "</button>"; }).join("");
+  var d = NE[sel], h2;
+  if (d.trafo) h2 = "<p><b>Netzebene " + sel + ": Umspannwerk, Transformierung</b></p><p>" + TRAFO_TEXT + "</p><p class=\"note\">Netzebene " + sel + " verbindet das " + NE[sel - 1].name + " (" + NE[sel - 1].u + ") mit dem " + NE[sel + 1].name + " (" + NE[sel + 1].u + ").</p>";
+  else h2 = "<p><b>Netzebene " + sel + ": " + d.name + ", " + d.u + "</b></p><p>" + d.netz + ": " + d.text + "</p>" +
+    (d.ein.length ? "<p>Einspeisung im Bild: " + d.ein.join(", ") + "</p>" : "") + (d.aus.length ? "<p>Versorgt im Bild: " + d.aus.join(", ") + "</p>" : "");
+  $("info").innerHTML = h2;
+}
+
+/* ===== Modellrechnung Übung 14 b) ===== */
+var P_MW = 50, R_L = 1, SPANNUNGEN = [10, 30, 50, 150, 220, 380], uSel = 380;
+function verluste(ukV){ var I = P_MW * 1e6 / (ukV * 1e3); return {I:I, Pv:I * I * R_L}; }
+function rechne(){
+  $("u-wahl").innerHTML = SPANNUNGEN.map(function(u){ return "<button class=\"opt\" type=\"button\" id=\"uw-" + u + "\" data-u=\"" + u + "\" aria-pressed=\"" + (u === uSel) + "\">" + u + NB + "kV</button>"; }).join("");
+  var v = verluste(uSel), pv = v.Pv, pct = pv / (P_MW * 1e6) * 100;
+  var pvT = pv >= 1e6 ? zahl(BAP.round(pv / 1e6, 3)) + NB + "MW" : zahl(BAP.round(pv / 1e3, 3)) + NB + "kW";
+  function gl(x, r){ return Math.abs(r - x) < 1e-9 * Math.max(1, Math.abs(x)) ? "=" : "≈"; }
+  $("rechnung").innerHTML = "<span><i>I</i> = " + F("<i>P</i>", "<i>U</i>") + " = " + F(zahl(P_MW * 1e6) + NB + "W", zahl(uSel * 1e3) + NB + "V") + " " + gl(v.I, BAP.round(v.I, 4)) + " <b>" + zahl(BAP.round(v.I, 4)) + NB + "A</b></span>" +
+    "<span><i>P</i><sub>v</sub> = <i>I</i><sup>2</sup> · <i>R</i> = (" + zahl(BAP.round(v.I, 4)) + NB + "A)<sup>2</sup> · " + R_L + NB + "Ω " + gl(pv, pv >= 1e6 ? BAP.round(pv / 1e6, 3) * 1e6 : BAP.round(pv / 1e3, 3) * 1e3) + " <b>" + pvT + "</b></span>" +
+    "<span>Das sind " + gl(pct, BAP.round(pct, 2)) + " " + zahl(BAP.round(pct, 2)) + NB + "% der übertragenen Leistung.</span>";
+  var mx = verluste(SPANNUNGEN[0]).Pv;
+  $("balken").innerHTML = SPANNUNGEN.map(function(u){
+    var w = verluste(u).Pv / mx * 100;
+    return "<div class=\"bz" + (u === uSel ? " on" : "") + "\"><span>" + u + NB + "kV</span><span class=\"bb\"><span style=\"width:" + Math.max(w, 0.6).toFixed(2) + "%\"></span></span></div>";
+  }).join("");
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+var ODD = [1, 3, 5, 7];
+function neOpt(o){ return "Netzebene " + o; }
+function qSpannung(){
+  var k = pick(ODD), d = NE[k];
+  return {text:"Welcher Spannungsbereich gehört zur <b>Netzebene " + k + "</b>?",
+    parts:[{label:"Spannungsbereich", options:ODD.map(function(i){ return NE[i].u; }), correct:d.u}],
+    hint:"Die Netzebenen 1, 3, 5 und 7 unterscheiden sich durch ihre Spannungsbereiche. Je kleiner die Nummer, desto höher die Spannung (ET3.8).",
+    solution:"<p>Netzebene " + k + ": " + d.name + ", <b>" + d.u + "</b>.</p>"};
+}
+function qName(){
+  var k = 1 + Math.floor(Math.random() * 7), d = NE[k];
+  var opts = ["Höchstspannungsnetz", "Hochspannungsnetz", "Mittelspannungsnetz", "Niederspannungsnetz", "Umspannwerk"];
+  return {text:"Wie heisst die <b>Netzebene " + k + "</b>?",
+    parts:[{label:"Bezeichnung", options:opts, correct:d.name}],
+    hint:"Die geraden Netzebenen 2, 4 und 6 sind Umspannwerke. Die ungeraden sind Netze mit verschiedenen Spannungen.",
+    solution:"<p>Netzebene " + k + ": <b>" + d.name + "</b>" + (d.trafo ? " (Transformierung)" : ", " + d.u) + ".</p>"};
+}
+var AUFGABEN = [["Transport elektrischer Energie über grosse Entfernungen, z. B. innerhalb Europas", 1], ["Austausch von Energie im europäischen Verbundnetz", 1],
+  ["Versorgung der Grossindustrie", 3], ["Kleinere Kraftwerke geben ihre Energie ab", 3],
+  ["Versorgung der Industrie mit eigenen Transformatoren", 5], ["Einspeisung der Ortsnetze", 5],
+  ["Versorgung von Einfamilienhäusern, Büros und Schulen", 7], ["Photovoltaikanlagen speisen direkt ein", 7], ["Versorgung landwirtschaftlicher Betriebe", 7]];
+function qAufgabe(){
+  var a = pick(AUFGABEN);
+  return {text:"In welcher Netzebene geschieht das? <b>" + a[0] + "</b>",
+    parts:[{label:"Netzebene", options:ODD.slice(), correct:a[1], show:neOpt}],
+    hint:"Vergleichen Sie mit den Beschreibungen der Netzebenen 1, 3, 5 und 7 (Übung 13 c).",
+    solution:"<p><b>Netzebene " + a[1] + "</b> (" + NE[a[1]].name + ", " + NE[a[1]].u + "): " + NE[a[1]].text + "</p>"};
+}
+var VN = [[1, "Übertragungsnetz"], [3, "Überregionale Verteilnetze"], [5, "Regionale Verteilnetze"], [7, "Lokale (örtliche) Verteilnetze"]];
+function qVerteil(){
+  var v = pick(VN);
+  return {text:"Welche Netzebene wird als <b>" + v[1] + "</b> bezeichnet?",
+    parts:[{label:"Netzebene", options:ODD.slice(), correct:v[0], show:neOpt}],
+    hint:"Vom grossen zum kleinen Netz: Übertragungsnetz, überregional, regional, lokal.",
+    solution:"<p>" + v[1] + ": <b>Netzebene " + v[0] + "</b> (" + NE[v[0]].name + ").</p>"};
+}
+function qGerade(){
+  var f = pick([
+    {t:"Wie viele Netzebenen werden beim Transport von elektrischer Energie unterschieden?", o:["3", "4", "5", "7"], c:"7", s:"Es werden <b>7 Netzebenen</b> unterschieden (Übung 13 a)."},
+    {t:"Was haben die Netzebenen 2, 4 und 6 gemeinsam?", o:["Es sind Umspannwerke, in denen die Spannung transformiert wird.", "Es sind Niederspannungsnetze.", "Dort speisen nur Atomkraftwerke ein.", "Es sind Netze mit 380 kV."], c:"Es sind Umspannwerke, in denen die Spannung transformiert wird.", s:"Netzebenen 2, 4 und 6 sind <b>Umspannwerke</b>, in denen eine Transformation der Spannung erfolgt (Übung 13 b)."},
+    {t:"Was geschieht in einem Umspannwerk?", o:["Die Spannung wird transformiert.", "Elektrische Energie wird gespeichert.", "Gleichspannung wird erzeugt.", "Die Frequenz wird verdoppelt."], c:"Die Spannung wird transformiert.", s:"Transformatoren erzeugen aus einer kleinen Spannung eine hohe Spannung und umgekehrt (ET3.7)."}
+  ]);
+  return {text:f.t, parts:[{label:"Antwort", options:f.o, correct:f.c}], hint:"Betrachten Sie im Bild die Netzebenen mit den Transformatoren.", solution:"<p>" + f.s + "</p>"};
+}
+function qReihe(){
+  return {text:"Bringen Sie die Netze in die Reihenfolge von der höchsten zur tiefsten Spannung.",
+    parts:[{label:"Reihenfolge", type:"order", items:["Höchstspannungsnetz", "Hochspannungsnetz", "Mittelspannungsnetz", "Niederspannungsnetz"]}],
+    hint:"Netzebene 1 hat die höchste Spannung, Netzebene 7 die tiefste.",
+    solution:"<p>Höchstspannungsnetz (380 kV bzw. 220 kV) → Hochspannungsnetz (50 kV – 150 kV) → Mittelspannungsnetz (10 kV – 30 kV) → <b>Niederspannungsnetz</b> (400 V bzw. 230 V).</p>"};
+}
+function qWarum(){
+  var r = ["Bei hoher Spannung ist die Stromstärke bei gleicher Leistung kleiner.", "Bei hoher Spannung bleiben die Leitungsverluste gering.", "Der Energietransport ist bei 380 kV bzw. 220 kV besonders wirtschaftlich."];
+  var f = ["Bei hoher Spannung ist die Stromstärke grösser.", "Hohe Spannung lässt sich besser speichern.", "Bei hoher Spannung werden die Verluste grösser.", "Hohe Spannung braucht keine Transformatoren."];
+  var rr = shuffle(r).slice(0, 1 + Math.floor(Math.random() * 3)), ff = shuffle(f).slice(0, 4 - rr.length);
+  return {text:"Warum wird für den Energietransport auf der Netzebene 1 auf 380 kV bzw. 220 kV transformiert? Welche Aussagen sind richtig?",
+    parts:[{label:"Aussagen", type:"multi", options:shuffle(rr.concat(ff)), correct:rr}],
+    hint:"Bei gleicher Leistung gilt: Je höher die Spannung, desto kleiner der Strom (<i>I</i> = <i>P</i> durch <i>U</i>). Die Verluste in der Leitung hängen vom Strom ab.",
+    solution:"<p>Richtig: " + rr.join(" ") + "</p><p>Bei hohen Spannungen ist die Stromstärke kleiner, dadurch bleiben die Leitungsverluste gering (Übung 14 b, ET3.8).</p>"};
+}
+function qVerbund(){
+  var r = ["Es ermöglicht den Ausgleich von Energieüberschüssen und Energieengpässen zwischen Ländern.", "Es ermöglicht den internationalen Austausch von elektrischer Energie.", "Es erhöht die Versorgungssicherheit."];
+  var f = ["Es versorgt direkt die Einfamilienhäuser mit 230 V.", "Es dient zur Speicherung von elektrischer Energie.", "Es ersetzt die Transformatoren in den Umspannwerken.", "Es arbeitet mit einer Spannung von 10 kV."];
+  var rr = shuffle(r).slice(0, 1 + Math.floor(Math.random() * 3)), ff = shuffle(f).slice(0, 4 - rr.length);
+  return {text:"Was ist der Sinn und Zweck des europäischen Verbundnetzes? Welche Aussagen sind richtig?",
+    parts:[{label:"Aussagen", type:"multi", options:shuffle(rr.concat(ff)), correct:rr}],
+    hint:"Im Verbundnetz wird in der Höchstspannungsebene Energie zwischen den Ländern ausgetauscht (ET3.8).",
+    solution:"<p>Richtig: " + rr.join(" ") + "</p><p>Das europäische Verbundnetz ermöglicht den Ausgleich von Energieüberschüssen und Energieengpässen zwischen Ländern (Übung 14 a).</p>"};
+}
+function qModell(){
+  var u1 = pick([50, 110, 150]), u2 = pick([220, 380].filter(function(x){ return x > u1; })), P = pick([20, 50, 100]);
+  var I1 = P * 1e6 / (u1 * 1e3), I2 = P * 1e6 / (u2 * 1e3), f = Math.pow(u2 / u1, 2);
+  var richtig = zahl(BAP.round(f, 3)), opts = [f, u2 / u1, Math.pow(u2 / u1, 3), 1 / f].map(function(x){ return zahl(BAP.round(x, 3)); });
+  return {text:"Modellrechnung: Eine Leistung von " + P + NB + "MW wird statt mit " + u1 + NB + "kV mit " + u2 + NB + "kV übertragen. Der Leitungswiderstand bleibt gleich. Um welchen Faktor werden die Leitungsverluste kleiner?",
+    parts:[{label:"Faktor", options:opts, correct:richtig, mono:true}],
+    hint:"Berechnen Sie den Strom mit <i>I</i> = <i>P</i> durch <i>U</i> für beide Spannungen. Die Verluste sind <i>P</i><sub>v</sub> = <i>I</i><sup>2</sup> · <i>R</i>.",
+    solution:"<p><i>I</i><sub>1</sub> = " + F(zahl(P * 1e6) + NB + "W", zahl(u1 * 1e3) + NB + "V") + " ≈ " + zahl(BAP.round(I1, 4)) + NB + "A, <i>I</i><sub>2</sub> = " + F(zahl(P * 1e6) + NB + "W", zahl(u2 * 1e3) + NB + "V") + " ≈ " + zahl(BAP.round(I2, 4)) + NB + "A</p>" +
+      "<p>" + F("<i>P</i><sub>v1</sub>", "<i>P</i><sub>v2</sub>") + " = " + F("<i>I</i><sub>1</sub><sup>2</sup>", "<i>I</i><sub>2</sub><sup>2</sup>") + " = (" + F(u2 + NB + "kV", u1 + NB + "kV") + ")<sup>2</sup> ≈ <b>" + richtig + "</b></p><p class=\"note\">Modellrechnung, vereinfacht wie bei Gleichstrom.</p>"};
+}
+var MAKERS = [qSpannung, qName, qAufgabe, qVerteil, qGerade, qReihe, qWarum, qVerbund];
+var ALLE = MAKERS.concat([qModell]);
+var GEW = [3, 2, 3, 2, 2, 1, 2, 1, 1];
+function randomQuestion(){
+  var sum = GEW.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+  for (i = 0; i < ALLE.length; i++){ r -= GEW[i]; if (r < 0) return ALLE[i](); }
+  return ALLE[0]();
+}
+function init(){
+  zeichne(); rechne();
+  $("ne-wahl").addEventListener("click", function(e){ var b = e.target.closest("button[data-ne]"); if (!b) return; sel = Number(b.getAttribute("data-ne")); zeichne(); $("nw-" + sel).focus(); });
+  $("netz").addEventListener("click", function(e){ var g = e.target.closest("[data-ne]"); if (!g) return; sel = Number(g.getAttribute("data-ne")); zeichne(); });
+  $("u-wahl").addEventListener("click", function(e){ var b = e.target.closest("button[data-u]"); if (!b) return; uSel = Number(b.getAttribute("data-u")); rechne(); $("uw-" + uSel).focus(); });
+}
+BAP.start({init:init, randomQuestion:randomQuestion, exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

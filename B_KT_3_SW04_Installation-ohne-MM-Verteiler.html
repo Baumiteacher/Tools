@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_KT_3 TA4 Installation ohne MM-Verteiler BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.wand{fill:#D3D7DC;stroke:#2A3E5C;stroke-width:1.2}
+.raum{fill:#FFFFFF;stroke:#2A3E5C;stroke-width:1.2}
+.rn{fill:#4F6FA8;font-family:var(--sans);font-size:9px}
+.kab{fill:none;stroke:#6BA22F;stroke-width:1.8}
+.kl{fill:#2A3E5C;font-family:var(--sans);font-size:7.5px}
+.dose{fill:#FFFFFF;stroke:#6BA22F;stroke-width:1.4}
+.sd{fill:#FFFFFF;stroke:#2A3E5C;stroke-width:1.2}
+.bg{fill:#F7F7F5}
+.rt{fill:#F4F4F2;stroke:#9AA3AD;stroke-width:1.5}
+.pt{fill:#E8C33A;stroke:#8A6D1C;stroke-width:1}
+.pg{fill:#B8BEC6;stroke:#6B737C;stroke-width:1}
+.pv{fill:#6B3FA0;stroke:#3E2360;stroke-width:1}
+.prd{fill:#C2312D;stroke:#7A1E1B;stroke-width:1}
+.pb{fill:#1E2A38}
+.pl{fill:var(--muted);font-family:var(--sans);font-size:8.5px}
+.mod{fill:#FFFFFF;stroke:#2A3E5C;stroke-width:1.4;cursor:pointer}
+.mod.sel{stroke:var(--accent);stroke-width:3}
+.port{cursor:pointer}
+.port.sel{stroke:var(--accent);stroke-width:3}
+.mn{fill:#17212B;font-family:var(--sans);font-size:11px;font-weight:700}
+.patch{fill:none;stroke:#1F3FD0;stroke-width:4;stroke-linecap:round}
+.patch.falsch{stroke:#C62828;stroke-dasharray:6 4}
+.strom{fill:none;stroke:#111;stroke-width:3.5}
+.vorg{margin:8px 0 0;padding-left:20px;font-size:.92rem;display:flex;flex-direction:column;gap:3px}
+.chip-ok{opacity:.55}
+.lt{width:100%;border-collapse:collapse;font-size:.9rem}
+.lt td,.lt th{border:1px solid var(--line);padding:5px 6px}
+.lt select{width:100%;font:inherit;padding:4px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.mn,.pl{pointer-events:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_KT_3 Im Heim-Bereich Kommunikationsinstallationen erstellen · Teilauftrag 4</p>
+    <h1>Installation ohne MM-Verteiler BAP</h1>
+    <p class="lead">Eingeschossige 3.5-Zimmerwohnung ohne Multimedia-Verteiler: Installationsschema lesen, die 4-fach-Netzwerkdose mit der Internetbox patchen und die Variante beurteilen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Installationsschema (Übung 8)</h2>
+        <svg class="bild" id="plan" viewBox="0 0 320 510" role="img" aria-label="Grundriss der Wohnung mit Kommunikationsleitungen"></svg>
+        <div class="opts"><button class="opt txt" type="button" id="ltg">Leitungen ausblenden</button></div>
+        <ul class="vorg" id="vorg"></ul>
+      </div>
+      <div class="panel">
+        <h2>Patchen an der 4-fach-Dose (Übung 9)</h2>
+        <p class="note">Tippen Sie zuerst ein Modul der Dose, dann einen Anschluss der Internetbox an. Ein zweites Antippen des Moduls löst die Verbindung.</p>
+        <svg class="bild" id="patch" viewBox="0 0 360 330" role="img" aria-label="Internetbox und 4-fach-Netzwerkdose mit Patchkabeln"></svg>
+        <div class="info" id="pinfo" aria-live="polite"></div>
+        <div class="tab-k" id="legende"></div>
+      </div>
+      <div class="panel">
+        <h2>Beurteilung (Übung 10)</h2>
+        <div class="opts" id="karten"></div>
+        <div class="info" id="sort" aria-live="polite"></div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Kommunikationstechnik KT26.1 (26.1.1 Installation ohne Multimediaverteiler).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter KT3, Teilauftrag 4: Vorgaben (KT3.8), Übung 8 Installationsschema (KT3.9), Übung 9 Patchverbindungen und Legende Modul 1 bis 4, Übung 10 Vor- und Nachteile (KT3.10). Grundriss und Patchbild sind vereinfacht nachgezeichnet.</li><li>Anschlüsse der Internetbox in der Abbildung von Übung 9 (von oben): Ein- und Ausschalter, phone, vier Ethernet-Anschlüsse mit 1 Gbit pro Sekunde, ein Ethernet-Anschluss mit 2,5 Gbit pro Sekunde, USB, mobile, power, fiber, internet. Die Beschriftungen sind im Bild sehr klein und sinngemäss übernommen. In der Lösung führt Modul 1 (von der Netztrennstelle, 2-Draht) zum Anschluss «internet», die Module 2 bis 4 zu Ethernet-Anschlüssen.</li><li>Bezeichnung der Glasfaser in Übung 8: «4Fs» und «G.657.A» stehen im Arbeitsblatt mit Schrägstrich; das Tool schreibt sie mit Leerzeichen.</li><li>Theoriebuch Kommunikationstechnik, Kapitel 26 (Datei T04_K26): KT26.1, Installation ohne Multimediaverteiler.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, E = ESH;
+function T(x, y, t, c, a){ return E.txt(x, y, t, c, a); }
+/* ---------- Grundriss Übung 8 (vereinfacht) ---------- */
+var st = {ltg:true, p:{}, sel:0, leg:{}, ok:{}, ksel:-1, msg:"", kmsg:""};
+function plan(){
+  var h = "<rect class=\"bg\" x=\"0\" y=\"0\" width=\"320\" height=\"510\"/>";
+  h += "<path class=\"wand\" d=\"M60 4 H310 V501 H5 V330 H60 Z\"/><path class=\"raum\" d=\"M68 12 H302 V493 H13 V338 H68 Z\"/>";
+  h += "<rect class=\"wand\" x=\"145\" y=\"12\" width=\"6\" height=\"230\"/><rect class=\"wand\" x=\"68\" y=\"114\" width=\"77\" height=\"6\"/><rect class=\"wand\" x=\"68\" y=\"230\" width=\"77\" height=\"6\"/>";
+  h += "<rect class=\"wand\" x=\"182\" y=\"140\" width=\"120\" height=\"6\"/><rect class=\"wand\" x=\"183\" y=\"146\" width=\"6\" height=\"100\"/><rect class=\"wand\" x=\"183\" y=\"266\" width=\"119\" height=\"6\"/><rect class=\"wand\" x=\"183\" y=\"246\" width=\"6\" height=\"26\"/>";
+  h += "<rect class=\"raum\" x=\"70\" y=\"305\" width=\"82\" height=\"35\"/><path class=\"raum\" d=\"M70 305 L152 340 M152 305 L70 340\"/><rect class=\"raum\" x=\"13\" y=\"340\" width=\"20\" height=\"90\"/>";
+    h += T(105, 90, "Bad", "rn", "middle") + T(105, 200, "Dusche", "rn", "middle") + T(240, 100, "Eltern", "rn", "middle") + T(268, 200, "Kind", "rn", "middle") + T(118, 270, "Korridor", "rn", "middle") + T(266, 318, "Wohnen", "rn", "middle") + T(132, 412, "Küche, Essen", "rn", "middle");
+  h += "<rect class=\"sd\" x=\"190\" y=\"249\" width=\"31\" height=\"14\"/>" + T(205, 245, "Schlaufdose", "kl", "middle");
+  h += "<circle class=\"sd\" cx=\"62\" cy=\"315\" r=\"4\"/>" + T(56, 286, "M25 vom", "kl", "end") + T(56, 295, "GV (HAK)", "kl", "end");
+  if (st.ltg){
+    h += "<path class=\"kab\" d=\"M64 312 C90 270 150 262 200 262\"/><path class=\"kab\" d=\"M210 256 C240 220 270 170 287 135\"/><path class=\"kab\" d=\"M214 262 C240 263 275 262 287 259\"/><path class=\"kab\" d=\"M206 263 C230 330 260 420 286 482\"/>";
+    h += T(124, 284, "M25", "kl") + T(124, 293, "G51 1x2x0,8", "kl") + T(124, 302, "4Fs G.657.A", "kl");
+    h += T(246, 226, "M25", "kl") + T(246, 235, "U-UTP 4x2 Kat6a", "kl") + T(244, 282, "M25", "kl") + T(244, 291, "U-UTP 4x2 Kat6a", "kl") + T(246, 352, "M25", "kl") + T(246, 361, "U-UTP 4x2 Kat6a", "kl");
+    h += T(186, 302, "OTO  4xRJ45  3xT13", "kl");
+  }
+  [[287, 133], [287, 259], [286, 482]].forEach(function(d){ h += "<rect class=\"dose\" x=\"" + (d[0] - 7) + "\" y=\"" + (d[1] - 4) + "\" width=\"14\" height=\"8\"/>"; });
+  $("plan").innerHTML = h;
+  $("vorg").innerHTML = ["Installation ohne MM-Verteiler", "4-fach-Netzwerkdose im Wohnbereich", "Anschluss Netzanbieter FTTS (Hauseinführung mit 2-Draht-Kupferleitung)", "Vorbereitung für FTTH: OTO-UP im Wohnbereich vorinstalliert", "je 1 Netzwerkdose RJ45 in Wohnung, Zimmer Eltern und Kind", "Sternverkabelung über Wandschlaufdose", "keine Leitungen über den Boden"].map(function(t){ return "<li>" + t + "</li>"; }).join("");
+}
+/* ---------- Patchen Übung 9 ---------- */
+var PORTS = [
+  {id:"phone", n:"phone", y:52, c:"pg"}, {id:"e1", n:"Ethernet 1 (1 Gbit pro s)", y:80, c:"pt"}, {id:"e2", n:"Ethernet 2 (1 Gbit pro s)", y:102, c:"pt"}, {id:"e3", n:"Ethernet 3 (1 Gbit pro s)", y:124, c:"pt"}, {id:"e4", n:"Ethernet 4 (1 Gbit pro s)", y:146, c:"pt"},
+  {id:"e5", n:"Ethernet 5 (2,5 Gbit pro s)", y:174, c:"pt"}, {id:"usb", n:"USB", y:198, c:"pg"}, {id:"mob", n:"mobile", y:220, c:"pb"}, {id:"fib", n:"fiber", y:266, c:"prd"}, {id:"int", n:"internet", y:290, c:"pv"}
+];
+var MODS = [[268, 210], [294, 210], [294, 240], [268, 240]];
+var LEG = ["von Netztrennstelle (2-Draht)", "Einspeisung der Netzwerkdose: Wohnen", "Einspeisung der Netzwerkdose: Kind", "Einspeisung der Netzwerkdose: Eltern"];
+function pname(id){ return PORTS.filter(function(q){ return q.id === id; })[0].n; }
+function richtig(m, id){ return m === 0 ? id === "int" : /^e[1-5]$/.test(id); }
+function patchSvg(){
+  var h = "<rect class=\"rt\" x=\"146\" y=\"8\" width=\"52\" height=\"314\" rx=\"14\"/><circle class=\"rt\" cx=\"172\" cy=\"28\" r=\"9\"/>";
+  PORTS.forEach(function(p){
+    var w = p.id === "usb" ? 10 : 18, hh = p.id === "usb" ? 8 : 14;
+    h += "<rect class=\"port " + p.c + (st.sel && st.sel === p.id ? " sel" : "") + "\" id=\"p-" + p.id + "\" data-p=\"" + p.id + "\" tabindex=\"0\" role=\"button\" aria-label=\"Anschluss " + pname(p.id) + "\" x=\"" + (172 - w / 2) + "\" y=\"" + (p.y - hh / 2) + "\" width=\"" + w + "\" height=\"" + hh + "\" rx=\"2\"/>";
+    h += T(140, p.y + 3, pname(p.id), "pl", "end");
+  });
+  h += "<circle class=\"pb\" cx=\"172\" cy=\"243\" r=\"5\"/>" + T(140, 246, "power", "pl", "end");
+  /* Dose: Blindabdeckung, 4-fach RJ45, T13 */
+  h += "<rect class=\"rt\" x=\"210\" y=\"192\" width=\"146\" height=\"72\" rx=\"4\"/><rect class=\"rt\" x=\"214\" y=\"198\" width=\"44\" height=\"60\"/><rect class=\"rt\" x=\"262\" y=\"198\" width=\"60\" height=\"60\"/><rect class=\"rt\" x=\"326\" y=\"198\" width=\"26\" height=\"60\"/><rect class=\"pg\" x=\"218\" y=\"222\" width=\"36\" height=\"10\" rx=\"2\"/>";
+  h += "<rect class=\"pb\" x=\"328\" y=\"212\" width=\"22\" height=\"30\" rx=\"4\"/>";
+  MODS.forEach(function(m, i){ h += "<rect class=\"mod" + (st.msel === i ? " sel" : "") + "\" id=\"m-" + i + "\" data-m=\"" + i + "\" tabindex=\"0\" role=\"button\" aria-label=\"Modul " + (i + 1) + "\" x=\"" + (m[0] - 1) + "\" y=\"" + (m[1] - 1) + "\" width=\"24\" height=\"20\" rx=\"2\"/>" + T(m[0] + 11, m[1] + 13, String(i + 1), "mn", "middle"); });
+  h += T(292, 280, "Module 1 bis 4", "pl", "middle") + T(339, 280, "T13", "pl", "middle") + T(236, 280, "Abdeckung", "pl", "middle");
+  /* Netzteil */
+  h += "<path class=\"strom\" d=\"M172 243 C210 330 330 330 339 242\"/>";
+  Object.keys(st.p).forEach(function(k){
+    var m = MODS[Number(k)], p = PORTS.filter(function(q){ return q.id === st.p[k]; })[0], ok = richtig(Number(k), st.p[k]);
+    h += "<path class=\"patch" + (ok ? "" : " falsch") + "\" d=\"M" + (m[0] + 11) + " " + (m[1] + 2) + " C" + (m[0] + 11) + " " + (m[1] - 90) + " 240 " + p.y + " 182 " + p.y + "\"/>";
+  });
+  $("patch").innerHTML = h;
+  var n = Object.keys(st.p).length, falsch = Object.keys(st.p).filter(function(k){ return !richtig(Number(k), st.p[k]); });
+  $("pinfo").innerHTML = (st.msg || "") + (n === 4 && !falsch.length ? "<p class=\"okt\">Alle vier Module sind richtig gepatcht.</p>" : "<p class=\"note\">" + n + " von 4 Modulen gepatcht" + (falsch.length ? ", davon " + falsch.length + " falsch (rot gestrichelt)" : "") + ".</p>");
+  $("legende").innerHTML = "<table class=\"lt\"><tr><th>Modul</th><th>Legende</th></tr>" + [0, 1, 2, 3].map(function(i){ var v = st.leg[i] === undefined ? -1 : st.leg[i]; return "<tr><td>Modul " + (i + 1) + "</td><td><select id=\"l-" + i + "\" data-l=\"" + i + "\" aria-label=\"Legende Modul " + (i + 1) + "\"><option value=\"-1\">bitte wählen</option>" + LEG.map(function(t, j){ return "<option value=\"" + j + "\"" + (v === j ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select>" + (v >= 0 ? (v === i ? " <span class=\"okt\">richtig</span>" : " <span class=\"warn\">nicht wie in der Lösung</span>") : "") + "</td></tr>"; }).join("") + "</table>";
+}
+function modKlick(i){ if (st.p[i] !== undefined && st.msel !== i){ st.msel = i; } else if (st.msel === i && st.p[i] !== undefined){ delete st.p[i]; st.msel = -1; st.msg = "<p>Verbindung von Modul " + (i + 1) + " gelöst.</p>"; } else st.msel = i; patchSvg(); }
+function portKlick(id){
+  if (st.msel === undefined || st.msel < 0){ st.msg = "<p class=\"warn\">Tippen Sie zuerst ein Modul der Dose an.</p>"; patchSvg(); return; }
+  var belegt = Object.keys(st.p).filter(function(k){ return st.p[k] === id && Number(k) !== st.msel; });
+  if (belegt.length){ st.msg = "<p class=\"warn\">Dieser Anschluss ist schon mit Modul " + (Number(belegt[0]) + 1) + " verbunden.</p>"; patchSvg(); return; }
+  var m = st.msel; st.p[m] = id; st.msel = -1;
+  st.msg = richtig(m, id) ? "<p class=\"okt\">Modul " + (m + 1) + " → " + pname(id) + ": richtig.</p>" : "<p class=\"warn\">Modul " + (m + 1) + " → " + pname(id) + ": " + (m === 0 ? "Modul 1 kommt von der Netztrennstelle (2-Draht) und gehört an den Anschluss «internet»." : "Die Netzwerkdosen werden an einen Ethernet-Anschluss (gelb) gepatcht.") + "</p>";
+  patchSvg();
+}
+/* ---------- Beurteilung Übung 10 ---------- */
+var VN = [["einfach", "v"], ["eher kostengünstig (kein Verteiler)", "v"], ["kaum erweiterbar", "n"], ["wenig Platz in der 3-fach Kombination", "n"], ["viele sichtbare Teile im Wohnraum (Dosen, Patchkabel, Router)", "n"]];
+function sortieren(){
+  $("karten").innerHTML = VN.map(function(a, i){ return "<button class=\"opt txt" + (st.ok[i] ? " chip-ok" : "") + "\" type=\"button\" id=\"k-" + i + "\" data-c=\"" + i + "\"" + (st.ok[i] ? " disabled" : "") + ">" + (st.ok[i] ? (a[1] === "v" ? "Vorteil: " : "Nachteil: ") : "") + a[0] + "</button>"; }).join("");
+  $("sort").innerHTML = st.ksel >= 0 ? "<p>«" + VN[st.ksel][0] + "» ist ein …</p><div class=\"opts\"><button class=\"opt txt\" type=\"button\" id=\"z-v\" data-z=\"v\">Vorteil</button><button class=\"opt txt\" type=\"button\" id=\"z-n\" data-z=\"n\">Nachteil</button></div>" + st.kmsg : st.kmsg + "<p class=\"note\">Tippen Sie eine Aussage an. " + Object.keys(st.ok).length + " von " + VN.length + " zugeordnet.</p>";
+}
+function zeige(){ plan(); patchSvg(); sortieren(); }
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+function qModul(){
+  var m = pick([0, 1, 2, 3]);
+  return {text:"Übung 9: Was steht in der Legende bei Modul " + (m + 1) + " der 4-fach-Netzwerkdose?", parts:[{label:"Modul " + (m + 1), options:BAP.shuffle(LEG.slice()), correct:LEG[m]}], hint:"Modul 1 kommt von der Netztrennstelle.", solution:"<p><b>" + LEG[m] + "</b></p>"};
+}
+function qPort(){
+  var m = pick([0, 1, 2]);
+  if (m === 0) return {text:"An welchen Anschluss der Internetbox wird Modul 1 (von der Netztrennstelle, 2-Draht) gepatcht?", parts:[{label:"Anschluss", options:BAP.shuffle(["internet", "fiber", "phone", "Ethernet 1 (1 Gbit pro s)"]), correct:"internet"}], hint:"Der Anschluss liegt in der Abbildung zuunterst (violett).", solution:"<p><b>internet</b> (FTTS: Hauseinführung mit 2-Draht-Kupferleitung)</p>"};
+  return {text:"An welchen Anschluss der Internetbox wird Modul " + (m + 2) + " (Einspeisung einer Netzwerkdose) gepatcht?", parts:[{label:"Anschluss", options:BAP.shuffle(["Ethernet (gelb)", "internet", "fiber", "phone"]), correct:"Ethernet (gelb)"}], hint:"Die Netzwerkdosen sind Teil des lokalen Netzwerks (LAN).", solution:"<p>an einen <b>Ethernet-Anschluss (gelb)</b></p>"};
+}
+function qVorgaben(){
+  return pick([
+    function(){ return E.aussagen("Welche Vorgaben gelten für die Installation in Teilauftrag 4?", ["Installation ohne MM-Verteiler", "4-fach-Netzwerkdose im Wohnbereich", "Sternverkabelung über Wandschlaufdose", "keine Leitungen über den Boden", "OTO-UP im Wohnbereich für zukünftiges FTTH vorinstalliert"], ["Anschluss über einen Multimedia-Verteiler im Korridor", "Leitungen im Boden zu den Zimmern", "Anschluss Netzanbieter über FTTH mit OTO-Dose im Verteiler"], "Vorgaben auf KT3.8."); },
+    function(){ return E.wahl("Welches Kabel führt im Installationsschema (Übung 8) von der Schlaufdose zu den Netzwerkdosen?", "U-UTP 4x2 Kat6a im Rohr M25", ["G51 1x2x0,8 im Rohr M25", "U72 1x4x0,8", "LWL-Kabel"], "Übung 8."); },
+    function(){ return E.wahl("Was kommt im Installationsschema vom GV (HAK) zur Schlaufdose?", "Rohr M25 mit G51 1x2x0,8 und 4 Glasfasern G.657.A", ["Rohr M25 mit U-UTP 4x2 Kat6a", "nur ein Koaxialkabel", "ein Netzkabel 3x1,5 mm²"], "Übung 8."); }
+  ])();
+}
+function qVN(){
+  var a = pick(VN);
+  return {text:"Übung 10: Ist «" + a[0] + "» ein Vorteil oder ein Nachteil der Installation ohne Multimedia-Verteiler?", parts:[{label:"Zuordnung", options:["Vorteil", "Nachteil"], correct:a[1] === "v" ? "Vorteil" : "Nachteil"}], hint:"Lösung von Übung 10.", solution:"<p><b>" + (a[1] === "v" ? "Vorteil" : "Nachteil") + "</b></p>"};
+}
+var MAKERS = [qModul, qPort, qVorgaben, qVN, qModul, qPort, qVN, qVorgaben];
+function init(){
+  st.msel = -1; zeige();
+  $("ltg").addEventListener("click", function(){ st.ltg = !st.ltg; this.textContent = st.ltg ? "Leitungen ausblenden" : "Leitungen einblenden"; plan(); });
+  var pa = $("patch");
+  function act(t){ if (!t) return; if (t.hasAttribute("data-m")) modKlick(Number(t.getAttribute("data-m"))); else if (t.hasAttribute("data-p")) portKlick(t.getAttribute("data-p")); }
+  pa.addEventListener("click", function(e){ act(e.target.closest("[data-m],[data-p]")); });
+  pa.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ var t = e.target.closest("[data-m],[data-p]"); if (t){ e.preventDefault(); var id = t.id; act(t); var f = $(id); if (f) f.focus(); } } });
+  $("legende").addEventListener("change", function(e){ var s = e.target.closest("select[data-l]"); if (!s) return; st.leg[Number(s.getAttribute("data-l"))] = Number(s.value); var id = s.id; patchSvg(); $(id).focus(); });
+  $("view-erkunden").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-c],button[data-z]"); if (!b) return;
+    if (b.hasAttribute("data-c")){ st.ksel = Number(b.getAttribute("data-c")); st.kmsg = ""; sortieren(); $("z-v").focus(); return; }
+    var a = VN[st.ksel]; if (b.getAttribute("data-z") === a[1]){ st.ok[st.ksel] = true; st.kmsg = "<p class=\"okt\">Richtig.</p>"; st.ksel = -1; } else st.kmsg = "<p class=\"warn\">Nicht ganz. Überlegen Sie noch einmal.</p>";
+    sortieren();
+  });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [3, 3, 2, 2, 0, 0, 0, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

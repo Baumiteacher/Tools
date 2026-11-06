@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_KT_4 TA4 Messverfahren und Messprotokoll BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.bg-g{fill:#C9E6A8}
+.sz{fill:#E8E37A;stroke:#9A9440;stroke-width:.8}
+.rk{fill:#E9EEF4;stroke:#4F6FA8;stroke-width:1.2}
+.rk2{fill:#FFFFFF;stroke:#8193B0;stroke-width:.8}
+.pfd{fill:#DCE3EC;stroke:#4F6FA8;stroke-width:.8}
+.lb{fill:#17212B;font-family:var(--sans);font-size:10px;pointer-events:none}
+.lbs{fill:#2A3E5C;font-family:var(--sans);font-size:8.5px;pointer-events:none}
+.lbr{fill:#C62828;font-family:var(--sans);font-size:10px;pointer-events:none}
+.lbg{fill:#3F7F1E;font-family:var(--sans);font-size:10px;pointer-events:none}
+.kab{fill:none;stroke-width:2.6;stroke-linecap:round}
+.hitk{fill:none;stroke:transparent;stroke-width:16;cursor:pointer}
+.k-rot{stroke:#E0301E}.k-blau{stroke:#2F6BFF}.k-gruen{stroke:#5FB82E}.k-schwarz{stroke:#111}.k-grau{stroke:#A7B0BC;stroke-dasharray:6 4}
+.seg:focus{outline:none}.seg:focus .kab{stroke-width:4.5}
+.gelb{fill:#F5B82E;stroke:#B07C10;stroke-width:1}
+.scr{fill:#2A3443}
+.wand{fill:#D3D7DC;stroke:#7D8794;stroke-width:.8}
+.raum{fill:#FFFFFF;stroke:#2A3E5C;stroke-width:1}
+.dose{fill:#FFFFFF;stroke:#5A9A2E;stroke-width:2}
+.dev{cursor:pointer}
+.box{fill:#C7DCE6;stroke:#2A3E5C;stroke-width:1}
+.flaeche{fill:#F7F7F7;stroke:#9AA3AE;stroke-width:1}
+.punkt{fill:#E0301E}
+.anz{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0 10px;background:var(--accent-soft);font-size:.9rem}
+.anz b{font-variant-numeric:tabular-nums}
+.pt{width:100%;border-collapse:collapse;font-size:.9rem}
+.pt td{border:1px solid var(--line);padding:5px 6px;vertical-align:middle}
+.pt td:first-child{width:38%}
+.pt .opts{margin:0}
+.pt select{width:100%;font:inherit;padding:4px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_KT_4 Im Büro- und Gewerbebereich Kommunikationsinstallationen erstellen · Teilauftrag 4</p>
+    <h1>Messverfahren und Messprotokoll BAP</h1>
+    <p class="lead">Rotlichtmessung, OTDR-Messung und Messung mit dem zertifizierten UKV-Messgerät: Messaufbau einfärben, Verfahren wählen und Messergebnisse ins Protokoll übertragen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Messaufbau</h2>
+        <fieldset><legend>Messverfahren</legend><div class="opts" id="w-v"></div></fieldset>
+        <fieldset><legend>Anzeige</legend><div class="opts" id="w-m"></div></fieldset>
+        <svg class="bild" id="szene" viewBox="0 0 360 300" role="img" aria-label="Messaufbau"></svg>
+        <div class="info" id="info" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <h2>Messprotokoll (Übung 38 c)</h2>
+        <div class="anz" id="anz"></div>
+        <div class="tab-k" id="prot"></div>
+        <div class="info" id="pinfo" aria-live="polite"></div>
+      </div>
+      <div class="plain">
+        <h2>Merke</h2>
+        <div class="merke">
+          <p>Verschmutzung (Übung 33): Steckenden nicht mit den Fingern berühren; Steckenden mit Alkoholtuch oder geeignetem Reinigungswerkzeug reinigen.</p>
+          <p>Personenschutz (Übung 34): Nie in Faserenden schauen (Laserlicht kann die Augen schädigen); Schutzbrille tragen (Faserreste können Augen und Haut verletzen).</p>
+        </div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Kommunikationstechnik KT24.3 (LWL-Qualitätsmessung) und KT23.6 bis 23.7 (Qualitätskontrolle Kupfer).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter KT4, Teilauftrag 4: Übungen 31 bis 33 (KT4.15), 34 bis 37 (KT4.16), Übung 38 mit Messprotokoll (KT4.17), jeweils mit Lösung. Die Ansichten sind vereinfacht nachgezeichnet; Farben wie in den Aufträgen.</li><li>Theoriebuch Kommunikationstechnik (Datei T04_K24), KT24.3, 24.1.5 LWL-Qualitätsmessung: Rotlichtmessung mit rotem Laser (ca. 650 nm) als Schnelltest; OTDR-Messung mit Lichtimpulsen, bestimmt Faserlänge, Dämpfung und Position von Steckern, Spleissen und Brüchen; nur ein Messgerät am Leitungsanfang.</li><li>Theoriebuch Kommunikationstechnik (Datei T04_K23), KT23.6 bis 23.7, 23.2.3 Qualitätskontrolle: Wire-Map-Messung, Parameter Linkart, Qualitätsnorm und Kabeltyp, Bewertung PASS.</li><li>Schreibweisen: Das Arbeitsblatt schreibt die Steckertypen (LC UPC, LC APC), den Kabeltyp 4FS G.657.A, die Wahlfelder des Protokolls (Pass oder Fail, TIA568 A oder B, Perm oder Channel) und die Dose 6 und 7 mit Schrägstrich. Das Tool schreibt «LC-UPC», «LC-APC», «4FS G.657.A», «6, 7» und zeigt die Wahlmöglichkeiten als einzelne Felder. Messwerte mit Dezimalkomma (im Arbeitsblatt mit Punkt). Linknummer 6.</li><li>Unsicher: Die Werte Dämpfung 32,5 dB und NEXT 2,4 dB sind unverändert aus der Lösung übernommen. Für eine 15-m-Strecke sind sie ungewöhnlich (NEXT ist nach KT23.4 eine Dämpfung, die gross sein soll); möglicherweise ist eine Reserve zum Grenzwert gemeint. Das Tool bewertet diese Werte nicht.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, E = ESH, NB = E.NB, T = E.txt;
+var FN = {rot:"rot", blau:"blau", gruen:"grün", schwarz:"schwarz"};
+var V = {
+  rot:{name:"Rotlichtmessung", ue:"Übung 31", strecke:"GV und EV", farben:["rot", "blau"],
+    prueft:"Ob ein Unterbruch in der Faser vorhanden ist (Übung 32). Mit einem roten Laser (ca. 650" + NB + "nm) werden Unterbrüche, fehlerhafte Spleisse sowie offene oder falsche Steckverbindungen erkannt; an defekten Stellen tritt das Licht sichtbar aus. Schnelltest, ersetzt keine präzise Qualitätsmessung (KT24.3).",
+    seg:[
+      {id:"fest", f:"rot", n:"Fest verlegtes LWL-Installationskabel Multimode OM4 Duplex", d:"M84 44 H44 V196 H84"},
+      {id:"pk1", f:"blau", n:"LWL-Patchkabel mit LC-UPC-Steckern (EV zur weissen Fläche)", d:"M96 46 C130 50 190 60 236 96"},
+      {id:"pk2", f:"blau", n:"LWL-Patchkabel mit LC-UPC-Steckern (GV zur Rotlicht-Testlampe)", d:"M96 198 C140 200 190 210 244 232"}
+    ]},
+  otdr:{name:"OTDR-Messung", ue:"Übung 35", strecke:"OTO-Dose und POP (Zentrale)", farben:["schwarz", "rot", "gruen"],
+    prueft:"Qualitätsmerkmale wie Unterbrüche, Knicke, Spleissstellen und die Leitungslänge (Übung 36). Durchgeführt meist von spezialisierten Fachfirmen im Auftrag des Netzbetreibers (Übung 37). Das Gerät speist Lichtimpulse ein und wertet Rückstreuung und Reflexionen aus; nur ein Messgerät am Leitungsanfang nötig (KT24.3).",
+    seg:[
+      {id:"haus", f:"schwarz", n:"LWL-Hauseinführungskabel Swisscom", d:"M166 244 C175 285 220 250 250 262 C270 270 290 282 306 268 C316 255 318 235 318 212"},
+      {id:"inst", f:"rot", n:"LWL-Installationskabel 4FS G.657.A", d:"M88 170 C110 150 150 150 162 168 V190"},
+      {id:"mess", f:"gruen", n:"LWL-Patchkabel, Messkabel mit LC-APC-Stecker (inkl. Vorlauffaser)", d:"M62 22 C40 6 22 30 24 100 C26 150 30 175 54 174"}
+    ]},
+  ukv:{name:"Messung mit zertifiziertem UKV-Messgerät", ue:"Übung 38", strecke:"EV und Netzwerksteckdose", farben:["gruen", "rot"],
+    prueft:"Ob die installierte Übertragungsstrecke die geforderten Normen einhält. Vorher werden am Messgerät Linkart (Permanent Link oder Channel), Qualitätsnorm und Kabeltyp eingestellt; das Gerät vergleicht die Messwerte mit den normativen Grenzwerten und bewertet mit PASS oder FAIL (KT23.6 bis 23.7).",
+    seg:[
+      {id:"pl", f:"gruen", n:"Permanent Link EV bis Bodendose", d:"M62 58 C60 140 90 210 156 252"},
+      {id:"ma1", f:"rot", n:"Messadapterkabel (EV zum Master)", d:"M118 52 C150 30 200 40 214 96"},
+      {id:"ma2", f:"rot", n:"Messadapterkabel (Remote zur Dose)", d:"M63 214 C80 190 140 195 164 240"}
+    ]}
+};
+var GER = [{id:"m", r:"Master", t:"Master: Haupteinheit"}, {id:"r", r:"Remote", t:"Remote: Gegenstelle"}];
+var PROT = [
+  {k:"erg", l:"Gesamtergebnis", o:["Pass", "Fail"], r:"Pass"},
+  {k:"wm", l:"Wiremap", o:["TIA568 A", "TIA568 B"], r:"TIA568 B"},
+  {k:"link", l:"Link", o:["Perm", "Channel"], r:"Perm"},
+  {k:"nr", l:"Linknummer", o:["6", "7", "15", "18"], r:"6", sel:true},
+  {k:"norm", l:"Messnorm", o:["Class D", "Class E", "Class Ea", "Class F"], r:"Class Ea", sel:true},
+  {k:"len", l:"Länge", o:["15,1 m", "32,5 m", "2,4 m"], r:"15,1 m", sel:true},
+  {k:"dae", l:"Dämpfung", o:["15,1 dB", "32,5 dB", "2,4 dB"], r:"32,5 dB", sel:true},
+  {k:"next", l:"NEXT", o:["15,1 dB", "32,5 dB", "2,4 dB"], r:"2,4 dB", sel:true}
+];
+var st = {v:"rot", m:"zeigen", sel:"", mal:{}, ger:{}, p:{}};
+function farbeVon(s){ return st.m === "zeigen" ? s.f : (st.mal[st.v + s.id] || "grau"); }
+
+function szRot(){
+  var h = "<rect class=\"bg-g\" x=\"30\" y=\"8\" width=\"160\" height=\"140\"/><rect class=\"bg-g\" x=\"30\" y=\"160\" width=\"160\" height=\"134\"/><rect class=\"sz\" x=\"16\" y=\"4\" width=\"9\" height=\"292\"/>";
+  h += T(30, 300, "", "lbs");
+  h += "<rect class=\"rk\" x=\"76\" y=\"26\" width=\"84\" height=\"96\"/><rect class=\"pfd\" x=\"82\" y=\"38\" width=\"72\" height=\"12\"/>" + T(118, 35, "EV Büro", "lbs", "middle") + T(164, 34, "EV", "lb");
+  for (var i = 0; i < 4; i++) h += "<rect class=\"rk2\" x=\"82\" y=\"" + (56 + i * 15) + "\" width=\"72\" height=\"11\"/>";
+  h += "<rect class=\"rk\" x=\"76\" y=\"178\" width=\"84\" height=\"112\"/><rect class=\"pfd\" x=\"82\" y=\"190\" width=\"72\" height=\"12\"/>" + T(118, 187, "GV Tech 2", "lbs", "middle") + T(164, 186, "GV", "lb");
+  for (i = 0; i < 5; i++) h += "<rect class=\"rk2\" x=\"82\" y=\"" + (208 + i * 16) + "\" width=\"72\" height=\"12\"/>";
+  h += "<rect class=\"flaeche\" x=\"222\" y=\"70\" width=\"58\" height=\"56\"/><circle class=\"punkt\" cx=\"244\" cy=\"98\" r=\"4\"/>" + T(251, 136, "Lichtpunkt auf", "lbs", "middle") + T(251, 146, "weisser Fläche", "lbs", "middle");
+  h += "<g transform=\"rotate(24 280 246)\"><rect x=\"244\" y=\"240\" width=\"74\" height=\"11\" rx=\"5\" fill=\"#8B97A6\" stroke=\"#4D5866\"/><rect x=\"244\" y=\"240\" width=\"10\" height=\"11\" rx=\"3\" fill=\"#C9CFD7\"/></g>" + T(288, 290, "Rotlicht-Testlampe", "lbs", "middle");
+  h += T(10, 150, "", "lbs");
+  return h;
+}
+function szOtdr(){
+  var h = "<rect fill=\"#A9C6DE\" x=\"20\" y=\"120\" width=\"250\" height=\"172\"/><rect class=\"raum\" x=\"30\" y=\"128\" width=\"230\" height=\"156\" style=\"fill:#EEF4F8\"/>";
+  h += "<rect class=\"rk\" x=\"44\" y=\"136\" width=\"52\" height=\"148\"/>" + T(70, 145, "GV Tech 2", "lbs", "middle") + T(100, 144, "GV", "lb");
+  for (var i = 0; i < 6; i++) h += "<rect class=\"rk2\" x=\"49\" y=\"" + (184 + i * 16) + "\" width=\"42\" height=\"11\"/>";
+  h += "<rect class=\"box\" x=\"52\" y=\"162\" width=\"36\" height=\"16\"/>" + T(70, 174, "OTO", "lb", "middle");
+  h += "<rect class=\"box\" x=\"150\" y=\"190\" width=\"30\" height=\"52\"/>" + T(165, 220, "BEP", "lb", "middle") + T(150, 272, "Technik 2", "lbs", "middle");
+  h += "<path class=\"box\" d=\"M288 168 L318 140 L348 168 V212 H288 Z\"/>" + T(318, 184, "Swisscom", "lbs", "middle") + T(318, 196, "POP", "lbs", "middle");
+  h += "<ellipse class=\"box\" cx=\"300\" cy=\"276\" rx=\"30\" ry=\"6\"/><path class=\"box\" d=\"M270 262 V276 A30 6 0 0 0 330 276 V262\" style=\"fill:#C7DCE6\"/><ellipse class=\"box\" cx=\"300\" cy=\"262\" rx=\"30\" ry=\"6\"/>" + T(300, 296, "Strassenschacht", "lbs", "middle");
+  h += "<rect class=\"gelb\" x=\"58\" y=\"18\" width=\"50\" height=\"76\" rx=\"7\"/><rect class=\"scr\" x=\"64\" y=\"26\" width=\"38\" height=\"40\" rx=\"2\"/>" + T(114, 90, "OTDR-Messgerät", "lbs");
+  return h;
+}
+function geraet(x, y, g){
+  var lbl = st.m === "zeigen" ? g.r : (st.ger[g.id] || "?");
+  return "<g class=\"dev\" data-g=\"" + g.id + "\" tabindex=\"0\" role=\"button\" aria-label=\"Messgerät " + lbl + "\"><rect class=\"gelb\" x=\"" + x + "\" y=\"" + y + "\" width=\"46\" height=\"74\" rx=\"7\"/><rect class=\"scr\" x=\"" + (x + 6) + "\" y=\"" + (y + 8) + "\" width=\"34\" height=\"34\" rx=\"2\"/>" + (g.id === "m" ? T(x + 52, y + 10, lbl, "lb") : T(x + 23, y - 6, lbl, "lb", "middle")) + "</g>";
+}
+function szUkv(){
+  var h = "<rect class=\"wand\" x=\"0\" y=\"0\" width=\"20\" height=\"300\"/><rect class=\"wand\" x=\"20\" y=\"126\" width=\"100\" height=\"12\"/><rect class=\"wand\" x=\"138\" y=\"126\" width=\"130\" height=\"12\"/><rect class=\"wand\" x=\"268\" y=\"126\" width=\"12\" height=\"174\"/>";
+  h += "<rect class=\"rk\" x=\"30\" y=\"14\" width=\"110\" height=\"100\"/><rect class=\"pfd\" x=\"36\" y=\"44\" width=\"98\" height=\"14\"/>" + T(85, 26, "EV Büro", "lbs", "middle");
+  for (var i = 0; i < 3; i++) h += "<rect class=\"rk2\" x=\"36\" y=\"" + (64 + i * 15) + "\" width=\"98\" height=\"11\"/>";
+  h += "<rect class=\"dose\" x=\"150\" y=\"238\" width=\"28\" height=\"26\"/><rect class=\"dose\" x=\"156\" y=\"244\" width=\"16\" height=\"7\" style=\"stroke-width:1\"/>" + T(184, 236, "6, 7", "lbs");
+  h += geraet(190, 96, GER[0]) + geraet(40, 214, GER[1]);
+  if (st.m === "zeigen") h += T(150, 34, "Messadapter", "lbr") + T(98, 186, "Messadapter", "lbr") + T(92, 156, "Permanentlink", "lbg");
+  return h;
+}
+function szene(){
+  var v = V[st.v], h = st.v === "rot" ? szRot() : st.v === "otdr" ? szOtdr() : szUkv();
+  v.seg.forEach(function(s){ var f = farbeVon(s); h += "<g class=\"seg\" data-s=\"" + s.id + "\" tabindex=\"0\" role=\"button\" aria-label=\"" + s.n + ", Farbe " + (FN[f] || "keine") + "\"><path class=\"kab k-" + f + "\" d=\"" + s.d + "\"/><path class=\"hitk\" d=\"" + s.d + "\"/></g>"; });
+  $("szene").innerHTML = h;
+  var L = ["<p><b>" + v.name + "</b> (" + v.ue + ") zwischen " + v.strecke + ". " + v.prueft + "</p>"];
+  if (st.m === "zeigen"){
+    L.push("<p>" + v.seg.map(function(s){ return "<span class=\"" + (st.sel === s.id ? "okt" : "") + "\">" + FN[s.f] + ": " + s.n + "</span>"; }).join("<br>") + "</p>");
+    if (st.v === "ukv") L.push("<p>Master: Haupteinheit (beim EV), Remote: Gegenstelle (bei der Dose).</p>");
+    L.push("<p>Tippen Sie ein Kabel an, um es hervorzuheben.</p>");
+  } else {
+    var ok = v.seg.filter(function(s){ return st.mal[st.v + s.id] === s.f; }).length, gOk = st.v !== "ukv" || GER.every(function(g){ return st.ger[g.id] === g.r; });
+    L.push("<p>Zeichnen Sie ein: " + v.farben.map(function(f){ var s = v.seg.filter(function(x){ return x.f === f; })[0]; return "<b>" + FN[f] + "</b>: " + s.n.replace(/ \(.*\)$/, ""); }).join("; ") + ". Tippen Sie ein Kabel mehrmals an, um die Farbe zu wechseln." + (st.v === "ukv" ? " Tippen Sie die Messgeräte an, um sie zu bezeichnen." : "") + "</p>");
+    L.push("<p>" + ok + " von " + v.seg.length + " Kabeln richtig" + (st.v === "ukv" ? ", Geräte " + (gOk ? "richtig bezeichnet" : "noch nicht richtig bezeichnet") : "") + ". " + (ok === v.seg.length && gOk ? "<span class=\"okt\">Alles richtig.</span>" : "") + "</p>");
+  }
+  $("info").innerHTML = L.join("");
+}
+function prot(){
+  $("anz").innerHTML = "Messergebnis (Werte aus der Lösung von Übung 38): Datum <b>01.01.2027</b> · <b>PASS</b> · Wire Map <b>TIA568 B</b> · <b>Permanent Link</b> · Link <b>6</b> · <b>Class Ea</b> · Länge <b>15,1" + NB + "m</b> · Dämpfung <b>32,5" + NB + "dB</b> · NEXT <b>2,4" + NB + "dB</b>";
+  $("prot").innerHTML = "<table class=\"pt\"><tr><td>Datum der Messung</td><td>01.01.2027</td></tr>" + PROT.map(function(r){
+    var v = st.p[r.k], mark = v ? (v === r.r ? " <span class=\"okt\">✓</span>" : " <span class=\"warn\">✗</span>") : "";
+    if (r.sel) return "<tr><td>" + r.l + mark + "</td><td><select id=\"p-" + r.k + "\" data-p=\"" + r.k + "\" aria-label=\"" + r.l + "\"><option value=\"\">wählen</option>" + r.o.map(function(o){ return "<option" + (v === o ? " selected" : "") + ">" + o + "</option>"; }).join("") + "</select></td></tr>";
+    return "<tr><td>" + r.l + mark + "</td><td><div class=\"opts\">" + r.o.map(function(o, i){ return "<button class=\"opt txt\" type=\"button\" id=\"p-" + r.k + "-" + i + "\" data-p=\"" + r.k + "\" data-o=\"" + o + "\" aria-pressed=\"" + (v === o) + "\">" + o + "</button>"; }).join("") + "</div></td></tr>";
+  }).join("") + "<tr><td>Unterschrift Monteur</td><td>H. Muster</td></tr></table>";
+  var n = PROT.filter(function(r){ return st.p[r.k] === r.r; }).length;
+  $("pinfo").innerHTML = "<p>" + n + " von " + PROT.length + " Feldern richtig übertragen." + (n === PROT.length ? " <span class=\"okt\">Protokoll vollständig.</span>" : "") + "</p>";
+}
+function zeige(){
+  E.knoepfe("w-v", "v", [["rot", "Rotlicht (Ü31)"], ["otdr", "OTDR (Ü35)"], ["ukv", "UKV-Messgerät (Ü38)"]], st.v, true);
+  E.knoepfe("w-m", "m", [["zeigen", "Lösung zeigen"], ["mal", "Selbst einzeichnen"]], st.m, true);
+  szene(); prot();
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+var VN = ["Rotlichtmessung", "OTDR-Messung", "Messung mit zertifiziertem UKV-Messgerät"];
+function qVerfahren(){
+  var s = pick([
+    ["Schnelltest: Ist die Glasfaser zwischen GV und EV unterbrochen?", 0],
+    ["An defekten Stellen soll das Licht sichtbar austreten.", 0],
+    ["Faserlänge und Position von Spleissen bestimmen, mit nur einem Messgerät am Leitungsanfang.", 1],
+    ["Die Strecke zwischen OTO-Dose und POP (Zentrale) soll geprüft werden.", 1],
+    ["Die Kupferstrecke zwischen EV und Netzwerksteckdose soll nach Norm geprüft und protokolliert werden.", 2],
+    ["Mit Master und Remote werden Wire Map, Länge, Dämpfung und NEXT gemessen.", 2]
+  ]);
+  return {text:"Welches Messverfahren passt? " + s[0], parts:[{label:"Verfahren", options:VN.slice(), correct:VN[s[1]]}], hint:"Rotlicht: Schnelltest LWL. OTDR: Lichtimpulse, Rückstreuung, ein Gerät. UKV-Messgerät: Kupfer, zertifiziert.", solution:"<p><b>" + VN[s[1]] + "</b> (" + ["Übungen 31, 32", "Übungen 35, 36", "Übung 38"][s[1]] + ")</p>"};
+}
+function qKabel(){
+  var k = pick(["rot", "otdr", "ukv"]), v = V[k], s = pick(v.seg), opt = ["rot", "blau", "grün", "schwarz"];
+  if (Math.random() < 0.5) return {text:v.ue + " (" + v.name + "): In welcher Farbe wird das Kabel eingezeichnet? " + s.n.replace(/ \(.*\)$/, ""), parts:[{label:"Farbe", options:opt, correct:FN[s.f]}], hint:"Farben nach dem Auftrag im Arbeitsblatt.", solution:"<p><b>" + FN[s.f] + "</b>: " + s.n + "</p>"};
+  var andere = [];
+  Object.keys(V).forEach(function(x){ V[x].seg.forEach(function(y){ var t = y.n.replace(/ \(.*\)$/, ""); if (t !== s.n.replace(/ \(.*\)$/, "") && andere.indexOf(t) < 0) andere.push(t); }); });
+  return E.wahl(v.ue + " (" + v.name + "): Welches Kabel wird " + FN[s.f] + " eingezeichnet?", s.n.replace(/ \(.*\)$/, ""), andere, "Farben nach dem Auftrag im Arbeitsblatt.");
+}
+function qWissen(){
+  return pick([
+    function(){ return E.wahl("Übung 32: Was kann mit der Rotlichtmessung geprüft werden?", "Ob ein Unterbruch in der Faser vorhanden ist.", ["Die genaue Dämpfung in dB", "Die Nebensprechdämpfung NEXT", "Die Belegung der Aderpaare"], "KT24.3"); },
+    function(){ return E.aussagen("Übung 36: Was kann mit einer OTDR-Messung geprüft werden?", ["Unterbrüche", "Knicke", "Spleissstellen", "Leitungslänge"], ["Wire Map der Aderpaare", "NEXT", "Schirmanschluss der RJ45-Dose", "PoE-Leistung"], "Qualitätsmerkmale der Glasfaserstrecke."); },
+    function(){ return E.wahl("Übung 37: Wer führt eine OTDR-Messung durch?", "Meist spezialisierte Fachfirmen im Auftrag des Netzbetreibers", ["Immer die Bauherrschaft", "Der Architekt", "Der Lernende ohne Auftrag"], "Lösung von Übung 37."); },
+    function(){ return E.aussagen("Übung 33: Worauf achten Sie beim Umgang mit Glasfasersteckern (Verschmutzung)?", ["Steckenden nicht mit den Fingern berühren", "Steckenden mit Alkoholtuch oder geeignetem Reinigungswerkzeug reinigen"], ["Steckenden anhauchen und am Ärmel abwischen", "Schutzkappen erst nach der Messung entfernen und offen liegen lassen", "Steckenden mit Schleifpapier reinigen"], "Lösung von Übung 33."); },
+    function(){ return E.aussagen("Übung 34: Welche Sicherheitsmassnahmen gelten beim Umgang mit Glasfaserkabeln (Personenschutz)?", ["Nie in Faserenden schauen (Laserlicht kann die Augen schädigen)", "Schutzbrille tragen (Faserreste können Augen und Haut verletzen)"], ["Faserreste mit der blossen Hand wegwischen", "Mit dem Smartphone-Licht in die Faser leuchten und hineinschauen", "Laserlicht ist bei Glasfasern ungefährlich"], "Lösung von Übung 34."); },
+    function(){ return E.wahl("Mit welchem Licht arbeitet die Rotlichtmessung?", "roter Laser, ca. 650" + NB + "nm", ["Infrarot, ca. 1550" + NB + "nm", "weisses LED-Licht", "UV-Licht"], "KT24.3"); }
+  ])();
+}
+function qProt(){
+  return pick([
+    function(){ return E.wahl("Übung 38: Gemessen wird nur die fest installierte Strecke EV bis Bodendose (mit Messadaptern, ohne Patch- und Anschlusskabel). Welche Linkart wird eingestellt?", "Perm (Permanent Link)", ["Channel", "Wire Map", "Class Ea"], "KT26.3 und KT23.7."); },
+    function(){ return E.wahl("Übung 38 b: Wie heisst die Haupteinheit des UKV-Messgeräts?", "Master", ["Remote", "Injektor", "OTDR"], "Master: Haupteinheit, Remote: Gegenstelle."); },
+    function(){ return E.wahl("Übung 38 b: Wie heisst die Gegenstelle des UKV-Messgeräts an der Netzwerksteckdose?", "Remote", ["Master", "Patchfeld", "Switch"], "Master: Haupteinheit, Remote: Gegenstelle."); },
+    function(){ return E.wahl("Wann bewertet das Messgerät eine Messung mit PASS?", "Wenn alle Messwerte die normativen Grenzwerte einhalten", ["Wenn die Länge unter 100 m liegt, unabhängig von den anderen Werten", "Wenn das Kabel Kat7a ist", "Wenn die Wire Map fehlt"], "KT23.7."); },
+    function(){ return E.wahl("Was bestätigt die Wire-Map-Messung?", "Die korrekte Belegung aller Aderpaare", ["Die Dämpfung in dB", "Die Faserlänge", "Die PoE-Leistung"], "KT23.6."); },
+    function(){ var r = pick(PROT.filter(function(x){ return x.k !== "nr"; })); return {text:"Übung 38 c: Welcher Eintrag gehört ins Messprotokoll im Feld «" + r.l + "»?", parts:[{label:r.l, options:r.o.slice(), correct:r.r}], hint:"Werte aus der Lösung von Übung 38.", solution:"<p>" + r.l + ": <b>" + r.r + "</b></p>"}; }
+  ])();
+}
+var MAKERS = [qVerfahren, qKabel, qWissen, qProt, qVerfahren, qKabel, qWissen, qProt];
+function init(){
+  zeige();
+  var s = $("szene");
+  function klick(t){
+    if (!t) return;
+    var id;
+    if (t.hasAttribute("data-s")){ id = t.getAttribute("data-s");
+      if (st.m === "zeigen") st.sel = st.sel === id ? "" : id;
+      else { var f = ["grau"].concat(V[st.v].farben), cur = st.mal[st.v + id] || "grau"; st.mal[st.v + id] = f[(f.indexOf(cur) + 1) % f.length]; }
+      szene(); var e = s.querySelector("[data-s=\"" + id + "\"]"); if (e) e.focus();
+    } else if (t.hasAttribute("data-g") && st.m === "mal"){ id = t.getAttribute("data-g");
+      var o = ["?", "Master", "Remote"], c = st.ger[id] || "?"; st.ger[id] = o[(o.indexOf(c) + 1) % 3];
+      szene(); var g = s.querySelector("[data-g=\"" + id + "\"]"); if (g) g.focus();
+    }
+  }
+  s.addEventListener("click", function(e){ klick(e.target.closest("[data-s],[data-g]")); });
+  s.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ var t = e.target.closest("[data-s],[data-g]"); if (t){ e.preventDefault(); klick(t); } } });
+  $("view-erkunden").addEventListener("click", function(e){ var b = e.target.closest("button[data-k]"); if (!b) return; st[b.getAttribute("data-k")] = b.getAttribute("data-v"); st.sel = ""; zeige(); $(b.id).focus(); });
+  $("prot").addEventListener("click", function(e){ var b = e.target.closest("button[data-p]"); if (!b) return; st.p[b.getAttribute("data-p")] = b.getAttribute("data-o"); var id = b.id; prot(); $(id).focus(); });
+  $("prot").addEventListener("change", function(e){ var x = e.target.closest("select[data-p]"); if (!x) return; st.p[x.getAttribute("data-p")] = x.value; var id = x.id; prot(); $(id).focus(); });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [2, 3, 3, 2, 0, 0, 0, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

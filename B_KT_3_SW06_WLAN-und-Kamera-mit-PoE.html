@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_KT_3 TA6 WLAN und Kamera mit PoE BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.wand{fill:#E9EDF1;stroke:#2A3E5C;stroke-width:1.5}
+.dach{fill:#C9D3DD;stroke:#2A3E5C;stroke-width:1.5}
+.boden{stroke:#2A3E5C;stroke-width:3}
+.mmv{fill:#9AA6B2;stroke:#2A3E5C;stroke-width:1.5}
+.ger{fill:#FFFFFF;stroke:#2A3E5C;stroke-width:1.4}
+.welle{fill:none;stroke:#2E9E4A;stroke-width:2}
+.welle.schwach{stroke:#C62828;stroke-dasharray:3 3}
+.kab{fill:none;stroke:#2F6BFF;stroke-width:2.5}
+.kab.poe{stroke:#2BB52B}
+.netz{fill:none;stroke:#111;stroke-width:2}
+.lb{fill:var(--ink);font-family:var(--sans);font-size:10px}
+.lbm{fill:var(--muted);font-family:var(--sans);font-size:9px}
+.pt{width:100%;border-collapse:collapse;font-size:.9rem}
+.pt th,.pt td{border:1px solid var(--line);padding:5px 6px;text-align:left}
+.pt th{background:var(--accent-soft)}
+.pt tr.ja td{background:color-mix(in srgb, var(--ok) 14%, transparent)}
+.pt tr.nein td{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_KT_3 Im Heim-Bereich Kommunikationsinstallationen erstellen · Teilauftrag 6</p>
+    <h1>WLAN und Kamera mit PoE BAP</h1>
+    <p class="lead">Herr Torres befürchtet schlechten WLAN-Empfang im Obergeschoss und wünscht eine Kamera beim Sitzplatz. Wählen Sie Lösung und Stromversorgung und sehen Sie die Konsequenzen für die Installation.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>WLAN im Obergeschoss (Übungen 13 bis 15)</h2>
+        <fieldset><legend>Lösung</legend><div class="opts" id="w-l"></div></fieldset>
+        <fieldset id="fs-v"><legend>Stromversorgung des Access Points</legend><div class="opts" id="w-v"></div></fieldset>
+        <fieldset><legend>Kamera beim Sitzplatz (Übung 16)</legend><div class="opts" id="w-k"></div></fieldset>
+        <svg class="bild" id="haus" viewBox="0 0 360 250" role="img" aria-label="Schnitt durch das Haus mit Multimedia-Verteiler, WLAN-Lösung und Kamera"></svg>
+        <div class="info" id="info" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <h2>Welcher PoE-Standard reicht? (KT23.10)</h2>
+        <label class="slider-head" for="r-p"><span class="label">Leistung des Geräts</span><b id="r-p-w"></b></label>
+        <input type="range" id="r-p" min="1" max="100" step="1" value="12" aria-label="Leistung des Geräts einstellen">
+        <div class="tab-k" id="poe"></div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Kommunikationstechnik KT25.7 (WLAN, Access Point, Repeater), KT23.10 (Power over Ethernet) und KT26.1 (MM-Verteiler mit WLAN-Abdeckung).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter KT3, Teilauftrag 6: Übungen 13 und 14 (KT3.14), 15 und 16 (KT3.15), 17.1 und 17.2 (KT3.16–3.17).</li><li>Theoriebuch Kommunikationstechnik: Kapitel 25 (Datei T04_K25) KT25.7 Access Point und Repeater; Kapitel 23 (Datei T04_K23) KT23.10 PoE-Standards PoE+ 30 W, PoE++ 60 W, PoE+++ 90 W pro Port; Kapitel 26 (Datei T04_K26) KT26.1 WLAN-Abdeckung bei Metallgehäusen des MM-Verteilers. Das Arbeitsblatt verweist auf KT25.6–25.7 und KT23.11; in der Datei steht WLAN auf KT25.7 und PoE auf KT23.10.</li><li>Abweichung: In der Lösung von Übung 16 (Kamera) steht als Konsequenz «Netzwerksteckdose beim Access Point»; gemeint ist die Netzwerksteckdose bei der Kamera. Das Tool schreibt «bei der Kamera».</li><li>Die Hausskizze ist schematisch; Reichweiten und Dämpfung sind nur qualitativ dargestellt.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, E = ESH, NB = E.NB;
+var st = {l:"keine", v:"poe", k:"poe", p:12};
+var POE = [["PoE+", 30, "50–57 V", "2 Paare"], ["PoE++", 60, "50–57 V", "4 Paare"], ["PoE+++", 90, "52–57 V", "4 Paare"]];
+function T(x, y, t, c, a){ return E.txt(x, y, t, c || "lb", a); }
+function wellen(x, y, n, schwach, dir){ var h = "", i; for (i = 1; i <= n; i++){ var r = 8 + i * 9; h += "<path class=\"welle" + (schwach ? " schwach" : "") + "\" d=\"M" + (x - r * 0.7) + " " + (y + dir * r * 0.7) + " A" + r + " " + r + " 0 0 " + (dir > 0 ? 0 : 1) + " " + (x + r * 0.7) + " " + (y + dir * r * 0.7) + "\"/>"; } return h; }
+function haus(){
+  var h = "<path class=\"dach\" d=\"M20 70 L150 12 L280 70 Z\"/><rect class=\"wand\" x=\"30\" y=\"70\" width=\"240\" height=\"160\"/><path class=\"boden\" d=\"M30 150 H270 M20 230 H350\"/>";
+  h += T(40, 86, "OG", "lbm") + T(40, 166, "EG", "lbm") + T(318, 244, "Sitzplatz", "lbm", "middle");
+  h += "<rect class=\"mmv\" x=\"44\" y=\"176\" width=\"40\" height=\"46\"/><rect class=\"ger\" x=\"50\" y=\"192\" width=\"28\" height=\"10\"/>" + T(90, 200, "MM-Verteiler", "lbm");
+  h += wellen(64, 196, 2, false, -1);
+  if (st.l === "keine") h += wellen(150, 140, 2, true, -1) + T(150, 104, "WLAN im OG schwach", "lbm", "middle");
+  if (st.l === "ap"){
+    h += "<path class=\"kab" + (st.v === "poe" ? " poe" : "") + "\" d=\"M84 186 H110 V80 H150\"/><rect class=\"ger\" x=\"150\" y=\"74\" width=\"30\" height=\"10\" rx=\"4\"/>" + T(186, 82, "Access Point", "lb") + wellen(165, 84, 3, false, 1);
+    if (st.v === "netz") h += "<rect class=\"ger\" x=\"196\" y=\"120\" width=\"14\" height=\"14\"/><path class=\"netz\" d=\"M180 80 C200 90 203 110 203 120\"/>" + T(214, 132, "230 V", "lbm");
+  }
+  if (st.l === "rep"){ h += "<rect class=\"ger\" x=\"140\" y=\"120\" width=\"16\" height=\"24\" rx=\"2\"/>" + T(162, 138, "Repeater", "lb") + wellen(148, 120, 3, false, -1) + wellen(120, 160, 1, true, -1); }
+  /* Kamera */
+  h += "<rect class=\"ger\" x=\"271\" y=\"176\" width=\"22\" height=\"12\" rx=\"3\"/><circle cx=\"293\" cy=\"182\" r=\"4\" fill=\"#2A3E5C\"/>" + T(276, 170, "Kamera", "lb");
+  if (st.k === "poe") h += "<path class=\"kab poe\" d=\"M84 210 H240 V182 H271\"/>"; else h += wellen(300, 190, 2, false, 1) + "<rect class=\"ger\" x=\"238\" y=\"196\" width=\"12\" height=\"12\"/><path class=\"netz\" d=\"M271 184 C256 188 248 192 244 196\"/>" + T(232, 214, "230 V", "lbm", "end");
+  $("haus").innerHTML = h;
+}
+function info(){
+  var L = [];
+  if (st.l === "keine") L.push("<p><b>Übung 13:</b> Das Gehäuse eines Multimedia-Verteilers dämpft das WLAN-Signal erheblich und kann die Funkabdeckung deutlich reduzieren.</p>");
+  if (st.l === "ap"){
+    L.push("<p><b>Access Point (Kabel):</b> Schnittstelle zwischen dem kabelgebundenen LAN und den WLAN-Geräten, angebunden über Ethernet oder PoE (KT25.7).</p>");
+    L.push(st.v === "poe" ? "<p><b>Stromversorgung durch das Netzwerkkabel: Power over Ethernet (PoE).</b> Konsequenz: Netzwerksteckdose beim Access Point, PoE-fähiger Switch (Übung 15).</p>" : "<p><b>Stromversorgung durch ein Netzteil.</b> Konsequenz: 230-V-Steckdose in der Nähe des Access Points (Übung 15).</p>");
+    L.push("<p class=\"note\">Übung 17: Modul 5 im Patchfeld wird «AP OG (PoE)» und an einen PoE-Port des Switches gepatcht.</p>");
+  }
+  if (st.l === "rep") L.push("<p><b>Repeater (WLAN):</b> Er empfängt das bestehende WLAN-Signal und sendet es erneut aus. Nachteil: Die nutzbare Datenrate halbiert sich meist, weil er gleichzeitig senden und empfangen muss (KT25.7). Er braucht eine 230-V-Steckdose.</p>");
+  L.push(st.k === "poe" ? "<p><b>Kamera: Stromversorgung und Datenübertragung über das Netzwerkkabel (PoE).</b> Konsequenz: Netzwerksteckdose bei der Kamera, PoE-fähiger Switch (Übung 16). Im Patchfeld: Modul 6 «Kamera Sitzplatz (PoE)».</p>" : "<p><b>Kamera: Datenübertragung über WLAN.</b> Konsequenz: 230-V-Steckdose in der Nähe der Kamera; Modelle mit Batterie- oder Solarbetrieb sind auch möglich (Übung 16).</p>");
+  $("info").innerHTML = L.join("");
+}
+function poe(){
+  var p = st.p, erste = -1;
+  POE.forEach(function(q, i){ if (erste < 0 && p <= q[1]) erste = i; });
+  $("r-p-w").textContent = p + " W";
+  $("poe").innerHTML = "<table class=\"pt\"><tr><th>Standard</th><th>max. pro Port</th><th>Spannung pro Port</th><th>Paare</th></tr>" + POE.map(function(q, i){ return "<tr class=\"" + (p <= q[1] ? "ja" : "nein") + "\"><td>" + q[0] + (i === erste ? " ✓" : "") + "</td><td>" + q[1] + NB + "W</td><td>" + q[2] + "</td><td>" + q[3] + "</td></tr>"; }).join("") + "</table>" +
+    (erste < 0 ? "<p class=\"warn\">Mehr als 90 W: Kein PoE-Standard aus der Tabelle reicht. Stromversorgung mit Netzteil.</p>" : "<p>Für " + p + NB + "W reicht <b>" + POE[erste][0] + "</b> (bis " + POE[erste][1] + NB + "W pro Port, " + POE[erste][3] + "). Alle Standards unterstützen Kabel ab CAT5.</p>") + "<p class=\"note\">Mit steigender PoE-Leistung nimmt auch die Belastung des Kabels zu: Kabellänge, Anzahl versorgter Geräte und Kabelqualität beachten (KT23.10).</p>";
+}
+function zeige(){
+  E.knoepfe("w-l", "l", [["keine", "ohne Massnahme"], ["ap", "Access Point (Kabel)"], ["rep", "Repeater (WLAN)"]], st.l, true);
+  E.knoepfe("w-v", "v", [["poe", "PoE über das Netzwerkkabel"], ["netz", "Netzteil"]], st.v, true);
+  E.knoepfe("w-k", "k", [["poe", "PoE über das Netzwerkkabel"], ["wlan", "WLAN"]], st.k, true);
+  $("fs-v").style.display = st.l === "ap" ? "" : "none";
+  haus(); info(); poe();
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+function qWarum(){ return E.wahl("Übung 13: Warum ist die Befürchtung von Herrn Torres bezüglich der WLAN-Abdeckung berechtigt?", "Das Gehäuse des Multimedia-Verteilers dämpft das WLAN-Signal erheblich und kann die Funkabdeckung deutlich reduzieren.", ["Im Obergeschoss ist WLAN gesetzlich verboten.", "Ein Router sendet nur ins Erdgeschoss.", "Glasfaser stört das WLAN-Signal."], "Lösung von Übung 13, KT26.1."); }
+function qLoesungen(){ return E.aussagen("Übung 14: Welche zwei Lösungen verbessern die WLAN-Abdeckung im Obergeschoss?", ["Einsatz eines Access Points (Kabel)", "Einsatz eines Repeaters (WLAN)"], ["den MM-Verteiler mit einem Metalldeckel schliessen", "einen zweiten Glasfaseranschluss bestellen", "eine TT83-Steckdose im Obergeschoss montieren"], "Lösung von Übung 14."); }
+function qVersorgung(){
+  return pick([
+    function(){ return E.wahl("Der Access Point wird über PoE versorgt. Welche Konsequenz hat das für die Installation?", "Netzwerksteckdose beim Access Point und ein PoE-fähiger Switch", ["230-V-Steckdose in der Nähe des Access Points", "ein zweiter Router im Obergeschoss", "ein Glasfaserkabel zum Access Point"], "Lösung von Übung 15."); },
+    function(){ return E.wahl("Der Access Point wird mit einem Netzteil versorgt. Welche Konsequenz hat das?", "230-V-Steckdose in der Nähe des Access Points", ["PoE-fähiger Switch im Verteiler", "keine Netzwerksteckdose nötig", "Batteriebetrieb"], "Lösung von Übung 15."); },
+    function(){ return E.aussagen("Übung 16: Was gilt für die Kamera beim Sitzplatz?", ["Mit PoE laufen Stromversorgung und Daten über das Netzwerkkabel.", "Mit PoE braucht es einen PoE-fähigen Switch.", "Mit WLAN braucht es eine 230-V-Steckdose in der Nähe der Kamera, ausser bei Batterie- oder Solarbetrieb."], ["Mit PoE braucht es zusätzlich eine 230-V-Steckdose bei der Kamera.", "Eine WLAN-Kamera braucht immer eine Netzwerksteckdose.", "PoE funktioniert nur mit Glasfaser."], "Lösung von Übung 16."); }
+  ])();
+}
+function qPoeStd(){
+  var p = pick([8, 15, 25, 30, 40, 55, 70, 85]), r = p <= 30 ? "PoE+" : p <= 60 ? "PoE++" : "PoE+++";
+  return {text:"Ein Gerät braucht " + p + NB + "W. Welcher PoE-Standard reicht mindestens?", parts:[{label:"Standard", options:["PoE+", "PoE++", "PoE+++"], correct:r}], hint:"KT23.10: PoE+ 30 W, PoE++ 60 W, PoE+++ 90 W pro Port.", solution:"<p><b>" + r + "</b></p>"};
+}
+function qRepeater(){ return E.wahl("Welcher Nachteil hat ein WLAN-Repeater gegenüber einem Access Point mit Kabel?", "Die nutzbare Datenrate halbiert sich meist.", ["Er braucht ein Netzwerkkabel.", "Er braucht einen PoE-Switch.", "Er funktioniert nur im Erdgeschoss."], "KT25.7."); }
+var MAKERS = [qWarum, qLoesungen, qVersorgung, qPoeStd, qRepeater, qVersorgung, qPoeStd, qLoesungen];
+function init(){
+  zeige();
+  $("r-p").addEventListener("input", function(){ st.p = Number(this.value); poe(); });
+  $("view-erkunden").addEventListener("click", function(e){ var b = e.target.closest("button[data-k]"); if (!b) return; st[b.getAttribute("data-k")] = b.getAttribute("data-v"); zeige(); var f = $(b.id); if (f) f.focus(); });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [2, 2, 3, 2, 2, 0, 0, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

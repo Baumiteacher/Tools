@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_ES_2 TA2 Batterie- und Akku-Kartei BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.reihe{width:100%;min-width:340px;height:auto;display:block}
+.bt{fill:var(--z2);stroke:var(--ink);stroke-width:1.4;cursor:pointer}
+.bt.on{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.6}
+.bt-k{fill:var(--ink)}
+.bt-t{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.bt-tb{fill:var(--ink);font-family:var(--sans);font-size:11px;font-weight:700}
+.vergl{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:440px){.vergl{grid-template-columns:1fr}}
+.lk{border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_ES_2 Im Haus Energie speichern für späteren Verbrauch oder Netzausfall · Teilauftrag 2</p>
+    <h1>Batterie- und Akku-Kartei BAP</h1>
+    <p class="lead">Vergleichen Sie die gängigen Batterien massstäblich, unterscheiden Sie Primär- und Sekundärelemente und ordnen Sie Bleiakku, NiMH-Akku und Lithium-Ionen-Akku mit ihren Daten und Anwendungen zu.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Bauformen und Handelsnamen (Übung 7, ET12.7)</h2>
+        <p class="note">Alle Batterien im gleichen Massstab. Tippen Sie auf eine Batterie.</p>
+        <div class="scroll"><svg class="reihe" id="batt" viewBox="0 0 430 144" role="img" aria-label="Batterien Lady, Mini, Micro, Mignon, Baby, Mono, Energieblock und Flachbatterie im Massstab"></svg></div>
+        <div class="opts" id="w-batt"></div>
+        <div class="info" id="b-info" aria-live="polite"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Primärelemente und Sekundärelemente (Übung 6)</h2>
+        <div class="vergl">
+          <div class="lk"><b>Primärelemente (Batterien)</b><span>nicht wiederaufladbar; die negative Elektrode wird beim Entladen abgebaut</span></div>
+          <div class="lk"><b>Sekundärelemente (Akkumulatoren)</b><span>wiederaufladbar; müssen vor der ersten Nutzung zuerst geladen werden, daher «sekundär»</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Akkumulatoren (Übung 12)</h2>
+        <fieldset><legend>Akku</legend><div class="opts" id="w-akku"></div></fieldset>
+        <div class="scroll"><table class="tab-k"><thead><tr><th>Zellenart</th><th>Bemessungsspannung pro Zelle</th><th>Energiedichte in Wh pro kg</th><th>Wirkungsgrad</th></tr></thead><tbody id="akku-tab"></tbody></table></div>
+        <div class="info" id="a-info" aria-live="polite"></div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Elektrotechnik ET12.5 (Galvanische Elemente, Eigenschaften), ET12.7 (Bauformen und Handelsnamen), ET12.8 bis ET12.10 (Akkumulatoren).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Theoriebuch Elektrotechnik, Kapitel 12 Elektrochemie (Datei T02_K12, Kopfzeile Kapitel 11): ET12.5 (11.3 Galvanische Elemente, 11.3.1 Eigenschaften), ET12.7 (11.4.2 Bauformen und Handelsnamen mit Massen in mm), ET12.8 (11.5 Akkumulatoren, Kapazität), ET12.9 (Bleiakkumulator), ET12.10 (NiMH- und Li-Ion-Akkumulatoren).</li><li>Arbeitsblätter ES2, Teilauftrag 2: Übungen 6 bis 18 (ES2.4 bis ES2.6). Die Werte der Akku-Tabelle stammen aus der Lösung von Übung 12; die Spalte «Wirkungsgrad» ist im Arbeitsblatt mit «Wzu durch Wab» überschrieben, gemeint ist Wab durch Wzu.</li><li>Die Batterien sind nach den Massen der Tabelle ET12.7 gezeichnet (Höhe, Durchmesser bzw. Länge und Breite), alle im gleichen Massstab.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, shuffle = BAP.shuffle, E = ESH, NB = E.NB;
+/* ET12.7: Name, Spannung, IEC, USA, Höhe, Durchmesser, Länge, Breite (mm) */
+var B = [["Lady", 1.5, "LR1", "N", 30.2, 12], ["Mini", 1.5, "LR61", "AAAA", 42, 8], ["Micro", 1.5, "LR03", "AAA", 44.5, 10.5], ["Mignon", 1.5, "LR6", "AA", 50.5, 14.5],
+         ["Baby", 1.5, "LR14", "C", 50, 26.2], ["Mono", 1.5, "LR20", "D", 61.5, 34.2], ["Energieblock", 9, "6LR61", "PP3", 48.5, 0, 26.5, 17.5], ["Flachbatterie", 4.5, "–", "–", 67, 0, 62, 22]];
+var bSel = 3;
+function zeichne(){
+  var h = "", x = 10, s = 1.45, y0 = 110;
+  B.forEach(function(b, i){
+    var w = (b[5] || b[6]) * s, hh = b[4] * s, on = i === bSel ? " on" : "";
+    h += "<rect class=\"bt" + on + "\" data-b=\"" + i + "\" x=\"" + E.n(x) + "\" y=\"" + E.n(y0 - hh) + "\" width=\"" + E.n(w) + "\" height=\"" + E.n(hh) + "\" rx=\"" + (b[5] ? 2 : 3) + "\"/>";
+    if (b[5]) h += "<rect class=\"bt-k\" x=\"" + E.n(x + w / 2 - Math.max(2, w * 0.18)) + "\" y=\"" + E.n(y0 - hh - 3) + "\" width=\"" + E.n(Math.max(4, w * 0.36)) + "\" height=\"3\"/>";
+    else if (i === 6) h += "<rect class=\"bt-k\" x=\"" + E.n(x + 6) + "\" y=\"" + E.n(y0 - hh - 4) + "\" width=\"8\" height=\"4\"/><rect class=\"bt-k\" x=\"" + E.n(x + w - 14) + "\" y=\"" + E.n(y0 - hh - 4) + "\" width=\"8\" height=\"4\"/>";
+    else h += "<rect class=\"bt-k\" x=\"" + E.n(x + 12) + "\" y=\"" + E.n(y0 - hh - 8) + "\" width=\"4\" height=\"8\"/><rect class=\"bt-k\" x=\"" + E.n(x + w - 22) + "\" y=\"" + E.n(y0 - hh - 12) + "\" width=\"4\" height=\"12\"/>";
+    h += E.txt(x + w / 2, y0 + (i % 2 ? 28 : 14), b[0], i === bSel ? "bt-tb" : "bt-t", "middle");
+    x += w + 16;
+  });
+  $("batt").innerHTML = h;
+  $("w-batt").innerHTML = B.map(function(b, i){ return "<button class=\"opt txt\" type=\"button\" id=\"bb-" + i + "\" data-b=\"" + i + "\" aria-pressed=\"" + (i === bSel) + "\">" + b[0] + "</button>"; }).join("");
+  var b = B[bSel], mass = b[5] ? "Höhe " + E.zahl(b[4]) + NB + "mm, Durchmesser " + E.zahl(b[5]) + NB + "mm" : "Höhe " + E.zahl(b[4]) + NB + "mm, Länge " + E.zahl(b[6]) + NB + "mm, Breite " + E.zahl(b[7]) + NB + "mm";
+  $("b-info").innerHTML = "<p><b>" + b[0] + "</b>: Bemessungsspannung <b>" + E.zahl(b[1]) + NB + "V</b>; IEC " + b[2] + ", USA " + b[3] + "; " + mass + ".</p>" +
+    (bSel === 6 ? "<p class=\"note\">6LR61: sechs in Serie geschaltete Alkali-Mangan-Zellen zu 1,5 V ergeben 9 V.</p>" : bSel === 7 ? "<p class=\"note\">Drei 1,5-V-Zellen in Serie ergeben 4,5 V (Übung 10).</p>" : "<p class=\"note\">IEC: R = Rundzelle, L = Alkali-Mangan-Zelle, Zahl = Typ.</p>");
+}
+var AK = [["Bleiakkumulator", 2.0, "30", "60 – 70 %", "Starterbatterien in Fahrzeugen, USV-Anlagen. Beim Laden müssen die beiden Bleiplatten chemisch verändert werden, damit zwischen ihnen eine Spannung entsteht."],
+          ["NiMH-Akkumulator", 1.2, "60 – 110", "70 %", "Elektrowerkzeuge, Akkuschrauber, Akku-Bohrschrauber und Geräte für den täglichen Gebrauch."],
+          ["Li-Ionen-Akkumulator", 3.6, "95 – 300", "85 %", "Smartphones, Laptops, Elektro-Bikes, E-Trottinette, Elektrofahrzeuge, stationäre Speicher für Photovoltaikanlagen. Hohe Energiedichte, weitgehend konstante Spannung, geringer Memory-Effekt."]];
+var aSel = 2;
+function akku(){
+  E.knoepfe("w-akku", "a", AK.map(function(a, i){ return [i, a[0]]; }), aSel, true);
+  $("akku-tab").innerHTML = AK.map(function(a, i){ return "<tr" + (i === aSel ? " class=\"akt\"" : "") + "><td>" + a[0] + "</td><td>" + E.zf(a[1], 1) + NB + "V</td><td>" + a[2] + "</td><td>" + a[3] + "</td></tr>"; }).join("");
+  $("a-info").innerHTML = "<p><b>" + AK[aSel][0] + ":</b> " + AK[aSel][4] + "</p><p class=\"note\">Die Kapazität eines Akkumulators wird in Ampèrestunden (Ah) angegeben, häufig auch in mAh.</p>";
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+function qSpannung(){
+  var b = pick(B);
+  return {text:"Welche Bemessungsspannung hat die Batterie <b>" + b[0] + "</b>?", parts:[{label:"Bemessungsspannung", options:["1,2 V", "1,5 V", "4,5 V", "9 V"], correct:E.zahl(b[1]) + " V", mono:true}],
+    hint:"Rundzellen liefern 1,5 V. Energieblock und Flachbatterie bestehen aus mehreren Zellen in Serie.", solution:"<p>" + b[0] + ": <b>" + E.zahl(b[1]) + NB + "V</b> (Übung 7).</p>"};
+}
+function qIEC(){
+  var b = pick(B.slice(0, 7)), opts = shuffle(B.slice(0, 7).map(function(x){ return x[0]; }).filter(function(x){ return x !== b[0]; })).slice(0, 3).concat([b[0]]);
+  return {text:"Welcher Handelsname gehört zur IEC-Bezeichnung <b>" + b[2] + "</b> (USA: " + b[3] + ")?", parts:[{label:"Handelsname", options:shuffle(opts), correct:b[0]}],
+    hint:"Vergleichen Sie mit der Tabelle in ET12.7: Mignon = AA, Micro = AAA.", solution:"<p>" + b[2] + " (" + b[3] + "): <b>" + b[0] + "</b>.</p>"};
+}
+function qGroesse(){
+  var r = shuffle(B.slice(0, 6)).slice(0, 4), sorted = r.slice().sort(function(a, b){ return a[5] - b[5]; });
+  return {text:"Ordnen Sie die Rundzellen nach dem Durchmesser, von der dünnsten zur dicksten.", parts:[{label:"Reihenfolge", type:"order", items:sorted.map(function(x){ return x[0]; })}],
+    hint:"Durchmesser in mm (ET12.7): Mini 8, Micro 10,5, Lady 12, Mignon 14,5, Baby 26,2, Mono 34,2.", solution:"<p>" + sorted.map(function(x){ return x[0] + " (" + E.zahl(x[5]) + NB + "mm)"; }).join(" → ") + "</p>"};
+}
+function qPrim(){
+  return pick([
+    function(){ return E.wahl("Was ist der Unterschied zwischen Primär- und Sekundärelementen?", "Primärelemente sind nicht wiederaufladbar, Sekundärelemente schon.", ["Primärelemente sind wiederaufladbar, Sekundärelemente nicht.", "Primärelemente haben immer 9 V, Sekundärelemente 1,5 V.", "Es gibt keinen Unterschied."], "Übung 6 und ET12.5.", "<p><b>Primärelemente (Batterien) sind nicht wiederaufladbar, Sekundärelemente (Akkumulatoren) können wieder aufgeladen werden.</b></p>"); },
+    function(){ return E.wahl("Warum heissen Sekundärelemente «sekundär»?", "Weil sie vor der ersten Nutzung zuerst geladen werden müssen.", ["Weil sie nur halb so lange halten.", "Weil sie zweimal so viel Spannung liefern.", "Weil sie aus zwei Zellen bestehen."], "Übung 6 c).", "<p><b>Sie müssen vor der ersten Nutzung zuerst geladen werden.</b></p>"); },
+    function(){ return E.wahl("Wie entsteht die Spannung von 4,5 V einer Flachbatterie?", "Drei 1,5-V-Zellen sind in Serie geschaltet.", ["Drei 1,5-V-Zellen sind parallel geschaltet.", "Eine Zelle liefert 4,5 V.", "Zwei 2,25-V-Zellen sind parallel geschaltet."], "Übung 10.", "<p>3 · 1,5 V = <b>4,5 V</b>, Zellen in Serie.</p>"); },
+    function(){ return E.wahl("In welcher Einheit wird die Kapazität eines Akkumulators angegeben?", "in Ampèrestunden (Ah) bzw. mAh", ["in Wattstunden pro Kilogramm", "in Volt", "in Ohm"], "Übung 13.", "<p><b>Ampèrestunden (Ah)</b>, häufig Milliampèrestunden (mAh).</p>"); },
+    function(){ return E.wahl("Was gibt die Energiedichte an?", "wie viel elektrische Energie in einem bestimmten Volumen bzw. pro Masse gespeichert werden kann", ["wie schnell sich eine Batterie selbst entlädt", "wie hoch die Spannung pro Zelle ist", "wie viele Ladezyklen möglich sind"], "Übung 9; Einheit z. B. Wh pro cm³ oder Wh pro kg.", "<p>Die Energiedichte gibt an, <b>wie viel Energie in einem bestimmten Volumen (bzw. pro kg) gespeichert</b> werden kann.</p>"); }
+  ])();
+}
+function qAkku(){
+  var a = pick(AK), f = pick(["sp", "ed", "eta"]);
+  if (f === "sp") return {text:"Wie gross ist die Bemessungsspannung pro Zelle beim <b>" + a[0] + "</b>?", parts:[{label:"Spannung", options:["1,2 V", "1,5 V", "2,0 V", "3,6 V"], correct:E.zf(a[1], 1) + " V", mono:true}], hint:"Übung 12.", solution:"<p>" + a[0] + ": <b>" + E.zf(a[1], 1) + NB + "V</b> pro Zelle.</p>"};
+  if (f === "ed") return {text:"Welche Energiedichte (Wh pro kg) hat der <b>" + a[0] + "</b> laut Übung 12?", parts:[{label:"Energiedichte", options:AK.map(function(x){ return x[2]; }).concat(["500 – 800"]), correct:a[2], mono:true}], hint:"Li-Ionen-Akkus haben die höchste Energiedichte aller Akkutypen.", solution:"<p>" + a[0] + ": <b>" + a[2] + "</b> Wh pro kg.</p>"};
+  return {text:"Welchen Wirkungsgrad hat der <b>" + a[0] + "</b> laut Übung 12?", parts:[{label:"Wirkungsgrad", options:AK.map(function(x){ return x[3]; }).concat(["98 %"]), correct:a[3], mono:true}], hint:"Übung 12.", solution:"<p>" + a[0] + ": <b>" + a[3] + "</b>.</p>"};
+}
+function qAnw(){
+  var f = pick([["Starterbatterie im Auto", 0], ["USV-Anlage", 0], ["Akkuschrauber", 1], ["Smartphone", 2], ["Elektro-Bike", 2], ["Speicher für eine Photovoltaikanlage", 2]]);
+  return {text:"Welcher Akkutyp wird typischerweise eingesetzt: <b>" + f[0] + "</b>?", parts:[{label:"Akkutyp", options:AK.map(function(x){ return x[0]; }), correct:AK[f[1]][0]}], hint:"Übungen 15, 16 und 18.", solution:"<p>" + f[0] + ": <b>" + AK[f[1]][0] + "</b>.</p>"};
+}
+function qKrit(){
+  return E.aussagen("Welche Punkte sind wichtige Auswahlkriterien für Primärelemente (Übung 8)?", ["Bemessungsspannung", "Kapazität", "Energiedichte", "Selbstentladung", "Lagerfähigkeit", "Abmessungen"], ["Farbe der Verpackung", "Anzahl Ladezyklen", "Gewicht der Kontaktkappe", "Name des Händlers"], "Lesen Sie die Eigenschaften galvanischer Elemente in ET12.5.");
+}
+var MAKERS = [qSpannung, qIEC, qGroesse, qPrim, qAkku, qAnw, qKrit, qPrim];
+function init(){
+  zeichne(); akku();
+  $("batt").addEventListener("click", function(e){ var t = e.target.closest("[data-b]"); if (!t) return; bSel = Number(t.getAttribute("data-b")); zeichne(); });
+  $("w-batt").addEventListener("click", function(e){ var t = e.target.closest("button[data-b]"); if (!t) return; bSel = Number(t.getAttribute("data-b")); zeichne(); $("bb-" + bSel).focus(); });
+  $("w-akku").addEventListener("click", function(e){ var b = e.target.closest("button[data-k]"); if (!b) return; aSel = Number(b.getAttribute("data-v")); akku(); $(b.id).focus(); });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [2, 2, 1, 3, 3, 2, 1, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

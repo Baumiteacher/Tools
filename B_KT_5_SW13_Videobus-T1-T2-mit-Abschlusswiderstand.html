@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_KT_5 TA2 Videobus T1, T2 mit Abschlusswiderstand BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.dev{fill:#F4F6F8;stroke:#2A3E5C;stroke-width:1.2;cursor:pointer}
+.dev.sel{stroke:#2F6BFF;stroke-width:2.5}
+.dl{fill:#17212B;font-family:var(--sans);font-size:10px;pointer-events:none}
+.ds{fill:#2A3E5C;font-family:var(--sans);font-size:8.5px;pointer-events:none;paint-order:stroke;stroke:#FFFFFF;stroke-width:3px}
+.nsch{fill:#1E3FA8;font-family:var(--sans);font-size:9.5px;font-weight:700;pointer-events:none}
+.kb{fill:none;stroke:#8A8F96;stroke-width:4;stroke-linecap:round}
+.kbl{fill:#1E3FA8;font-family:var(--sans);font-size:9px;pointer-events:none}
+.kl{fill:#FFFFFF;stroke:#17212B;stroke-width:1}
+.klt{fill:#17212B;font-family:var(--sans);font-size:11px;pointer-events:none}
+.ad{fill:none;stroke-width:3;stroke-linecap:round}
+.ado{fill:none;stroke:#555;stroke-width:4.6;stroke-linecap:round}
+.sl{width:100%;border-collapse:collapse;font-size:.88rem}
+.sl td{border:1px solid var(--line);padding:4px 6px}
+.sl select{width:100%;font:inherit;padding:3px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #0005;vertical-align:-2px;margin-right:4px}
+.kt{width:100%;border-collapse:collapse;font-size:.88rem}
+.kt td,.kt th{border:1px solid var(--line);padding:4px 6px;text-align:left}
+.kt th{background:var(--accent-soft)}
+.kt select{width:100%;font:inherit;padding:3px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.g51{fill:none;stroke:#2FD12F;stroke-width:4;stroke-linecap:round}
+.g51.on{stroke-width:6}
+.box{fill:#FFFFFF;stroke:#17212B;stroke-width:1.4}
+.r100{fill:#E8C88A;stroke:#7A5A20;stroke-width:1;cursor:pointer}
+.stelle{fill:transparent;stroke:#C62828;stroke-width:1.5;stroke-dasharray:3 2;cursor:pointer}
+.nr{fill:#FFFFFF;stroke:#2FD12F;stroke-width:1.5}
+.nrt{fill:#17212B;font-family:var(--sans);font-size:9px;font-weight:700;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_KT_5 Installationen für Zutrittskontrolle erstellen · Teilauftrag 2</p>
+    <h1>Videobus T1, T2 mit Abschlusswiderstand BAP</h1>
+    <p class="lead">Video-Türsprechanlage im Mehrfamilienhaus am Aabach: Videobus mit verdrilltem Kabel G51 über T1 und T2 führen, den 100-Ω-Abschlusswiderstand setzen, Kabel pro Abschnitt wählen und die Komponentenliste ergänzen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Kabelplan Videobus (Übung 9)</h2>
+        <fieldset><legend>Anzeige</legend><div class="opts" id="w-m"></div></fieldset>
+        <svg class="bild" id="ueb" viewBox="0 0 360 330" role="img" aria-label="Kabelplan der Video-Türsprechanlage"></svg>
+        <div class="info" id="info" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <h2>Klemmen (Übung 9)</h2>
+        <fieldset><legend>Gerät</legend><div class="opts" id="w-d"></div></fieldset>
+        <svg class="bild" id="kl" viewBox="0 0 360 250" role="img" aria-label="Klemmenansicht des gewählten Geräts"></svg>
+        <div class="info" id="kinfo" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <h2>Komponentenliste (Übung 8)</h2>
+        <div id="komp"></div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Nehmen Sie das Theoriebuch dazu: Arbeits- und Anlagedokumentation AAD28.25 bis 28.26 (TC-Bus, verdrillte Adern, Abschlusswiderstand).</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter KT5, Teilauftrag 2: Übungen 6 und 7 zum Installationsschema TCV204 mit Lösung (KT5.6 bis 5.7), Komponentenliste Übung 8 mit Lösung (KT5.7), Kabelplan und Verdrahtung Übung 9 (KT5.8). Der Kabelplan ist vereinfacht nachgezeichnet.</li><li>Übung 9 nennt im Auftrag den Kabeltyp «U74 1x4». In der Zeichnung steht U72 1x4; nach Entscheid vom 6.11.2026 verwendet das Tool U72.</li><li>Theoriebuch AAD28.25 (Datei T05_K28, Beispiel 10): Für die Busverbindungen T1 und T2 paarweise verdrillte Adern, z. B. G51; am Ende des Bus-Systems zwischen T1 und T2 ein Abschlusswiderstand von 100 Ω gegen Reflexionen. AAD28.26 (Beispiel 11): durchgehende Busleitung von der Zentrale über alle Teilnehmer.</li><li>Klemmen nach der Zeichnung von Übung 9: VTS3 a weiss, b blau, + türkis, − violett, T1 weiss und T2 blau des G51, Brücke P nach +; VTC60 a weiss, b blau, + türkis, − violett, T1 weiss, T2 blau, Etagendrücker an E und +. Die Klemmen der Zentrale BVS20 und des Netzgeräts sind in der Zeichnung nicht sicher lesbar und deshalb nicht im Tool.</li><li>Schreibweise: Das Arbeitsblatt schreibt das Netzgerät mit Schrägstrich (PW25G, 2.5A); das Tool schreibt «PW25G 2,5 A». Den Abschnitt «G51 1x2» schreibt das Arbeitsblatt in der Zeichnung so, in der Liste «G51 1x2x0.8».</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, E = ESH, T = E.txt;
+var FARBE = {w:"#FFFFFF", bl:"#1E4FD8", tu:"#40E0D0", vi:"#7A3FA0", or:"#F5B82E", sw:"#111111"};
+var FNAME = {w:"weiss", bl:"blau", tu:"türkis", vi:"violett", or:"orange", sw:"schwarz"};
+var DEV = {
+  vts:{n:"Aussensprechstelle VTS3", k:["a", "b", "R", "P", "1", "2", "3", "4", "E", "F", "G", "H", "T1", "T2", "+", "−", "Türöffner"], kh:12.5, s:[
+    {t:"U72 2x4 zur Abzweigdose", a:[["w", "a"], ["bl", "b"], ["tu", "+"], ["vi", "−"], ["w", "Türöffner"], ["or", "Türöffner"], ["tu", ""], ["vi", ""]]},
+    {t:"G51 1x2 Videobus", a:[["w", "T1"], ["bl", "T2"]]}], bruecke:["P", "+"]},
+  vtm:{n:"Innensprechstelle VTC60 (unten, Mitte)", k:["a", "b", "E", "+", "−", "K", "T2", "T1"], kh:22, s:[
+    {t:"U72 1x4 von der Abzweigdose", a:[["w", "a"], ["bl", "b"], ["tu", "+"], ["vi", "−"]]},
+    {t:"Etagendrücker", a:[["sw", "E"], ["bl", "+"]]},
+    {t:"G51 1x2 ankommend", a:[["bl", "T2"], ["w", "T1"]]},
+    {t:"G51 1x2 weiterführend", a:[["bl", "T2"], ["w", "T1"]]}]},
+  vto:{n:"Innensprechstelle VTC60 (oben, letzte)", k:["a", "b", "E", "+", "−", "K", "T2", "T1"], kh:22, s:[
+    {t:"U72 1x4 von der Abzweigdose", a:[["w", "a"], ["bl", "b"], ["tu", "+"], ["vi", "−"]]},
+    {t:"Etagendrücker", a:[["sw", "E"], ["bl", "+"]]},
+    {t:"G51 1x2 ankommend", a:[["bl", "T2"], ["w", "T1"]]}], r100:true}
+};
+var KOMP = [["Rohre", "M20"], ["Kabel für Videobus", "G51 1x2x0.8"], ["Kabel restliche Installation", "U72 1x4 und 2x4"], ["Türöffner", "12 V AC"], ["Etagendrücker", "EDIZIOdue colore"], ["Aussensprechstelle", "VTS3"], ["Innensprechstelle", "VTC60"], ["Zentrale", "BVS20"], ["Netzgerät", "PW25G 2,5 A"], ["Kleinverteiler", "Hager Gamma AP"], ["Durchgangsklemmen", "diverse"]];
+var KTYP = KOMP.map(function(k){ return k[1]; });
+var STELLEN = [["vts", 39, 196, "VTS3"], ["u", 318, 262, "VTC60 unten"], ["m", 318, 172, "VTC60 Mitte"], ["o", 318, 82, "VTC60 oben"]];
+var st = {m:"loes", d:"vts", r:"", kp:{}};
+function ueb(){
+  var h = "";
+  function kab(d, lx, ly, t, a){ return "<path class=\"kb\" d=\"" + d + "\"/>" + (t ? T(lx, ly, t, "kbl", a) : ""); }
+  h += kab("M64 150 C120 160 150 230 170 240", 84, 148, "U72 2x4", "start");
+  h += kab("M182 254 V286", 176, 278, "U72 2x4", "end");
+  h += kab("M182 230 V156", 176, 196, "U72 1x4", "end");
+  h += kab("M182 132 V66", 176, 106, "U72 1x4", "end");
+  [54, 144, 234].forEach(function(y){ h += kab("M194 " + (y - 4) + " C230 " + (y - 16) + " 260 " + (y - 20) + " 290 " + (y - 22), 240, y - 26, "U72 1x4", "middle"); });
+  var G = ["M64 186 C110 196 150 258 176 252 C210 262 260 266 290 262", "M290 248 C250 248 205 226 178 162 C205 174 260 176 290 174", "M290 158 C250 158 205 136 178 72 C205 84 260 86 290 84"];
+  G.forEach(function(d, i){ h += "<path class=\"g51" + (st.m === "kette" ? " on" : "") + "\" d=\"" + d + "\"/>"; });
+  h += T(232, 280, "G51 1x2", "kbl", "middle") + T(232, 190, "G51 1x2", "kbl", "middle") + T(232, 100, "G51 1x2", "kbl", "middle");
+  h += "<path d=\"M30 200 C24 240 30 262 40 272\" fill=\"none\" stroke=\"#111\" stroke-width=\"1.6\"/><path d=\"M36 200 C30 240 36 262 46 272\" fill=\"none\" stroke=\"#F5B82E\" stroke-width=\"1.6\"/>";
+  h += "<rect class=\"dev\" style=\"cursor:default\" x=\"14\" y=\"80\" width=\"50\" height=\"120\" rx=\"4\"/>" + T(39, 96, "VTS3", "dl", "middle") + T(39, 108, "Aussen-", "ds", "middle") + T(39, 118, "sprechst.", "ds", "middle");
+  [50, 140, 230].forEach(function(y){ h += "<rect class=\"box\" x=\"170\" y=\"" + (y - 12) + "\" width=\"24\" height=\"24\"/><circle cx=\"182\" cy=\"" + y + "\" r=\"4\" fill=\"#17212B\"/>"; });
+  [["oben", 20], ["Mitte", 110], ["unten", 200]].forEach(function(v){ h += "<rect class=\"dev\" style=\"cursor:default\" x=\"290\" y=\"" + v[1] + "\" width=\"56\" height=\"72\" rx=\"4\"/>" + T(318, v[1] + 14, "VTC60", "dl", "middle") + T(318, v[1] + 26, v[0], "ds", "middle") + "<rect class=\"dev\" style=\"cursor:default\" x=\"244\" y=\"" + (v[1] + 40) + "\" width=\"26\" height=\"18\" rx=\"2\"/>" + T(257, v[1] + 52, "Etag.", "ds", "middle") + "<path d=\"M270 " + (v[1] + 49) + " H290\" stroke=\"#111\" stroke-width=\"1.2\"/>"; });
+  h += "<rect class=\"dev\" style=\"cursor:default\" x=\"18\" y=\"272\" width=\"50\" height=\"24\" rx=\"3\"/>" + T(43, 288, "Türöffner", "ds", "middle");
+  h += "<rect class=\"dev\" style=\"cursor:default\" x=\"150\" y=\"286\" width=\"200\" height=\"40\" rx=\"4\"/>" + T(250, 302, "Kleinverteiler: Zentrale BVS20,", "ds", "middle") + T(250, 314, "Netzgerät PW25G 2,5 A", "ds", "middle");
+  if (st.m === "kette"){
+    [[120, 214], [232, 236], [232, 146]].forEach(function(p, i){ h += "<circle class=\"nr\" cx=\"" + p[0] + "\" cy=\"" + p[1] + "\" r=\"8\"/>" + T(p[0], p[1] + 3, String(i + 1), "nrt", "middle"); });
+  }
+  if (st.m === "setzen") STELLEN.forEach(function(s){ h += "<rect class=\"stelle\" data-r=\"" + s[0] + "\" tabindex=\"0\" role=\"button\" aria-label=\"Abschlusswiderstand bei " + s[3] + " einbauen\" x=\"" + (s[1] - 20) + "\" y=\"" + (s[2] - 10) + "\" width=\"40\" height=\"16\" rx=\"4\"/>"; });
+  var rAt = st.m === "setzen" ? st.r : "o";
+  if (rAt){ var s = STELLEN.filter(function(x){ return x[0] === rAt; })[0]; h += "<g style=\"pointer-events:none\"><rect class=\"r100\" x=\"" + (s[1] - 12) + "\" y=\"" + (s[2] - 6) + "\" width=\"24\" height=\"8\" rx=\"3\"/>" + T(s[1], s[2] + 14, "100 Ω", "kbl", "middle") + "</g>"; }
+  $("ueb").innerHTML = h;
+  var L;
+  if (st.m === "loes") L = "<p>Lösung Übung 9: Der Videobus wird mit dem verdrillten Kabel G51 1x2 busförmig über T1 und T2 von der VTS3 zur ersten, zweiten und letzten VTC60 geführt. Die übrigen Adern (a, b, +, −, Türöffner) laufen im U72 1x4 bzw. U72 2x4 über die Abzweigdosen. Am Ende des Busses, bei der letzten VTC60, liegt der Abschlusswiderstand 100 Ω zwischen T1 und T2.</p>";
+  else if (st.m === "kette") L = "<p>Busförmig über T1 und T2 (Übung 6): 1 VTS3 zur VTC60 unten, 2 von dort zur VTC60 Mitte, 3 von dort zur letzten VTC60 oben. In jeder VTC60 ausser der letzten liegen zwei Paare an T1 und T2 (ankommend und weiterführend).</p>";
+  else L = st.r === "o" ? "<p><span class=\"okt\">Richtig.</span> Der Abschlusswiderstand 100 Ω gehört am Ende des Bus-Systems zwischen T1 und T2, also an die letzte VTC60. Er verhindert Störungen durch Reflexionen bei schnellen Datensignalen (Übung 7).</p>" : st.r ? "<p><span class=\"warn\">Nicht hier.</span> Bei " + STELLEN.filter(function(x){ return x[0] === st.r; })[0][3] + " ist der Bus nicht zu Ende. Suchen Sie das Ende der Busleitung.</p>" : "<p>Tippen Sie auf die Stelle, an der Sie den Abschlusswiderstand 100 Ω einbauen.</p>";
+  $("info").innerHTML = L;
+}
+function kl(){
+  var D = DEV[st.d], h = "", y = 16, rows = [], bx = 262, kh = D.kh;
+  D.s.forEach(function(s, si){
+    h += T(20, y, s.t, "ds"); y += 5;
+    s.a.forEach(function(a, ai){ var yy = y + ai * 13 + 6.5; rows.push({y:yy, f:a[0], z:a[1]}); h += "<rect class=\"kl\" x=\"20\" y=\"" + (yy - 6.5) + "\" width=\"34\" height=\"13\"/>" + T(24, yy + 4, a[0], "ds"); });
+    y += s.a.length * 13 + 14;
+  });
+  var kl = D.k.filter(function(k){ return k !== "Türöffner"; }), ky0 = 14, ky = function(i){ return ky0 + i * kh + kh / 2; };
+  kl.forEach(function(k, i){ h += "<rect class=\"kl\" x=\"" + bx + "\" y=\"" + (ky0 + i * kh) + "\" width=\"28\" height=\"" + kh + "\"/>" + T(bx + 14, ky(i) + 4, k, kh < 15 ? "ds" : "klt", "middle"); });
+  h += "<rect fill=\"#F4F6F8\" stroke=\"#2A3E5C\" x=\"" + (bx + 28) + "\" y=\"" + (ky0 - 4) + "\" width=\"56\" height=\"" + (kl.length * kh + 8) + "\" rx=\"4\" opacity=\"0.6\"/>" + T(bx + 56, ky0 + 12, D.n.indexOf("VTS3") >= 0 ? "VTS3" : "VTC60", "dl", "middle");
+  var tY = ky0 + kl.length * kh + 18, tz = 0;
+  if (D.k.indexOf("Türöffner") >= 0) h += "<rect class=\"kl\" x=\"" + bx + "\" y=\"" + (tY - 10) + "\" width=\"84\" height=\"22\"/>" + T(bx + 42, tY + 5, "Türöffner", "klt", "middle");
+  rows.forEach(function(r){
+    if (!r.z) return;
+    var ty = r.z === "Türöffner" ? tY - 4 + (tz++) * 8 : ky(kl.indexOf(r.z)), d = "M54 " + r.y + " C150 " + r.y + " 180 " + ty + " " + bx + " " + ty;
+    h += "<path class=\"ado\" d=\"" + d + "\"/><path class=\"ad\" style=\"stroke:" + FARBE[r.f] + "\" d=\"" + d + "\"/>";
+  });
+  if (D.bruecke){ var a = ky(kl.indexOf(D.bruecke[0])), b = ky(kl.indexOf(D.bruecke[1])); h += "<path d=\"M" + bx + " " + a + " C" + (bx - 26) + " " + a + " " + (bx - 26) + " " + b + " " + bx + " " + b + "\" fill=\"none\" stroke=\"#E0301E\" stroke-width=\"2.4\"/>" + T(bx - 24, (a + b) / 2, "Brücke", "ds", "end"); }
+  if (D.r100){ var t1 = ky(kl.indexOf("T1")), t2 = ky(kl.indexOf("T2")); h += "<path d=\"M" + (bx + 84) + " " + t2 + " H" + (bx + 92) + " V" + t1 + " H" + (bx + 84) + "\" fill=\"none\" stroke=\"#17212B\" stroke-width=\"1.4\"/><rect class=\"r100\" x=\"" + (bx + 87) + "\" y=\"" + (t2 + 3) + "\" width=\"10\" height=\"" + (t1 - t2 - 6) + "\" rx=\"2\"/>" + T(bx + 82, t1 + 22, "100 Ω", "kbl", "middle"); }
+  $("kl").innerHTML = h;
+  $("kinfo").innerHTML = "<p><b>" + D.n + "</b> nach der Zeichnung von Übung 9." + (st.d === "vts" ? " Videobus: G51 weiss an T1, blau an T2. Brücke von P nach +. Die Adern weiss und orange des zweiten Vierers führen zum Türöffner." : " Busadern a weiss, b blau; + türkis, − violett. Etagendrücker an E und +." + (st.d === "vto" ? " Letzte Innensprechstelle: nur ein G51-Paar und der Abschlusswiderstand 100 Ω zwischen T1 und T2." : " Zwei G51-Paare an T1 und T2: ankommend und weiterführend.")) + "</p>";
+}
+function komp(){
+  $("komp").innerHTML = "<table class=\"kt\"><tr><th>Komponente</th><th>Typ, Art</th></tr>" + KOMP.map(function(k, i){
+    var v = st.kp[i] || "", ok = v ? (v === k[1] ? " <span class=\"okt\">✓</span>" : " <span class=\"warn\">✗</span>") : "";
+    return "<tr><td>" + k[0] + ok + "</td><td><select id=\"k-" + i + "\" data-kp=\"" + i + "\" aria-label=\"Typ " + k[0] + "\"><option value=\"\">wählen</option>" + KTYP.map(function(t){ return "<option" + (v === t ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select></td></tr>"; }).join("") + "</table>";
+}
+function zeige(){
+  E.knoepfe("w-m", "m", [["loes", "Lösung Übung 9"], ["kette", "Bus verfolgen"], ["setzen", "Abschlusswiderstand setzen"]], st.m, true);
+  E.knoepfe("w-d", "d", [["vts", "VTS3"], ["vtm", "VTC60 unten, Mitte"], ["vto", "VTC60 oben"]], st.d, true);
+  ueb(); kl(); komp();
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+function qSymbol(){
+  return pick([
+    function(){ return E.aussagen("Übung 6: Was bedeutet das Symbol für verdrillte Adern im Schema TCV204 für Ihre Installation?", ["Es ist ein paarweise verdrilltes Kabel zu verwenden.", "Es ist ein Kabel vom Typ G51 1x2x0.8 einzusetzen.", "Die Verkabelung erfolgt busförmig über T1 und T2."], ["Es ist ein Koaxialkabel zu verwenden.", "T1 und T2 werden sternförmig von der Zentrale verkabelt.", "Für T1 und T2 genügt eine beliebige Ader im U72."], "Lösung Übung 6, AAD28.25."); },
+    function(){ return E.wahl("Warum werden für T1 und T2 paarweise verdrillte Adern verwendet?", "Damit Störungen und Signalreflexionen reduziert werden.", ["Damit mehr Strom fliessen kann.", "Damit der Türöffner schneller schaltet.", "Weil verdrillte Adern billiger sind."], "AAD28.25."); }
+  ])();
+}
+function qWiderstand(){
+  return pick([
+    function(){ return E.wahl("Übung 7: Wo wird der Abschlusswiderstand eingebaut?", "Am Ende des Bus-Systems zwischen T1 und T2", ["Bei der Aussensprechstelle zwischen a und b", "In der Zentrale zwischen + und −", "Bei jeder Innensprechstelle zwischen T1 und T2"], "Leitsatz im Schema: letzten Monitor mit 100 Ω abschliessen."); },
+    function(){ return E.wahl("Übung 7: Welchen Wert hat der Abschlusswiderstand?", "100 Ω", ["10 Ω", "1 kΩ", "120 Ω"], "Schema TCV204 und AAD28.25."); },
+    function(){ return E.wahl("Übung 7: Wozu dient der Abschlusswiderstand?", "Er verhindert Störungen durch Reflexionen bei schnellen Datensignalen.", ["Er begrenzt den Strom des Türöffners.", "Er ersetzt das Netzgerät.", "Er schützt vor Überspannung durch Blitz."], "Lösung Übung 7."); },
+    function(){ var s = pick(STELLEN); return {text:"Übung 9: Kommt bei der Stelle «" + s[3] + "» der Abschlusswiderstand hin?", parts:[{label:"Abschlusswiderstand", options:["ja", "nein"], correct:s[0] === "o" ? "ja" : "nein"}], hint:"Nur am Ende des Busses, beim letzten Gerät.", solution:"<p>" + (s[0] === "o" ? "<b>Ja</b>: VTC60 oben ist das letzte Gerät am Bus." : "<b>Nein</b>: Der Bus führt von hier weiter.") + "</p>"}; }
+  ])();
+}
+function qKabel(){
+  var a = pick([["Videobus T1, T2", "G51 1x2"], ["Abzweigdose zur VTC60 (a, b, +, −)", "U72 1x4"], ["VTS3 zur Abzweigdose (a, b, +, −, Türöffner)", "U72 2x4"], ["Abzweigdose zum Kleinverteiler", "U72 2x4"], ["zwischen den Abzweigdosen", "U72 1x4"]]);
+  return {text:"Übung 9: Welches Kabel liegt im Abschnitt «" + a[0] + "»?", parts:[{label:"Kabel", options:["G51 1x2", "U72 1x4", "U72 2x4", "S-FTP 4x2 Kat7a"], correct:a[1]}], hint:"Videobus verdrillt mit G51; übrige Adern mit U72.", solution:"<p><b>" + a[1] + "</b></p>"};
+}
+function qKlemme(){
+  var d = pick(["vts", "vtm", "vto"]), D = DEV[d], s = pick(D.s), a = pick(s.a.filter(function(x){ return x[1]; }));
+  var opts = BAP.shuffle(D.k.filter(function(k){ return k !== a[1] && ["R", "1", "2", "3", "4", "F", "G", "H"].indexOf(k) < 0; })).slice(0, 3).concat([a[1]]);
+  return {text:"Übung 9, " + D.n + ": An welche Klemme kommt die Ader " + FNAME[a[0]] + " aus «" + s.t + "»?", parts:[{label:"Klemme", options:BAP.shuffle(opts), correct:a[1]}], hint:"G51: weiss an T1, blau an T2. U72: weiss a, blau b, türkis +, violett −.", solution:"<p><b>" + a[1] + "</b></p>"};
+}
+function qKomp(){
+  var k = pick(KOMP.filter(function(x){ return x[1] !== "diverse"; }));
+  var opt = BAP.shuffle(KTYP.filter(function(t){ return t !== k[1] && t !== "diverse"; })).slice(0, 3).concat([k[1]]);
+  return {text:"Übung 8: Welcher Typ steht in der Komponentenliste bei «" + k[0] + "»?", parts:[{label:"Typ", options:BAP.shuffle(opt), correct:k[1]}], hint:"Video: Aussensprechstelle VTS3, Innensprechstelle VTC60.", solution:"<p>" + k[0] + ": <b>" + k[1] + "</b></p>"};
+}
+var MAKERS = [qSymbol, qWiderstand, qKabel, qKlemme, qKomp, qWiderstand, qKabel, qKlemme];
+function init(){
+  zeige();
+  var u = $("ueb");
+  function w(t){ if (!t) return; st.r = t.getAttribute("data-r"); ueb(); var f = u.querySelector("[data-r=\"" + st.r + "\"]"); if (f) f.focus(); }
+  u.addEventListener("click", function(e){ w(e.target.closest("[data-r]")); });
+  u.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ var t = e.target.closest("[data-r]"); if (t){ e.preventDefault(); w(t); } } });
+  $("view-erkunden").addEventListener("click", function(e){ var b = e.target.closest("button[data-k]"); if (!b) return; st[b.getAttribute("data-k")] = b.getAttribute("data-v"); if (b.getAttribute("data-k") === "m") st.r = ""; zeige(); $(b.id).focus(); });
+  $("komp").addEventListener("change", function(e){ var x = e.target.closest("select[data-kp]"); if (!x) return; st.kp[x.getAttribute("data-kp")] = x.value; var id = x.id; komp(); $(id).focus(); });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [2, 3, 2, 2, 2, 0, 0, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>

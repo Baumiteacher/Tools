@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B_KT_4 TA4 WLAN-Pegelkarte BAP</title>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: eine Spalte fürs Handy, oben fest die drei Modi, darunter Bedienung -> Bild -> Rechenweg -> Tabelle. */
+:root{
+  --bg:#F1F4F7; --surface:#FFFFFF; --ink:#17212B; --muted:#56646F; --line:#D3DAE1;
+  --accent:#2446B8; --accent-ink:#FFFFFF; --accent-soft:#E3E9FB;
+  --cu:#C9783A; --l-brown:#7B4B2A; --pe-green:#2B9443; --pe-yellow:#F0CF1A; --earth:#DDCDB9;
+  --ok:#17703C; --ok-soft:#DFF2E6; --bad:#B3261E; --bad-soft:#FBE4E1;
+  --z1:#BFE3CF; --z2:#F6DE9C; --z3:#F3B4A6; --z4:#E58A7C; --z0:#DCE3EA; --zone-ink:#17212B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+    --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+    --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+    --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+    --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E7ECF1; --muted:#9BA8B5; --line:#2D3A46;
+  --accent:#A3B6FF; --accent-ink:#0F151B; --accent-soft:#202C4E;
+  --cu:#DB8C4E; --l-brown:#B58058; --pe-green:#4ABB61; --pe-yellow:#F0CF1A; --earth:#30281F;
+  --ok:#74D79B; --ok-soft:#143524; --bad:#FF9289; --bad-soft:#401B18;
+  --z1:#1F5A3C; --z2:#6A5516; --z3:#7A3327; --z4:#9A2F22; --z0:#2A3540; --zone-ink:#F3F6F9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.app{max-width:720px;margin-inline:auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.55rem;line-height:1.15;margin:0;letter-spacing:-0.01em;text-wrap:balance}
+h2{font-size:1.05rem;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:.95rem;line-height:1.25;margin:0}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.head{display:flex;flex-direction:column;gap:6px}
+.lead{color:var(--muted);max-width:60ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+/* Brüche immer mit horizontalem Bruchstrich */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.2;white-space:nowrap}
+.frac > .fz{padding:0 .22em .1em}
+.frac > .fn{padding:.1em .22em 0;border-top:1.5px solid currentColor;align-self:stretch}
+.frac .frac{font-size:.86em}
+.chip .frac,.note .frac,.hint .frac{font-size:.92em}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tab{font:inherit;font-weight:600;padding:10px 6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.view{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.plain{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.fb,.rev,.review,.hint{overflow-wrap:anywhere}
+.fb > div,.rev > div{min-width:0}
+.label{font-size:.8rem;font-weight:600;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend{padding:0;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:440px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;padding:10px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.txt{font-family:var(--sans)}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);margin:0;height:28px}
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0}
+.kv dt{color:var(--muted);font-size:.8rem;font-weight:600}
+.kv dd{margin:0 0 10px 0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd:last-child{margin-bottom:0}
+@media (min-width:560px){.kv{grid-template-columns:auto minmax(0,1fr);gap:8px 16px} .kv dd{margin:0} .kv dt{padding-top:2px}}
+
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps .num{font-weight:700}
+.resultline{font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+.resultline .num{color:var(--accent)}
+.ask{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.75rem}
+tr.is-current td{background:var(--accent-soft);font-weight:700}
+
+/* Aufgaben */
+.q-text{font-size:1.05rem;max-width:62ch}
+.part{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:.95rem;padding:10px 12px;min-width:64px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.chip.mono{font-family:var(--mono);text-align:center}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:disabled{cursor:default;opacity:1}
+.chip.is-right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700;box-shadow:inset 0 0 0 1px var(--ok)}
+.chip.is-wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700;box-shadow:inset 0 0 0 1px var(--bad)}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:pos}
+.order li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);counter-increment:pos}
+.order li::before{content:counter(pos) ".";font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.order li.is-right{background:var(--ok-soft);border-color:var(--ok)}
+.order li.is-wrong{background:var(--bad-soft);border-color:var(--bad)}
+.order .mv{display:flex;gap:4px}
+.order .mv button{font:inherit;width:38px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.order .mv button:disabled{opacity:.35;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.count{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb-title{font-weight:700}
+.fb.ok .fb-title{color:var(--ok)}
+.fb.bad .fb-title{color:var(--bad)}
+.hint{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--accent)}
+.score{font-size:1.4rem;font-weight:700}
+.score .num{color:var(--accent)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rev{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.rev-head{display:flex;gap:8px;align-items:baseline}
+.pill{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.rev small{color:var(--muted);font-size:.88rem}
+
+/* Lineal mit Bereichen (log. Skala) */
+.lineal{display:flex;flex-direction:column;gap:4px}
+.lineal-bar{position:relative;display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zone{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--zone-ink);min-width:0;overflow:hidden;white-space:nowrap;padding-inline:2px}
+.zone.z0{background:var(--z0)} .zone.z1{background:var(--z1)} .zone.z2{background:var(--z2)} .zone.z3{background:var(--z3)} .zone.z4{background:var(--z4)}
+.marker{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.lineal-ptr{position:relative;height:10px}
+.lineal-ptr span{position:absolute;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.lineal-ticks{position:relative;height:1.2em;font-size:.72rem;color:var(--muted)}
+.lineal-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+.lineal-ticks span.first{transform:none}
+.lineal-ticks span.last{transform:translateX(-100%)}
+
+.quellen{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.quellen strong{color:var(--ink)}
+.quellen ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+
+.bild{width:100%;height:auto;display:block}
+.info{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--accent);padding:2px 0 2px 12px}
+.rechnung{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.rechnung > span{line-height:2}
+.feststellung{color:var(--accent)}
+.merke{display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--bad);padding:2px 0 2px 12px}
+.warn{color:var(--bad);font-weight:600}
+.okt{color:var(--ok);font-weight:600}
+.eing{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.eing label{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.eing input{display:block;margin-top:4px;font:inherit;font-family:var(--mono);font-size:1.05rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+.tab-k{width:100%;border-collapse:collapse;font-size:.9rem}
+.tab-k th,.tab-k td{text-align:center;padding:6px;border:1px solid var(--line)}
+.tab-k th{background:var(--z0);color:var(--zone-ink);font-size:.8rem}
+.tab-k tr.akt td{background:var(--accent-soft);font-weight:700}
+.wand{fill:#D3D7DC;stroke:#2A3E5C;stroke-width:1}
+.raum{fill:#FFFFFF;stroke:#2A3E5C;stroke-width:1}
+.rn{fill:#4F6FA8;font-family:var(--sans);font-size:11px;pointer-events:none}
+.tb{fill:none;stroke:#2A3E5C;stroke-width:1}
+.ap{fill:#FFFFFF;stroke:#5A9A2E;stroke-width:1.6}
+.ap.aus{stroke:#9AA3AE;stroke-dasharray:2 2}
+.apl{fill:#17212B;font-family:var(--sans);font-size:10px;font-weight:700;pointer-events:none}
+.mp{stroke:#17212B;stroke-width:1}
+.mw{fill:#17212B;font-family:var(--sans);font-size:10px;font-weight:700;paint-order:stroke;stroke:#FFFFFF;stroke-width:3px;pointer-events:none}
+.hm{pointer-events:none}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;margin:6px 0}
+.leg span{display:inline-flex;align-items:center;gap:5px}
+.leg i{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0003}
+#plan{cursor:crosshair}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <p class="eyebrow">B_KT_4 Im Büro- und Gewerbebereich Kommunikationsinstallationen erstellen · Teilauftrag 4</p>
+    <h1>WLAN-Pegelkarte BAP</h1>
+    <p class="lead">Pegelmessung im Bürogeschoss nachspielen: an mehreren Positionen messen, Werte im Grundriss eintragen, als Heatmap darstellen und mögliche Funklöcher erkennen.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Modus">
+    <button class="tab" role="tab" id="tab-erkunden" data-mode="erkunden" aria-selected="true" type="button">Erkunden</button>
+    <button class="tab" role="tab" id="tab-ueben" data-mode="ueben" aria-selected="false" type="button">Üben</button>
+    <button class="tab" role="tab" id="tab-pruefen" data-mode="pruefen" aria-selected="false" type="button">Prüfen</button>
+  </nav>
+  <main>
+    <section class="view" id="view-erkunden" role="tabpanel" aria-labelledby="tab-erkunden">
+      <div class="panel">
+        <h2>Pegelkarte Bürogeschoss (Übung 39)</h2>
+        <fieldset><legend>Access Points eingeschaltet</legend><div class="opts" id="w-ap"></div></fieldset>
+        <fieldset><legend>Anzeige</legend><div class="opts" id="w-h"></div></fieldset>
+        <svg class="bild" id="plan" viewBox="75 480 476 586" role="img" aria-label="Grundriss mit Messpunkten. Tippen Sie auf eine Stelle, um dort zu messen."></svg>
+        <div class="leg" id="leg"></div>
+        <div class="info" id="info" aria-live="polite"></div>
+        <button class="opt txt" type="button" id="loeschen">Messpunkte löschen</button>
+      </div>
+      <div class="plain">
+        <h2>Vorgehen (Übung 39)</h2>
+        <div class="merke">
+          <ol>
+            <li>Grundriss des Bürogeschosses verwenden (alternativ ein eigener Grundriss).</li>
+            <li>Zur gewünschten Messposition gehen.</li>
+            <li>App öffnen.</li>
+            <li>Einige Sekunden warten, bis sich der Messwert stabilisiert.</li>
+            <li>Gemessenen Wert im Grundriss eintragen.</li>
+            <li>Messung an mehreren Positionen wiederholen, bis eine flächendeckende Übersicht entsteht.</li>
+            <li>Resultate analysieren und mögliche Funklöcher erkennen.</li>
+          </ol>
+          <p>dBm-Werte sind negativ: Je näher bei 0, desto stärker das Signal. −50 dBm ist stärker als −70 dBm.</p>
+        </div>
+      </div>
+    </section>
+    <section class="view" id="view-ueben" role="tabpanel" aria-labelledby="tab-ueben" hidden>
+      <div class="meta"><h2>Üben mit Lösung</h2><p class="count" id="u-count">Noch keine Aufgabe gelöst</p></div>
+      <div class="panel" id="u-card"></div>
+      <p class="note">Die Werte im Grundriss stammen aus einem vereinfachten Rechenmodell, nicht aus einer echten Messung. Für die echte Messung nach Übung 39 verwenden Sie eine App auf dem Smartphone.</p>
+    </section>
+    <section class="view" id="view-pruefen" role="tabpanel" aria-labelledby="tab-pruefen" hidden>
+      <div class="meta"><h2 id="p-title">Prüfen</h2><p class="count" id="p-count"></p></div>
+      <div class="bar" aria-hidden="true"><span id="p-bar" style="width:0%"></span></div>
+      <div class="panel" id="p-card"></div>
+    </section>
+  </main>
+  <footer class="quellen">
+    <p><strong>Unterlagen zu diesem Tool</strong></p>
+    <ul><li>Arbeitsblätter KT4, Teilauftrag 4, Übung 39 (KT4.18): Pegelmessung mit einer App (Beispiele Wifi Analyzer, NetSpot), Vorgehen in 7 Schritten, Hinweis Heatmap. Zu Übung 39 gibt es keine Lösung.</li><li>Grundriss und Access Points 5 und 18 aus Übung 27 (KT4.13).</li><li>Richtwert recherchiert (nicht aus dem Theoriebuch): ComputerWeekly.de, Ratgeber «Qualitätsparameter für die Planung von WLANs»: Der Wert sollte grob besser als −65 dBm im gesamten Nutzungsbereich sein; in kritischen Bereichen zusätzlich ein zweiter Access Point mit −70 dBm für Roaming und Backup. Online abgerufen am 6. November 2026; Autor und Datum sind auf der Seite nicht angegeben. Eine Schweizer Quelle mit dBm-Richtwerten wurde nicht gefunden.</li><li>Rechenmodell (Annahme des Tools, unsicher): Pegel = −38 dBm − 25 · log₁₀(Abstand in m) − 5 dB pro Innenwand; Massstab des Grundrisses angenommen mit 19 m Gebäudebreite. Türöffnungen dämpfen nicht. Echte Werte hängen von Gerät, Frequenzband, Möblierung und Bauweise ab.</li><li>Die Einteilung «Funkloch» ist im Arbeitsblatt nicht definiert. Das Tool markiert Stellen unter −65 dBm als «Zielwert nicht erreicht» und Stellen unter −70 dBm zusätzlich als «möglicher Funkloch-Bereich»; beide Grenzen stammen aus der genannten Quelle, die Bezeichnung ist eine Festlegung des Tools.</li></ul>
+  </footer>
+</div>
+
+<script>
+/* Gemeinsame Basis aller Tools: Modi Erkunden / Üben / Prüfen und die Aufgaben-Engine. */
+var BAP = (function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ var a=arr.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function fmt(x, digits){
+  var s = (digits === undefined) ? String(x) : Number(x).toFixed(digits);
+  return s.replace(".", ",");
+}
+/* auf sinnvolle Stellen runden, ohne Nachkomma-Nullen */
+function round(x, sig){
+  if (x === 0) return 0;
+  var p = Math.pow(10, (sig||3) - 1 - Math.floor(Math.log10(Math.abs(x))));
+  return Math.round(x*p)/p;
+}
+function nb(s){ return String(s).replace(/ /g, " "); }
+/* Auswahl aus n verschiedenen Zahlen inkl. der richtigen, aufsteigend */
+function numOptions(correct, candidates, n){
+  var out = [correct], pool = shuffle(candidates);
+  for (var i=0;i<pool.length && out.length<(n||4);i++){
+    var c = pool[i];
+    if (c > 0 && out.every(function(o){ return Math.abs(o-c) > 1e-9; })) out.push(c);
+  }
+  return out.sort(function(a,b){ return a-b; });
+}
+function optText(p, o){ return units(p.show ? p.show(o) : String(o)); }
+function sameSet(a, b){
+  if (a.length !== b.length) return false;
+  return a.every(function(x){ return b.indexOf(x) >= 0; });
+}
+function partRight(p, a){
+  if (p.type === "multi") return Array.isArray(a) && sameSet(a, p.correct);
+  if (p.type === "order") return Array.isArray(a) && a.join("\u0001") === p.items.join("\u0001");
+  return a === p.correct;
+}
+function isRight(q, ans){ return q.parts.every(function(p, i){ return partRight(p, ans[i]); }); }
+function partAnswered(p, a){
+  if (p.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (p.type === "order") return true;
+  return a !== undefined;
+}
+function allAnswered(q, ans){ return q.parts.every(function(p, i){ return partAnswered(p, ans[i]); }); }
+function initAns(q){
+  return q.parts.map(function(p){
+    if (p.type === "order"){
+      var s, n = 0;
+      do { s = shuffle(p.items); n++; } while (s.join("\u0001") === p.items.join("\u0001") && n < 20);
+      return s;
+    }
+    if (p.type === "multi") return [];
+    return undefined;
+  });
+}
+function answerText(q, ans){
+  return q.parts.map(function(p, pi){
+    var a = ans[pi];
+    if (p.type === "order") return a.join(" → ");
+    if (p.type === "multi") return a.length ? a.map(function(o){ return optText(p, o); }).join(", ") : "keine Antwort";
+    return a === undefined ? "keine Antwort" : optText(p, a);
+  }).join(" · ");
+}
+function questionHTML(q, ans, reveal, prefix){
+  var h = "<p class=\"q-text\">" + units(q.text) + "</p>";
+  q.parts.forEach(function(p, pi){
+    h += "<div class=\"part\"><p class=\"label\">" + p.label + (p.type === "multi" ? " (mehrere möglich)" : "") + "</p>";
+    if (p.type === "order"){
+      h += "<ol class=\"order\">";
+      ans[pi].forEach(function(item, idx){
+        var cls = reveal ? (item === p.items[idx] ? " class=\"is-right\"" : " class=\"is-wrong\"") : "";
+        h += "<li" + cls + "><span>" + item + (reveal ? (item === p.items[idx] ? " ✓" : " ✗") : "") + "</span><span class=\"mv\">" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-u" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"-1\" aria-label=\"nach oben\"" + ((reveal || idx === 0) ? " disabled" : "") + ">▲</button>" +
+          "<button type=\"button\" id=\"" + prefix + "-" + pi + "-d" + idx + "\" data-part=\"" + pi + "\" data-idx=\"" + idx + "\" data-dir=\"1\" aria-label=\"nach unten\"" + ((reveal || idx === ans[pi].length-1) ? " disabled" : "") + ">▼</button></span></li>";
+      });
+      h += "</ol></div>";
+      return;
+    }
+    h += "<div class=\"chips\" role=\"group\" aria-label=\"" + String(p.label).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\">";
+    p.options.forEach(function(o, oi){
+      var sel = p.type === "multi" ? ans[pi].indexOf(o) >= 0 : ans[pi] === o;
+      var good = p.type === "multi" ? p.correct.indexOf(o) >= 0 : o === p.correct;
+      var cls = "chip" + (p.mono ? " mono" : ""), mark = "";
+      if (reveal){
+        if (good){ cls += " is-right"; mark = " ✓"; }
+        else if (sel){ cls += " is-wrong"; mark = " ✗"; }
+      }
+      h += "<button type=\"button\" class=\"" + cls + "\" id=\"" + prefix + "-" + pi + "-" + oi + "\" data-part=\"" + pi + "\" data-oi=\"" + oi + "\" aria-pressed=\"" + sel + "\"" + (reveal ? " disabled" : "") + ">" + optText(p, o) + mark + "</button>";
+    });
+    h += "</div></div>";
+  });
+  return h;
+}
+/* verarbeitet einen Klick auf eine Antwort; gibt die id zurück, die danach den Fokus bekommt */
+function handleAnswerClick(b, q, ans, prefix){
+  if (!b.hasAttribute("data-part")) return null;
+  var pi = Number(b.getAttribute("data-part")), p = q.parts[pi];
+  if (p.type === "order"){
+    var idx = Number(b.getAttribute("data-idx")), dir = Number(b.getAttribute("data-dir")), j = idx + dir;
+    if (j < 0 || j >= ans[pi].length) return "";
+    var t = ans[pi][idx]; ans[pi][idx] = ans[pi][j]; ans[pi][j] = t;
+    return prefix + "-" + pi + "-" + (dir < 0 ? "u" : "d") + j;
+  }
+  var oi = Number(b.getAttribute("data-oi")), o = p.options[oi];
+  if (p.type === "multi"){
+    var k = ans[pi].indexOf(o);
+    if (k >= 0) ans[pi].splice(k, 1); else ans[pi].push(o);
+  } else {
+    ans[pi] = o;
+  }
+  return prefix + "-" + pi + "-" + oi;
+}
+
+var cfg = null;
+var ub = {q:null, ans:[], checked:false, hint:false, right:0, total:0};
+var pr = {qs:[], ans:[], i:0, done:false};
+var N = 8;
+
+function newUeben(){ ub.q = cfg.randomQuestion(); ub.ans = initAns(ub.q); ub.checked = false; ub.hint = false; renderUeben(); }
+function renderUeben(){
+  var q = ub.q, h = questionHTML(q, ub.ans, ub.checked, "u");
+  if (ub.hint && !ub.checked && q.hint) h += "<p class=\"hint\"><b>Tipp:</b> " + units(q.hint) + "</p>";
+  if (ub.checked){
+    var ok = isRight(q, ub.ans);
+    h += "<div class=\"fb " + (ok ? "ok" : "bad") + "\"><p class=\"fb-title\">" + (ok ? "✓ Richtig" : "✗ Noch nicht richtig") + "</p><div>" + units(q.solution) + "</div></div>";
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-next\" data-act=\"next\">Nächste Aufgabe</button></div>";
+  } else {
+    h += "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"u-check\" data-act=\"check\"" + (allAnswered(q, ub.ans) ? "" : " disabled") + ">Antwort prüfen</button>" +
+         (q.hint ? "<button class=\"btn ghost\" type=\"button\" id=\"u-hint\" data-act=\"hint\">Tipp zeigen</button>" : "") + "</div>";
+  }
+  $("u-card").innerHTML = h;
+  $("u-count").textContent = ub.total ? (ub.right + " von " + ub.total + " richtig") : "Noch keine Aufgabe gelöst";
+}
+function newPruefung(){
+  var qs;
+  if (cfg.exam) qs = cfg.exam();
+  else {
+    qs = []; var seen = {}, guard = 0;
+    while (qs.length < N && guard < 400){
+      var q = cfg.randomQuestion(); guard++;
+      if (!seen[q.text]){ seen[q.text] = true; qs.push(q); }
+    }
+  }
+  N = qs.length;
+  pr.qs = qs; pr.ans = qs.map(initAns); pr.i = 0; pr.done = false;
+  $("p-title").textContent = "Prüfen: " + N + " Aufgaben ohne Hilfe";
+  renderPruefen();
+}
+function renderPruefen(){
+  if (pr.done){
+    var right = 0, rev = "";
+    pr.qs.forEach(function(q, i){
+      var ok = isRight(q, pr.ans[i]); if (ok) right++;
+      rev += "<div class=\"rev\"><div class=\"rev-head\"><span class=\"pill " + (ok ? "ok" : "bad") + "\">" + (ok ? "✓ richtig" : "✗ falsch") + "</span><b>Aufgabe " + (i+1) + "</b></div>" +
+             "<p>" + units(q.text) + "</p><small>Ihre Antwort: " + answerText(q, pr.ans[i]) + "</small><div>" + units(q.solution) + "</div></div>";
+    });
+    $("p-count").textContent = "Auswertung";
+    $("p-bar").style.width = "100%";
+    $("p-card").innerHTML = "<p class=\"score\"><span class=\"num\">" + right + " von " + N + "</span> Aufgaben richtig</p>" +
+      "<p class=\"note\">Vergleichen Sie jede Aufgabe mit der Lösung. Falsche Aufgaben können Sie im Modus Üben nochmals trainieren.</p>" +
+      "<div class=\"review\">" + rev + "</div>" +
+      "<div class=\"actions\"><button class=\"btn\" type=\"button\" id=\"p-new\" data-act=\"new\">Neue Prüfung</button></div>";
+    return;
+  }
+  var q = pr.qs[pr.i], ans = pr.ans[pr.i], last = pr.i === N-1;
+  $("p-count").textContent = "Aufgabe " + (pr.i+1) + " von " + N;
+  $("p-bar").style.width = Math.round(pr.i / N * 100) + "%";
+  $("p-card").innerHTML = questionHTML(q, ans, false, "p") +
+    "<div class=\"actions\">" +
+    (pr.i > 0 ? "<button class=\"btn ghost\" type=\"button\" id=\"p-back\" data-act=\"back\">Zurück</button>" : "") +
+    "<button class=\"btn\" type=\"button\" id=\"p-fwd\" data-act=\"fwd\"" + (allAnswered(q, ans) ? "" : " disabled") + ">" + (last ? "Prüfung auswerten" : "Weiter") + "</button></div>";
+}
+var MODES = ["erkunden", "ueben", "pruefen"];
+function setMode(m, fromHash){
+  if (MODES.indexOf(m) < 0) m = "erkunden";
+  MODES.forEach(function(x){
+    $("view-" + x).hidden = x !== m;
+    $("tab-" + x).setAttribute("aria-selected", String(x === m));
+  });
+  if (!fromHash){ try { history.replaceState(null, "", "#" + m); } catch (err) {} }
+}
+function start(config){
+  cfg = config;
+  N = config.examN || 8;
+  $("u-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, ub.q, ub.ans, "u");
+    if (f !== null){ renderUeben(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "hint"){ ub.hint = true; renderUeben(); }
+    else if (act === "check"){ ub.checked = true; ub.total++; if (isRight(ub.q, ub.ans)) ub.right++; renderUeben(); var n = $("u-next"); if (n) n.focus(); }
+    else if (act === "next"){ newUeben(); }
+  });
+  $("p-card").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var f = handleAnswerClick(b, pr.qs[pr.i], pr.ans[pr.i], "p");
+    if (f !== null){ renderPruefen(); var el = f && $(f); if (el && !el.disabled) el.focus(); return; }
+    var act = b.getAttribute("data-act");
+    if (act === "fwd"){ if (pr.i === N-1) pr.done = true; else pr.i++; renderPruefen(); }
+    else if (act === "back"){ pr.i--; renderPruefen(); }
+    else if (act === "new"){ newPruefung(); }
+  });
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    setMode(b.getAttribute("data-mode"), false);
+  });
+  window.addEventListener("hashchange", function(){ setMode(location.hash.replace("#", ""), true); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"), function(el){ el.innerHTML = units(el.innerHTML); });
+  if (config.init) config.init();
+  newUeben();
+  newPruefung();
+  setMode((location.hash || "").replace("#", "") || "erkunden", true);
+}
+/* Lineal mit Bereichen auf logarithmischer Skala */
+function lineal(min, max, bounds, zones, value, ticks){
+  var lo = Math.log10(min), span = Math.log10(max) - lo;
+  function pos(v){ return Math.max(0, Math.min(100, (Math.log10(v) - lo) / span * 100)); }
+  var edges = [0].concat(bounds.map(pos)).concat([100]);
+  var has = value !== null && value !== undefined && value > 0;
+  var h = "<div class=\"lineal\"><div class=\"lineal-ptr\">" + (has ? "<span style=\"left:" + pos(value).toFixed(2) + "%\"></span>" : "") + "</div><div class=\"lineal-bar\">";
+  zones.forEach(function(z, i){ h += "<div class=\"zone " + z.cls + "\" style=\"width:" + (edges[i+1]-edges[i]).toFixed(2) + "%\">" + z.label + "</div>"; });
+  if (has) h += "<div class=\"marker\" style=\"left:" + pos(value).toFixed(2) + "%\"></div>";
+  h += "</div><div class=\"lineal-ticks\">";
+  ticks.forEach(function(t, i){
+    var p = pos(t.v), cls = p < 6 ? " class=\"first\"" : (p > 94 ? " class=\"last\"" : "");
+    h += "<span" + cls + " style=\"left:" + p.toFixed(2) + "%\">" + t.label + "</span>";
+  });
+  return h + "</div></div>";
+}
+/* Bruch mit horizontalem Bruchstrich */
+function frac(z, n){ return "<span class=\"frac\"><span class=\"fz\">" + z + "</span><span class=\"fn\">" + n + "</span></span>"; }
+/* Einheiten mit Schrägstrich im Text durch horizontale Brüche ersetzen */
+function units(s){
+  return String(s)
+    .replace(/Ω[ \u00a0]mm²\/m/g, frac("Ω\u00a0mm²", "m"))
+    .replace(/Ω[ \u00a0]m\/mm²/g, frac("Ω\u00a0m", "mm²"))
+    .replace(/S[ \u00a0]m\/mm²/g, frac("S\u00a0m", "mm²"))
+    .replace(/([kMG]?bit)\/s/g, function(m, a){ return frac(a, "s"); });
+}
+/* Widerstand mit passender Einheit: mΩ, Ω, kΩ, MΩ */
+function ohm(R, sig){
+  var s = sig || 4, a = Math.abs(R);
+  if (a >= 1e6) return nb(fmt(round(R/1e6, s)) + " MΩ");
+  if (a >= 1e3) return nb(fmt(round(R/1e3, s)) + " kΩ");
+  if (a >= 0.1 || a === 0) return nb(fmt(round(R, s)) + " Ω");
+  return nb(fmt(round(R*1e3, s)) + " mΩ");
+}
+/* Strom mit passender Einheit: mA oder A */
+function amp(I, sig){
+  var s = sig || 3, a = Math.abs(I);
+  if (a >= 0.1 || a === 0) return nb(fmt(round(I, s)) + " A");
+  return nb(fmt(round(I*1e3, s)) + " mA");
+}
+function unit(x, u, sig){ return nb(fmt(round(x, sig || 4)) + " " + u); }
+/* Prüfung aus einer Liste von Aufgaben-Erzeugern, ohne doppelte Aufgaben */
+function examFrom(makers){
+  var qs = [], seen = {};
+  makers.forEach(function(mk){ var q, n = 0; do { q = mk(); n++; } while (seen[q.text] && n < 40); seen[q.text] = true; qs.push(q); });
+  return shuffle(qs);
+}
+return {start:start, $:$, pick:pick, shuffle:shuffle, fmt:fmt, round:round, nb:nb, numOptions:numOptions, lineal:lineal, ohm:ohm, amp:amp, unit:unit, examFrom:examFrom, frac:frac, units:units,
+        _test:{isRight:isRight, initAns:initAns, ub:function(){ return ub; }, pr:function(){ return pr; }}};
+})();
+
+/* Hilfsfunktionen für die ES-Tools: Zahlen, Auswahlknöpfe, Antwortoptionen, Pfeile */
+var ESH = (function(){
+"use strict";
+var NB = String.fromCharCode(160), AP = String.fromCharCode(8217);
+function n(x){ return Math.round(x * 100) / 100; }
+function sig(x, k){ return x === 0 ? 0 : Number(Number(x).toPrecision(k)); }
+function fix(x, d){ return Math.round(x * Math.pow(10, d)) / Math.pow(10, d); }
+/* Zahl mit Dezimalkomma und Apostroph; k = signifikante Stellen (optional) */
+function zahl(x, k){
+  var v = k ? sig(x, k) : x, s = String(v);
+  if (/e/.test(s)) s = Number(v).toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  var neg = s.charAt(0) === "-"; if (neg) s = s.slice(1);
+  var p = s.split(".");
+  return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : "");
+}
+/* Zahl mit fester Anzahl Nachkommastellen */
+function zf(x, d){ var s = Number(x).toFixed(d), p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, AP) + (p[1] ? "," + p[1] : ""); }
+function gl(x, r){ return Math.abs(r - x) <= Math.abs(x) * 1e-9 + 1e-12 ? "=" : "≈"; }
+function gls(x, k){ return gl(x, sig(x, k)); }
+function eh(x, e, k){ return zahl(x, k || 4) + NB + e; }
+/* Franken auf 5 Rappen gerundet */
+function fr5(x){ return Math.round(x * 20) / 20; }
+/* Antwortoptionen: richtige Zahl und Kandidaten, alle als Text mit Einheit, ohne doppelte */
+function nOpts(richtig, kand, e, k, fmt){
+  var f = fmt || function(v){ return zahl(v, k || 3); };
+  var out = [richtig], txt = [f(richtig)];
+  BAP.shuffle(kand).forEach(function(c){ if (out.length < 4 && c > 0 && isFinite(c) && txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } });
+  var m = 1.5; while (out.length < 4){ var c = richtig * m; if (txt.indexOf(f(c)) < 0){ out.push(c); txt.push(f(c)); } m += 0.7; }
+  out.sort(function(a, b){ return a - b; });
+  return {options:out.map(function(v){ return f(v) + (e ? NB + e : ""); }), correct:f(richtig) + (e ? NB + e : "")};
+}
+/* gewichtete Zufallsaufgabe */
+function zufall(makers, gew){
+  return function(){
+    var sum = gew.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum, i;
+    for (i = 0; i < makers.length; i++){ r -= gew[i]; if (r < 0) return makers[i](); }
+    return makers[0]();
+  };
+}
+/* Auswahlknöpfe: liste von [wert, text] */
+function knoepfe(id, key, liste, wert, txt){
+  document.getElementById(id).innerHTML = liste.map(function(e){
+    var v = Array.isArray(e) ? e[0] : e, t = Array.isArray(e) ? e[1] : String(e);
+    return "<button class=\"opt" + (txt ? " txt" : "") + "\" type=\"button\" id=\"" + key + "-" + String(v).replace(/[^A-Za-z0-9_-]/g, "_") + "\" data-k=\"" + key + "\" data-v=\"" + v + "\" aria-pressed=\"" + (String(v) === String(wert)) + "\">" + t + "</button>";
+  }).join("");
+}
+/* Pfeil von (x1, y1) nach (x2, y2) */
+function pfeil(x1, y1, x2, y2, cls, sp){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, s = sp || 8, b = s * 0.45;
+  var sx = x2 - ux * s, sy = y2 - uy * s;
+  return "<path class=\"" + cls + "\" d=\"M" + n(x1) + " " + n(y1) + " L" + n(sx) + " " + n(sy) + "\"/><path class=\"" + cls + "-s\" d=\"M" + n(x2) + " " + n(y2) + " L" + n(sx - uy * b) + " " + n(sy + ux * b) + " L" + n(sx + uy * b) + " " + n(sy - ux * b) + " Z\"/>";
+}
+function txt(x, y, t, cls, anker, extra){ return "<text class=\"" + cls + "\" x=\"" + n(x) + "\" y=\"" + n(y) + "\"" + (anker ? " text-anchor=\"" + anker + "\"" : "") + (extra || "") + ">" + t + "</text>"; }
+/* Zeit in h aus h, min, s */
+function stunden(h, m, s){ return h + (m || 0) / 60 + (s || 0) / 3600; }
+/* Aussagen-Aufgabe (mehrere richtig) */
+function aussagen(frage, richtig, falsch, hint, nach){
+  var nR = 1 + Math.floor(Math.random() * Math.min(3, richtig.length)), r = BAP.shuffle(richtig).slice(0, nR), f = BAP.shuffle(falsch).slice(0, 4 - nR);
+  return {text:frage, parts:[{label:"Aussagen", type:"multi", options:BAP.shuffle(r.concat(f)), correct:r}], hint:hint,
+    solution:"<p>Richtig:</p><ul>" + r.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul><p>Falsch:</p><ul>" + f.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" + (nach || "")};
+}
+/* Einfachauswahl */
+function wahl(frage, richtig, falsch, hint, loesung, label){
+  var o = BAP.shuffle([richtig].concat(BAP.shuffle(falsch).slice(0, 3)));
+  return {text:frage, parts:[{label:label || "Antwort", options:o, correct:richtig}], hint:hint, solution:loesung || "<p><b>" + richtig + "</b></p>"};
+}
+return {NB:NB, AP:AP, n:n, sig:sig, fix:fix, zahl:zahl, zf:zf, gl:gl, gls:gls, eh:eh, fr5:fr5, nOpts:nOpts, zufall:zufall, knoepfe:knoepfe, pfeil:pfeil, txt:txt, stunden:stunden, aussagen:aussagen, wahl:wahl};
+})();
+(function(){
+"use strict";
+var $ = BAP.$, pick = BAP.pick, E = ESH, NB = E.NB, T = E.txt;
+var AP = [{id:"5", x:380, y:509, r:"Garderobe"}, {id:"18", x:240, y:728, r:"Büro"}];
+var WAENDE = [[357, 495, 357, 708], [90, 714, 245, 714], [295, 714, 383, 714], [430, 714, 535, 714]];
+var M_PX = 19 / 475, ZIEL = -65, ZWEIT = -70;
+var st = {ap:{"5":true, "18":true}, h:"punkte", pts:[]};
+function schneidet(ax, ay, bx, by, w){
+  var cx = w[0], cy = w[1], dx = w[2], dy = w[3];
+  function o(px, py, qx, qy, rx, ry){ return (qx - px) * (ry - py) - (qy - py) * (rx - px); }
+  return o(ax, ay, bx, by, cx, cy) * o(ax, ay, bx, by, dx, dy) < 0 && o(cx, cy, dx, dy, ax, ay) * o(cx, cy, dx, dy, bx, by) < 0;
+}
+function pegelVon(a, x, y){
+  var d = Math.max(1, Math.hypot(x - a.x, y - a.y) * M_PX), w = WAENDE.filter(function(s){ return schneidet(a.x, a.y, x, y, s); }).length;
+  return -38 - 25 * Math.log10(d) - 5 * w;
+}
+function pegel(x, y, aps){
+  var best = -100;
+  AP.forEach(function(a){ if (aps[a.id]) best = Math.max(best, pegelVon(a, x, y)); });
+  return Math.round(best);
+}
+function klasse(p){ return p >= ZIEL ? "gut" : p >= ZWEIT ? "knapp" : "schwach"; }
+var FARBE = {gut:"#5FB82E", knapp:"#F2C230", schwach:"#E0301E"};
+var KTXT = {gut:"Zielwert erreicht (besser als −65" + NB + "dBm)", knapp:"Zielwert nicht erreicht (−65 bis −70" + NB + "dBm)", schwach:"möglicher Funkloch-Bereich (schwächer als −70" + NB + "dBm)"};
+function dbm(p){ return "−" + Math.abs(p) + NB + "dBm"; }
+function grund(){
+  var h = "<rect class=\"wand\" x=\"75\" y=\"480\" width=\"475\" height=\"585\"/><rect class=\"raum\" x=\"90\" y=\"495\" width=\"262\" height=\"213\"/><rect class=\"raum\" x=\"362\" y=\"495\" width=\"173\" height=\"213\"/><rect class=\"raum\" x=\"90\" y=\"720\" width=\"445\" height=\"325\"/>";
+  h += "<rect class=\"raum\" style=\"stroke:none\" x=\"245\" y=\"706\" width=\"50\" height=\"16\"/><path class=\"tb\" d=\"M245 708 V668 A40 40 0 0 1 285 708\"/><rect class=\"raum\" style=\"stroke:none\" x=\"383\" y=\"706\" width=\"47\" height=\"16\"/><path class=\"tb\" d=\"M430 708 V668 A47 47 0 0 0 383 708\"/>";
+  h += "<rect class=\"raum\" x=\"90\" y=\"720\" width=\"150\" height=\"70\"/>";
+  for (var i = 1; i < 9; i++) h += "<path class=\"tb\" d=\"M" + (90 + i * 16.5) + " 720 V790\"/>";
+  return h;
+}
+function plan(){
+  var h = grund();
+  if (st.h === "heat"){
+    var g = "";
+    for (var y = 495; y < 1045; y += 10) for (var x = 90; x < 535; x += 10){
+      var cx = x + 5, cy = y + 5; if (cy > 708 && cy < 720) continue; if (cx > 352 && cx < 362 && cy < 714) continue;
+      g += "<rect x=\"" + x + "\" y=\"" + y + "\" width=\"10\" height=\"10\" fill=\"" + FARBE[klasse(pegel(cx, cy, st.ap))] + "\"/>";
+    }
+    h += "<g class=\"hm\" opacity=\"0.5\" shape-rendering=\"crispEdges\">" + g + "</g>";
+  }
+  h += T(220, 584, "Büro Chef", "rn", "middle") + T(442, 600, "Garderobe", "rn", "middle") + T(330, 870, "Büro", "rn", "middle");
+  AP.forEach(function(a){ h += "<rect class=\"ap" + (st.ap[a.id] ? "" : " aus") + "\" x=\"" + (a.x - 8) + "\" y=\"" + (a.y - 4) + "\" width=\"16\" height=\"8\"/>" + T(a.x + 12, a.y + 4, "AP " + a.id + (st.ap[a.id] ? "" : " aus"), "apl"); });
+  st.pts.forEach(function(p){ var v = pegel(p.x, p.y, st.ap); h += "<circle class=\"mp\" cx=\"" + p.x + "\" cy=\"" + p.y + "\" r=\"6\" fill=\"" + FARBE[klasse(v)] + "\"/>" + T(p.x, p.y - 10, String(v).replace("-", "−"), "mw", "middle"); });
+  $("plan").innerHTML = h;
+  $("leg").innerHTML = ["gut", "knapp", "schwach"].map(function(k){ return "<span><i style=\"background:" + FARBE[k] + "\"></i>" + KTXT[k] + "</span>"; }).join("");
+  var L = [];
+  if (!st.pts.length) L.push("<p>Tippen Sie im Grundriss auf eine Messposition. Der Modellwert wird eingetragen (Schritt 5). Messen Sie an mehreren Positionen (Schritt 6).</p>");
+  else {
+    var v = st.pts.map(function(p){ return pegel(p.x, p.y, st.ap); }), n = {gut:0, knapp:0, schwach:0};
+    v.forEach(function(x){ n[klasse(x)]++; });
+    L.push("<p>" + st.pts.length + " Messpunkte: " + n.gut + " erreichen den Zielwert, " + n.knapp + " knapp darunter, " + n.schwach + " im möglichen Funkloch-Bereich. Stärkster Wert " + dbm(Math.max.apply(null, v)) + ", schwächster " + dbm(Math.min.apply(null, v)) + ".</p>");
+    var p = st.pts[st.pts.length - 1], w = pegel(p.x, p.y, st.ap), det = AP.filter(function(a){ return st.ap[a.id]; }).map(function(a){ var d = Math.max(1, Math.hypot(p.x - a.x, p.y - a.y) * M_PX), wn = WAENDE.filter(function(s){ return schneidet(a.x, a.y, p.x, p.y, s); }).length; return "AP " + a.id + ": " + E.zahl(Math.round(d * 10) / 10) + NB + "m, " + wn + (wn === 1 ? " Wand → " : " Wände → ") + dbm(Math.round(pegelVon(a, p.x, p.y))); });
+    L.push("<p>Letzter Punkt: <b>" + dbm(w) + "</b>, " + KTXT[klasse(w)] + ". Modell: " + (det.length ? det.join("; ") : "kein Access Point eingeschaltet") + ". Massgebend ist der stärkere Access Point.</p>");
+  }
+  $("info").innerHTML = L.join("");
+}
+function zeige(){
+  E.knoepfe("w-ap", "ap", [["5", "AP 5 (Garderobe)"], ["18", "AP 18 (Büro)"]], "", true);
+  ["5", "18"].forEach(function(i){ $("ap-" + i).setAttribute("aria-pressed", String(st.ap[i])); });
+  E.knoepfe("w-h", "h", [["punkte", "Nur Messpunkte"], ["heat", "Heatmap"]], st.h, true);
+  plan();
+}
+
+/* ================= ÜBEN UND PRÜFEN ================= */
+function qStaerker(){
+  var a = -(40 + Math.floor(Math.random() * 45)), b;
+  do { b = -(40 + Math.floor(Math.random() * 45)); } while (Math.abs(a - b) < 4);
+  var s = Math.max(a, b);
+  return {text:"Zwei Messwerte im Grundriss: " + dbm(a) + " und " + dbm(b) + ". Welcher ist das stärkere Signal?", parts:[{label:"Stärker", options:[dbm(a), dbm(b)], correct:dbm(s), mono:true}], hint:"dBm-Werte sind negativ. Je näher bei 0, desto stärker.", solution:"<p><b>" + dbm(s) + "</b> liegt näher bei 0" + NB + "dBm und ist deshalb stärker.</p>"};
+}
+function qZiel(){
+  var v = -(52 + Math.floor(Math.random() * 30));
+  var k = klasse(v), opt = ["Zielwert erreicht", "Zielwert nicht erreicht, aber nicht schwächer als −70" + NB + "dBm", "schwächer als −70" + NB + "dBm"], r = opt[["gut", "knapp", "schwach"].indexOf(k)];
+  return {text:"Richtwert: Im Nutzungsbereich soll der Pegel besser als −65" + NB + "dBm sein. Gemessen: " + dbm(v) + ". Wie beurteilen Sie den Wert?", parts:[{label:"Beurteilung", options:opt, correct:r}], hint:"−60 dBm ist besser als −65 dBm, −68 dBm ist schlechter.", solution:"<p>" + dbm(v) + ": <b>" + r + "</b></p>"};
+}
+function qVorgehen(){
+  var s = ["Grundriss bereitlegen", "Zur Messposition gehen", "App öffnen", "Stabilen Messwert abwarten", "Wert im Grundriss eintragen", "Weitere Positionen messen", "Funklöcher erkennen"];
+  var i = Math.floor(Math.random() * 4), t = s.slice(i, i + 4);
+  return {text:"Übung 39: Bringen Sie die Schritte der Pegelmessung in die richtige Reihenfolge.", parts:[{label:"Reihenfolge", type:"order", items:t}], hint:"Erst hingehen, dann messen, dann eintragen.", solution:"<ol><li>" + s.join("</li><li>") + "</li></ol>"};
+}
+var ORTE = [{n:"Büro Chef, links", x:120, y:560}, {n:"Garderobe, rechts unten", x:510, y:690}, {n:"Büro, links unten", x:110, y:1030}, {n:"Büro, rechts unten", x:520, y:1030}, {n:"Büro, rechts oben", x:520, y:740}];
+function qModell(){
+  var aus = pick(["5", "18"]), aps = {"5":aus !== "5", "18":aus !== "18"}, o = BAP.shuffle(ORTE).slice(0, 4);
+  o.forEach(function(x){ x.p = pegel(x.x, x.y, aps); });
+  var min = o.reduce(function(a, b){ return a.p <= b.p ? a : b; });
+  return {text:"Im Modell des Tools ist AP " + aus + " ausgeschaltet. An welcher Stelle erwarten Sie den schwächsten Pegel? Prüfen Sie im Erkunden-Modus nach.", parts:[{label:"Stelle", options:o.map(function(x){ return x.n; }), correct:min.n}], hint:"Grosser Abstand und Wände zwischen Access Point und Messstelle schwächen das Signal.", solution:"<p>" + o.map(function(x){ return x.n + ": " + dbm(x.p); }).join("<br>") + "</p><p>Schwächster Pegel: <b>" + min.n + "</b> (Modellwerte).</p>"};
+}
+function qApp(){
+  return pick([
+    function(){ return E.wahl("Übung 39: Womit wird die einfache Pegelmessung durchgeführt?", "Mit einer geeigneten App auf dem Smartphone, z. B. Wifi Analyzer oder NetSpot", ["Mit dem OTDR-Messgerät", "Mit der Rotlicht-Testlampe", "Mit dem zertifizierten UKV-Messgerät (Master und Remote)"], "Apps aus dem Play Store oder App Store."); },
+    function(){ return E.wahl("Wozu dient die Darstellung als Heatmap?", "Um die Signalstärke flächig darzustellen und Funklöcher zu erkennen", ["Um die Wire Map der Datenkabel zu prüfen", "Um die PoE-Leistung zu messen", "Um die Faserlänge zu bestimmen"], "Übung 39, Schritt 7 und Hinweis Heatmap."); },
+    function(){ return E.wahl("Warum warten Sie nach dem Öffnen der App einige Sekunden?", "Bis sich der Messwert stabilisiert", ["Bis der Access Point neu startet", "Bis das Smartphone geladen ist", "Bis die Heatmap gedruckt ist"], "Übung 39, Schritt 4."); }
+  ])();
+}
+var MAKERS = [qStaerker, qZiel, qVorgehen, qModell, qApp, qZiel, qModell, qApp];
+function init(){
+  zeige();
+  var s = $("plan");
+  s.addEventListener("click", function(e){
+    var pt = s.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    var p = pt.matrixTransform(s.getScreenCTM().inverse());
+    if (p.x < 90 || p.x > 535 || p.y < 495 || p.y > 1045) return;
+    st.pts.push({x:Math.round(p.x), y:Math.round(p.y)}); if (st.pts.length > 20) st.pts.shift(); plan();
+  });
+  $("loeschen").addEventListener("click", function(){ st.pts = []; plan(); });
+  $("view-erkunden").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-k]"); if (!b) return;
+    var k = b.getAttribute("data-k"), v = b.getAttribute("data-v");
+    if (k === "ap") st.ap[v] = !st.ap[v]; else st.h = v;
+    zeige(); $(b.id).focus();
+  });
+}
+BAP.start({init:init, randomQuestion:E.zufall(MAKERS, [2, 3, 2, 2, 1, 0, 0, 0]), exam:function(){ return BAP.examFrom(MAKERS); }});
+})();
+</script>
+</body>
+</html>
