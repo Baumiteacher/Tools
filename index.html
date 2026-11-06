@@ -75,7 +75,7 @@ footer{margin-top:36px;color:var(--muted);font-size:.85rem;border-top:1px solid 
 
   <div id="liste"></div>
 
-  <footer>Stand: 7. Oktober 2026 · <span id="fuss-anzahl"></span> · Die Schulwoche stammt aus dem Dateinamen, zählt innerhalb des Semesters und ist ein Richtwert.</footer>
+  <footer>Stand: 6. November 2026 · <span id="fuss-anzahl"></span> · Die Schulwoche stammt aus dem Dateinamen, zählt innerhalb des Semesters und ist ein Richtwert.</footer>
 </div>
 
 <script>
@@ -94,11 +94,18 @@ var BLOECKE = {
   KT1:"Vom Netzanbieter zum Endgerät",
   ID6:"Apparate und Leitungen, einfache Verbraucherinstallation",
   ID7:"Apparate und Leitungen, MFH Technik",
-  ID8:"Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt"
+  ID8:"Apparate und Leitungen, einfaches Gewerbe, einfache Werkstatt",
+  ES1:"Das Haus aus dem Stromnetz für den direkten Verbrauch mit Energie versorgen",
+  ES2:"Im Haus Energie speichern für späteren Verbrauch oder Netzausfall",
+  ES3:"Im Haus Energie selber erzeugen",
+  KT3:"Im Heim-Bereich Kommunikationsinstallationen erstellen",
+  KT4:"Im Büro- und Gewerbebereich Kommunikationsinstallationen erstellen",
+  KT5:"Installationen für Zutrittskontrolle erstellen",
+  ID9:"Schutz und Projekt über ID6–8"
 };
-var REIHE = ["AS3","AS4","ID1","ID2","ID3","ID4","ID5","KT1","ID6","ID7","ID8"];
+var REIHE = ["AS3","AS4","ID1","ID2","ID3","ID4","ID5","KT1","ID6","ID7","ID8","ES1","ES2","ES3","KT3","KT4","KT5","ID9"];
 /* Semester jedes Blocks (1 bis 8). Ein neuer Block braucht hier einen Eintrag. */
-var SEMESTER = {AS3:1, AS4:1, ID1:1, ID2:1, ID3:1, ID4:1, ID5:1, KT1:1, ID6:2, ID7:2, ID8:2};
+var SEMESTER = {AS3:1, AS4:1, ID1:1, ID2:1, ID3:1, ID4:1, ID5:1, KT1:1, ID6:2, ID7:2, ID8:2, ES1:2, ES2:2, ES3:2, KT3:2, KT4:2, KT5:2, ID9:2};
 var SEMESTER_MAX = 8;
 
 /* [Block, Teilauftrag, Schulwoche, Titel, Übungen, Dateiname] */
@@ -180,7 +187,58 @@ var TOOLS = [
   ["ID8","TA5",16,"Impulskontaktsteuerung: Selbsthaltung","Ü16, 34, 35","B_ID_8_SW16_Impulskontaktsteuerung-Selbsthaltung.html"],
   ["ID8","TA5",16,"Steuerkabel zuordnen: Klemme X1.2","Ü36–38","B_ID_8_SW16_Steuerkabel-zuordnen-Klemme-X1-2.html"],
   ["ID8","TA6",17,"Werkstück vermassen","Ü40–43","B_ID_8_SW17_Werkstueck-vermassen.html"],
-  ["ID8","TA6",17,"Bohrungen anreissen: Blindabdeckung und Trägerplatte","Ü44–46","B_ID_8_SW17_Bohrungen-anreissen-Blindabdeckung-und-Traegerplatte.html"]
+  ["ID8","TA6",17,"Bohrungen anreissen: Blindabdeckung und Trägerplatte","Ü44–46","B_ID_8_SW17_Bohrungen-anreissen-Blindabdeckung-und-Traegerplatte.html"],
+  ["ES1","TA1", 1,"Energieformen und Energieträger","Ü1–8","B_ES_1_SW01_Energieformen-und-Energietraeger.html"],
+  ["ES1","TA2", 2,"Netzebenen 1 bis 7","Ü13, 14","B_ES_1_SW02_Netzebenen-1-bis-7.html"],
+  ["ES1","TA2", 2,"Transformator: Übersetzungsverhältnis","Ü15","B_ES_1_SW02_Transformator-Uebersetzungsverhaeltnis.html"],
+  ["ES1","TA1", 1,"Wasserkraft und Pumpspeicher","Ü9–12","B_ES_1_SW01_Wasserkraft-und-Pumpspeicher.html"],
+  ["ES1","TA2", 2,"Netzformen: Strahlen-, Ring- und Maschennetz","Ü16","B_ES_1_SW02_Netzformen-Strahlen-Ring-Maschennetz.html"],
+  ["ES1","TA3", 3,"Energie-Rechner W = P · t","Ü17–23, 29, 35, 36","B_ES_1_SW03_Energie-Rechner-W-gleich-P-mal-t.html"],
+  ["ES1","TA3", 3,"Stromkosten-Rechner K = P · t · Ta","Ü24–34","B_ES_1_SW03_Stromkosten-Rechner.html"],
+  ["ES1","TA4", 4,"Glühlampe oder LED?","Ü37, 38","B_ES_1_SW04_Gluehlampe-oder-LED.html"],
+  ["ES1","TA4", 5,"Wirkungsgrad-Labor","Ü40–53","B_ES_1_SW05_Wirkungsgrad-Labor.html"],
+  ["ES1","TA4", 5,"Betriebskosten mit Wirkungsgrad","Ü54–57","B_ES_1_SW05_Betriebskosten-mit-Wirkungsgrad.html"],
+  ["ES2","TA1", 6,"Galvanisches Element","Ü1–5","B_ES_2_SW06_Galvanisches-Element.html"],
+  ["ES2","TA2", 7,"Batterie- und Akku-Kartei","Ü6–18","B_ES_2_SW07_Batterie-und-Akku-Kartei.html"],
+  ["ES2","TA3", 8,"Batterien in Serie und parallel schalten","Ü19–21","B_ES_2_SW08_Batterien-zusammenschalten.html"],
+  ["ES2","TA3", 8,"Autonomiezeit eines Akkus","Ü22, 23","B_ES_2_SW08_Autonomiezeit.html"],
+  ["ES2","TA3", 9,"Innenwiderstand und Klemmenspannung","Ü24–28","B_ES_2_SW09_Innenwiderstand-und-Klemmenspannung.html"],
+  ["ES2","TA4", 9,"PV-Anlage bei Netzausfall","Ü29–34","B_ES_2_SW09_PV-Anlage-bei-Netzausfall.html"],
+  ["ES2","TA5",10,"Solarthermie-Kreislauf","Ü36, 37","B_ES_2_SW10_Solarthermie-Kreislauf.html"],
+  ["ES3","TA1",11,"PV-Begriffe der Bauabnahme","Ü1–4","B_ES_3_SW11_PV-Begriffe-der-Bauabnahme.html"],
+  ["ES3","TA2",12,"String-Rechner und Stringplan","Ü5–9","B_ES_3_SW12_String-Rechner-und-Stringplan.html"],
+  ["ES3","TA2",12,"U-I-Kennlinie und MPP","Ü10","B_ES_3_SW12_U-I-Kennlinie-und-MPP.html"],
+  ["ES3","TA2",13,"Wirkschaltschema der PV-Anlage","Ü11–14","B_ES_3_SW13_Wirkschaltschema-PV-Anlage.html"],
+  ["ES3","TA2",13,"Tagesgang, Eigenverbrauch, Eigenversorgung","Ü15, 16","B_ES_3_SW13_Tagesgang-Eigenverbrauch-Eigenversorgung.html"],
+  ["ES3","TA2",13,"Balkonkraftwerk oder PV-Anlage?","Ü17","B_ES_3_SW13_Balkonkraftwerk-oder-PV-Anlage.html"],
+  ["KT3","TA1", 1,"Komponenten der alten Wohnung","Ü1","B_KT_3_SW01_Komponenten-der-alten-Wohnung.html"],
+  ["KT3","TA2", 2,"Kabel und Farbcodes","Ü2–5","B_KT_3_SW02_Kabel-und-Farbcodes.html"],
+  ["KT3","TA3", 3,"Prinzipschema Kupfer (FTTS) und Glasfaser (FTTH)","Ü6, 7","B_KT_3_SW03_Prinzipschema-Kupfer-und-Glasfaser.html"],
+  ["KT3","TA4", 4,"Installation ohne MM-Verteiler","Ü8–10","B_KT_3_SW04_Installation-ohne-MM-Verteiler.html"],
+  ["KT3","TA5", 5,"Multimedia-Verteiler patchen","Ü12, 17","B_KT_3_SW05_Multimedia-Verteiler-patchen.html"],
+  ["KT3","TA6", 6,"WLAN und Kamera mit PoE","Ü13–17","B_KT_3_SW06_WLAN-und-Kamera-mit-PoE.html"],
+  ["KT3","TA7", 6,"Kabeltester: Wiremap lesen","Ü18–20","B_KT_3_SW06_Kabeltester-Wiremap-lesen.html"],
+  ["KT3","TA7", 6,"Funktionstest mit ipconfig","Ü21, 22","B_KT_3_SW06_Funktionstest-mit-ipconfig.html"],
+  ["KT4","TA1", 7,"Technikraum 2: Kabel zuordnen","Ü1–6","B_KT_4_SW07_Technikraum-2-Kabel-zuordnen.html"],
+  ["KT4","TA1", 8,"Glasfaser-Kartei","Ü7–9, 12–16, 18–20","B_KT_4_SW08_Glasfaser-Kartei.html"],
+  ["KT4","TA1", 8,"Spleissvorgang","Ü10, 11","B_KT_4_SW08_Spleissvorgang.html"],
+  ["KT4","TA2", 9,"Primär-, Sekundär-, Tertiärverkabelung","Ü17, 21","B_KT_4_SW09_Primaer-Sekundaer-Tertiaerverkabelung.html"],
+  ["KT4","TA2",10,"19-Zoll-Rack bestücken","Ü22–26","B_KT_4_SW10_19-Zoll-Rack-bestuecken.html"],
+  ["KT4","TA3",10,"Tertiärbereich Büro","Ü27–30","B_KT_4_SW10_Tertiaerbereich-Buero.html"],
+  ["KT4","TA4",11,"Messverfahren und Messprotokoll","Ü31–38","B_KT_4_SW11_Messverfahren-und-Messprotokoll.html"],
+  ["KT4","TA4",11,"WLAN-Pegelkarte","Ü39","B_KT_4_SW11_WLAN-Pegelkarte.html"],
+  ["KT5","TA1",12,"Alte Sonnerieanlage analysieren","Ü1, 2","B_KT_5_SW12_Alte-Sonnerieanlage-analysieren.html"],
+  ["KT5","TA1",13,"Bus-Türsprechanlage TC-Bus verdrahten","Ü4, 5","B_KT_5_SW13_Bus-Tuersprechanlage-TC-Bus-verdrahten.html"],
+  ["KT5","TA2",13,"Videobus T1, T2 mit Abschlusswiderstand","Ü6–9","B_KT_5_SW13_Videobus-T1-T2-mit-Abschlusswiderstand.html"],
+  ["ID9","TA1",14,"TN-Systeme erkennen","Ü1–5, 7–12","B_ID_9_SW14_TN-Systeme-erkennen.html"],
+  ["ID9","TA1",14,"HAK und Neutralleitertrenner","Ü6, 13–15","B_ID_9_SW14_HAK-und-Neutralleitertrenner.html"],
+  ["ID9","TA2",15,"Prüfungstrainer Widerstandsschaltungen","Ü16–24","B_ID_9_SW15_Pruefungstrainer-Widerstandsschaltungen.html"],
+  ["ID9","TA2",15,"Berührungsspannung im Fehlerfall","Ü25, 26","B_ID_9_SW15_Beruehrungsspannung-im-Fehlerfall.html"],
+  ["ID9","TA3",16,"Schutzklassen I, II, III","Ü27–31, 42–58","B_ID_9_SW16_Schutzklassen-I-II-III.html"],
+  ["ID9","TA3",16,"IP und IK: Repetition","Ü32–41","B_ID_9_SW16_IP-und-IK-Repetition.html"],
+  ["ID9","TA4",17,"Mängelbericht Fix AG","Ü59–70","B_ID_9_SW17_Maengelbericht-Fix-AG.html"],
+  ["ID9","TA5",18,"Projektplan Mängelbehebung","Ü71","B_ID_9_SW18_Projektplan-Maengelbehebung.html"],
+  ["ID9","TA6",18,"Prüfungstrainer Zwischenprüfung","Ü72–80","B_ID_9_SW18_Pruefungstrainer-Zwischenpruefung.html"]
 ];
 
 var modus = "block", suche = "", sem = 0;
